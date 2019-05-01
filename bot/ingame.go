@@ -6,6 +6,7 @@ import (
 	// "time"
 	"fmt"
 
+	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
 	// "github.com/Tnze/gomcbot/world/entity"
@@ -31,17 +32,24 @@ func (c *Client) HandleGame() error {
 			return fmt.Errorf("bot: read packet fail: %v", err)
 		}
 		//handle packets
-		err = c.handlePacket(p)
+		disconnect, err := c.handlePacket(p)
 		if err != nil {
 			return fmt.Errorf("handle packet 0x%X error: %v", p.ID, err)
+		}
+		if disconnect {
+			return nil
 		}
 	}
 }
 
-func (c *Client) handlePacket(p pk.Packet) (err error) {
+func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	switch p.ID {
 	case data.JoinGame:
 		err = handleJoinGamePacket(c, p)
+
+		if err == nil && c.Events.GameStart != nil {
+			err = c.Events.GameStart()
+		}
 	case data.PluginMessageClientbound:
 		err = handlePluginPacket(c, p)
 	case data.ServerDifficulty:
@@ -88,15 +96,14 @@ func (c *Client) handlePacket(p pk.Packet) (err error) {
 	case data.UpdateHealth:
 		//// err = handleUpdateHealthPacket(c, p)
 	case data.ChatMessageClientbound:
-		////err = handleChatMessagePacket(c, p)
+		err = handleChatMessagePacket(c, p)
 	case data.BlockChange:
 		////err = handleBlockChangePacket(c, p)
 	case data.MultiBlockChange:
 		////err = handleMultiBlockChangePacket(c, p)
 	case 0x1A:
-		// should assumes that the server has already closed the connection by the time the packet arrives.
-
-		err = fmt.Errorf("disconnect")
+		err = handleDisconnectPacket(c, p)
+		disconnect = true
 	case 0x16:
 	// 	err = handleSetSlotPacket(g, reader)
 	case 0x51:
@@ -141,6 +148,25 @@ func (c *Client) handlePacket(p pk.Packet) (err error) {
 
 // 	return nil
 // }
+
+func handleDisconnectPacket(c *Client, p pk.Packet) error {
+	var rowReason pk.String
+	err := p.Scan(&rowReason)
+	if err != nil {
+		return err
+	}
+
+	if c.Events.Disconnect != nil {
+		var reason chat.Message
+		err := reason.UnmarshalJSON([]byte(rowReason))
+		if err != nil {
+			return err
+		}
+
+		return c.Events.Disconnect(reason)
+	}
+	return nil
+}
 
 // func handleSetSlotPacket(g *Client, r *bytes.Reader) error {
 // 	windowID, err := r.ReadByte()
@@ -233,23 +259,25 @@ func (c *Client) handlePacket(p pk.Packet) (err error) {
 // 	return nil
 // }
 
-// func handleChatMessagePacket(c *Client, p pk.Packet) error {
-// 	var (
-// 		s   pk.String
-// 		pos pk.Byte
-// 	)
+func handleChatMessagePacket(c *Client, p pk.Packet) error {
+	var (
+		s   pk.String
+		pos pk.Byte
+	)
 
-// 	if err := p.Scan(&s, &pos); err != nil {
-// 		return err
-// 	}
+	if err := p.Scan(&s, &pos); err != nil {
+		return err
+	}
 
-// 	cm, err := newChatMsg([]byte(s))
-// 	if err != nil {
-// 		return err
-// 	}
+	var cm chat.Message
+	err := cm.UnmarshalJSON([]byte(s))
 
-// 	return nil
-// }
+	if err == nil && c.Events.ChatMsg != nil {
+		err = c.Events.ChatMsg(cm)
+	}
+
+	return err
+}
 
 // func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
 // 	var (

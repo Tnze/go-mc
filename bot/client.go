@@ -16,6 +16,7 @@ type Client struct {
 	settings  Settings
 	// wd        world //the map data
 
+	Events eventBroker
 }
 
 //NewClient init and return a new Client
