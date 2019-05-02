@@ -9,7 +9,6 @@ import (
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
-	// "github.com/Tnze/gomcbot/world/entity"
 )
 
 // //GetPosition return the player's position

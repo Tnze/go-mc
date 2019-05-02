@@ -1,7 +1,7 @@
 package main
 
 import (
-	bot "github.com/Tnze/gomcbot"
+	"github.com/Tnze/go-mc/bot"
 	"log"
 )
 
