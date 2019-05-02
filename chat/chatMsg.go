@@ -3,9 +3,11 @@ package chat
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/Tnze/go-mc/data"
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 //Message is a message sent by other
@@ -34,6 +36,16 @@ func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
 		err = json.Unmarshal(jsonMsg, (*jsonChat)(m))
 	}
 	return
+}
+
+//Decode a ChatMsg packet
+func (m *Message) Decode(r pk.ComByteReader) error {
+	var Len pk.VarInt
+	if err := Len.Decode(r); err != nil {
+		return err
+	}
+
+	return json.NewDecoder(io.LimitReader(r, int64(Len))).Decode(m)
 }
 
 var colors = map[string]int{

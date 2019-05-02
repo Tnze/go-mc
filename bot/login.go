@@ -10,7 +10,6 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -63,7 +62,7 @@ type encryptionRequest struct {
 	VerifyToken []byte
 }
 
-func (e *encryptionRequest) Decode(r io.ByteReader) error {
+func (e *encryptionRequest) Decode(r pk.ComByteReader) error {
 	var serverID pk.String
 	if err := serverID.Decode(r); err != nil {
 		return err

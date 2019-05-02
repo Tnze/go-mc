@@ -15,7 +15,13 @@ type FieldEncoder interface {
 }
 
 type FieldDecoder interface {
-	Decode(r io.ByteReader) error
+	Decode(r ComByteReader) error
+}
+
+//ComByteReader is both io.Reader and io.ByteReader
+type ComByteReader interface {
+	io.ByteReader
+	io.Reader
 }
 
 type (
@@ -63,7 +69,7 @@ type (
 )
 
 //ReadNBytes read N bytes from bytes.Reader
-func ReadNBytes(r io.ByteReader, n int) (bs []byte, err error) {
+func ReadNBytes(r ComByteReader, n int) (bs []byte, err error) {
 	bs = make([]byte, n)
 	for i := 0; i < n; i++ {
 		bs[i], err = r.ReadByte()
@@ -83,7 +89,7 @@ func (b Boolean) Encode() []byte {
 }
 
 //Decode a Boolean
-func (b *Boolean) Decode(r io.ByteReader) error {
+func (b *Boolean) Decode(r ComByteReader) error {
 	v, err := r.ReadByte()
 	if err != nil {
 		return err
@@ -102,7 +108,7 @@ func (s String) Encode() (p []byte) {
 }
 
 //Decode a String
-func (s *String) Decode(r io.ByteReader) error {
+func (s *String) Decode(r ComByteReader) error {
 	var l VarInt //String length
 	if err := l.Decode(r); err != nil {
 		return err
@@ -123,7 +129,7 @@ func (b Byte) Encode() []byte {
 }
 
 //Decode a Byte
-func (b *Byte) Decode(r io.ByteReader) error {
+func (b *Byte) Decode(r ComByteReader) error {
 	v, err := r.ReadByte()
 	if err != nil {
 		return err
@@ -138,7 +144,7 @@ func (ub UnsignedByte) Encode() []byte {
 }
 
 //Decode a UnsignedByte
-func (ub *UnsignedByte) Decode(r io.ByteReader) error {
+func (ub *UnsignedByte) Decode(r ComByteReader) error {
 	v, err := r.ReadByte()
 	if err != nil {
 		return err
@@ -157,7 +163,7 @@ func (s Short) Encode() []byte {
 }
 
 //Decode a Short
-func (s *Short) Decode(r io.ByteReader) error {
+func (s *Short) Decode(r ComByteReader) error {
 	bs, err := ReadNBytes(r, 2)
 	if err != nil {
 		return err
@@ -177,7 +183,7 @@ func (us UnsignedShort) Encode() []byte {
 }
 
 //Decode a UnsignedShort
-func (us *UnsignedShort) Decode(r io.ByteReader) error {
+func (us *UnsignedShort) Decode(r ComByteReader) error {
 	bs, err := ReadNBytes(r, 2)
 	if err != nil {
 		return err
@@ -197,7 +203,7 @@ func (i Int) Encode() []byte {
 }
 
 //Decode a Int
-func (i *Int) Decode(r io.ByteReader) error {
+func (i *Int) Decode(r ComByteReader) error {
 	bs, err := ReadNBytes(r, 4)
 	if err != nil {
 		return err
@@ -217,7 +223,7 @@ func (l Long) Encode() []byte {
 }
 
 //Decode a Long
-func (l *Long) Decode(r io.ByteReader) error {
+func (l *Long) Decode(r ComByteReader) error {
 	bs, err := ReadNBytes(r, 8)
 	if err != nil {
 		return err
@@ -246,7 +252,7 @@ func (v VarInt) Encode() (vi []byte) {
 }
 
 //Decode a VarInt
-func (v *VarInt) Decode(r io.ByteReader) error {
+func (v *VarInt) Decode(r ComByteReader) error {
 	var n uint32
 	for i := 0; i < 5; i++ { //读数据前的长度标记
 		sec, err := r.ReadByte()
@@ -277,7 +283,7 @@ func (p Position) Encode() []byte {
 }
 
 // Decode a Position
-func (p *Position) Decode(r io.ByteReader) error {
+func (p *Position) Decode(r ComByteReader) error {
 	var v Long
 	if err := v.Decode(r); err != nil {
 		return err
@@ -308,7 +314,7 @@ func (f Float) Encode() []byte {
 }
 
 // Decode a Float
-func (f *Float) Decode(r io.ByteReader) error {
+func (f *Float) Decode(r ComByteReader) error {
 	var v Int
 	if err := v.Decode(r); err != nil {
 		return err
@@ -324,7 +330,7 @@ func (d Double) Encode() []byte {
 }
 
 // Decode a Double
-func (d *Double) Decode(r io.ByteReader) error {
+func (d *Double) Decode(r ComByteReader) error {
 	var v Long
 	if err := v.Decode(r); err != nil {
 		return err

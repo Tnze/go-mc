@@ -150,22 +150,14 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 // }
 
 func handleDisconnectPacket(c *Client, p pk.Packet) error {
-	var rowReason pk.String
-	err := p.Scan(&rowReason)
+	var reason chat.Message
+
+	err := p.Scan(&reason)
 	if err != nil {
 		return err
 	}
 
-	if c.Events.Disconnect != nil {
-		var reason chat.Message
-		err := reason.UnmarshalJSON([]byte(rowReason))
-		if err != nil {
-			return err
-		}
-
-		return c.Events.Disconnect(reason)
-	}
-	return nil
+	return c.Events.Disconnect(reason)
 }
 
 // func handleSetSlotPacket(g *Client, r *bytes.Reader) error {
@@ -259,21 +251,19 @@ func handleDisconnectPacket(c *Client, p pk.Packet) error {
 // 	return nil
 // }
 
-func handleChatMessagePacket(c *Client, p pk.Packet) error {
+func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 	var (
-		s   pk.String
+		s   chat.Message
 		pos pk.Byte
 	)
 
-	if err := p.Scan(&s, &pos); err != nil {
+	err = p.Scan(&s, &pos)
+	if err != nil {
 		return err
 	}
 
-	var cm chat.Message
-	err := cm.UnmarshalJSON([]byte(s))
-
-	if err == nil && c.Events.ChatMsg != nil {
-		err = c.Events.ChatMsg(cm)
+	if c.Events.ChatMsg != nil {
+		err = c.Events.ChatMsg(s)
 	}
 
 	return err
