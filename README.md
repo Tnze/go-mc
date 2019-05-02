@@ -2,7 +2,7 @@
 ![](https://img.shields.io/badge/Minecraft-1.14-blue.svg)
 ![](https://img.shields.io/badge/Protocol-477-blue.svg)
 [![GoDoc](https://godoc.org/github.com/Tnze/go-mc?status.svg)](https://godoc.org/github.com/Tnze/go-mc)
-[![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/gomcbot)](https://goreportcard.com/report/github.com/Tnze/gomcbot)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 
 There's some library in Go support you to create your Minecraft client or server. 
 - [x] Mojang authenticate
