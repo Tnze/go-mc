@@ -13,6 +13,8 @@ There's some library in Go support you to create your Minecraft client or server
 
 Some examples are at `/cmd` folder.
 
+> `1.13.2` version is at [gomcbot](https://github.com/Tnze/gomcbot).
+
 # Getting start
 After you install golang tools:
 - run `go run cmd/ping/ping.go` to ping and list the Miaoscraft mc-server.  
