@@ -4,14 +4,16 @@
 [![GoDoc](https://godoc.org/github.com/Tnze/go-mc?status.svg)](https://godoc.org/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 
-There's some library in Go support you to create your Minecraft client or server. 
+There's some library in Go support you to create your Minecraft client or server.  
+这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器，
 - [x] Mojang authenticate
 - [x] Minecraft network protocal
 - [x] Parse chat message
 - [x] Simple MC robot lib
 - [ ] Parse NBT
 
-Some examples are at `/cmd` folder.
+Some examples are at `/cmd` folder.  
+有一些例子在cmd目录下
 
 > `1.13.2` version is at [gomcbot](https://github.com/Tnze/gomcbot).
 

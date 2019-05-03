@@ -1,5 +1,7 @@
 package authenticate
 
+//Simple yggdrasil-minecraft-login method.
+
 import (
 	"bytes"
 	"encoding/json"

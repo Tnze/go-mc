@@ -31,9 +31,9 @@ type jsonChat struct {
 //UnmarshalJSON decode json to Message
 func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
 	if jsonMsg[0] == '"' {
-		err = json.Unmarshal(jsonMsg, &m.Text)
+		err = json.Unmarshal(jsonMsg, &m.Text) //Unmarshal as jsonString
 	} else {
-		err = json.Unmarshal(jsonMsg, (*jsonChat)(m))
+		err = json.Unmarshal(jsonMsg, (*jsonChat)(m)) //Unmarshal as jsonChat
 	}
 	return
 }
