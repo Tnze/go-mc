@@ -93,7 +93,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.WindowItems:
 		err = handleWindowItemsPacket(c, p)
 	case data.UpdateHealth:
-		//// err = handleUpdateHealthPacket(c, p)
+		err = handleUpdateHealthPacket(c, p)
 	case data.ChatMessageClientbound:
 		err = handleChatMessagePacket(c, p)
 	case data.BlockChange:
@@ -268,29 +268,39 @@ func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 	return err
 }
 
-// func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
-// 	var (
-// 		Health         pk.Float
-// 		Food           pk.VarInt
-// 		FoodSaturation pk.Float
-// 	)
+func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
+	var (
+		Health         pk.Float
+		Food           pk.VarInt
+		FoodSaturation pk.Float
+	)
 
-// 	err = p.Scan(&Health, &Food, &FoodSaturation)
-// 	if err != nil {
-// 		return
-// 	}
+	err = p.Scan(&Health, &Food, &FoodSaturation)
+	if err != nil {
+		return
+	}
 
-// 	c.player.Health = Health
-// 	c.player.Food = Food
-// 	c.player.FoodSaturation = FoodSaturation
+	c.Health = float32(Health)
+	c.Food = int32(Food)
+	c.FoodSaturation = float32(FoodSaturation)
 
-// 	if c.player.Health < 1 { //player is dead
-// 		sendPlayerPositionAndLookPacket(c)
-// 		time.Sleep(time.Second * 2)  //wait for 2 sec make it more like a human
-// 		sendClientStatusPacket(c, 0) //status 0 means perform respawn
-// 	}
-// 	return
-// }
+	if c.Events.HealhtChange != nil {
+		err = c.Events.HealhtChange()
+		if err != nil {
+			return
+		}
+	}
+	if c.Health < 1 { //player is dead
+		sendPlayerPositionAndLookPacket(c)
+		if c.Events.Die != nil {
+			err = c.Events.Die()
+			if err != nil {
+				return
+			}
+		}
+	}
+	return
+}
 
 func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	var (
@@ -648,15 +658,6 @@ func sendPlayerPositionAndLookPacket(c *Client) {
 // 	data := pk.PackVarInt(status)
 // 	g.sendChan <- pk.Packet{
 // 		ID:   0x03,
-// 		Data: data,
-// 	}
-// }
-
-// //hand could be 0: main hand, 1: off hand
-// func sendAnimationPacket(g *Client, hand int32) {
-// 	data := pk.PackVarInt(hand)
-// 	g.sendChan <- pk.Packet{
-// 		ID:   0x27,
 // 		Data: data,
 // 	}
 // }
