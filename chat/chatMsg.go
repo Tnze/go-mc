@@ -92,10 +92,6 @@ func (m Message) String() string {
 	}
 	msg.WriteString(m.Text)
 
-	if format.Len() > 0 {
-		msg.WriteString("\033[0m")
-	}
-
 	//handle translate
 	if m.Translate != "" {
 		args := make([]interface{}, len(m.With))
@@ -112,6 +108,10 @@ func (m Message) String() string {
 		for i := range m.Extra {
 			msg.WriteString(Message(m.Extra[i]).String())
 		}
+	}
+
+	if format.Len() > 0 {
+		msg.WriteString("\033[0m")
 	}
 	return msg.String()
 }
