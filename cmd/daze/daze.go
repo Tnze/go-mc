@@ -32,7 +32,7 @@ func onGameStart() error {
 	return nil //if err isn't nil, HandleGame() will return it.
 }
 
-func onChatMsg(c chat.Message) error {
+func onChatMsg(c chat.Message, pos byte) error {
 	log.Println("Chat:", c)
 	return nil
 }

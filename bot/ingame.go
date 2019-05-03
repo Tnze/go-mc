@@ -105,48 +105,59 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		disconnect = true
 	case 0x16:
 	// 	err = handleSetSlotPacket(g, reader)
-	case 0x51:
-		// err = handleSoundEffect(g, reader)
+	case data.SoundEffect:
+		err = handleSoundEffect(c, p)
+	case data.NamedSoundEffect:
+		err = handleNamedSoundEffect(c, p)
 	default:
 		// fmt.Printf("ignore pack id %X\n", p.ID)
 	}
 	return
 }
 
-// func handleSoundEffect(g *Client, r *bytes.Reader) error {
-// 	SoundID, err := pk.UnpackVarInt(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	SoundCategory, err := pk.UnpackVarInt(r)
-// 	if err != nil {
-// 		return err
-// 	}
+func handleSoundEffect(c *Client, p pk.Packet) error {
+	var (
+		SoundID       pk.VarInt
+		SoundCategory pk.VarInt
+		x, y, z       pk.Int
+		Volume, Pitch pk.Float
+	)
+	err := p.Scan(&SoundID, &SoundCategory, &x, &y, &z, &Volume, &Pitch)
+	if err != nil {
+		return err
+	}
 
-// 	x, err := pk.UnpackInt32(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	y, err := pk.UnpackInt32(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	z, err := pk.UnpackInt32(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	Volume, err := pk.UnpackFloat(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	Pitch, err := pk.UnpackFloat(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	g.events <- SoundEffectEvent{SoundID, SoundCategory, float64(x) / 8, float64(y) / 8, float64(z) / 8, Volume, Pitch}
+	if c.Events.SoundPlay != nil {
+		c.Events.SoundPlay(
+			data.SoundNames[SoundID], int(SoundCategory),
+			float64(x)/8, float64(y)/8, float64(z)/8,
+			float32(Volume), float32(Pitch))
+	}
 
-// 	return nil
-// }
+	return nil
+}
+
+func handleNamedSoundEffect(c *Client, p pk.Packet) error {
+	var (
+		SoundName     pk.String
+		SoundCategory pk.VarInt
+		x, y, z       pk.Int
+		Volume, Pitch pk.Float
+	)
+	err := p.Scan(&SoundName, &SoundCategory, &x, &y, &z, &Volume, &Pitch)
+	if err != nil {
+		return err
+	}
+
+	if c.Events.SoundPlay != nil {
+		c.Events.SoundPlay(
+			string(SoundName), int(SoundCategory),
+			float64(x)/8, float64(y)/8, float64(z)/8,
+			float32(Volume), float32(Pitch))
+	}
+
+	return nil
+}
 
 func handleDisconnectPacket(c *Client, p pk.Packet) error {
 	var reason chat.Message
@@ -262,7 +273,7 @@ func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 	}
 
 	if c.Events.ChatMsg != nil {
-		err = c.Events.ChatMsg(s)
+		err = c.Events.ChatMsg(s, byte(pos))
 	}
 
 	return err
