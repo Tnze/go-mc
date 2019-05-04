@@ -31,8 +31,11 @@ func DialMC(addr string) (conn *Conn, err error) {
 }
 
 func (c *Conn) ReadPacket() (pk.Packet, error) {
-	pk, err := pk.RecvPacket(c.ByteReader, c.threshold > 0)
-	return *pk, err
+	p, err := pk.RecvPacket(c.ByteReader, c.threshold > 0)
+	if err != nil {
+		return pk.Packet{}, err
+	}
+	return *p, err
 }
 
 func (c *Conn) WritePacket(p pk.Packet) error {
