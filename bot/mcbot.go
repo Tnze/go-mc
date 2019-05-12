@@ -1,10 +1,8 @@
 package bot
 
 import (
-	// "bufio"
-	// "bytes"
 	"fmt"
-	// "net"
+	"time"
 
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -17,10 +15,10 @@ const ProtocalVersion = 477
 // PingAndList chack server status and list online player
 // Return a JSON string about server status.
 // see JSON format at https://wiki.vg/Server_List_Ping#Response
-func PingAndList(addr string, port int) (string, error) {
+func PingAndList(addr string, port int) ([]byte, time.Duration, error) {
 	conn, err := net.DialMC(fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
-		return "", err
+		return nil, 0, err
 	}
 
 	//握手
@@ -34,23 +32,48 @@ func PingAndList(addr string, port int) (string, error) {
 			pk.Byte(1),
 		))
 	if err != nil {
-		return "", fmt.Errorf("bot: send handshake packect fail: %v", err)
+		return nil, 0, fmt.Errorf("bot: send handshake packect fail: %v", err)
 	}
 
+	//LIST
 	//请求服务器状态
 	err = conn.WritePacket(pk.Marshal(0))
 	if err != nil {
-		return "", fmt.Errorf("bot: send list packect fail: %v", err)
+		return nil, 0, fmt.Errorf("bot: send list packect fail: %v", err)
 	}
 
 	//服务器返回状态
 	recv, err := conn.ReadPacket()
 	if err != nil {
-		return "", fmt.Errorf("bot: recv list packect fail: %v", err)
+		return nil, 0, fmt.Errorf("bot: recv list packect fail: %v", err)
 	}
 	var s pk.String
 	err = recv.Scan(&s)
-	return string(s), err
+	if err != nil {
+		return nil, 0, fmt.Errorf("bot: scan list packect fail: %v", err)
+	}
+
+	//PING
+	now := time.Now()
+	err = conn.WritePacket(pk.Marshal(0x01, pk.Long(now.Unix())))
+	if err != nil {
+		return nil, 0, fmt.Errorf("bot: send ping packect fail: %v", err)
+	}
+
+	recv, err = conn.ReadPacket()
+	if err != nil {
+		return nil, 0, fmt.Errorf("bot: recv pong packect fail: %v", err)
+	}
+	var t pk.Long
+	err = recv.Scan(&t)
+	if err != nil {
+		return nil, 0, fmt.Errorf("bot: scan pong packect fail: %v", err)
+	}
+	if t != pk.Long(now.Unix()) {
+		return nil, 0, fmt.Errorf("bot: pong packect no match: %v", err)
+	}
+
+	return []byte(s), time.Now().Sub(now), err
 }
 
 // JoinServer connect a Minecraft server for playing the game.
