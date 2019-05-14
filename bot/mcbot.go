@@ -130,7 +130,9 @@ func (c *Client) JoinServer(addr string, port int) (err error) {
 			}
 			return
 		case 0x01: //Encryption Request
-			handleEncryptionRequest(c, pack)
+			if err := handleEncryptionRequest(c, pack); err != nil {
+				return fmt.Errorf("bot: encryption fail: %v", err)
+			}
 		case 0x02: //Login Success
 			// uuid, l := pk.UnpackString(pack.Data)
 			// name, _ := unpackString(pack.Data[l:])
@@ -142,7 +144,7 @@ func (c *Client) JoinServer(addr string, port int) (err error) {
 			}
 			c.conn.SetThreshold(int(threshold))
 		case 0x04: //Login Plugin Request
-			fmt.Println("Waring Login Plugin Request")
+			// fmt.Println("Waring Login Plugin Request")//TODO: handle plugin request
 		}
 	}
 }
