@@ -295,8 +295,8 @@ func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
 	c.Food = int32(Food)
 	c.FoodSaturation = float32(FoodSaturation)
 
-	if c.Events.HealhtChange != nil {
-		err = c.Events.HealhtChange()
+	if c.Events.HealthChange != nil {
+		err = c.Events.HealthChange()
 		if err != nil {
 			return
 		}
