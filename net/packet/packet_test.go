@@ -40,7 +40,7 @@ func TestUnpackInt(t *testing.T) {
 }
 
 func TestPositionPack(t *testing.T) {
-	// x (-33554432 to 33554431), y (-2048 to 2047), z (-33554432 to 33554431)
+	// This test is not good.
 
 	for x := -33554432; x < 33554432; x += 55443 {
 		for y := -2048; y < 2048; y += 48 {

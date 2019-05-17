@@ -1,3 +1,7 @@
+// Package bot implements a simple Minecraft client that can join a server
+// or just ping it for getting information.
+//
+// Runable example could be found at cmd/ .
 package bot
 
 import (
@@ -8,13 +12,13 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-//ProtocalVersion is the protocal version
-// 477 for 1.14
+// ProtocalVersion , the protocal version number of minecraft net protocal
 const ProtocalVersion = 477
 
-// PingAndList chack server status and list online player
-// Return a JSON string about server status.
-// see JSON format at https://wiki.vg/Server_List_Ping#Response
+// PingAndList chack server status and list online player.
+// Returns a JSON data with server status, and the delay.
+//
+// For more infomation for JSON format, see https://wiki.vg/Server_List_Ping#Response
 func PingAndList(addr string, port int) ([]byte, time.Duration, error) {
 	conn, err := net.DialMC(fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
@@ -54,8 +58,8 @@ func PingAndList(addr string, port int) ([]byte, time.Duration, error) {
 	}
 
 	//PING
-	now := time.Now()
-	err = conn.WritePacket(pk.Marshal(0x01, pk.Long(now.Unix())))
+	startTime := time.Now()
+	err = conn.WritePacket(pk.Marshal(0x01, pk.Long(startTime.Unix())))
 	if err != nil {
 		return nil, 0, fmt.Errorf("bot: send ping packect fail: %v", err)
 	}
@@ -69,11 +73,11 @@ func PingAndList(addr string, port int) ([]byte, time.Duration, error) {
 	if err != nil {
 		return nil, 0, fmt.Errorf("bot: scan pong packect fail: %v", err)
 	}
-	if t != pk.Long(now.Unix()) {
+	if t != pk.Long(startTime.Unix()) {
 		return nil, 0, fmt.Errorf("bot: pong packect no match: %v", err)
 	}
 
-	return []byte(s), time.Now().Sub(now), err
+	return []byte(s), time.Since(startTime), err
 }
 
 // JoinServer connect a Minecraft server for playing the game.

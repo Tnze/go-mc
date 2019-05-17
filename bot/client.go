@@ -5,7 +5,7 @@ import (
 	"github.com/Tnze/go-mc/net"
 )
 
-// Client is the Object used to access Minecraft server
+// Client is used to access Minecraft server
 type Client struct {
 	conn *net.Conn
 	Auth
@@ -19,7 +19,13 @@ type Client struct {
 	Events eventBroker
 }
 
-//NewClient init and return a new Client
+// NewClient init and return a new Client.
+//
+// A new Client has default name "Steve" and zero UUID.
+// It is useable for an offline-mode game.
+//
+// For online-mode, you need login your Mojang account
+// and load your Name, UUID and AccessToken to client.
 func NewClient() (c *Client) {
 	c = new(Client)
 

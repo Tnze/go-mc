@@ -12,11 +12,11 @@ func main() {
 	// For online-mode, you need login your Mojang account
 	// and load your Name and UUID to client:
 	//
-	// 		auth, err := authenticate.Authenticate(Your E-mail", "Your Password")
-	// 		if err != nil {
-	// 			panic(err)
-	// 		}
-	// 		c.Name, c.AsTk = auth.SelectedProfile.Name, auth.SelectedProfile.ID
+	// 	auth, err := authenticate.Authenticate(Your E-mail", "Your Password")
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	c.Name, c.AsTk = auth.SelectedProfile.Name, auth.SelectedProfile.ID
 
 	//Login
 	err := c.JoinServer("localhost", 25565)

@@ -1,3 +1,4 @@
+// Package net pack network connection for Minecraft.
 package net
 
 import (
@@ -17,6 +18,7 @@ type Conn struct {
 	threshold int
 }
 
+// DialMC create a Minecraft connection
 func DialMC(addr string) (conn *Conn, err error) {
 	conn = new(Conn)
 	conn.socket, err = net.Dial("tcp", addr)
@@ -30,6 +32,7 @@ func DialMC(addr string) (conn *Conn, err error) {
 	return
 }
 
+// ReadPacket read a Packet from Conn.
 func (c *Conn) ReadPacket() (pk.Packet, error) {
 	p, err := pk.RecvPacket(c.ByteReader, c.threshold > 0)
 	if err != nil {
@@ -38,11 +41,13 @@ func (c *Conn) ReadPacket() (pk.Packet, error) {
 	return *p, err
 }
 
+//WritePacket write a Packet to Conn.
 func (c *Conn) WritePacket(p pk.Packet) error {
 	_, err := c.Write(p.Pack(c.threshold))
 	return err
 }
 
+// SetCipher load the decode/encode stream to this Conn
 func (c *Conn) SetCipher(encoStream, decoStream cipher.Stream) {
 	//加密连接
 	c.ByteReader = bufio.NewReader(cipher.StreamReader{ //Set reciver for AES
@@ -55,6 +60,9 @@ func (c *Conn) SetCipher(encoStream, decoStream cipher.Stream) {
 	}
 }
 
+// SetThreshold set threshold to Conn.
+// The data packet with length longger then threshold
+// will be compress when sendding.
 func (c *Conn) SetThreshold(t int) {
 	c.threshold = t
 }
