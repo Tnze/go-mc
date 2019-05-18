@@ -3,6 +3,7 @@ package nbt
 import (
 	"bytes"
 	"compress/gzip"
+	"reflect"
 	"testing"
 )
 
@@ -129,6 +130,18 @@ func TestUnmarshal_bittest(t *testing.T) {
 				Value float32 `nbt:"value"`
 			} `nbt:"ham"`
 		} `nbt:"nested compound test"`
+		IntTest    int     `nbt:"intTest"`
+		ByteTest   byte    `nbt:"byteTest"`
+		StringTest string  `nbt:"stringTest"`
+		ListTest   []int64 `nbt:"listTest (long)"`
+		DoubleTest float64 `nbt:"doubleTest"`
+		LongTest   int64   `nbt:"longTest"`
+		ListTest2  [2]struct {
+			CreatedOn int64  `nbt:"created-on"`
+			Name      string `nbt:"name"`
+		} `nbt:"listTest (compound)"`
+		ByteArrayTest []byte `nbt:"byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))"`
+		ShortTest     int16  `nbt:"shortTest"`
 	}
 
 	//test parse
@@ -146,11 +159,24 @@ func TestUnmarshal_bittest(t *testing.T) {
 	want.NCT.Egg.Value = 0.5
 	want.NCT.Ham.Name = "Hampus"
 	want.NCT.Ham.Value = 0.75
+	want.IntTest = 2147483647
+	want.ByteTest = 127
+	want.StringTest = "HELLO WORLD THIS IS A TEST STRING \xc3\x85\xc3\x84\xc3\x96!"
+	want.ListTest = []int64{11, 12, 13, 14, 15}
+	want.DoubleTest = 0.49312871321823148
+	want.LongTest = 9223372036854775807
+	want.ListTest2[0].CreatedOn = 1264099775885
+	want.ListTest2[0].Name = "Compound tag #0"
+	want.ListTest2[1].CreatedOn = 1264099775885
+	want.ListTest2[1].Name = "Compound tag #1"
+	want.ByteArrayTest = make([]byte, 1000)
+	for n := 0; n < 1000; n++ {
+		want.ByteArrayTest[n] = byte((n*n*255 + n*7) % 100)
+	}
+	want.ShortTest = 32767
 
-	if value != want {
+	if !reflect.DeepEqual(value, want) {
 		t.Errorf("parse fail, expect %v, get %v", want, value)
-	} else {
-		t.Log("value:", value)
 	}
 
 	//test skip
