@@ -35,5 +35,5 @@ func ExampleMarshal() {
 	fmt.Printf("% 02x ", buf.Bytes())
 
 	// Output:
-	//	0a 00 00 08 00 00 00 04 54 6e 7a 65 00
+	//	0a 00 00 08 00 04 6e 61 6d 65 00 04 54 6e 7a 65 00
 }
