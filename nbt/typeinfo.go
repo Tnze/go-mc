@@ -2,6 +2,7 @@ package nbt
 
 import (
 	"reflect"
+	"sync"
 )
 
 type typeInfo struct {
@@ -9,7 +10,13 @@ type typeInfo struct {
 	nameToIndex map[string]int
 }
 
+var tinfoMap sync.Map
+
 func getTypeInfo(typ reflect.Type) *typeInfo {
+	if ti, ok := tinfoMap.Load(typ); ok {
+		return ti.(*typeInfo)
+	}
+
 	tinfo := new(typeInfo)
 	tinfo.nameToIndex = make(map[string]int)
 	if typ.Kind() == reflect.Struct {
@@ -27,7 +34,9 @@ func getTypeInfo(typ reflect.Type) *typeInfo {
 			}
 		}
 	}
-	return tinfo
+
+	ti, _ := tinfoMap.LoadOrStore(typ, tinfo)
+	return ti.(*typeInfo)
 }
 
 func (t *typeInfo) findIndexByName(name string) int {

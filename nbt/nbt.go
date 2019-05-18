@@ -27,7 +27,6 @@ type Decoder struct {
 		io.ByteReader
 		io.Reader
 	}
-	nameless bool
 }
 
 func NewDecoder(r io.Reader) *Decoder {

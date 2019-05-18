@@ -157,6 +157,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 				return err
 			}
 		}
+
 	case TagCompound:
 		if vk := val.Kind(); vk != reflect.Struct {
 			return errors.New("cannot parse TagCompound as " + vk.String())
@@ -252,7 +253,7 @@ func (d *Decoder) readTag() (tagType byte, tagName string, err error) {
 		return
 	}
 
-	if tagType != TagEnd && !d.nameless { //Read Tag
+	if tagType != TagEnd { //Read Tag
 		tagName, err = d.readString()
 	}
 	return
