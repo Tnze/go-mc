@@ -51,9 +51,9 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		switch vk := val.Kind(); vk {
 		default:
 			return errors.New("cannot parse TagShort as " + vk.String())
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		case reflect.Int, reflect.Int16, reflect.Int32, reflect.Int64:
 			val.SetInt(int64(value))
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		case reflect.Uint, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			val.SetUint(uint64(value))
 		}
 
@@ -65,9 +65,9 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		switch vk := val.Kind(); vk {
 		default:
 			return errors.New("cannot parse TagInt as " + vk.String())
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		case reflect.Int, reflect.Int32, reflect.Int64:
 			val.SetInt(int64(value))
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		case reflect.Uint, reflect.Uint32, reflect.Uint64:
 			val.SetUint(uint64(value))
 		}
 
@@ -89,9 +89,9 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		switch vk := val.Kind(); vk {
 		default:
 			return errors.New("cannot parse TagLong as " + vk.String())
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		case reflect.Int, reflect.Int64:
 			val.SetInt(int64(value))
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		case reflect.Uint, reflect.Uint64:
 			val.SetUint(uint64(value))
 		}
 
@@ -128,6 +128,48 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 			return err
 		}
 		val.SetBytes(ba)
+
+	case TagIntArray:
+		aryLen, err := d.readInt32()
+		if err != nil {
+			return err
+		}
+		vt := val.Type() //reciver must be []int or []int32
+		if vt.Kind() != reflect.Slice {
+			return errors.New("cannot parse TagIntArray to " + vt.String() + ", it must be a slice")
+		} else if tk := val.Type().Elem().Kind(); tk != reflect.Int && tk != reflect.Int32 {
+			return errors.New("cannot parse TagIntArray to " + vt.String())
+		}
+
+		val.Set(reflect.MakeSlice(vt, int(aryLen), int(aryLen)))
+		for i := 0; i < int(aryLen); i++ {
+			value, err := d.readInt32()
+			if err != nil {
+				return err
+			}
+			val.Index(i).SetInt(int64(value))
+		}
+
+	case TagLongArray:
+		aryLen, err := d.readInt32()
+		if err != nil {
+			return err
+		}
+		vt := val.Type() //reciver must be []int or []int64
+		if vt.Kind() != reflect.Slice {
+			return errors.New("cannot parse TagIntArray to " + vt.String() + ", it must be a slice")
+		} else if val.Type().Elem().Kind() != reflect.Int64 {
+			return errors.New("cannot parse TagIntArray to " + vt.String())
+		}
+
+		val.Set(reflect.MakeSlice(vt, int(aryLen), int(aryLen)))
+		for i := 0; i < int(aryLen); i++ {
+			value, err := d.readInt64()
+			if err != nil {
+				return err
+			}
+			val.Index(i).SetInt(value)
+		}
 
 	case TagList:
 		listType, err := d.r.ReadByte()

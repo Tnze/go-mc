@@ -189,3 +189,61 @@ func TestUnmarshal_bittest(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestUnmarshal_IntArray(t *testing.T) {
+	data := []byte{
+		TagIntArray, 0, 0,
+		0, 0, 0, 3,
+
+		0, 0, 0, 1,
+		0, 0, 0, 2,
+		0, 0, 0, 3,
+	}
+	var (
+		value []int
+		want  = []int{1, 2, 3}
+
+		value2 []int32
+		want2  = []int32{1, 2, 3}
+	)
+
+	if err := Unmarshal(data, &value); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(value, want) {
+		t.Errorf("parse fail, expect %v, get %v", want, value)
+	}
+
+	if err := Unmarshal(data, &value2); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(value2, want2) {
+		t.Errorf("parse fail, expect %v, get %v", want2, value2)
+	}
+
+	// t.Log(value, value2)
+}
+
+func TestUnmarshal_LongArray(t *testing.T) {
+	data := []byte{
+		TagLongArray, 0, 0,
+		0, 0, 0, 3,
+
+		0, 0, 0, 0, 0, 0, 0, 1,
+		0, 0, 0, 0, 0, 0, 0, 2,
+		0, 0, 0, 0, 0, 0, 0, 3,
+	}
+	var (
+		value []int64
+		want  = []int64{1, 2, 3}
+	)
+
+	if err := Unmarshal(data, &value); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(value, want) {
+		t.Errorf("parse fail, expect %v, get %v", want, value)
+	}
+
+	t.Log(value)
+}
