@@ -11,7 +11,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Minecraft network protocal
 - [x] Parse chat message
 - [x] Simple MC robot lib
-- [ ] Parse NBT
+- [x] Parse NBT
 
 Some examples are at `/cmd` folder.  
 有一些例子在cmd目录下
