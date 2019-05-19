@@ -1,4 +1,4 @@
-package gomcbot
+package world
 
 // import (
 // 	"math"

@@ -1,4 +1,4 @@
-package gomcbot
+package world
 
 // //World record all of the things in the world where player at
 // type world struct {
