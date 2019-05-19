@@ -1,13 +1,16 @@
 package bot
 
 import (
-	// "bytes"
+	"bytes"
+	"errors"
 	// "math"
 	// "time"
 	"fmt"
 
+	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -25,18 +28,25 @@ import (
 // Note that HandleGame will block if you don't recive from Events.
 func (c *Client) HandleGame() error {
 	for {
-		//Read packets
-		p, err := c.conn.ReadPacket()
-		if err != nil {
-			return fmt.Errorf("bot: read packet fail: %v", err)
-		}
-		//handle packets
-		disconnect, err := c.handlePacket(p)
-		if err != nil {
-			return fmt.Errorf("handle packet 0x%X error: %v", p.ID, err)
-		}
-		if disconnect {
-			return nil
+		select {
+		case task := <-c.Delegate:
+			if err := task(); err != nil {
+				return err
+			}
+		default:
+			//Read packets
+			p, err := c.conn.ReadPacket()
+			if err != nil {
+				return fmt.Errorf("bot: read packet fail: %v", err)
+			}
+			//handle packets
+			disconnect, err := c.handlePacket(p)
+			if err != nil {
+				return fmt.Errorf("handle packet 0x%X error: %v", p.ID, err)
+			}
+			if disconnect {
+				return nil
+			}
 		}
 	}
 }
@@ -103,8 +113,8 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case 0x1A:
 		err = handleDisconnectPacket(c, p)
 		disconnect = true
-	case 0x16:
-	// 	err = handleSetSlotPacket(g, reader)
+	case data.SetSlot:
+		err = handleSetSlotPacket(c, p)
 	case data.SoundEffect:
 		err = handleSoundEffect(c, p)
 	case data.NamedSoundEffect:
@@ -170,33 +180,30 @@ func handleDisconnectPacket(c *Client, p pk.Packet) error {
 	return c.Events.Disconnect(reason)
 }
 
-// func handleSetSlotPacket(g *Client, r *bytes.Reader) error {
-// 	windowID, err := r.ReadByte()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	slot, err := pk.UnpackInt16(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	slotData, err := unpackSolt(r)
-// 	if err != nil {
-// 		return err
-// 	}
+func handleSetSlotPacket(c *Client, p pk.Packet) error {
+	var (
+		windowID pk.Byte
+		slotI    pk.Short
+		slot     entity.Slot
+	)
+	if err := p.Scan(&windowID, &slotI, &slot); err != nil && err != nbt.ErrEND {
+		return err
+	}
 
-// 	switch int8(windowID) {
-// 	case 0:
-// 		if slot < 32 || slot > 44 {
-// 			// return fmt.Errorf("slot out of range")
-// 			break
-// 		}
-// 		fallthrough
-// 	case -2:
-// 		g.player.Inventory[slot] = slotData
-// 		g.events <- InventoryChangeEvent(slot)
-// 	}
-// 	return nil
-// }
+	switch int8(windowID) {
+	case 0: //if window ID is 0, it will only change the hotbar
+		if slotI < 32 || slotI > 44 {
+			return errors.New("server set slot error")
+		}
+		fallthrough
+	case -2: //or if it's -2, server can change any slot without animation
+		if slotI < 0 || slotI > 45 {
+			return errors.New("server set slot out of range")
+		}
+		c.Inventory[slotI] = slot
+	}
+	return nil
+}
 
 // func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
 // 	if !c.settings.ReciveMap {
@@ -621,20 +628,36 @@ func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 // 	return nil
 // }
 
-func handleWindowItemsPacket(g *Client, p pk.Packet) (err error) {
-	// var (
-	// 	WindowID pk.Byte
-	// 	solts    entity.Solt
-	// )
-	// err = p.Scan(&WindowID, &solts)
-	// if err != nil {
-	// 	return
-	// }
+func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
+	r := bytes.NewReader(p.Data)
+	var (
+		windowID pk.Byte
+		count    pk.Short
+		slots    []entity.Slot
+	)
+	if err := windowID.Decode(r); err != nil {
+		return err
+	}
+	if err := count.Decode(r); err != nil {
+		return err
+	}
+	for i := 0; i < int(count); i++ {
+		var slot entity.Slot
+		if err := slot.Decode(r); err != nil && err != nbt.ErrEND {
+			return err
+		}
+		slots = append(slots, slot)
+	}
 
-	// switch WindowID {
-	// case 0: //is player inventory
-	// 	g.Inventory = solts
-	// }
+	switch windowID {
+	case 0: //is player's inventory
+		if len(slots) != len(c.Inventory) {
+			return errors.New("inventory len not match")
+		}
+		for i, v := range slots { //copy this Inventory to player's Inventory
+			c.Inventory[i] = v
+		}
+	}
 	return nil
 }
 

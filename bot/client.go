@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/net"
 )
@@ -16,7 +17,12 @@ type Client struct {
 	settings  Settings
 	// wd        world //the map data
 
-	Events eventBroker
+	// Delegate allows you push a function to let HandleGame run.
+	// Do not send at the same goroutin!
+	Delegate chan func() error
+	Events   eventBroker
+
+	Inventory [46]entity.Slot
 }
 
 // NewClient init and return a new Client.
@@ -32,6 +38,7 @@ func NewClient() (c *Client) {
 	//init Client
 	c.settings = DefaultSettings
 	c.Name = "Steve"
+	c.Delegate = make(chan func() error)
 
 	return
 }
@@ -58,4 +65,14 @@ type PlayerAbilities struct {
 //Position is a 3D vector.
 type Position struct {
 	X, Y, Z int
+}
+
+//HotBar return the hotbar of inventory
+func (c *Client) HotBar() []entity.Slot {
+	return c.Inventory[36:45]
+}
+
+// MainInventory return the main inventory slots
+func (c *Client) MainInventory() []entity.Slot {
+	return c.Inventory[9:36]
 }

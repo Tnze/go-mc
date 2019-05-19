@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"github.com/Tnze/go-mc/data"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -36,4 +37,8 @@ func (s *Slot) Decode(r pk.DecodeReader) error {
 		}
 	}
 	return nil
+}
+
+func (s Slot) String() string {
+	return data.ItemNameByID[s.ItemID]
 }

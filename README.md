@@ -13,6 +13,8 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Simple MC robot lib
 - [x] Parse NBT
 
+> 由于仍在开发中，部分API在未来版本中可能会变动
+
 Some examples are at `/cmd` folder.  
 有一些例子在cmd目录下
 
