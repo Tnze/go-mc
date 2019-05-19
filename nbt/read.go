@@ -24,10 +24,15 @@ func (d *Decoder) Decode(v interface{}) error {
 	return d.unmarshal(val.Elem(), tagType, tagName)
 }
 
+// ErrEND error will be returned when reading a NBT with only Tag_End
+var ErrEND = errors.New("unexpected TAG_End")
+
 func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) error {
 	switch tagType {
 	default:
 		return fmt.Errorf("unknown Tag 0x%02x", tagType)
+	case TagEnd:
+		return ErrEND
 
 	case TagByte:
 		value, err := d.r.ReadByte()
