@@ -29,6 +29,7 @@ func main() {
 	c.Events.GameStart = onGameStart
 	c.Events.ChatMsg = onChatMsg
 	c.Events.Disconnect = onDisconnect
+	c.Events.PluginMessage = onPluginMessage
 
 	//JoinGame
 	err = c.HandleGame()
@@ -49,5 +50,10 @@ func onChatMsg(c chat.Message, pos byte) error {
 
 func onDisconnect(c chat.Message) error {
 	log.Println("Disconnect:", c)
+	return nil
+}
+
+func onPluginMessage(channel string, data []byte) error {
+	log.Println("PluginMessage", channel, data)
 	return nil
 }

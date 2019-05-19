@@ -39,7 +39,7 @@ func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
 }
 
 //Decode a ChatMsg packet
-func (m *Message) Decode(r pk.ComByteReader) error {
+func (m *Message) Decode(r pk.DecodeReader) error {
 	var Len pk.VarInt
 	if err := Len.Decode(r); err != nil {
 		return err

@@ -339,7 +339,16 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 }
 
 func handlePluginPacket(c *Client, p pk.Packet) error {
-	// fmt.Println("Plugin Packet: ", p)
+	var (
+		Channel pk.Identifier
+		Data    pk.PluginMessageData
+	)
+	if err := p.Scan(&Channel, &Data); err != nil {
+		return err
+	}
+	if c.Events.PluginMessage != nil {
+		return c.Events.PluginMessage(string(Channel), []byte(Data))
+	}
 	return nil
 }
 

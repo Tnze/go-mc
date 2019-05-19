@@ -2,6 +2,7 @@ package packet
 
 import (
 	"io"
+	"io/ioutil"
 	"math"
 )
 
@@ -15,11 +16,11 @@ type FieldEncoder interface {
 }
 
 type FieldDecoder interface {
-	Decode(r ComByteReader) error
+	Decode(r DecodeReader) error
 }
 
-//ComByteReader is both io.Reader and io.ByteReader
-type ComByteReader interface {
+//DecodeReader is both io.Reader and io.ByteReader
+type DecodeReader interface {
 	io.ByteReader
 	io.Reader
 }
@@ -69,7 +70,7 @@ type (
 )
 
 //ReadNBytes read N bytes from bytes.Reader
-func ReadNBytes(r ComByteReader, n int) (bs []byte, err error) {
+func ReadNBytes(r DecodeReader, n int) (bs []byte, err error) {
 	bs = make([]byte, n)
 	for i := 0; i < n; i++ {
 		bs[i], err = r.ReadByte()
@@ -89,7 +90,7 @@ func (b Boolean) Encode() []byte {
 }
 
 //Decode a Boolean
-func (b *Boolean) Decode(r ComByteReader) error {
+func (b *Boolean) Decode(r DecodeReader) error {
 	v, err := r.ReadByte()
 	if err != nil {
 		return err
@@ -108,7 +109,7 @@ func (s String) Encode() (p []byte) {
 }
 
 //Decode a String
-func (s *String) Decode(r ComByteReader) error {
+func (s *String) Decode(r DecodeReader) error {
 	var l VarInt //String length
 	if err := l.Decode(r); err != nil {
 		return err
@@ -129,7 +130,7 @@ func (b Byte) Encode() []byte {
 }
 
 //Decode a Byte
-func (b *Byte) Decode(r ComByteReader) error {
+func (b *Byte) Decode(r DecodeReader) error {
 	v, err := r.ReadByte()
 	if err != nil {
 		return err
@@ -144,7 +145,7 @@ func (ub UnsignedByte) Encode() []byte {
 }
 
 //Decode a UnsignedByte
-func (ub *UnsignedByte) Decode(r ComByteReader) error {
+func (ub *UnsignedByte) Decode(r DecodeReader) error {
 	v, err := r.ReadByte()
 	if err != nil {
 		return err
@@ -163,7 +164,7 @@ func (s Short) Encode() []byte {
 }
 
 //Decode a Short
-func (s *Short) Decode(r ComByteReader) error {
+func (s *Short) Decode(r DecodeReader) error {
 	bs, err := ReadNBytes(r, 2)
 	if err != nil {
 		return err
@@ -183,7 +184,7 @@ func (us UnsignedShort) Encode() []byte {
 }
 
 //Decode a UnsignedShort
-func (us *UnsignedShort) Decode(r ComByteReader) error {
+func (us *UnsignedShort) Decode(r DecodeReader) error {
 	bs, err := ReadNBytes(r, 2)
 	if err != nil {
 		return err
@@ -203,7 +204,7 @@ func (i Int) Encode() []byte {
 }
 
 //Decode a Int
-func (i *Int) Decode(r ComByteReader) error {
+func (i *Int) Decode(r DecodeReader) error {
 	bs, err := ReadNBytes(r, 4)
 	if err != nil {
 		return err
@@ -223,7 +224,7 @@ func (l Long) Encode() []byte {
 }
 
 //Decode a Long
-func (l *Long) Decode(r ComByteReader) error {
+func (l *Long) Decode(r DecodeReader) error {
 	bs, err := ReadNBytes(r, 8)
 	if err != nil {
 		return err
@@ -252,7 +253,7 @@ func (v VarInt) Encode() (vi []byte) {
 }
 
 //Decode a VarInt
-func (v *VarInt) Decode(r ComByteReader) error {
+func (v *VarInt) Decode(r DecodeReader) error {
 	var n uint32
 	for i := 0; i < 5; i++ { //读数据前的长度标记
 		sec, err := r.ReadByte()
@@ -283,7 +284,7 @@ func (p Position) Encode() []byte {
 }
 
 // Decode a Position
-func (p *Position) Decode(r ComByteReader) error {
+func (p *Position) Decode(r DecodeReader) error {
 	var v Long
 	if err := v.Decode(r); err != nil {
 		return err
@@ -314,7 +315,7 @@ func (f Float) Encode() []byte {
 }
 
 // Decode a Float
-func (f *Float) Decode(r ComByteReader) error {
+func (f *Float) Decode(r DecodeReader) error {
 	var v Int
 	if err := v.Decode(r); err != nil {
 		return err
@@ -330,12 +331,32 @@ func (d Double) Encode() []byte {
 }
 
 // Decode a Double
-func (d *Double) Decode(r ComByteReader) error {
+func (d *Double) Decode(r DecodeReader) error {
 	var v Long
 	if err := v.Decode(r); err != nil {
 		return err
 	}
 
 	*d = Double(math.Float64frombits(uint64(v)))
+	return nil
+}
+
+// The PluginMessageData only used in recive PluginMessage packet.
+// When decode it, read to end.
+type PluginMessageData []byte
+
+//Encode a PluginMessageData
+func (p *PluginMessageData) Encode(r io.Writer) error {
+	_, err := r.Write([]byte(*p))
+	return err
+}
+
+//Decode a PluginMessageData
+func (p *PluginMessageData) Decode(r DecodeReader) error {
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	*p = PluginMessageData(data)
 	return nil
 }

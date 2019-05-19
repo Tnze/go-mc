@@ -62,7 +62,7 @@ type encryptionRequest struct {
 	VerifyToken []byte
 }
 
-func (e *encryptionRequest) Decode(r pk.ComByteReader) error {
+func (e *encryptionRequest) Decode(r pk.DecodeReader) error {
 	var serverID pk.String
 	if err := serverID.Decode(r); err != nil {
 		return err

@@ -12,7 +12,7 @@ type Player struct {
 	OnGround   bool
 
 	HeldItem  int //拿着的物品栏位
-	Inventory []entity.Solt
+	Inventory []entity.Slot
 
 	Health         float32 //血量
 	Food           int32   //饱食度
