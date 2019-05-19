@@ -1,127 +1,132 @@
 package world
 
-// import (
-// 	"bytes"
-// 	"fmt"
-// 	pk "github.com/Tnze/gomcbot/network/packet"
-// 	"io"
-// )
+import (
+	"github.com/Tnze/go-mc/nbt"
+	// "fmt"
+	pk "github.com/Tnze/go-mc/net/packet"
+	// "io"
+)
 
-// func unpackChunkDataPacket(p *pk.Packet, hasSkyLight bool) (c *Chunk, x, y int, err error) {
-// 	reader := bytes.NewReader(p.Data)
-// 	//区块坐标
-// 	X, err := pk.UnpackInt32(reader)
-// 	if err != nil {
-// 		return nil, 0, 0, err
-// 	}
-// 	Y, err := pk.UnpackInt32(reader)
-// 	if err != nil {
-// 		return nil, 0, 0, err
-// 	}
-// 	// fmt.Println("Chunk: (", X, ", ", Y, ")") //Debug: Show Chunk loc
-// 	fc, err := reader.ReadByte()
-// 	if err != nil {
-// 		return nil, 0, 0, err
-// 	}
-// 	FullChunk := fc != 0x00
+func UnpackChunkDataPacket(p pk.Packet, hasSkyLight bool) (c *Chunk, x, z int, err error) {
+	var (
+		X, Z           pk.Int
+		FullChunk      pk.Boolean
+		PrimaryBitMask pk.VarInt
+		Heightmaps     struct{}
+		Data           chunkData
+		BlockEntities  blockEntities
+	)
 
-// 	//主掩码
-// 	PrimaryBitMask, err := pk.UnpackVarInt(reader)
-// 	if err != nil {
-// 		return nil, 0, 0, err
-// 	}
+	p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Data, &BlockEntities)
 
-// 	//区块数据
-// 	Size, err := pk.UnpackVarInt(reader)
-// 	if err != nil {
-// 		return nil, 0, 0, err
-// 	}
-// 	Data := make([]byte, Size)
-// 	_, err = io.ReadAtLeast(reader, Data, int(Size))
-// 	if err != nil {
-// 		return nil, 0, 0, err
-// 	}
+	//解析区块数据
+	cc, err := readChunkColumn(bool(FullChunk), int32(PrimaryBitMask), []byte(Data), hasSkyLight)
+	if err != nil {
+		panic(err)
+	}
+	return cc, int(X), int(Z), err
+}
 
-// 	//实体信息
-// 	// NumberofBlockEntities, len := pk.UnpackVarInt(p.Data[index:])
-// 	// index += len
+type chunkData []byte
+type blockEntities []blockEntitie
+type blockEntitie struct {
+}
 
-// 	//解析区块数据
-// 	cc, err := readChunkColumn(FullChunk, PrimaryBitMask, bytes.NewReader(Data), hasSkyLight)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	return cc, int(X), int(Y), err
-// }
+func (c *chunkData) Decode(r pk.DecodeReader) error {
+	var Size pk.VarInt
+	if err := Size.Decode(r); err != nil {
+		return err
+	}
+	*c = make([]byte, Size)
+	if _, err := r.Read(*c); err != nil {
+		return err
+	}
+	return nil
+}
 
-// func readChunkColumn(isFull bool, mask int32, data *bytes.Reader, hasSkyLight bool) (*Chunk, error) {
-// 	var c Chunk
-// 	for sectionY := 0; sectionY < 16; sectionY++ {
-// 		if (mask & (1 << uint(sectionY))) != 0 { // Is the given bit set in the mask?
-// 			BitsPerBlock, err := data.ReadByte()
-// 			if err != nil {
-// 				return nil, fmt.Errorf("read BitsPerBlock fail: %v", err)
-// 			}
-// 			//读调色板
-// 			var palette []uint
-// 			if BitsPerBlock < 9 {
-// 				length, err := pk.UnpackVarInt(data)
-// 				if err != nil {
-// 					return nil, fmt.Errorf("read palette (id len) fail: %v", err)
-// 				}
-// 				palette = make([]uint, length)
+func (b *blockEntities) Decode(r pk.DecodeReader) error {
+	var NumberofBlockEntities pk.VarInt
+	if err := NumberofBlockEntities.Decode(r); err != nil {
+		return err
+	}
+	*b = make(blockEntities, NumberofBlockEntities)
+	decoder := nbt.NewDecoder(r)
+	for i := 0; i < int(NumberofBlockEntities); i++ {
+		if err := decoder.Decode(&(*b)[i]); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
-// 				for id := uint(0); id < uint(length); id++ {
-// 					stateID, err := pk.UnpackVarInt(data)
-// 					if err != nil {
-// 						return nil, fmt.Errorf("read palette (id) fail: %v", err)
-// 					}
+func readChunkColumn(isFull bool, mask int32, data []byte, hasSkyLight bool) (*Chunk, error) {
+	var c Chunk
+	// for sectionY := 0; sectionY < 16; sectionY++ {
+	// 	if (mask & (1 << uint(sectionY))) != 0 { // Is the given bit set in the mask?
+	// 		BitsPerBlock, err := data.ReadByte()
+	// 		if err != nil {
+	// 			return nil, fmt.Errorf("read BitsPerBlock fail: %v", err)
+	// 		}
+	// 		//读调色板
+	// 		var palette []uint
+	// 		if BitsPerBlock < 9 {
+	// 			length, err := pk.UnpackVarInt(data)
+	// 			if err != nil {
+	// 				return nil, fmt.Errorf("read palette (id len) fail: %v", err)
+	// 			}
+	// 			palette = make([]uint, length)
 
-// 					palette[id] = uint(stateID)
-// 				}
-// 			}
+	// 			for id := uint(0); id < uint(length); id++ {
+	// 				stateID, err := pk.UnpackVarInt(data)
+	// 				if err != nil {
+	// 					return nil, fmt.Errorf("read palette (id) fail: %v", err)
+	// 				}
 
-// 			//Section数据
-// 			DataArrayLength, err := pk.UnpackVarInt(data)
-// 			if err != nil {
-// 				return nil, fmt.Errorf("read DataArrayLength fail: %v", err)
-// 			}
+	// 				palette[id] = uint(stateID)
+	// 			}
+	// 		}
 
-// 			DataArray := make([]int64, DataArrayLength)
-// 			for i := 0; i < int(DataArrayLength); i++ {
-// 				DataArray[i], err = pk.UnpackInt64(data)
-// 				if err != nil {
-// 					return nil, fmt.Errorf("read DataArray fail: %v", err)
-// 				}
-// 			}
-// 			//用数据填充区块
-// 			fillSection(&c.sections[sectionY], perBits(BitsPerBlock), DataArray, palette)
+	// 		//Section数据
+	// 		DataArrayLength, err := pk.UnpackVarInt(data)
+	// 		if err != nil {
+	// 			return nil, fmt.Errorf("read DataArrayLength fail: %v", err)
+	// 		}
 
-// 			//throw BlockLight data
-// 			_, err = pk.ReadNBytes(data, 2048)
-// 			if err != nil {
-// 				return nil, fmt.Errorf("read BlockLight fail: %v", err)
-// 			}
+	// 		DataArray := make([]int64, DataArrayLength)
+	// 		for i := 0; i < int(DataArrayLength); i++ {
+	// 			DataArray[i], err = pk.UnpackInt64(data)
+	// 			if err != nil {
+	// 				return nil, fmt.Errorf("read DataArray fail: %v", err)
+	// 			}
+	// 		}
+	// 		//用数据填充区块
+	// 		fillSection(&c.sections[sectionY], perBits(BitsPerBlock), DataArray, palette)
 
-// 			if hasSkyLight {
-// 				//throw SkyLight data
-// 				_, err = pk.ReadNBytes(data, 2048)
-// 				if err != nil {
-// 					return nil, fmt.Errorf("read SkyLight fail: %v", err)
-// 				}
-// 			}
-// 		}
-// 	}
-// 	if isFull { //need recive Biomes datas
-// 		_, err := pk.ReadNBytes(data, 256*4)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("read Biomes fail: %v", err)
-// 		}
-// 	}
+	// 		//throw BlockLight data
+	// 		_, err = pk.ReadNBytes(data, 2048)
+	// 		if err != nil {
+	// 			return nil, fmt.Errorf("read BlockLight fail: %v", err)
+	// 		}
 
-// 	// fmt.Println(c)
-// 	return &c, nil
-// }
+	// 		if hasSkyLight {
+	// 			//throw SkyLight data
+	// 			_, err = pk.ReadNBytes(data, 2048)
+	// 			if err != nil {
+	// 				return nil, fmt.Errorf("read SkyLight fail: %v", err)
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// if isFull { //need recive Biomes datas
+	// 	_, err := pk.ReadNBytes(data, 256*4)
+	// 	if err != nil {
+	// 		return nil, fmt.Errorf("read Biomes fail: %v", err)
+	// 	}
+	// }
+
+	// fmt.Println(c)
+	return &c, nil
+}
 
 // const defaultBitsPerBlock = 14
 

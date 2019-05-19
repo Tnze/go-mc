@@ -3,10 +3,13 @@ package bot
 import (
 	"bytes"
 	"errors"
+	"io"
+	"io/ioutil"
 	// "math"
 	// "time"
 	"fmt"
 
+	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
@@ -82,7 +85,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.HeldItemChangeClientbound:
 		err = handleHeldItemPacket(c, p)
 	case data.ChunkData:
-		////err = handleChunkDataPacket(c, p)
+		err = handleChunkDataPacket(c, p)
 	case data.PlayerPositionAndLookClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
 		sendPlayerPositionAndLookPacket(c) // to confirm the position
@@ -345,10 +348,30 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	return nil
 }
 
+// The PluginMessageData only used in recive PluginMessage packet.
+// When decode it, read to end.
+type pluginMessageData []byte
+
+//Encode a PluginMessageData
+func (p *pluginMessageData) Encode(r io.Writer) error {
+	_, err := r.Write([]byte(*p))
+	return err
+}
+
+//Decode a PluginMessageData
+func (p *pluginMessageData) Decode(r pk.DecodeReader) error {
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+	*p = pluginMessageData(data)
+	return nil
+}
+
 func handlePluginPacket(c *Client, p pk.Packet) error {
 	var (
 		Channel pk.Identifier
-		Data    pk.PluginMessageData
+		Data    pluginMessageData
 	)
 	if err := p.Scan(&Channel, &Data); err != nil {
 		return err
@@ -405,15 +428,15 @@ func handleHeldItemPacket(c *Client, p pk.Packet) error {
 	return nil
 }
 
-// func handleChunkDataPacket(g *Client, p pk.Packet) error {
-// 	if !g.settings.ReciveMap {
-// 		return nil
-// 	}
+func handleChunkDataPacket(c *Client, p pk.Packet) error {
+	if !c.settings.ReciveMap {
+		return nil
+	}
 
-// 	c, x, y, err := unpackChunkDataPacket(p, g.Info.Dimension == 0)
-// 	g.wd.chunks[chunkLoc{x, y}] = c
-// 	return err
-// }
+	chunk, x, z, err := world.UnpackChunkDataPacket(p, c.Dimension == 0)
+	c.Wd.Chunks[world.ChunkLoc{x, z}] = chunk
+	return err
+}
 
 // var isSpawn bool
 

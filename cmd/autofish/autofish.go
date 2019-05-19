@@ -16,6 +16,7 @@ var (
 
 func main() {
 	c = bot.NewClient()
+
 	//Login
 	err := c.JoinServer("localhost", 25565)
 	if err != nil {

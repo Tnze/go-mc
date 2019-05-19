@@ -1,29 +1,33 @@
 package world
 
-// //World record all of the things in the world where player at
-// type world struct {
-// 	Entities map[int32]Entity
-// 	chunks   map[chunkLoc]*Chunk
-// }
+import (
+	"github.com/Tnze/go-mc/bot/world/entity"
+)
 
-// //Chunk store a 256*16*16 clolumn blocks
-// type Chunk struct {
-// 	sections [16]Section
-// }
+//World record all of the things in the world where player at
+type World struct {
+	Entities map[int32]entity.Entity
+	Chunks   map[ChunkLoc]*Chunk
+}
 
-// //Section store a 16*16*16 cube blocks
-// type Section struct {
-// 	blocks [16][16][16]Block
-// }
+//Chunk store a 256*16*16 clolumn blocks
+type Chunk struct {
+	sections [16]Section
+}
 
-// //Block is the base of world
-// type Block struct {
-// 	id uint
-// }
+//Section store a 16*16*16 cube blocks
+type Section struct {
+	blocks [16][16][16]Block
+}
 
-// type chunkLoc struct {
-// 	X, Y int
-// }
+//Block is the base of world
+type Block struct {
+	id uint
+}
+
+type ChunkLoc struct {
+	X, Z int
+}
 
 // //Entity 表示一个实体
 // type Entity interface {

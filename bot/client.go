@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/net"
@@ -15,7 +16,7 @@ type Client struct {
 	PlayInfo
 	abilities PlayerAbilities
 	settings  Settings
-	// wd        world //the map data
+	Wd        world.World //the map data
 
 	// Delegate allows you push a function to let HandleGame run.
 	// Do not send at the same goroutin!
@@ -39,6 +40,9 @@ func NewClient() (c *Client) {
 	c.settings = DefaultSettings
 	c.Name = "Steve"
 	c.Delegate = make(chan func() error)
+
+	c.Wd.Entities = make(map[int32]entity.Entity)
+	c.Wd.Chunks = make(map[world.ChunkLoc]*world.Chunk)
 
 	return
 }

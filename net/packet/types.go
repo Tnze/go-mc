@@ -2,8 +2,9 @@ package packet
 
 import (
 	"io"
-	"io/ioutil"
 	"math"
+
+	"github.com/Tnze/go-mc/nbt"
 )
 
 // A Field is both FieldEncoder and FieldDecoder
@@ -70,6 +71,11 @@ type (
 
 	//UUID encoded as an unsigned 128-bit integer
 	UUID [16]byte
+
+	//NBT encode a value as Named Binary Tag
+	NBT struct {
+		V interface{}
+	}
 )
 
 //ReadNBytes read N bytes from bytes.Reader
@@ -344,22 +350,7 @@ func (d *Double) Decode(r DecodeReader) error {
 	return nil
 }
 
-// The PluginMessageData only used in recive PluginMessage packet.
-// When decode it, read to end.
-type PluginMessageData []byte
-
-//Encode a PluginMessageData
-func (p *PluginMessageData) Encode(r io.Writer) error {
-	_, err := r.Write([]byte(*p))
-	return err
-}
-
-//Decode a PluginMessageData
-func (p *PluginMessageData) Decode(r DecodeReader) error {
-	data, err := ioutil.ReadAll(r)
-	if err != nil {
-		return err
-	}
-	*p = PluginMessageData(data)
-	return nil
+// Decode a NBT
+func (n NBT) Decode(r DecodeReader) error {
+	return nbt.NewDecoder(r).Decode(&n.V)
 }
