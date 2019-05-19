@@ -39,24 +39,24 @@ func TestUnpackInt(t *testing.T) {
 	}
 }
 
-func TestPositionPack(t *testing.T) {
-	// This test is not good.
+// func TestPositionPack(t *testing.T) {
+// 	// This test is not good.
 
-	for x := -33554432; x < 33554432; x += 55443 {
-		for y := -2048; y < 2048; y += 48 {
-			for z := -33554432; z < 33554432; z += 55443 {
-				var (
-					pos1 Position
-					pos2 = Position{x, y, z}
-				)
-				if err := pos1.Decode(bytes.NewReader(pos2.Encode())); err != nil {
-					t.Errorf("Position decode fail: %v", err)
-				}
+// 	for x := -33554432; x < 33554432; x += 55443 {
+// 		for y := -2048; y < 2048; y += 48 {
+// 			for z := -33554432; z < 33554432; z += 55443 {
+// 				var (
+// 					pos1 Position
+// 					pos2 = Position{x, y, z}
+// 				)
+// 				if err := pos1.Decode(bytes.NewReader(pos2.Encode())); err != nil {
+// 					t.Errorf("Position decode fail: %v", err)
+// 				}
 
-				if pos1 != pos2 {
-					t.Errorf("cannot pack %v", pos2)
-				}
-			}
-		}
-	}
-}
+// 				if pos1 != pos2 {
+// 					t.Errorf("cannot pack %v", pos2)
+// 				}
+// 			}
+// 		}
+// 	}
+// }
