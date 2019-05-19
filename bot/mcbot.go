@@ -13,7 +13,7 @@ import (
 )
 
 // ProtocalVersion , the protocal version number of minecraft net protocal
-const ProtocalVersion = 477
+const ProtocalVersion = 480
 
 // PingAndList chack server status and list online player.
 // Returns a JSON data with server status, and the delay.
