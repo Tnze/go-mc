@@ -152,3 +152,9 @@ func (c *Client) JoinServer(addr string, port int) (err error) {
 		}
 	}
 }
+
+// Conn return the MCConn of the Client.
+// Only used when you want to handle the packets by yourself
+func (c *Client) Conn() *net.Conn {
+	return c.conn
+}

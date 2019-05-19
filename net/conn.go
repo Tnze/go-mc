@@ -10,8 +10,31 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+// A Listener is a minecraft Listener
+type Listener struct{ net.Listener }
+
+//ListenMC listen as TCP but Accept a mc Conn
+func ListenMC(addr string) (*Listener, error) {
+	l, err := net.Listen("tcp", addr)
+	if err != nil {
+		return nil, err
+	}
+	return &Listener{l}, nil
+}
+
+//Accept a miencraft Conn
+func (l Listener) Accept() (Conn, error) {
+	conn, err := l.Listener.Accept()
+	return Conn{
+		Socket:     conn,
+		ByteReader: bufio.NewReader(conn),
+		Writer:     conn,
+	}, err
+}
+
+//Conn is a minecraft Connection
 type Conn struct {
-	socket net.Conn
+	Socket net.Conn
 	io.ByteReader
 	io.Writer
 
@@ -19,18 +42,17 @@ type Conn struct {
 }
 
 // DialMC create a Minecraft connection
-func DialMC(addr string) (conn *Conn, err error) {
-	conn = new(Conn)
-	conn.socket, err = net.Dial("tcp", addr)
-	if err != nil {
-		return
-	}
-
-	conn.ByteReader = bufio.NewReader(conn.socket)
-	conn.Writer = conn.socket
-
-	return
+func DialMC(addr string) (*Conn, error) {
+	conn, err := net.Dial("tcp", addr)
+	return &Conn{
+		Socket:     conn,
+		ByteReader: bufio.NewReader(conn),
+		Writer:     conn,
+	}, err
 }
+
+//Close close the connection
+func (c *Conn) Close() error { return c.Socket.Close() }
 
 // ReadPacket read a Packet from Conn.
 func (c *Conn) ReadPacket() (pk.Packet, error) {
@@ -52,11 +74,11 @@ func (c *Conn) SetCipher(encoStream, decoStream cipher.Stream) {
 	//加密连接
 	c.ByteReader = bufio.NewReader(cipher.StreamReader{ //Set reciver for AES
 		S: decoStream,
-		R: c.socket,
+		R: c.Socket,
 	})
 	c.Writer = cipher.StreamWriter{
 		S: encoStream,
-		W: c.socket,
+		W: c.Socket,
 	}
 }
 

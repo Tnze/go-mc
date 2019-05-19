@@ -51,7 +51,7 @@ func Authenticate(user, passwd string) (respData Response, err error) {
 		err = fmt.Errorf("make request error: %v", err)
 		return
 	}
-	PostRequest.Header.Set("User-Agent", "gomcbot")
+	PostRequest.Header.Set("User-Agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
 	resp, err := client.Do(PostRequest)
 	if err != nil {
