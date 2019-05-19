@@ -6,15 +6,18 @@ import (
 	"math"
 )
 
+// A Field is both FieldEncoder and FieldDecoder
 type Field interface {
 	FieldEncoder
 	FieldDecoder
 }
 
+// A FieldEncoder can be encode as minecraft protocal used.
 type FieldEncoder interface {
 	Encode() []byte
 }
 
+// A FieldDecoder can Decode from minecraft protocal
 type FieldDecoder interface {
 	Decode(r DecodeReader) error
 }

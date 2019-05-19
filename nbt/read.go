@@ -303,7 +303,7 @@ func (d *Decoder) readTag() (tagType byte, tagName string, err error) {
 
 func (d *Decoder) readNByte(n int) (buf []byte, err error) {
 	buf = make([]byte, n)
-	_, err = d.r.Read(buf) //what happend if (returned n) != (argument n) ?
+	_, err = d.r.Read(buf) //what happened if (returned n) != (argument n) ?
 	return
 }
 

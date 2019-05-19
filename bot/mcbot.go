@@ -12,8 +12,8 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-// ProtocalVersion , the protocal version number of minecraft net protocal
-const ProtocalVersion = 480
+// ProtocolVersion , the protocol version number of minecraft net protocol
+const ProtocolVersion = 480
 
 // PingAndList chack server status and list online player.
 // Returns a JSON data with server status, and the delay.
@@ -30,7 +30,7 @@ func PingAndList(addr string, port int) ([]byte, time.Duration, error) {
 		//Handshake Packet
 		pk.Marshal(
 			0x00,                       //Handshake packet ID
-			pk.VarInt(ProtocalVersion), //Protocal version
+			pk.VarInt(ProtocolVersion), //Protocol version
 			pk.String(addr),            //Server's address
 			pk.UnsignedShort(port),
 			pk.Byte(1),
@@ -94,7 +94,7 @@ func (c *Client) JoinServer(addr string, port int) (err error) {
 		//Handshake Packet
 		pk.Marshal(
 			0x00,                       //Handshake packet ID
-			pk.VarInt(ProtocalVersion), //Protocal version
+			pk.VarInt(ProtocolVersion), //Protocol version
 			pk.String(addr),            //Server's address
 			pk.UnsignedShort(port),
 			pk.Byte(2),
