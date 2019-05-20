@@ -432,10 +432,58 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	if !c.settings.ReciveMap {
 		return nil
 	}
+	var (
+		X, Z           pk.Int
+		FullChunk      pk.Boolean
+		PrimaryBitMask pk.VarInt
+		Heightmaps     struct{}
+		Data           chunkData
+		BlockEntities  blockEntities
+	)
 
-	chunk, x, z, err := world.UnpackChunkDataPacket(p, c.Dimension == 0)
-	c.Wd.Chunks[world.ChunkLoc{x, z}] = chunk
+	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Data, &BlockEntities); err != nil {
+		return err
+	}
+	chunk, err := world.DecodeChunkColumn(bool(FullChunk), int32(PrimaryBitMask), Data)
+	if err != nil {
+		return fmt.Errorf("decode chunk column fail: %v", err)
+	}
+
+	c.Wd.LoadChunk(int(X), int(Z), chunk)
+
 	return err
+}
+
+type chunkData []byte
+type blockEntities []blockEntitie
+type blockEntitie struct {
+}
+
+func (c *chunkData) Decode(r pk.DecodeReader) error {
+	var Size pk.VarInt
+	if err := Size.Decode(r); err != nil {
+		return err
+	}
+	*c = make([]byte, Size)
+	if _, err := r.Read(*c); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *blockEntities) Decode(r pk.DecodeReader) error {
+	var NumberofBlockEntities pk.VarInt
+	if err := NumberofBlockEntities.Decode(r); err != nil {
+		return err
+	}
+	*b = make(blockEntities, NumberofBlockEntities)
+	decoder := nbt.NewDecoder(r)
+	for i := 0; i < int(NumberofBlockEntities); i++ {
+		if err := decoder.Decode(&(*b)[i]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // var isSpawn bool
@@ -486,111 +534,6 @@ func handlePlayerPositionAndLookPacket(c *Client, p pk.Packet) error {
 	))
 }
 
-// func handleDeclareRecipesPacket(g *Client, r *bytes.Reader) {
-// 	//Ignore Declare Recipes Packet
-
-// 	// NumRecipes, index := pk.UnpackVarInt(p.Data)
-// 	// for i := 0; i < int(NumRecipes); i++ {
-// 	// 	RecipeID, len := pk.UnpackString(p.Data[index:])
-// 	// 	index += len
-// 	// 	Type, len := pk.UnpackString(p.Data[index:])
-// 	// 	index += len
-// 	// 	switch Type {
-// 	// 	case "crafting_shapeless":
-// 	// 	}
-// 	// }
-// }
-
-// func handleEntityLookAndRelativeMove(g *Client, r *bytes.Reader) error {
-// 	ID, err := pk.UnpackVarInt(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	E := g.wd.Entities[ID]
-// 	if E != nil {
-// 		P, ok := E.(*Player)
-// 		if !ok {
-// 			return nil
-// 		}
-// 		DeltaX, err := pk.UnpackInt16(r)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		DeltaY, err := pk.UnpackInt16(r)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		DeltaZ, err := pk.UnpackInt16(r)
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		yaw, err := r.ReadByte()
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		pitch, err := r.ReadByte()
-// 		if err != nil {
-// 			return err
-// 		}
-// 		P.Yaw += float32(yaw) * (1.0 / 256)
-// 		P.Pitch += float32(pitch) * (1.0 / 256)
-
-// 		og, err := r.ReadByte()
-// 		if err != nil {
-// 			return err
-// 		}
-// 		P.OnGround = og != 0x00
-
-// 		P.X += float64(DeltaX) / 128
-// 		P.Y += float64(DeltaY) / 128
-// 		P.Z += float64(DeltaZ) / 128
-// 	}
-// 	return nil
-// }
-
-// func handleEntityHeadLookPacket(g *Client, r *bytes.Reader) {
-
-// }
-
-// func handleEntityRelativeMovePacket(g *Client, r *bytes.Reader) error {
-// 	ID, err := pk.UnpackVarInt(r)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	E := g.wd.Entities[ID]
-// 	if E != nil {
-// 		P, ok := E.(*Player)
-// 		if !ok {
-// 			return nil
-// 		}
-// 		DeltaX, err := pk.UnpackInt16(r)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		DeltaY, err := pk.UnpackInt16(r)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		DeltaZ, err := pk.UnpackInt16(r)
-// 		if err != nil {
-// 			return err
-// 		}
-
-// 		og, err := r.ReadByte()
-// 		if err != nil {
-// 			return err
-// 		}
-// 		P.OnGround = og != 0x00
-
-// 		P.X += float64(DeltaX) / 128
-// 		P.Y += float64(DeltaY) / 128
-// 		P.Z += float64(DeltaZ) / 128
-// 	}
-// 	return nil
-// }
-
 func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 	var KeepAliveID pk.Long
 	if err := p.Scan(&KeepAliveID); err != nil {
@@ -602,54 +545,6 @@ func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 		KeepAliveID,
 	))
 }
-
-// func handleEntityPacket(g *Client, r *bytes.Reader) {
-// 	// initialize an entity.
-// }
-
-// func handleSpawnPlayerPacket(g *Client, r *bytes.Reader) (err error) {
-// 	np := new(Player)
-// 	np.entityID, err = pk.UnpackVarInt(r)
-// 	if err != nil {
-// 		return
-// 	}
-// 	np.UUID[0], err = pk.UnpackInt64(r)
-// 	if err != nil {
-// 		return
-// 	}
-// 	np.UUID[1], err = pk.UnpackInt64(r)
-// 	if err != nil {
-// 		return
-// 	}
-// 	np.X, err = pk.UnpackDouble(r)
-// 	if err != nil {
-// 		return
-// 	}
-// 	np.Y, err = pk.UnpackDouble(r)
-// 	if err != nil {
-// 		return
-// 	}
-// 	np.Z, err = pk.UnpackDouble(r)
-// 	if err != nil {
-// 		return
-// 	}
-
-// 	yaw, err := r.ReadByte()
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	pitch, err := r.ReadByte()
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	np.Yaw = float32(yaw) * (1.0 / 256)
-// 	np.Pitch = float32(pitch) * (1.0 / 256)
-
-// 	g.wd.Entities[np.entityID] = np //把该玩家添加到全局实体表里面
-// 	return nil
-// }
 
 func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
 	r := bytes.NewReader(p.Data)
@@ -695,54 +590,3 @@ func sendPlayerPositionAndLookPacket(c *Client) {
 		pk.Boolean(c.OnGround),
 	))
 }
-
-// func sendPlayerLookPacket(g *Client) {
-// 	var data []byte
-// 	data = append(data, pk.PackFloat(g.player.Yaw)...)
-// 	data = append(data, pk.PackFloat(g.player.Pitch)...)
-// 	data = append(data, pk.PackBoolean(g.player.OnGround))
-// 	g.sendChan <- pk.Packet{
-// 		ID:   0x12,
-// 		Data: data,
-// 	}
-// }
-
-// func sendPlayerPositionPacket(g *Client) {
-// 	var data []byte
-// 	data = append(data, pk.PackDouble(g.player.X)...)
-// 	data = append(data, pk.PackDouble(g.player.Y)...)
-// 	data = append(data, pk.PackDouble(g.player.Z)...)
-// 	data = append(data, pk.PackBoolean(g.player.OnGround))
-
-// 	g.sendChan <- pk.Packet{
-// 		ID:   0x10,
-// 		Data: data,
-// 	}
-// }
-
-// func sendClientStatusPacket(g *Client, status int32) {
-// 	data := pk.PackVarInt(status)
-// 	g.sendChan <- pk.Packet{
-// 		ID:   0x03,
-// 		Data: data,
-// 	}
-// }
-
-// func sendPlayerDiggingPacket(g *Client, status int32, x, y, z int, face Face) {
-// 	data := pk.PackVarInt(status)
-// 	data = append(data, pk.PackPosition(x, y, z)...)
-// 	data = append(data, byte(face))
-
-// 	g.sendChan <- pk.Packet{
-// 		ID:   0x18,
-// 		Data: data,
-// 	}
-// }
-
-// func sendUseItemPacket(g *Client, hand int32) {
-// 	data := pk.PackVarInt(hand)
-// 	g.sendChan <- pk.Packet{
-// 		ID:   0x2A,
-// 		Data: data,
-// 	}
-// }

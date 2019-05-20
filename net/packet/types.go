@@ -352,5 +352,5 @@ func (d *Double) Decode(r DecodeReader) error {
 
 // Decode a NBT
 func (n NBT) Decode(r DecodeReader) error {
-	return nbt.NewDecoder(r).Decode(&n.V)
+	return nbt.NewDecoder(r).Decode(n.V)
 }

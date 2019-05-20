@@ -41,8 +41,10 @@ func NewClient() (c *Client) {
 	c.Name = "Steve"
 	c.Delegate = make(chan func() error)
 
-	c.Wd.Entities = make(map[int32]entity.Entity)
-	c.Wd.Chunks = make(map[world.ChunkLoc]*world.Chunk)
+	c.Wd = world.World{
+		Entities: make(map[int32]entity.Entity),
+		Chunks:   make(map[world.ChunkLoc]*world.Chunk),
+	}
 
 	return
 }

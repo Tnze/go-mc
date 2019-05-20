@@ -70,3 +70,8 @@ type ChunkLoc struct {
 // func (b Block) String() string {
 // 	return blockNameByID[b.id]
 // }
+
+//LoadChunk load chunk at (x, z)
+func (w *World) LoadChunk(x, z int, c *Chunk) {
+	w.Chunks[ChunkLoc{X: x, Z: z}] = c
+}
