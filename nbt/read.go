@@ -262,6 +262,28 @@ func (d *Decoder) skip(tagType byte) error {
 		if _, err = d.readNByte(int(aryLen)); err != nil {
 			return err
 		}
+	case TagIntArray:
+		aryLen, err := d.readInt32()
+		if err != nil {
+			return err
+		}
+		for i := 0; i < int(aryLen); i++ {
+			if _, err := d.readInt32(); err != nil {
+				return err
+			}
+		}
+
+	case TagLongArray:
+		aryLen, err := d.readInt32()
+		if err != nil {
+			return err
+		}
+		for i := 0; i < int(aryLen); i++ {
+			if _, err := d.readInt64(); err != nil {
+				return err
+			}
+		}
+
 	case TagList:
 		listType, err := d.r.ReadByte()
 		if err != nil {
