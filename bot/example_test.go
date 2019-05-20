@@ -48,7 +48,8 @@ func ExampleClient_JoinServer_online() {
 		panic(err)
 	}
 	c.Name = auth.SelectedProfile.Name
-	c.AsTk = auth.SelectedProfile.ID
+	c.Auth.UUID = auth.SelectedProfile.ID
+	c.AsTk = auth.AccessToken
 
 	//Connect server
 	err = c.JoinServer("localhost", 25565)
