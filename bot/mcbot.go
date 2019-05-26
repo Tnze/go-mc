@@ -148,7 +148,9 @@ func (c *Client) JoinServer(addr string, port int) (err error) {
 			}
 			c.conn.SetThreshold(int(threshold))
 		case 0x04: //Login Plugin Request
-			// fmt.Println("Waring Login Plugin Request")//TODO: handle plugin request
+			if err := handlePluginPacket(c, pack); err != nil {
+				return fmt.Errorf("bot: handle plugin packet fail: %v", err)
+			}
 		}
 	}
 }

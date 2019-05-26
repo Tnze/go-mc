@@ -9,9 +9,11 @@ There's some library in Go support you to create your Minecraft client or server
 这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器，
 - [x] Mojang authenticate
 - [x] Minecraft network protocal
-- [x] Parse chat message
+- [x] Chat
 - [x] Simple MC robot lib
 - [x] Parse NBT
+- [x] Use item
+- [x] Swing arm
 
 > 由于仍在开发中，部分API在未来版本中可能会变动
 

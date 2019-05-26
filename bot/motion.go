@@ -1,13 +1,14 @@
 package bot
 
 import (
-	"fmt"
+	"errors"
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 //SwingArm swing player's arm.
-//hand could be one of 0: main hand, 1: off hand
+//hand could be one of 0: main hand, 1: off hand.
+//It's just animation.
 func (c *Client) SwingArm(hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
 		data.AnimationServerbound,
@@ -35,7 +36,7 @@ func (c *Client) UseItem(hand int) error {
 //Chat send chat as chat message or command at textbox.
 func (c *Client) Chat(msg string) error {
 	if len(msg) > 256 {
-		return fmt.Errorf("message too long")
+		return errors.New("message too long")
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
