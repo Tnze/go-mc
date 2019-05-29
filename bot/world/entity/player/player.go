@@ -11,7 +11,7 @@ type Player struct {
 	Yaw, Pitch float32
 	OnGround   bool
 
-	HeldItem  int //拿着的物品栏位
+	HeldItem int //拿着的物品栏位
 
 	Health         float32 //血量
 	Food           int32   //饱食度
