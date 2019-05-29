@@ -1,12 +1,18 @@
 package main
 
 import (
-	"github.com/Tnze/go-mc/bot"
 	"log"
+	"os"
+
+	"github.com/Tnze/go-mc/bot"
 )
 
 func main() {
-	resp, delay, err := bot.PingAndList("play.miaoscraft.cn", 25565)
+	if len(os.Args) < 2 {
+		log.Fatalln("no host name. Useage: ping [hostname]")
+	}
+
+	resp, delay, err := bot.PingAndList(os.Args[1], 25565)
 	if err != nil {
 		log.Fatalf("ping and list server fail: %v", err)
 	}

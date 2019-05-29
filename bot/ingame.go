@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+
 	// "math"
 	// "time"
 	"fmt"
@@ -123,6 +124,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.NamedSoundEffect:
 		err = handleNamedSoundEffect(c, p)
 	default:
+		
 		// fmt.Printf("ignore pack id %X\n", p.ID)
 	}
 	return

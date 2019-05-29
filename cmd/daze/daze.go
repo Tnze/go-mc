@@ -1,10 +1,11 @@
 package main
 
 import (
-	// "github.com/Tnze/go-mc/authenticate"
+	"log"
+
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
-	"log"
+	// "github.com/Tnze/go-mc/authenticate"
 )
 
 func main() {
