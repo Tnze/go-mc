@@ -1,3 +1,7 @@
+//创建一个服务器代理，自带正版验证登录
+//Create a server proxy with authenticated login
+//非正版客户端连接此程序时可以以正版身份进入指定服务器
+//Offline-clients can access the designated server as online when connecting to this program
 package main
 
 import (
@@ -20,7 +24,7 @@ import (
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 )
 
 func main() {
@@ -133,7 +137,6 @@ func Handle(conn net.Conn) {
 				return
 			}
 		}
-
 	}
 }
 
