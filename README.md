@@ -1,6 +1,6 @@
 # Go-MC
-![](https://img.shields.io/badge/Minecraft-1.14.1-blue.svg)
-![](https://img.shields.io/badge/Protocol-480-blue.svg)
+![](https://img.shields.io/badge/Minecraft-1.14.2-blue.svg)
+![](https://img.shields.io/badge/Protocol-485-blue.svg)
 [![GoDoc](https://godoc.org/github.com/Tnze/go-mc?status.svg)](https://godoc.org/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)

@@ -13,7 +13,7 @@ import (
 )
 
 // ProtocolVersion , the protocol version number of minecraft net protocol
-const ProtocolVersion = 480
+const ProtocolVersion = 485
 
 // PingAndList chack server status and list online player.
 // Returns a JSON data with server status, and the delay.
