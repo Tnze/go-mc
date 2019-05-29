@@ -2,6 +2,8 @@
 //Create a server proxy with authenticated login
 //非正版客户端连接此程序时可以以正版身份进入指定服务器
 //Offline-clients can access the designated server as online when connecting to this program
+
+//That is, it implements a simple server and client
 package main
 
 import (
@@ -27,8 +29,29 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const verifyTokenLen = 16
+
+//Proxy login info
+const (
+	Email = "YourEmail"
+	Paswd = "YourPassword"
+)
+
+//Proxy server settings
+const (
+	ServerIP   = "localhost"
+	ServerPort = 25565
+	onlineMode = true
+)
+
+//Target server address
+const (
+	RemoteServerIP   = "YourTargetServerIP"
+	RemoteServerPort = 25565
+)
+
 func main() {
-	listener, err := net.ListenMC(fmt.Sprintf("%s:%d", ServerID, ServerPort))
+	listener, err := net.ListenMC(fmt.Sprintf("%s:%d", ServerIP, ServerPort))
 	if err != nil {
 		panic(err)
 	}
@@ -41,13 +64,8 @@ func main() {
 	}
 }
 
-const (
-	//Threshold 指定了数据传输时最小压缩包大小
-	Threshold = 256
-
-	ServerID   = ""
-	ServerPort = 25565
-)
+//Threshold 指定了数据传输时最小压缩包大小
+const Threshold = 256
 
 //Client 封装了与客户端之间的底层的网络交互
 type Client struct {
@@ -84,7 +102,7 @@ func Handle(conn net.Conn) {
 	case PlayerLogin:
 		signal := make(chan int)
 		client := bot.NewClient()
-		auth, err := authenticate.Authenticate("Email", "Paswd")
+		auth, err := authenticate.Authenticate(Email, Paswd)
 		if err != nil {
 			panic(err)
 		}
@@ -218,9 +236,6 @@ func disconnectID(protocal int32) byte {
 	}
 }
 
-const verifyTokenLen = 16
-const OnlineMode = true
-
 func (c *Client) login() (err error) {
 	c.Name, err = c.loginStart()
 	if err != nil {
@@ -234,7 +249,7 @@ func (c *Client) login() (err error) {
 		}
 	}
 
-	if OnlineMode {
+	if onlineMode {
 		key, err := rsa.GenerateKey(rand.Reader, 1024)
 		if err != nil {
 			return fmt.Errorf("unexpected_query_response")
