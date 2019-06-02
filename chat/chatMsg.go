@@ -16,16 +16,16 @@ type Message jsonChat
 type jsonChat struct {
 	Text string `json:"text"`
 
-	Bold          bool   `json:"bold"`          //粗体
-	Italic        bool   `json:"Italic"`        //斜体
-	UnderLined    bool   `json:"underlined"`    //下划线
-	StrikeThrough bool   `json:"strikethrough"` //删除线
-	Obfuscated    bool   `json:"obfuscated"`    //随机
-	Color         string `json:"color"`
+	Bold          bool   `json:"bold,omitempty"`          //粗体
+	Italic        bool   `json:"Italic,omitempty"`        //斜体
+	UnderLined    bool   `json:"underlined,omitempty"`    //下划线
+	StrikeThrough bool   `json:"strikethrough,omitempty"` //删除线
+	Obfuscated    bool   `json:"obfuscated,omitempty"`    //随机
+	Color         string `json:"color,omitempty"`
 
-	Translate string            `json:"translate"`
-	With      []json.RawMessage `json:"with"` // How can go handle an JSON array with Object and String?
-	Extra     []jsonChat        `json:"extra"`
+	Translate string            `json:"translate,omitempty"`
+	With      []json.RawMessage `json:"with,omitempty"` // How can go handle an JSON array with Object and String?
+	Extra     []jsonChat        `json:"extra,omitempty"`
 }
 
 //UnmarshalJSON decode json to Message
