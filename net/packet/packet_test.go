@@ -19,7 +19,7 @@ var PackedVarInts = [][]byte{
 	[]byte{0x80, 0x80, 0x80, 0x80, 0x08},
 }
 
-func TestPackInt(t *testing.T) {
+func TestPackVarInt(t *testing.T) {
 	for i, v := range VarInts {
 		p := v.Encode()
 		if !bytes.Equal(p, PackedVarInts[i]) {
@@ -27,7 +27,7 @@ func TestPackInt(t *testing.T) {
 		}
 	}
 }
-func TestUnpackInt(t *testing.T) {
+func TestUnpackVarInt(t *testing.T) {
 	for i, v := range PackedVarInts {
 		var vi VarInt
 		if err := vi.Decode(bytes.NewReader(v)); err != nil {

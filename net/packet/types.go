@@ -76,6 +76,9 @@ type (
 	NBT struct {
 		V interface{}
 	}
+
+	//ByteArray is []byte with perfix VarInt as length
+	ByteArray []byte
 )
 
 //ReadNBytes read N bytes from bytes.Reader
@@ -353,4 +356,20 @@ func (d *Double) Decode(r DecodeReader) error {
 // Decode a NBT
 func (n NBT) Decode(r DecodeReader) error {
 	return nbt.NewDecoder(r).Decode(n.V)
+}
+
+// Encode a ByteArray
+func (b *ByteArray) Encode() []byte {
+	return append(VarInt(len(*b)).Encode(), *b...)
+}
+
+// Decode a ByteArray
+func (b *ByteArray) Decode(r DecodeReader) error {
+	var Len VarInt
+	if err := Len.Decode(r); err != nil {
+		return err
+	}
+	*b = make([]byte, Len)
+	_, err := r.Read(*b)
+	return err
 }

@@ -377,27 +377,13 @@ func (c *Client) encryptionResponse() ([]byte, []byte, error) {
 	}
 
 	var (
-		SharedSecret ByteArray
-		VerifyToken  ByteArray
+		SharedSecret pk.ByteArray
+		VerifyToken  pk.ByteArray
 	)
 	if err := p.Scan(&SharedSecret, &VerifyToken); err != nil {
 		return nil, nil, err
 	}
 	return SharedSecret, VerifyToken, nil
-}
-
-//ByteArray is []byte with perfix VarInt as length
-type ByteArray []byte
-
-// Decode a ByteArray
-func (b *ByteArray) Decode(r pk.DecodeReader) error {
-	var Len pk.VarInt
-	if err := Len.Decode(r); err != nil {
-		return err
-	}
-	*b = make([]byte, Len)
-	_, err := r.Read(*b)
-	return err
 }
 
 type authResp struct {
