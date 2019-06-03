@@ -359,8 +359,8 @@ func (n NBT) Decode(r DecodeReader) error {
 }
 
 // Encode a ByteArray
-func (b *ByteArray) Encode() []byte {
-	return append(VarInt(len(*b)).Encode(), *b...)
+func (b ByteArray) Encode() []byte {
+	return append(VarInt(len(b)).Encode(), b...)
 }
 
 // Decode a ByteArray
