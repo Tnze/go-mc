@@ -182,7 +182,10 @@ func handleDisconnectPacket(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	return c.Events.Disconnect(reason)
+	if c.Events.Disconnect != nil {
+		return c.Events.Disconnect(reason)
+	}
+	return nil
 }
 
 func handleSetSlotPacket(c *Client, p pk.Packet) error {
