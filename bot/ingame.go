@@ -358,9 +358,8 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 type pluginMessageData []byte
 
 //Encode a PluginMessageData
-func (p *pluginMessageData) Encode(r io.Writer) error {
-	_, err := r.Write([]byte(*p))
-	return err
+func (p pluginMessageData) Encode() []byte {
+	return []byte(p)
 }
 
 //Decode a PluginMessageData
@@ -490,8 +489,6 @@ func (b *blockEntities) Decode(r pk.DecodeReader) error {
 	}
 	return nil
 }
-
-// var isSpawn bool
 
 func handlePlayerPositionAndLookPacket(c *Client, p pk.Packet) error {
 	var (
