@@ -2,6 +2,8 @@ package bot
 
 import (
 	"errors"
+	"strconv"
+
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -90,7 +92,7 @@ func (c *Client) PluginMessage(channal string, msg []byte) error {
 	))
 }
 
-// PlaceBlock is used to place a block.
+// UseBlock is used to place or use a block.
 // hand is the hand from which the block is placed; 0: main hand, 1: off hand.
 // face is the face on which the block is placed.
 //
@@ -100,21 +102,22 @@ func (c *Client) PluginMessage(channal string, msg []byte) error {
 // cursorZ, from 0 to 1 increasing from north to south.
 //
 // insideBlock is true when the player's head is inside of a block's collision.
-func (c *Client) PlaceBlock(hand, locX, locY, locZ, face int, cursorX, cursorY, cursorZ float32, insideBlock bool) error {
+func (c *Client) UseBlock(hand, locX, locY, locZ, face int, cursorX, cursorY, cursorZ float32, insideBlock bool) error {
 	return c.conn.WritePacket(pk.Marshal(
 		data.PlayerBlockPlacement,
 		pk.VarInt(hand),
-		pk.Position{locX, locY, locZ},
+		pk.Position{X: locX, Y: locY, Z: locZ},
 		pk.VarInt(face),
 		pk.Float(cursorX), pk.Float(cursorY), pk.Float(cursorZ),
 		pk.Boolean(insideBlock),
 	))
 }
 
-// ChangeHeldItem used to change the slot selection in hotbar.
-func (c *Client) ChangeHeldItem(slot int) error {
+// SelectItem used to change the slot selection in hotbar.
+// slot should from 0 to 8
+func (c *Client) SelectItem(slot int) error {
 	if slot < 0 || slot > 8 {
-		return errors.New("invalid slot")
+		return errors.New("invalid slot: " + strconv.Itoa(slot))
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
@@ -144,12 +147,14 @@ func (c *Client) playerAction(status, locX, locY, locZ, face int) error {
 	return c.conn.WritePacket(pk.Marshal(
 		data.PlayerDigging,
 		pk.VarInt(status),
-		pk.Position{locX, locY, locZ},
-		pk.VarInt(face),
+		pk.Position{X: locX, Y: locY, Z: locZ},
+		pk.Byte(face),
 	))
 }
 
 // Dig used to start, end or cancel a digging
+// status is 0 for start digging, 1 for cancel and 2 if client think it done.
+// To digging a block without cancel, use status 0 and 2 once each.
 func (c *Client) Dig(status, locX, locY, locZ, face int) error {
 	return c.playerAction(status, locX, locY, locZ, face)
 }
@@ -164,12 +169,12 @@ func (c *Client) DropItem() error {
 	return c.playerAction(4, 0, 0, 0, 0)
 }
 
-// UseItemEnd used to finish UseItem, like eating food, pulling back bows
+// UseItemEnd used to finish UseItem, like eating food, pulling back bows.
 func (c *Client) UseItemEnd() error {
 	return c.playerAction(5, 0, 0, 0, 0)
 }
 
-// SwapItem used to swap the items in hands
+// SwapItem used to swap the items in hands.
 func (c *Client) SwapItem() error {
 	return c.playerAction(6, 0, 0, 0, 0)
 }

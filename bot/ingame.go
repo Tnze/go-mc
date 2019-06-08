@@ -3,7 +3,6 @@ package bot
 import (
 	"bytes"
 	"errors"
-	"io"
 	"io/ioutil"
 
 	// "math"
@@ -200,13 +199,13 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 
 	switch int8(windowID) {
 	case 0: //if window ID is 0, it will only change the hotbar
-		if slotI < 32 || slotI > 44 {
-			return errors.New("server set slot error")
+		if slotI < 36 || slotI > 45 {
+			return fmt.Errorf("slot %d out of range for window %d", slotI, windowID)
 		}
 		fallthrough
 	case -2: //or if it's -2, server can change any slot without animation
 		if slotI < 0 || slotI > 45 {
-			return errors.New("server set slot out of range")
+			return fmt.Errorf("slot %d out of range for window %d", slotI, windowID)
 		}
 		c.Inventory[slotI] = slot
 	}
