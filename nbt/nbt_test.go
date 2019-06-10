@@ -13,13 +13,23 @@ func TestUnmarshal_string(t *testing.T) {
 		0x42, 0x61, 0x6e, 0x61, 0x6e, 0x72, 0x61, 0x6d, 0x61,
 	}
 
+	//Unmarshal to string
 	var Name string
-
 	if err := Unmarshal(data, &Name); err != nil {
 		t.Fatal(err)
 	}
 
 	if Name != "Bananrama" {
+		t.Errorf("Unmarshal NBT fail: get %q, want %q", Name, "Bananrama")
+	}
+
+	//Unmarshal to interface{}
+	var infName interface{}
+	if err := Unmarshal(data, &infName); err != nil {
+		t.Fatal(err)
+	}
+
+	if infName != "Bananrama" {
 		t.Errorf("Unmarshal NBT fail: get %q, want %q", Name, "Bananrama")
 	}
 }
@@ -188,6 +198,17 @@ func TestUnmarshal_bittest(t *testing.T) {
 	if err := NewDecoder(r).Decode(&empty); err != nil {
 		t.Fatal(err)
 	}
+
+	//test unmarshal to interface{}
+	var inf interface{}
+	r, err = gzip.NewReader(bytes.NewReader(data))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := NewDecoder(r).Decode(&inf); err != nil {
+		t.Fatal(err)
+	}
+	t.Log(inf)
 }
 
 func TestUnmarshal_IntArray(t *testing.T) {
@@ -234,8 +255,9 @@ func TestUnmarshal_LongArray(t *testing.T) {
 		0, 0, 0, 0, 0, 0, 0, 3,
 	}
 	var (
-		value []int64
-		want  = []int64{1, 2, 3}
+		value    []int64
+		infValue interface{}
+		want     = []int64{1, 2, 3}
 	)
 
 	if err := Unmarshal(data, &value); err != nil {
@@ -244,6 +266,43 @@ func TestUnmarshal_LongArray(t *testing.T) {
 	if !reflect.DeepEqual(value, want) {
 		t.Errorf("parse fail, expect %v, get %v", want, value)
 	}
+	// t.Log(value)
 
-	t.Log(value)
+	if err := Unmarshal(data, &infValue); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(infValue, want) {
+		t.Errorf("parse fail, expect %v, get %v", want, infValue)
+	}
+	// t.Log(infValue)
+}
+func TestUnmarshal_ByteArray(t *testing.T) {
+	data := []byte{
+		TagByteArray, 0, 0,
+		0, 0, 0, 7,
+		0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	}
+	var (
+		value    []byte
+		infValue interface{}
+		want     = []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
+	)
+
+	//Unmarshal to []byte
+	if err := Unmarshal(data, &value); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(value, want) {
+		t.Errorf("parse fail, expect %v, get %v", want, value)
+	}
+	// t.Log(value)
+
+	//Unmarshal to interface{}
+	if err := Unmarshal(data, &infValue); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(infValue, want) {
+		t.Errorf("parse fail, expect %v, get %v", want, value)
+	}
+	// t.Log(infValue)
 }
