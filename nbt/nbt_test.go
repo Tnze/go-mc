@@ -208,7 +208,7 @@ func TestUnmarshal_bittest(t *testing.T) {
 	if err := NewDecoder(r).Decode(&inf); err != nil {
 		t.Fatal(err)
 	}
-	t.Log(inf)
+	// t.Log(inf)
 }
 
 func TestUnmarshal_IntArray(t *testing.T) {

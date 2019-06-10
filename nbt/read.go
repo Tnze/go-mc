@@ -95,6 +95,8 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 			val.Set(reflect.ValueOf(value))
 		case reflect.Float64:
 			val.Set(reflect.ValueOf(float64(value)))
+		case reflect.Interface:
+			val.Set(reflect.ValueOf(value))
 		}
 
 	case TagLong:
@@ -228,7 +230,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		default:
 			return errors.New("cannot parse TagList as " + vk.String())
 		case reflect.Interface:
-			fallthrough
+			buf = reflect.ValueOf(make([]interface{}, listLen))
 		case reflect.Slice:
 			buf = reflect.MakeSlice(val.Type(), int(listLen), int(listLen))
 		case reflect.Array:
@@ -245,7 +247,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 			}
 		}
 
-		if val.Kind() != reflect.Array {
+		if vk != reflect.Array {
 			val.Set(buf)
 		}
 
@@ -276,7 +278,22 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 				}
 			}
 		case reflect.Interface:
-
+			buf := make(map[string]interface{})
+			for {
+				tt, tn, err := d.readTag()
+				if err != nil {
+					return err
+				}
+				if tt == TagEnd {
+					break
+				}
+				var value interface{}
+				if err = d.unmarshal(reflect.ValueOf(&value).Elem(), tt, tn); err != nil {
+					return err
+				}
+				buf[tn] = value
+			}
+			val.Set(reflect.ValueOf(buf))
 		}
 	}
 
