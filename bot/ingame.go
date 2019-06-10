@@ -3,11 +3,8 @@ package bot
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
-
-	// "math"
-	// "time"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
@@ -89,19 +86,19 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.PlayerPositionAndLookClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
 		sendPlayerPositionAndLookPacket(c) // to confirm the position
-	case 0x5A:
+	case data.DeclareRecipes:
 		// handleDeclareRecipesPacket(g, reader)
-	case 0x29:
+	case data.EntityLookAndRelativeMove:
 		// err = handleEntityLookAndRelativeMove(g, reader)
-	case 0x3B:
+	case data.EntityHeadLook:
 		// handleEntityHeadLookPacket(g, reader)
-	case 0x28:
+	case data.EntityRelativeMove:
 		// err = handleEntityRelativeMovePacket(g, reader)
 	case data.KeepAliveClientbound:
 		err = handleKeepAlivePacket(c, p)
-	case 0x2B:
+	case data.Entity:
 		//handleEntityPacket(g, reader)
-	case 0x05:
+	case data.SpawnPlayer:
 		// err = handleSpawnPlayerPacket(g, reader)
 	case data.WindowItems:
 		err = handleWindowItemsPacket(c, p)
@@ -113,7 +110,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		////err = handleBlockChangePacket(c, p)
 	case data.MultiBlockChange:
 		////err = handleMultiBlockChangePacket(c, p)
-	case 0x1A:
+	case data.DisconnectPlay:
 		err = handleDisconnectPacket(c, p)
 		disconnect = true
 	case data.SetSlot:
@@ -123,7 +120,6 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.NamedSoundEffect:
 		err = handleNamedSoundEffect(c, p)
 	default:
-
 		// fmt.Printf("ignore pack id %X\n", p.ID)
 	}
 	return
@@ -428,6 +424,10 @@ func handleHeldItemPacket(c *Client, p pk.Packet) error {
 		return err
 	}
 	c.HeldItem = int(hi)
+
+	if c.Events.HeldItemChange != nil {
+		return c.Events.HeldItemChange(c.HeldItem)
+	}
 	return nil
 }
 
