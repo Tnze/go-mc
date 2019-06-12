@@ -14,6 +14,15 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Parse NBT
 - [x] Use item
 - [x] Swing arm
+- [x] Use item
+- [x] Use entity
+- [x] Attack entity
+- [x] Use/Place block
+- [x] Mine block
+- [x] Pick item
+- [x] Drop item
+- [x] Swap item in hands
+
 
 > 由于仍在开发中，部分API在未来版本中可能会变动
 
