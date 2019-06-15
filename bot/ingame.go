@@ -194,16 +194,19 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 	}
 
 	switch int8(windowID) {
-	case 0: //if window ID is 0, it will only change the hotbar
-		if slotI < 36 || slotI > 45 {
-			return fmt.Errorf("slot %d out of range for window %d", slotI, windowID)
+	case -1:
+		// set cursor slot
+
+	case 0:
+		if slotI >= 36 && slotI < 45 {
+			// Update Cooldown
 		}
 		fallthrough
-	case -2: //or if it's -2, server can change any slot without animation
-		if slotI < 0 || slotI > 45 {
-			return fmt.Errorf("slot %d out of range for window %d", slotI, windowID)
-		}
+	case -2:
+		// set inventory
 		c.Inventory[slotI] = slot
+	default:
+		//other window
 	}
 	return nil
 }
