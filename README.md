@@ -7,11 +7,13 @@
 
 There's some library in Go support you to create your Minecraft client or server.  
 这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器，
+- [x] Chat
+- [x] Parse NBT
+- [x] Simple MC robot lib
 - [x] Mojang authenticate
 - [x] Minecraft network protocal
-- [x] Chat
-- [x] Simple MC robot lib
-- [x] Parse NBT
+
+bot:  
 - [x] Use item
 - [x] Swing arm
 - [x] Use item
@@ -22,6 +24,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Pick item
 - [x] Drop item
 - [x] Swap item in hands
+- [x] Get inventory
 
 
 > 由于仍在开发中，部分API在未来版本中可能会变动
