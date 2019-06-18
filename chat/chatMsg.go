@@ -67,7 +67,32 @@ var colors = map[string]int{
 	"white":        97,
 }
 
-// String return the message with escape sequence for ansi color.
+// ClearString return the message without escape sequence for ansi color.
+func (m Message) ClearString() string {
+	var msg strings.Builder
+	msg.WriteString(m.Text)
+
+	//handle translate
+	if m.Translate != "" {
+		args := make([]interface{}, len(m.With))
+		for i, v := range m.With {
+			var arg Message
+			arg.UnmarshalJSON(v) //ignore error
+			args[i] = arg.ClearString()
+		}
+
+		fmt.Fprintf(&msg, data.EnUs[m.Translate], args...)
+	}
+
+	if m.Extra != nil {
+		for i := range m.Extra {
+			msg.WriteString(Message(m.Extra[i]).ClearString())
+		}
+	}
+	return msg.String()
+}
+
+// String return the message string with escape sequence for ansi color.
 // On windows, you may want print this string using
 // github.com/mattn/go-colorable.
 func (m Message) String() string {

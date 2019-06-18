@@ -39,6 +39,17 @@ var texts = []string{
 	"world",
 }
 
+var ctexts = []string{
+	"故我依然™ Kun_QwQ: 为什么想要用炼药锅灭火时总是跳不进去",
+
+	"<Xi_Xi_Mi> 好像是这个id。。",
+	"Hello, world!",
+	//"Prefix, str1str2 again str2 and str1 lastly str3 and also str1 again!",
+	"%s %str1 %%s %%str2",
+	"str1 str2",
+	"world",
+}
+
 func TestChatMsgFormatString(t *testing.T) {
 	for i, v := range jsons {
 		var cm Message
@@ -46,8 +57,21 @@ func TestChatMsgFormatString(t *testing.T) {
 		if err != nil {
 			t.Error(err)
 		}
-		if cm.String() != texts[i] {
-			t.Errorf("gets %q, wants %q", cm, texts[i])
+		if str := cm.String(); str != texts[i] {
+			t.Errorf("gets %q, wants %q", str, texts[i])
+		}
+	}
+}
+
+func TestChatMsgClearString(t *testing.T) {
+	for i, v := range jsons {
+		var cm Message
+		err := cm.UnmarshalJSON([]byte(v))
+		if err != nil {
+			t.Error(err)
+		}
+		if str := cm.ClearString(); str != ctexts[i] {
+			t.Errorf("gets %q, wants %q", str, texts[i])
 		}
 	}
 }
