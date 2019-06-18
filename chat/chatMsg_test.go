@@ -26,6 +26,9 @@ var jsons = []string{
 	`{"translate":"translation.test.escape","with":["str1","str2"]}`,
 	`{"translate":"translation.test.args","with":["str1","str2"]}`,
 	`{"translate":"translation.test.world"}`,
+
+	`"Tnze"`,
+	`"§0Tnze"`,
 }
 
 var texts = []string{
@@ -37,6 +40,9 @@ var texts = []string{
 	"%s %str1 %%s %%str2",
 	"str1 str2",
 	"world",
+
+	"Tnze",
+	"\033[30mTnze",
 }
 
 var ctexts = []string{
@@ -48,6 +54,9 @@ var ctexts = []string{
 	"%s %str1 %%s %%str2",
 	"str1 str2",
 	"world",
+
+	"Tnze",
+	"Tnze",
 }
 
 func TestChatMsgFormatString(t *testing.T) {
