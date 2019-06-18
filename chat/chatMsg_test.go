@@ -29,6 +29,7 @@ var jsons = []string{
 
 	`"Tnze"`,
 	`"§0Tnze"`,
+	`"§list"`,
 }
 
 var texts = []string{
@@ -43,6 +44,7 @@ var texts = []string{
 
 	"Tnze",
 	"\033[30mTnze",
+	"\033[1mist",
 }
 
 var ctexts = []string{
@@ -57,6 +59,7 @@ var ctexts = []string{
 
 	"Tnze",
 	"Tnze",
+	"ist",
 }
 
 func TestChatMsgFormatString(t *testing.T) {

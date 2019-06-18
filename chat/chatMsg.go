@@ -167,7 +167,7 @@ func (m Message) String() string {
 	return msg.String()
 }
 
-var fmtPat = regexp.MustCompile("§[0-9A-FK-OR]")
+var fmtPat = regexp.MustCompile("(?i)§[0-9A-FK-OR]")
 
 func transf(str string, ansi bool) string {
 	return fmtPat.ReplaceAllStringFunc(
