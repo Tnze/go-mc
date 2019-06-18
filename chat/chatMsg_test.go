@@ -43,8 +43,8 @@ var texts = []string{
 	"world",
 
 	"Tnze",
-	"\033[30mTnze",
-	"\033[1mist",
+	"\033[30mTnze\033[0m",
+	"\033[1mist\033[0m",
 }
 
 var ctexts = []string{

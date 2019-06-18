@@ -96,7 +96,8 @@ var colors = map[string]string{
 // ClearString return the message without escape sequence for ansi color.
 func (m Message) ClearString() string {
 	var msg strings.Builder
-	msg.WriteString(transf(m.Text, false))
+	text, _ := transf(m.Text, false)
+	msg.WriteString(text)
 
 	//handle translate
 	if m.Translate != "" {
@@ -141,7 +142,9 @@ func (m Message) String() string {
 	if format.Len() > 0 {
 		msg.WriteString("\033[" + format.String()[:format.Len()-1] + "m")
 	}
-	msg.WriteString(transf(m.Text, true))
+
+	text, ok := transf(m.Text, true)
+	msg.WriteString(text)
 
 	//handle translate
 	if m.Translate != "" {
@@ -161,7 +164,7 @@ func (m Message) String() string {
 		}
 	}
 
-	if format.Len() > 0 {
+	if format.Len() > 0 || ok {
 		msg.WriteString("\033[0m")
 	}
 	return msg.String()
@@ -169,13 +172,14 @@ func (m Message) String() string {
 
 var fmtPat = regexp.MustCompile("(?i)§[0-9A-FK-OR]")
 
-func transf(str string, ansi bool) string {
-	return fmtPat.ReplaceAllStringFunc(
+func transf(str string, ansi bool) (dst string, change bool) {
+	dst = fmtPat.ReplaceAllStringFunc(
 		str,
 		func(str string) string {
 			f, ok := fmtCode[str[2]]
 			if ok {
 				if ansi {
+					change = true
 					return "\033[" + f + "m" // enable, add ANSI code
 				}
 				return "" //disable, remove the § code
@@ -183,4 +187,5 @@ func transf(str string, ansi bool) string {
 			return str //not a § code
 		},
 	)
+	return
 }
