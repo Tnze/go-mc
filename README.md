@@ -12,6 +12,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Simple MC robot lib
 - [x] Mojang authenticate
 - [x] Minecraft network protocal
+- [ ] World container / encoding
 
 bot:  
 - [x] Swing arm
@@ -24,6 +25,7 @@ bot:
 - [x] Attack entity
 - [x] Use/Place block
 - [x] Mine block
+- [ ] Record entities
 
 
 > 由于仍在开发中，部分API在未来版本中可能会变动
