@@ -13,12 +13,12 @@ type Field interface {
 	FieldDecoder
 }
 
-// A FieldEncoder can be encode as minecraft protocal used.
+// A FieldEncoder can be encode as minecraft protocol used.
 type FieldEncoder interface {
 	Encode() []byte
 }
 
-// A FieldDecoder can Decode from minecraft protocal
+// A FieldDecoder can Decode from minecraft protocol
 type FieldDecoder interface {
 	Decode(r DecodeReader) error
 }

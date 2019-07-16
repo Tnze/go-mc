@@ -225,8 +225,8 @@ func getStatus() pk.Packet {
 	}
 }
 
-func disconnectID(protocal int32) byte {
-	switch protocal {
+func disconnectID(protocol int32) byte {
+	switch protocol {
 	case 404:
 		return 0x1B
 	case 477, 480:

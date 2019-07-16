@@ -1,4 +1,4 @@
-// Useage: go run cmd/ping/ping.go localhost
+// Usage: go run cmd/ping/ping.go localhost
 package main
 
 import (
