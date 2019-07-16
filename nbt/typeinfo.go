@@ -10,15 +10,15 @@ type typeInfo struct {
 	nameToIndex map[string]int
 }
 
-var tinfoMap sync.Map
+var tInfoMap sync.Map
 
 func getTypeInfo(typ reflect.Type) *typeInfo {
-	if ti, ok := tinfoMap.Load(typ); ok {
+	if ti, ok := tInfoMap.Load(typ); ok {
 		return ti.(*typeInfo)
 	}
 
-	tinfo := new(typeInfo)
-	tinfo.nameToIndex = make(map[string]int)
+	tInfo := new(typeInfo)
+	tInfo.nameToIndex = make(map[string]int)
 	if typ.Kind() == reflect.Struct {
 		n := typ.NumField()
 		for i := 0; i < n; i++ {
@@ -28,14 +28,14 @@ func getTypeInfo(typ reflect.Type) *typeInfo {
 				continue // Private field
 			}
 
-			tinfo.nameToIndex[tag] = i
-			if _, ok := tinfo.nameToIndex[f.Name]; !ok {
-				tinfo.nameToIndex[f.Name] = i
+			tInfo.nameToIndex[tag] = i
+			if _, ok := tInfo.nameToIndex[f.Name]; !ok {
+				tInfo.nameToIndex[f.Name] = i
 			}
 		}
 	}
 
-	ti, _ := tinfoMap.LoadOrStore(typ, tinfo)
+	ti, _ := tInfoMap.LoadOrStore(typ, tInfo)
 	return ti.(*typeInfo)
 }
 

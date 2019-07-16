@@ -24,7 +24,7 @@ func main() {
 	}
 	log.Println("Login success")
 
-	//Regist event handlers
+	//Register event handlers
 	c.Events.GameStart = onGameStart
 	c.Events.ChatMsg = onChatMsg
 	c.Events.Disconnect = onDisconnect

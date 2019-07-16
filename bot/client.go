@@ -19,7 +19,7 @@ type Client struct {
 	Wd        world.World //the map data
 
 	// Delegate allows you push a function to let HandleGame run.
-	// Do not send at the same goroutin!
+	// Do not send at the same goroutine!
 	Delegate chan func() error
 	Events   eventBroker
 
@@ -29,7 +29,7 @@ type Client struct {
 // NewClient init and return a new Client.
 //
 // A new Client has default name "Steve" and zero UUID.
-// It is useable for an offline-mode game.
+// It is usable for an offline-mode game.
 //
 // For online-mode, you need login your Mojang account
 // and load your Name, UUID and AccessToken to client.

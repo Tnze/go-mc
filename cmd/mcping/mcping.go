@@ -53,9 +53,9 @@ func main() {
 }
 
 func getAddr() (string, int) {
-	const useage = "Useage: mcping <hostname>[:port]"
+	const usage = "Usage: mcping <hostname>[:port]"
 	if len(os.Args) < 2 {
-		fmt.Println("no host name.", useage)
+		fmt.Println("no host name.", usage)
 		os.Exit(1)
 	}
 
@@ -68,7 +68,7 @@ func getAddr() (string, int) {
 		var err error
 		port, err = strconv.Atoi(addr[1])
 		if err != nil {
-			fmt.Println(err, useage)
+			fmt.Println(err, usage)
 			os.Exit(1)
 		}
 	}

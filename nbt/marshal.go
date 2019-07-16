@@ -107,7 +107,7 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 			}
 
 		default:
-			return errors.New("unknow type " + val.Type().String() + " slice")
+			return errors.New("unknown type " + val.Type().String() + " slice")
 		}
 
 	case reflect.String:
@@ -167,18 +167,18 @@ func (e *Encoder) writeNamelessTag(tagType byte, tagName string) error {
 }
 
 func (e *Encoder) writeInt16(n int16) error {
-	e.w.Write([]byte{byte(n >> 8), byte(n)})
-	return nil
+	_, err := e.w.Write([]byte{byte(n >> 8), byte(n)})
+	return err
 }
 
 func (e *Encoder) writeInt32(n int32) error {
-	e.w.Write([]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
-	return nil
+	_, err := e.w.Write([]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
+	return err
 }
 
 func (e *Encoder) writeInt64(n int64) error {
-	e.w.Write([]byte{
+	_, err := e.w.Write([]byte{
 		byte(n >> 56), byte(n >> 48), byte(n >> 40), byte(n >> 32),
 		byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
-	return nil
+	return err
 }

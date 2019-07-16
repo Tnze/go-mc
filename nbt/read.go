@@ -169,7 +169,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		if err != nil {
 			return err
 		}
-		vt := val.Type() //reciver must be []int or []int32
+		vt := val.Type() //receiver must be []int or []int32
 		if vt.Kind() == reflect.Interface {
 			vt = reflect.TypeOf([]int32{}) // pass
 		} else if vt.Kind() != reflect.Slice {
@@ -193,7 +193,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		if err != nil {
 			return err
 		}
-		vt := val.Type() //reciver must be []int or []int64
+		vt := val.Type() //receiver must be []int or []int64
 		if vt.Kind() == reflect.Interface {
 			vt = reflect.TypeOf([]int64{}) // pass
 		} else if vt.Kind() != reflect.Slice {

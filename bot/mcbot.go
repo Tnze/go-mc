@@ -1,7 +1,7 @@
 // Package bot implements a simple Minecraft client that can join a server
 // or just ping it for getting information.
 //
-// Runable example could be found at cmd/ .
+// Runnable example could be found at cmd/ .
 package bot
 
 import (
@@ -15,10 +15,10 @@ import (
 // ProtocolVersion , the protocol version number of minecraft net protocol
 const ProtocolVersion = 490
 
-// PingAndList chack server status and list online player.
+// PingAndList check server status and list online player.
 // Returns a JSON data with server status, and the delay.
 //
-// For more infomation for JSON format, see https://wiki.vg/Server_List_Ping#Response
+// For more information for JSON format, see https://wiki.vg/Server_List_Ping#Response
 func PingAndList(addr string, port int) ([]byte, time.Duration, error) {
 	conn, err := net.DialMC(fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {

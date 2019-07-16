@@ -22,7 +22,7 @@ func ListenMC(addr string) (*Listener, error) {
 	return &Listener{l}, nil
 }
 
-//Accept a miencraft Conn
+//Accept a minecraft Conn
 func (l Listener) Accept() (Conn, error) {
 	conn, err := l.Listener.Accept()
 	return Conn{
@@ -70,21 +70,21 @@ func (c *Conn) WritePacket(p pk.Packet) error {
 }
 
 // SetCipher load the decode/encode stream to this Conn
-func (c *Conn) SetCipher(encoStream, decoStream cipher.Stream) {
+func (c *Conn) SetCipher(ecoStream, decoStream cipher.Stream) {
 	//加密连接
-	c.ByteReader = bufio.NewReader(cipher.StreamReader{ //Set reciver for AES
+	c.ByteReader = bufio.NewReader(cipher.StreamReader{ //Set receiver for AES
 		S: decoStream,
 		R: c.Socket,
 	})
 	c.Writer = cipher.StreamWriter{
-		S: encoStream,
+		S: ecoStream,
 		W: c.Socket,
 	}
 }
 
 // SetThreshold set threshold to Conn.
-// The data packet with length longger then threshold
-// will be compress when sendding.
+// The data packet with length longer then threshold
+// will be compress when sending.
 func (c *Conn) SetThreshold(t int) {
 	c.threshold = t
 }
