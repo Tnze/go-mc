@@ -1,5 +1,7 @@
 package data
 
+//TODO: check updates en_us translation
+
 // EnUs , the default language translate data
 // When update this data, replace "%[0-9]\$s" with "%[0-9]s"
 var EnUs = map[string]string{

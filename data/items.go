@@ -17,6 +17,7 @@ func init() {
 	}
 }
 
+//TODO: check updates itemIDS
 var itemIDsJSON = ` {
 	"minecraft:air": {
 		"protocol_id": 0

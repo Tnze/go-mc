@@ -1,6 +1,6 @@
 package data
 
-//Clientbound packet IDs
+// Clientbound packet IDs
 const (
 	SpawnObject byte = iota //0x00
 	SpawnExperienceOrb
@@ -98,10 +98,11 @@ const (
 	EntityProperties
 	EntityEffect
 	DeclareRecipes
-	Tags //0x5B
+	Tags
+	AcknowledgePlayerDigging //0x5C
 )
 
-//Serverbound packet IDs
+// Serverbound packet IDs
 const (
 	TeleportConfirm byte = iota //0x00
 	QueryBlockNBT

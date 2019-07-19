@@ -35,6 +35,7 @@ func init() {
 
 const blockStatesLen = 11270 + 1
 
+// TODO: check updates of block status
 var blockStatesJSON = `
 {
   "minecraft:air": {

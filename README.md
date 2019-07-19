@@ -1,6 +1,6 @@
 # Go-MC
-![](https://img.shields.io/badge/Minecraft-1.14.3-blue.svg)
-![](https://img.shields.io/badge/Protocol-490-blue.svg)
+![](https://img.shields.io/badge/Minecraft-1.14.4-blue.svg)
+![](https://img.shields.io/badge/Protocol-497-blue.svg)
 [![GoDoc](https://godoc.org/github.com/Tnze/go-mc?status.svg)](https://godoc.org/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
@@ -11,7 +11,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Parse NBT
 - [x] Simple MC robot lib
 - [x] Mojang authenticate
-- [x] Minecraft network protocal
+- [x] Minecraft network protocol
 - [ ] World container / encoding
 
 bot:  
@@ -40,4 +40,4 @@ After you install golang tools:
 - Run `go run cmd/ping/ping.go localhost` to ping and list the Miaoscraft mc-server.  
 - Run `go run cmd/daze/daze.go` to join local server at *localhost:25565* as Steve on offline mode.
 
-See `/bot` folder to get more infomation about how to create your own robot.
+See `/bot` folder to get more information about how to create your own robot.

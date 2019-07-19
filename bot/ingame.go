@@ -67,7 +67,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleSpawnPositionPacket(c, p)
 	case data.PlayerAbilitiesClientbound:
 		err = handlePlayerAbilitiesPacket(c, p)
-		c.conn.WritePacket(
+		_ = c.conn.WritePacket(
 			//ClientSettings packet (serverbound)
 			pk.Marshal(
 				data.ClientSettings,
@@ -138,7 +138,7 @@ func handleSoundEffect(c *Client, p pk.Packet) error {
 	}
 
 	if c.Events.SoundPlay != nil {
-		c.Events.SoundPlay(
+		err = c.Events.SoundPlay(
 			data.SoundNames[SoundID], int(SoundCategory),
 			float64(x)/8, float64(y)/8, float64(z)/8,
 			float32(Volume), float32(Pitch))
@@ -160,7 +160,7 @@ func handleNamedSoundEffect(c *Client, p pk.Packet) error {
 	}
 
 	if c.Events.SoundPlay != nil {
-		c.Events.SoundPlay(
+		err = c.Events.SoundPlay(
 			string(SoundName), int(SoundCategory),
 			float64(x)/8, float64(y)/8, float64(z)/8,
 			float32(Volume), float32(Pitch))

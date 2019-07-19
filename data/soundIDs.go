@@ -1,5 +1,7 @@
 package data
 
+//TODO: check updates sound names
+
 //SoundNames match the sound IDs' name
 var SoundNames = []string{
 	"ambient.cave",
