@@ -24,8 +24,8 @@ import (
 // 	return int(math.Floor(p.X)), int(math.Floor(p.Y)), int(math.Floor(p.Z))
 // }
 
-// HandleGame recive server packet and response them correctly.
-// Note that HandleGame will block if you don't recive from Events.
+// HandleGame receive server packet and response them correctly.
+// Note that HandleGame will block if you don't receive from Events.
 func (c *Client) HandleGame() error {
 	for {
 		select {
@@ -212,7 +212,7 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 }
 
 // func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
-// 	if !c.settings.ReciveMap {
+// 	if !c.settings.ReceiveMap {
 // 		return nil
 // 	}
 
@@ -253,7 +253,7 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 // }
 
 // func handleBlockChangePacket(c *Client, p pk.Packet) error {
-// 	if !c.settings.ReciveMap {
+// 	if !c.settings.ReceiveMap {
 // 		return nil
 // 	}
 // 	var pos pk.Position
@@ -435,7 +435,7 @@ func handleHeldItemPacket(c *Client, p pk.Packet) error {
 }
 
 func handleChunkDataPacket(c *Client, p pk.Packet) error {
-	if !c.settings.ReciveMap {
+	if !c.settings.ReceiveMap {
 		return nil
 	}
 	var (

@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"log"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
+	pk "github.com/Tnze/go-mc/net/packet"
 	// "github.com/Tnze/go-mc/authenticate"
 )
 
@@ -26,7 +28,7 @@ func main() {
 	}
 	log.Println("Login success")
 
-	//Regist event handlers
+	//Register event handlers
 	c.Events.GameStart = onGameStart
 	c.Events.ChatMsg = onChatMsg
 	c.Events.Disconnect = onDisconnect
@@ -55,6 +57,16 @@ func onDisconnect(c chat.Message) error {
 }
 
 func onPluginMessage(channel string, data []byte) error {
-	log.Println("PluginMessage", channel, data)
+	switch channel {
+	case "minecraft:brand":
+		var brand pk.String
+		if err := brand.Decode(bytes.NewReader(data)); err != nil {
+			return err
+		}
+		log.Println("Server brand is:", brand)
+
+	default:
+		log.Println("PluginMessage", channel, data)
+	}
 	return nil
 }
