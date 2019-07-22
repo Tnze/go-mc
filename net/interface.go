@@ -10,7 +10,7 @@ type Reader interface {
 	ReadPacket() (pk.Packet, error)
 }
 
-type ReaderWriter interface {
+type ReadWriter interface {
 	Reader
 	Writer
 }
