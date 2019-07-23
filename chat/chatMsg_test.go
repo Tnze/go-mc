@@ -1,9 +1,8 @@
 package chat
 
 import (
-	// "fmt"
-	//"github.com/mattn/go-colorable"//On Windows need
 	"bytes"
+	pk "github.com/Tnze/go-mc/net/packet"
 	"testing"
 )
 
@@ -91,8 +90,14 @@ func TestChatMsgClearString(t *testing.T) {
 
 func TestMessage_Encode(t *testing.T) {
 	codeMsg := Message{Translate: "multiplayer.disconnect.server_full"}.Encode()
-	wantMsg := []byte(`{"translate":"multiplayer.disconnect.server_full"}`)
-	if !bytes.Equal(codeMsg, wantMsg) {
-		t.Error("encode Message error: get", string(codeMsg), ", want", string(wantMsg))
+
+	var msg pk.Chat
+	if err := msg.Decode(bytes.NewReader(codeMsg)); err != nil {
+		t.Errorf("decode message fail: %v", err)
+	}
+
+	wantMsg := `{"translate":"multiplayer.disconnect.server_full"}`
+	if string(msg) != wantMsg {
+		t.Error("encode Message error: get", string(msg), ", want", wantMsg)
 	}
 }
