@@ -3,6 +3,7 @@ package chat
 import (
 	// "fmt"
 	//"github.com/mattn/go-colorable"//On Windows need
+	"bytes"
 	"testing"
 )
 
@@ -85,5 +86,13 @@ func TestChatMsgClearString(t *testing.T) {
 		if str := cm.ClearString(); str != ctexts[i] {
 			t.Errorf("gets %q, wants %q", str, texts[i])
 		}
+	}
+}
+
+func TestMessage_Encode(t *testing.T) {
+	codeMsg := Message{Translate: "multiplayer.disconnect.server_full"}.Encode()
+	wantMsg := []byte(`{"translate":"multiplayer.disconnect.server_full"}`)
+	if !bytes.Equal(codeMsg, wantMsg) {
+		t.Error("encode Message error: get", string(codeMsg), ", want", string(wantMsg))
 	}
 }

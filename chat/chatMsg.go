@@ -15,7 +15,7 @@ import (
 type Message jsonChat
 
 type jsonChat struct {
-	Text string `json:"text"`
+	Text string `json:"text,omitempty"`
 
 	Bold          bool   `json:"bold,omitempty"`          //粗体
 	Italic        bool   `json:"Italic,omitempty"`        //斜体
@@ -39,7 +39,7 @@ func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
 	return
 }
 
-//Decode a ChatMsg packet
+//Decode for a ChatMsg packet
 func (m *Message) Decode(r pk.DecodeReader) error {
 	var Len pk.VarInt
 	if err := Len.Decode(r); err != nil {
@@ -47,6 +47,15 @@ func (m *Message) Decode(r pk.DecodeReader) error {
 	}
 
 	return json.NewDecoder(io.LimitReader(r, int64(Len))).Decode(m)
+}
+
+//Encode for a ChatMsg packet
+func (m Message) Encode() []byte {
+	code, err := json.Marshal(m)
+	if err != nil {
+		panic(err)
+	}
+	return code
 }
 
 var fmtCode = map[byte]string{
@@ -96,7 +105,7 @@ var colors = map[string]string{
 // ClearString return the message without escape sequence for ansi color.
 func (m Message) ClearString() string {
 	var msg strings.Builder
-	text, _ := transf(m.Text, false)
+	text, _ := trans(m.Text, false)
 	msg.WriteString(text)
 
 	//handle translate
@@ -104,11 +113,11 @@ func (m Message) ClearString() string {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
-			arg.UnmarshalJSON(v) //ignore error
+			_ = arg.UnmarshalJSON(v) //ignore error
 			args[i] = arg.ClearString()
 		}
 
-		fmt.Fprintf(&msg, data.EnUs[m.Translate], args...)
+		_, _ = fmt.Fprintf(&msg, data.EnUs[m.Translate], args...)
 	}
 
 	if m.Extra != nil {
@@ -143,7 +152,7 @@ func (m Message) String() string {
 		msg.WriteString("\033[" + format.String()[:format.Len()-1] + "m")
 	}
 
-	text, ok := transf(m.Text, true)
+	text, ok := trans(m.Text, true)
 	msg.WriteString(text)
 
 	//handle translate
@@ -151,11 +160,11 @@ func (m Message) String() string {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
-			arg.UnmarshalJSON(v) //ignore error
+			_ = arg.UnmarshalJSON(v) //ignore error
 			args[i] = arg
 		}
 
-		fmt.Fprintf(&msg, data.EnUs[m.Translate], args...)
+		_, _ = fmt.Fprintf(&msg, data.EnUs[m.Translate], args...)
 	}
 
 	if m.Extra != nil {
@@ -172,7 +181,7 @@ func (m Message) String() string {
 
 var fmtPat = regexp.MustCompile("(?i)§[0-9A-FK-OR]")
 
-func transf(str string, ansi bool) (dst string, change bool) {
+func trans(str string, ansi bool) (dst string, change bool) {
 	dst = fmtPat.ReplaceAllStringFunc(
 		str,
 		func(str string) string {
