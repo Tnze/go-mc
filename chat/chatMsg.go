@@ -55,7 +55,7 @@ func (m Message) Encode() []byte {
 	if err != nil {
 		panic(err)
 	}
-	return code
+	return pk.String(code).Encode()
 }
 
 var fmtCode = map[byte]string{
