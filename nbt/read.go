@@ -221,6 +221,9 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		if err != nil {
 			return err
 		}
+		if listLen < 0 {
+			return errors.New("list length less than 0")
+		}
 
 		// If we need parse TAG_List into slice, make a new with right length.
 		// Otherwise if we need parse into array, we check if len(array) are enough.
@@ -394,6 +397,10 @@ func (d *Decoder) readTag() (tagType byte, tagName string, err error) {
 }
 
 func (d *Decoder) readNByte(n int) (buf []byte, err error) {
+	if n < 0 {
+		return nil, errors.New("read n byte cannot less than 0")
+	}
+
 	buf = make([]byte, n)
 	_, err = d.r.Read(buf) //what happened if (returned n) != (argument n) ?
 	return
