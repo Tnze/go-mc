@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"io"
 	"math"
 	"reflect"
 )
@@ -402,7 +403,8 @@ func (d *Decoder) readNByte(n int) (buf []byte, err error) {
 	}
 
 	buf = make([]byte, n)
-	_, err = d.r.Read(buf) //what happened if (returned n) != (argument n) ?
+	_, err = io.ReadFull(d.r, buf)
+
 	return
 }
 
