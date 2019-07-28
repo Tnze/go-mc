@@ -10,7 +10,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 type status struct {

@@ -1,6 +1,7 @@
 package packet
 
 import (
+	"github.com/google/uuid"
 	"io"
 	"math"
 
@@ -70,7 +71,7 @@ type (
 	Angle int8
 
 	//UUID encoded as an unsigned 128-bit integer
-	UUID [16]byte
+	UUID = uuid.UUID
 
 	//NBT encode a value as Named Binary Tag
 	NBT struct {

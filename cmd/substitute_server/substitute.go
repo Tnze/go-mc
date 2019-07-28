@@ -26,7 +26,7 @@ import (
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 const verifyTokenLen = 16
