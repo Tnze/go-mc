@@ -298,7 +298,7 @@ func (c *Client) login() (err error) {
 			return fmt.Errorf("authservers_down")
 		}
 
-		c.ID, err = uuid.FromString(resp.ID)
+		c.ID, err = uuid.Parse(resp.ID)
 		if err != nil {
 			return fmt.Errorf("authservers_down")
 		}
