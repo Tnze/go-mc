@@ -71,14 +71,14 @@ type (
 	Angle int8
 
 	//UUID encoded as an unsigned 128-bit integer
-	UUID = uuid.UUID
+	UUID uuid.UUID
 
 	//NBT encode a value as Named Binary Tag
 	NBT struct {
 		V interface{}
 	}
 
-	//ByteArray is []byte with perfix VarInt as length
+	//ByteArray is []byte with prefix VarInt as length
 	ByteArray []byte
 )
 
@@ -274,7 +274,7 @@ func (v *VarInt) Decode(r DecodeReader) error {
 			return err
 		}
 
-		n |= (uint32(sec&0x7F) << uint32(7*i))
+		n |= uint32(sec&0x7F) << uint32(7*i)
 
 		if sec&0x80 == 0 {
 			break
@@ -288,7 +288,7 @@ func (v *VarInt) Decode(r DecodeReader) error {
 //Encode a Position
 func (p Position) Encode() []byte {
 	b := make([]byte, 8)
-	position := (uint64(p.X&0x3FFFFFF)<<38 | uint64((p.Z&0x3FFFFFF)<<12) | uint64(p.Y&0xFFF))
+	position := uint64(p.X&0x3FFFFFF)<<38 | uint64((p.Z&0x3FFFFFF)<<12) | uint64(p.Y&0xFFF)
 	for i := 7; i >= 0; i-- {
 		b[i] = byte(position)
 		position >>= 8
@@ -372,5 +372,16 @@ func (b *ByteArray) Decode(r DecodeReader) error {
 	}
 	*b = make([]byte, Len)
 	_, err := r.Read(*b)
+	return err
+}
+
+// Encode a UUID
+func (u UUID) Encode() []byte {
+	return u[:]
+}
+
+// Decode a UUID
+func (u *UUID) Decode(r DecodeReader) error {
+	_, err := io.ReadFull(r, (*u)[:])
 	return err
 }
