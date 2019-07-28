@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
+	"github.com/mattn/go-colorable"
 	"log"
 	"time"
 )
@@ -15,6 +16,7 @@ var (
 )
 
 func main() {
+	log.SetOutput(colorable.NewColorableStdout())
 	c = bot.NewClient()
 
 	//Login

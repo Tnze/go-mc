@@ -47,7 +47,7 @@ func onGameStart() error {
 }
 
 func onChatMsg(c chat.Message, pos byte) error {
-	log.Println("Chat:", c)
+	log.Println("Chat:", c.ClearString()) // output chat message without any format code (like color or bold)
 	return nil
 }
 
