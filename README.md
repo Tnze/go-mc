@@ -12,6 +12,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Simple MC robot lib
 - [x] Mojang authenticate
 - [x] Minecraft network protocol
+- [x] RCON protocol
 - [ ] World container / encoding
 
 bot:  
