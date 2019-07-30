@@ -37,7 +37,9 @@ Some examples are at `/cmd` folder.
 > `1.13.2` version is at [gomcbot](https://github.com/Tnze/gomcbot).
 
 # Getting start
-After you install golang tools:
+After you install golang tools:  
+To get latest version: `go get github.com/Tnze/go-mc@master`  
+To get old versions (eg. 1.14.3): `go get github.com/Tnze/go-mc@v1.14.3`
 - Run `go run github.com/Tnze/go-mc/cmd/mcping localhost` to ping and list the localhost mc server.  
 - Run `go run github.com/Tnze/go-mc/cmd/daze` to join local server at *localhost:25565* as Steve on offline mode.
 
