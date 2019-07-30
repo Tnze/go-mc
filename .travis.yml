@@ -1,7 +1,6 @@
 language: go
 
 go:
-- "1.12"
 - master
 
 go_import_path: github.com/Tnze/go-mc

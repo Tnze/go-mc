@@ -37,7 +37,7 @@ Some examples are at `/cmd` folder.
 
 # Getting start
 After you install golang tools:
-- Run `go run cmd/ping/ping.go localhost` to ping and list the localhost mc server.  
-- Run `go run cmd/daze/daze.go` to join local server at *localhost:25565* as Steve on offline mode.
+- Run `go run github.com/Tnze/go-mc/cmd/mcping localhost` to ping and list the localhost mc server.  
+- Run `go run github.com/Tnze/go-mc/cmd/daze` to join local server at *localhost:25565* as Steve on offline mode.
 
 See `/bot` folder to get more information about how to create your own robot.
