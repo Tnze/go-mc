@@ -26,7 +26,7 @@ const (
 
 type Decoder struct {
 	r interface {
-		io.ByteReader
+		io.ByteScanner
 		io.Reader
 	}
 }
@@ -34,7 +34,7 @@ type Decoder struct {
 func NewDecoder(r io.Reader) *Decoder {
 	d := new(Decoder)
 	if br, ok := r.(interface {
-		io.ByteReader
+		io.ByteScanner
 		io.Reader
 	}); ok {
 		d.r = br

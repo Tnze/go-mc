@@ -18,11 +18,45 @@ func (d *Decoder) Decode(v interface{}) error {
 	if val.Kind() != reflect.Ptr {
 		return errors.New("non-pointer passed to Unmarshal")
 	}
+
+	// check the head
+	compress, err := d.checkCompressed()
+	if err != nil {
+		return fmt.Errorf("check compressed fail: %v", err)
+	}
+	if compress != "" {
+		return fmt.Errorf("data may compressed with %s", compress)
+	}
+
+	//start read NBT
 	tagType, tagName, err := d.readTag()
 	if err != nil {
 		return err
 	}
 	return d.unmarshal(val.Elem(), tagType, tagName)
+}
+
+// check the first byte and return if it use compress
+func (d *Decoder) checkCompressed() (compress string, err error) {
+	var head byte
+	head, err = d.r.ReadByte()
+	if err != nil {
+		return
+	}
+
+	if head <= 12 { //NBT
+		compress = ""
+	} else if head == 0x1f { //gzip
+		compress = "gzip"
+	} else if head == 0x78 { //zlib
+		compress = "zlib"
+	} else {
+		compress = "unknown"
+	}
+
+	err = d.r.UnreadByte()
+
+	return
 }
 
 // ErrEND error will be returned when reading a NBT with only Tag_End
