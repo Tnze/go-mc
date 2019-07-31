@@ -63,6 +63,12 @@ func (d *Decoder) checkCompressed() (compress string, err error) {
 var ErrEND = errors.New("unexpected TAG_End")
 
 func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) error {
+	if val.CanInterface() {
+		if i, ok := val.Interface().(Unmarshaler); ok {
+			return i.Unmarshal(tagType, tagName, d.r)
+		}
+	}
+
 	switch tagType {
 	default:
 		return fmt.Errorf("unknown Tag 0x%02x", tagType)
@@ -311,7 +317,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 						return err
 					}
 				} else {
-					if err := d.skip(tt); err != nil {
+					if err := d.rawRead(tt); err != nil {
 						return err
 					}
 				}
@@ -344,10 +350,10 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 	return nil
 }
 
-func (d *Decoder) skip(tagType byte) error {
+func (d *Decoder) rawRead(tagType byte) error {
 	switch tagType {
 	default:
-		return fmt.Errorf("unknown to skip 0x%02x", tagType)
+		return fmt.Errorf("unknown to read 0x%02x", tagType)
 	case TagByte:
 		_, err := d.r.ReadByte()
 		return err
@@ -403,7 +409,7 @@ func (d *Decoder) skip(tagType byte) error {
 			return err
 		}
 		for i := 0; i < int(listLen); i++ {
-			if err := d.skip(listType); err != nil {
+			if err := d.rawRead(listType); err != nil {
 				return err
 			}
 		}
@@ -416,7 +422,7 @@ func (d *Decoder) skip(tagType byte) error {
 			if tt == TagEnd {
 				break
 			}
-			err = d.skip(tt)
+			err = d.rawRead(tt)
 			if err != nil {
 				return err
 			}

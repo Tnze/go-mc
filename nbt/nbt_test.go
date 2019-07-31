@@ -53,7 +53,7 @@ func TestUnmarshal_simple(t *testing.T) {
 		t.Errorf("Unmarshal NBT fail: get %q, want %q", value.Name, "Bananrama")
 	}
 
-	//test skip
+	//test rawRead
 	var empty struct{}
 	if err := Unmarshal(data, &empty); err != nil {
 		t.Fatal(err)
@@ -189,7 +189,7 @@ func TestUnmarshal_bitTest(t *testing.T) {
 		t.Errorf("parse fail, expect %v, get %v", want, value)
 	}
 
-	//test skip
+	//test rawRead
 	var empty struct{}
 	r, err = gzip.NewReader(bytes.NewReader(data))
 	if err != nil {

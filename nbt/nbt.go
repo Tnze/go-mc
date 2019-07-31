@@ -24,19 +24,17 @@ const (
 	TagLongArray
 )
 
+type DecoderReader = interface {
+	io.ByteScanner
+	io.Reader
+}
 type Decoder struct {
-	r interface {
-		io.ByteScanner
-		io.Reader
-	}
+	r DecoderReader
 }
 
 func NewDecoder(r io.Reader) *Decoder {
 	d := new(Decoder)
-	if br, ok := r.(interface {
-		io.ByteScanner
-		io.Reader
-	}); ok {
+	if br, ok := r.(DecoderReader); ok {
 		d.r = br
 	} else {
 		d.r = bufio.NewReader(r)
