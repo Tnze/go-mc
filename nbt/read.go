@@ -296,7 +296,6 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		}
 
 	case TagCompound:
-		var buf map[string]interface{}
 		switch vk := val.Kind(); vk {
 		default:
 			return errors.New("cannot parse TagCompound as " + vk.String())
@@ -323,12 +322,28 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 				}
 			}
 		case reflect.Map:
-			if !reflect.TypeOf(buf).AssignableTo(val.Type()) {
-				return errors.New("cannot parse TagCompound as " + vk.String())
+			if val.Type().Key().Kind() != reflect.String {
+				return errors.New("cannot parse TagCompound as " + val.Type().String())
 			}
-			fallthrough
+			if val.IsNil() {
+				val.Set(reflect.MakeMap(val.Type()))
+			}
+			for {
+				tt, tn, err := d.readTag()
+				if err != nil {
+					return err
+				}
+				if tt == TagEnd {
+					break
+				}
+				v := reflect.New(val.Type().Elem())
+				if err = d.unmarshal(v.Elem(), tt, tn); err != nil {
+					return err
+				}
+				val.SetMapIndex(reflect.ValueOf(tn), v.Elem())
+			}
 		case reflect.Interface:
-			buf = make(map[string]interface{})
+			buf := make(map[string]interface{})
 			for {
 				tt, tn, err := d.readTag()
 				if err != nil {
