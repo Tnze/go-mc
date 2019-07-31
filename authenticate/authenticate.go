@@ -53,6 +53,7 @@ func Authenticate(user, passwd string) (respData Response, err error) {
 	}
 	PostRequest.Header.Set("User-Agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
+	PostRequest.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(PostRequest)
 	if err != nil {
 		err = fmt.Errorf("post authenticate fail: %v", err)
