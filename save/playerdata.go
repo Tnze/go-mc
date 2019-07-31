@@ -28,12 +28,15 @@ type PlayerData struct {
 	HurtTime        int16
 	Health          float32
 	HurtByTimestamp int32
+	PortalCooldown  int32
 
 	Invulnerable     byte
 	SeenCredits      byte `nbt:"seenCredits"`
 	SelectedItemSlot int32
 	Score            int32
 	AbsorptionAmount float32
+
+	Inventory, EnderItems []Item
 
 	XpLevel int32
 	XpP     float32
@@ -49,6 +52,7 @@ type PlayerData struct {
 		Base float64
 		Name string
 	}
+
 	Abilities struct {
 		FlySpeed     float32 `nbt:"flySpeed"`
 		WalkSpeed    float32 `nbt:"warkSpeed"`
@@ -58,6 +62,20 @@ type PlayerData struct {
 		MayBuild     byte    `nbt:"mayBuild"`
 		MayFly       byte    `nbt:"mayFly"`
 	} `nbt:"abilities"`
+
+	RecipeBook struct {
+		IsFilteringCraftable        byte `nbt:"isFilteringCraftable"`
+		IsFurnaceFilteringCraftable byte `nbt:"isFurnaceFilteringCraftable"`
+		IsFurnaceGUIOpen            byte `nbt:"isFurnaceGuiOpen"`
+		IsGUIOpen                   byte `nbt:"isGuiOpen"`
+	} `nbt:"recipeBook"`
+}
+
+type Item struct {
+	Count byte
+	Slot  byte
+	ID    string                 `nbt:"id"`
+	Tag   map[string]interface{} `nbt:"tag"`
 }
 
 func ReadPlayerData(r io.Reader) (data PlayerData, err error) {
