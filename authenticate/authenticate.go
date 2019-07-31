@@ -26,7 +26,7 @@ type Payload struct {
 }
 
 // Authenticate authenticates a user using their password.
-func Authenticate(user, passwd string) (respData Response, err error) {
+func Authenticate(user, passwd, AuthServer string) (respData Response, err error) {
 	j, err := json.Marshal(Payload{
 		Agent: Agent{
 			Name:    "Minecraft",
@@ -45,7 +45,7 @@ func Authenticate(user, passwd string) (respData Response, err error) {
 
 	//Post
 	client := http.Client{}
-	PostRequest, err := http.NewRequest(http.MethodPost, "https://authserver.mojang.com/authenticate",
+	PostRequest, err := http.NewRequest(http.MethodPost, AuthServer,
 		bytes.NewReader(j))
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
