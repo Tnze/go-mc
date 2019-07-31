@@ -27,6 +27,9 @@ type Payload struct {
 
 // Authenticate authenticates a user using their password.
 func Authenticate(user, passwd, AuthServer string) (respData Response, err error) {
+	if AuthServer == "" {
+		AuthServer = "https://authserver.mojang.com/authenticate"
+	}
 	j, err := json.Marshal(Payload{
 		Agent: Agent{
 			Name:    "Minecraft",
