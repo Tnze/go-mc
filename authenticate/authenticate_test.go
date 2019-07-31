@@ -24,7 +24,7 @@ func TestEncodingPayload(t *testing.T) {
 }
 
 func ExampleAuthenticate() {
-	resp, err := Authenticate("", "", "https://authserver.mojang.com/authenticate")
+	resp, err := Authenticate("", "", "")
 	if err != nil {
 		panic(err)
 	}
