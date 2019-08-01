@@ -24,7 +24,7 @@ func TestEncodingPayload(t *testing.T) {
 }
 
 func ExampleAuthenticate() {
-	resp, err := Authenticate("", "", "")
+	resp, err := Authenticate("", "")
 	if err != nil {
 		panic(err)
 	}
