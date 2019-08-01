@@ -20,9 +20,10 @@ import (
 
 // Auth includes a account
 type Auth struct {
-	Name string
-	UUID string
-	AsTk string
+	Name   string
+	UUID   string
+	AsTk   string
+	Server string
 }
 
 // 加密请求
@@ -35,7 +36,7 @@ func handleEncryptionRequest(c *Client, pack pk.Packet) error {
 	if err := pack.Scan(&er); err != nil {
 		return err
 	}
-	err := loginAuth(c.AsTk, c.Name, c.Auth.UUID, key, er) //向Mojang验证
+	err := loginAuth(c.AsTk, c.Auth.UUID, c.Server, key, er) //向验证服务器验证
 	if err != nil {
 		return fmt.Errorf("login fail: %v", err)
 	}
@@ -139,36 +140,39 @@ type profile struct {
 }
 
 type request struct {
-	AccessToken     string  `json:"accessToken"`
-	SelectedProfile profile `json:"selectedProfile"`
-	ServerID        string  `json:"serverId"`
+	AccessToken     string `json:"accessToken"`
+	SelectedProfile string `json:"selectedProfile"`
+	ServerID        string `json:"serverId"`
 }
 
-func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest) error {
+func loginAuth(AsTk, UUID, server string, shareSecret []byte, er encryptionRequest) error {
+	if server == "" {
+		server = "https://sessionserver.mojang.com/session/minecraft/join"
+	} else {
+		server += "/sessionserver/session/minecraft/join"
+	}
 	digest := authDigest(er.ServerID, shareSecret, er.PublicKey)
 
 	client := http.Client{}
 	requestPacket, err := json.Marshal(
 		request{
-			AccessToken: AsTk,
-			SelectedProfile: profile{
-				ID:   UUID,
-				Name: name,
-			},
-			ServerID: digest,
+			AccessToken:     AsTk,
+			SelectedProfile: UUID,
+			ServerID:        digest,
 		},
 	)
 	if err != nil {
 		return fmt.Errorf("create request packet to authenticate faile: %v", err)
 	}
 
-	PostRequest, err := http.NewRequest(http.MethodPost, "https://sessionserver.mojang.com/session/minecraft/join",
+	PostRequest, err := http.NewRequest(http.MethodPost, server,
 		bytes.NewReader(requestPacket))
 	if err != nil {
 		return fmt.Errorf("make request error: %v", err)
 	}
 	PostRequest.Header.Set("User-Agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
+	PostRequest.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(PostRequest)
 	if err != nil {
 		return fmt.Errorf("post fail: %v", err)
