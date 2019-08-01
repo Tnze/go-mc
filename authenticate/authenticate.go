@@ -10,15 +10,15 @@ import (
 	"net/http"
 )
 
-// Agent is a struct of auth
-type Agent struct {
+// agent is a struct of auth
+type agent struct {
 	Name    string `json:"name"`
 	Version int    `json:"version"`
 }
 
-// Payload is a authenticate request struct
-type Payload struct {
-	Agent       `json:"agent"`
+// payload is a authenticate request struct
+type payload struct {
+	Agent       agent  `json:"agent"`
 	UserName    string `json:"username"`
 	Password    string `json:"password"`
 	ClientToken string `json:"clientToken"`
@@ -27,14 +27,14 @@ type Payload struct {
 
 // Authenticate authenticates a user using their password.
 func Authenticate(user, passwd string) (respData Response, err error) {
-	j, err := json.Marshal(Payload{
-		Agent: Agent{
+	j, err := json.Marshal(payload{
+		Agent: agent{
 			Name:    "Minecraft",
 			Version: 1,
 		},
 		UserName:    user,
 		Password:    passwd,
-		ClientToken: "gomcbotauther",
+		ClientToken: "go-mc",
 		RequestUser: true,
 	})
 	// fmt.Println(string(j))
@@ -51,7 +51,7 @@ func Authenticate(user, passwd string) (respData Response, err error) {
 		err = fmt.Errorf("make request error: %v", err)
 		return
 	}
-	PostRequest.Header.Set("User-Agent", "go-mc")
+	PostRequest.Header.Set("User-agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
 	PostRequest.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(PostRequest)

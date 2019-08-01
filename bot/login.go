@@ -167,7 +167,7 @@ func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest
 	if err != nil {
 		return fmt.Errorf("make request error: %v", err)
 	}
-	PostRequest.Header.Set("User-Agent", "go-mc")
+	PostRequest.Header.Set("User-agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
 	resp, err := client.Do(PostRequest)
 	if err != nil {

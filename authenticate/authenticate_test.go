@@ -7,8 +7,8 @@ import (
 )
 
 func TestEncodingPayload(t *testing.T) {
-	j, err := json.Marshal(Payload{
-		Agent: Agent{
+	j, err := json.Marshal(payload{
+		Agent: agent{
 			Name:    "Minecraft",
 			Version: 1,
 		},
