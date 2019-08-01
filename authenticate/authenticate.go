@@ -27,7 +27,6 @@ type Payload struct {
 
 // Allow auth with thirdparty auth server.
 func AuthWithThirdPartyServer(user, passwd, AuthServer string) (respData Response, err error) {
-
 	AuthServer += "/authserver/authenticate"
 	j, err := json.Marshal(Payload{
 		Agent: Agent{
