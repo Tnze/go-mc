@@ -101,7 +101,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.SpawnPlayer:
 		// err = handleSpawnPlayerPacket(g, reader)
 	case data.WindowItems:
-		err = handleWindowItemsPacket(c, p)
+		//err = handleWindowItemsPacket(c, p)
 	case data.UpdateHealth:
 		err = handleUpdateHealthPacket(c, p)
 	case data.ChatMessageClientbound:
@@ -114,7 +114,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleDisconnectPacket(c, p)
 		disconnect = true
 	case data.SetSlot:
-		err = handleSetSlotPacket(c, p)
+		//err = handleSetSlotPacket(c, p)
 	case data.SoundEffect:
 		err = handleSoundEffect(c, p)
 	case data.NamedSoundEffect:
