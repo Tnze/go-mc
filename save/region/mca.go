@@ -67,6 +67,26 @@ func OpenRegion(name string) (r *Region, err error) {
 }
 
 func (r *Region) Close() error {
+	_, err := r.f.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+
+	// read the offsets
+	err = binary.Write(r.f, binary.BigEndian, &r.offsets)
+	if err != nil {
+		_ = r.f.Close()
+		return err
+	}
+	r.sectors[0] = true
+
+	// read the timestamps
+	err = binary.Write(r.f, binary.BigEndian, &r.timestamps)
+	if err != nil {
+		_ = r.f.Close()
+		return err
+	}
+
 	return r.f.Close()
 }
 
@@ -96,4 +116,58 @@ func (r *Region) ReadSector(x, y int) (data []byte, err error) {
 	_, err = io.ReadFull(r.f, data)
 
 	return
+}
+
+func (r *Region) WriteSector(x, y int, data []byte) error {
+	sectorsNeeded := int32(len(data)+4)/4096 + 1
+	sectorNumber, sectorsAllocated := sectorLoc(r.offsets[x][y])
+
+	// maximum chunk size is 1MB
+	if sectorsNeeded >= 256 {
+		return errors.New("data too large")
+	}
+
+	if sectorNumber != 0 && sectorsAllocated == sectorsNeeded {
+		// we can simply overwrite the old sectors
+	} else {
+		// we need to allocate new sectors
+
+		// mark the sectors previously used for this chunk as free
+		for i := int32(0); i < sectorsAllocated; i++ {
+			r.sectors[sectorNumber+i] = false
+		}
+
+		// scan for a free space large enough to store this chunk
+		sectorNumber = 0
+		for i := int32(0); i < sectorsNeeded; i++ {
+			if r.sectors[sectorNumber+i] {
+				sectorNumber += i + 1
+				i = -1
+			}
+		}
+
+		// mark the sectors previously used for this chunk as used
+		sectorsAllocated = sectorsNeeded
+		for i := int32(0); i < sectorsNeeded; i++ {
+			r.sectors[sectorNumber+i] = true
+		}
+		r.offsets[x][y] = (sectorNumber << 8) | (sectorsNeeded & 0xFF)
+	}
+
+	_, err := r.f.Seek(4096*int64(sectorNumber), 0)
+	if err != nil {
+		return err
+	}
+	//data length
+	err = binary.Write(r.f, binary.BigEndian, int32(len(data)))
+	if err != nil {
+		return err
+	}
+	//data
+	_, err = r.f.Write(data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

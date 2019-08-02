@@ -44,3 +44,39 @@ func TestReadRegion(t *testing.T) {
 
 	t.Log(s)
 }
+
+func TestSectorsFinder(t *testing.T) {
+	sectors := []byte{
+		1, 1,
+		0, 1, //2
+		0, 0, 1, //4
+		0, 0, 0, 1, 1, //7
+		0, 0, 0, 0, 0, 1, //12
+		0, 0, 0, 0, 0, 0, 0, //18
+	}
+
+	scan := func(need int) (index int) {
+		for i := 0; i < need; i++ {
+			if sectors[index+i] != 0 {
+				index += i + 1
+				i = -1 // 0 for next loop
+			}
+		}
+		return
+	}
+
+	for _, test := range []struct{ need, index int }{
+		{0, 0},
+		{1, 2},
+		{2, 4},
+		{3, 7},
+		{4, 12},
+		{5, 12},
+		{6, 18},
+	} {
+		i := scan(test.need)
+		if i != test.index {
+			t.Errorf("scan sctors fail: get %d, want %d", i, test.index)
+		}
+	}
+}
