@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"os"
+	"time"
 )
 
 type Region struct {
@@ -67,26 +68,6 @@ func OpenRegion(name string) (r *Region, err error) {
 }
 
 func (r *Region) Close() error {
-	_, err := r.f.Seek(0, 0)
-	if err != nil {
-		return err
-	}
-
-	// read the offsets
-	err = binary.Write(r.f, binary.BigEndian, &r.offsets)
-	if err != nil {
-		_ = r.f.Close()
-		return err
-	}
-	r.sectors[0] = true
-
-	// read the timestamps
-	err = binary.Write(r.f, binary.BigEndian, &r.timestamps)
-	if err != nil {
-		_ = r.f.Close()
-		return err
-	}
-
 	return r.f.Close()
 }
 
@@ -119,42 +100,43 @@ func (r *Region) ReadSector(x, y int) (data []byte, err error) {
 }
 
 func (r *Region) WriteSector(x, y int, data []byte) error {
-	sectorsNeeded := int32(len(data)+4)/4096 + 1
-	sectorNumber, sectorsAllocated := sectorLoc(r.offsets[x][y])
+	need := int32(len(data)+4)/4096 + 1
+	n, now := sectorLoc(r.offsets[x][y])
 
 	// maximum chunk size is 1MB
-	if sectorsNeeded >= 256 {
+	if need >= 256 {
 		return errors.New("data too large")
 	}
 
-	if sectorNumber != 0 && sectorsAllocated == sectorsNeeded {
+	if n != 0 && now == need {
 		// we can simply overwrite the old sectors
 	} else {
 		// we need to allocate new sectors
 
 		// mark the sectors previously used for this chunk as free
-		for i := int32(0); i < sectorsAllocated; i++ {
-			r.sectors[sectorNumber+i] = false
+		for i := int32(0); i < now; i++ {
+			r.sectors[n+i] = false
 		}
 
 		// scan for a free space large enough to store this chunk
-		sectorNumber = 0
-		for i := int32(0); i < sectorsNeeded; i++ {
-			if r.sectors[sectorNumber+i] {
-				sectorNumber += i + 1
-				i = -1
-			}
-		}
+		n = r.findSpace(need)
 
 		// mark the sectors previously used for this chunk as used
-		sectorsAllocated = sectorsNeeded
-		for i := int32(0); i < sectorsNeeded; i++ {
-			r.sectors[sectorNumber+i] = true
+		now = need
+		for i := int32(0); i < need; i++ {
+			r.sectors[n+i] = true
 		}
-		r.offsets[x][y] = (sectorNumber << 8) | (sectorsNeeded & 0xFF)
+
+		r.offsets[x][y] = (n << 8) | (need & 0xFF)
+
+		// update file head
+		err := r.setHead(x, y, uint32(r.offsets[x][y]), uint32(time.Now().Unix()))
+		if err != nil {
+			return err
+		}
 	}
 
-	_, err := r.f.Seek(4096*int64(sectorNumber), 0)
+	_, err := r.f.Seek(4096*int64(n), 0)
 	if err != nil {
 		return err
 	}
@@ -163,6 +145,7 @@ func (r *Region) WriteSector(x, y int, data []byte) error {
 	if err != nil {
 		return err
 	}
+
 	//data
 	_, err = r.f.Write(data)
 	if err != nil {
@@ -170,4 +153,32 @@ func (r *Region) WriteSector(x, y int, data []byte) error {
 	}
 
 	return nil
+}
+
+func (r *Region) findSpace(need int32) (n int32) {
+	for i := int32(0); i < need; i++ {
+		if r.sectors[n+i] {
+			n += i + 1
+			i = -1
+		}
+	}
+	return
+}
+
+func (r *Region) setHead(x, y int, offset, timestamp uint32) (err error) {
+	var buf [4]byte
+
+	binary.BigEndian.PutUint32(buf[:], offset)
+	_, err = r.f.WriteAt(buf[:], 4*(int64(x)*32+int64(y)))
+	if err != nil {
+		return
+	}
+
+	binary.BigEndian.PutUint32(buf[:], timestamp)
+	_, err = r.f.WriteAt(buf[:], 4096+4*(int64(x)*32+int64(y)))
+	if err != nil {
+		return
+	}
+
+	return
 }
