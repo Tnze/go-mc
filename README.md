@@ -13,7 +13,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Mojang authenticate
 - [x] Minecraft network protocol
 - [x] RCON protocol
-- [ ] Saves decoding /encoding
+- [x] Saves decoding /encoding
 
 bot:  
 - [x] Swing arm
