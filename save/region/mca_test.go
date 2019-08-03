@@ -22,7 +22,7 @@ func TestIn(t *testing.T) {
 }
 
 func TestReadRegion(t *testing.T) {
-	r, err := OpenRegion("../testdata/region/r.0.-1.mca")
+	r, err := Open("../testdata/region/r.0.-1.mca")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -76,4 +76,22 @@ func TestFindSpace(t *testing.T) {
 			t.Errorf("scan sctors fail: get %d, want %d", i, test.index)
 		}
 	}
+}
+
+func TestCountChunks(t *testing.T) {
+	r, err := Open("../testdata/region/r.-1.-1.mca")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer r.Close()
+
+	var count int
+	for i := 0; i < 32; i++ {
+		for j := 0; j < 32; j++ {
+			if r.ExistSector(i, j) {
+				count++
+			}
+		}
+	}
+	t.Logf("chunk count: %d", count)
 }

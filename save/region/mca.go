@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+// Region contain 32*32 chunks in one .mca file
 type Region struct {
 	f          *os.File
 	offsets    [32][32]int32
@@ -26,9 +27,9 @@ func In(cx, cy int) (int, int) {
 	return cx & 31, cy & 31
 }
 
-// OpenRegion open a .mca file and read the head.
+// Open open a .mca file and read the head.
 // Close the Region after used.
-func OpenRegion(name string) (r *Region, err error) {
+func Open(name string) (r *Region, err error) {
 	r = new(Region)
 	r.sectors = make(map[int32]bool)
 
@@ -67,6 +68,7 @@ func OpenRegion(name string) (r *Region, err error) {
 	return r, nil
 }
 
+// Close close the region file
 func (r *Region) Close() error {
 	return r.f.Close()
 }
@@ -75,6 +77,7 @@ func sectorLoc(offset int32) (o, s int32) {
 	return offset >> 8, offset & 0xFF
 }
 
+// ReadSector find and read the Chunk data from region
 func (r *Region) ReadSector(x, y int) (data []byte, err error) {
 	offset, _ := sectorLoc(r.offsets[x][y])
 
@@ -99,6 +102,7 @@ func (r *Region) ReadSector(x, y int) (data []byte, err error) {
 	return
 }
 
+// WriteSector write Chunk data into region file
 func (r *Region) WriteSector(x, y int, data []byte) error {
 	need := int32(len(data)+4)/4096 + 1
 	n, now := sectorLoc(r.offsets[x][y])
@@ -153,6 +157,11 @@ func (r *Region) WriteSector(x, y int, data []byte) error {
 	}
 
 	return nil
+}
+
+// ExistSector return if a sector is exist
+func (r *Region) ExistSector(x, y int) bool {
+	return r.offsets[x][y] != 0
 }
 
 func (r *Region) findSpace(need int32) (n int32) {

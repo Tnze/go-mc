@@ -465,6 +465,7 @@ type blockEntities []blockEntitie
 type blockEntitie struct {
 }
 
+// Decode implement net.packet.FieldDecoder
 func (c *chunkData) Decode(r pk.DecodeReader) error {
 	var Size pk.VarInt
 	if err := Size.Decode(r); err != nil {
@@ -477,14 +478,15 @@ func (c *chunkData) Decode(r pk.DecodeReader) error {
 	return nil
 }
 
+// Decode implement net.packet.FieldDecoder
 func (b *blockEntities) Decode(r pk.DecodeReader) error {
-	var NumberofBlockEntities pk.VarInt
-	if err := NumberofBlockEntities.Decode(r); err != nil {
+	var nobe pk.VarInt // Number of BlockEntities
+	if err := nobe.Decode(r); err != nil {
 		return err
 	}
-	*b = make(blockEntities, NumberofBlockEntities)
+	*b = make(blockEntities, nobe)
 	decoder := nbt.NewDecoder(r)
-	for i := 0; i < int(NumberofBlockEntities); i++ {
+	for i := 0; i < int(nobe); i++ {
 		if err := decoder.Decode(&(*b)[i]); err != nil {
 			return err
 		}

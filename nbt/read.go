@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"math"
 	"reflect"
 )
@@ -16,46 +17,33 @@ func Unmarshal(data []byte, v interface{}) error {
 func (d *Decoder) Decode(v interface{}) error {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr {
-		return errors.New("non-pointer passed to Unmarshal")
-	}
-
-	// check the head
-	compress, err := d.checkCompressed()
-	if err != nil {
-		return fmt.Errorf("check compressed fail: %v", err)
-	}
-	if compress != "" {
-		return fmt.Errorf("data may compressed with %s", compress)
+		return errors.New("nbt: non-pointer passed to Unmarshal")
 	}
 
 	//start read NBT
 	tagType, tagName, err := d.readTag()
 	if err != nil {
-		return err
+		return fmt.Errorf("nbt: %v", err)
 	}
-	return d.unmarshal(val.Elem(), tagType, tagName)
+
+	if c := d.checkCompressed(tagType); c != "" {
+		return fmt.Errorf("nbt: unknown Tag, maybe need %s", c)
+	}
+
+	err = d.unmarshal(val.Elem(), tagType, tagName)
+	if err != nil {
+		return fmt.Errorf("nbt: %v", err)
+	}
+	return nil
 }
 
 // check the first byte and return if it use compress
-func (d *Decoder) checkCompressed() (compress string, err error) {
-	var head byte
-	head, err = d.r.ReadByte()
-	if err != nil {
-		return
-	}
-
-	if head <= 12 { //NBT
-		compress = ""
-	} else if head == 0x1f { //gzip
+func (d *Decoder) checkCompressed(head byte) (compress string) {
+	if head == 0x1f { //gzip
 		compress = "gzip"
 	} else if head == 0x78 { //zlib
 		compress = "zlib"
-	} else {
-		compress = "unknown"
 	}
-
-	err = d.r.UnreadByte()
-
 	return
 }
 
@@ -187,12 +175,15 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		}
 
 	case TagByteArray:
-		var ba []byte
 		aryLen, err := d.readInt32()
 		if err != nil {
 			return err
 		}
-		if ba, err = d.readNByte(int(aryLen)); err != nil {
+		if aryLen < 0 {
+			return errors.New("byte array len less than 0")
+		}
+		ba := make([]byte, aryLen)
+		if _, err = io.ReadFull(d.r, ba); err != nil {
 			return err
 		}
 
@@ -366,6 +357,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 }
 
 func (d *Decoder) rawRead(tagType byte) error {
+	var buf [8]byte
 	switch tagType {
 	default:
 		return fmt.Errorf("unknown to read 0x%02x", tagType)
@@ -376,20 +368,21 @@ func (d *Decoder) rawRead(tagType byte) error {
 		_, err := d.readString()
 		return err
 	case TagShort:
-		_, err := d.readNByte(2)
+		_, err := io.ReadFull(d.r, buf[:2])
 		return err
 	case TagInt, TagFloat:
-		_, err := d.readNByte(4)
+		_, err := io.ReadFull(d.r, buf[:4])
 		return err
 	case TagLong, TagDouble:
-		_, err := d.readNByte(8)
+		_, err := io.ReadFull(d.r, buf[:8])
 		return err
 	case TagByteArray:
 		aryLen, err := d.readInt32()
 		if err != nil {
 			return err
 		}
-		if _, err = d.readNByte(int(aryLen)); err != nil {
+
+		if _, err = io.CopyN(ioutil.Discard, d.r, int64(aryLen)); err != nil {
 			return err
 		}
 	case TagIntArray:
@@ -458,30 +451,22 @@ func (d *Decoder) readTag() (tagType byte, tagName string, err error) {
 	return
 }
 
-func (d *Decoder) readNByte(n int) (buf []byte, err error) {
-	if n < 0 {
-		return nil, errors.New("read n byte cannot less than 0")
-	}
-
-	buf = make([]byte, n)
-	_, err = io.ReadFull(d.r, buf)
-
-	return
-}
-
 func (d *Decoder) readInt16() (int16, error) {
-	data, err := d.readNByte(2)
+	var data [2]byte
+	_, err := io.ReadFull(d.r, data[:])
 	return int16(data[0])<<8 | int16(data[1]), err
 }
 
 func (d *Decoder) readInt32() (int32, error) {
-	data, err := d.readNByte(4)
+	var data [4]byte
+	_, err := io.ReadFull(d.r, data[:])
 	return int32(data[0])<<24 | int32(data[1])<<16 |
 		int32(data[2])<<8 | int32(data[3]), err
 }
 
 func (d *Decoder) readInt64() (int64, error) {
-	data, err := d.readNByte(8)
+	var data [8]byte
+	_, err := io.ReadFull(d.r, data[:])
 	return int64(data[0])<<56 | int64(data[1])<<48 |
 		int64(data[2])<<40 | int64(data[3])<<32 |
 		int64(data[4])<<24 | int64(data[5])<<16 |
@@ -492,7 +477,15 @@ func (d *Decoder) readString() (string, error) {
 	length, err := d.readInt16()
 	if err != nil {
 		return "", err
+	} else if length < 0 {
+		return "", errors.New("string length less than 0")
 	}
-	buf, err := d.readNByte(int(length))
-	return string(buf), err
+
+	var str string
+	if length > 0 {
+		buf := make([]byte, length)
+		_, err = io.ReadFull(d.r, buf)
+		str = string(buf)
+	}
+	return str, err
 }
