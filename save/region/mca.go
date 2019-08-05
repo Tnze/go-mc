@@ -68,6 +68,35 @@ func Open(name string) (r *Region, err error) {
 	return r, nil
 }
 
+// Create open .mca file with os.O_CREATE|os. O_EXCL, and init the region
+func Create(name string) (r *Region, err error) {
+	r = new(Region)
+	r.sectors = make(map[int32]bool)
+
+	r.f, err = os.OpenFile(name, os.O_CREATE|os.O_RDWR|os.O_EXCL, 0666)
+	if err != nil {
+		return nil, err
+	}
+
+	// read the offsets
+	err = binary.Write(r.f, binary.BigEndian, &r.offsets)
+	if err != nil {
+		_ = r.f.Close()
+		return nil, err
+	}
+	r.sectors[0] = true
+
+	// read the timestamps
+	err = binary.Write(r.f, binary.BigEndian, &r.timestamps)
+	if err != nil {
+		_ = r.f.Close()
+		return nil, err
+	}
+	r.sectors[1] = true
+
+	return r, nil
+}
+
 // Close close the region file
 func (r *Region) Close() error {
 	return r.f.Close()
