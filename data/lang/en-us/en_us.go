@@ -1,10 +1,11 @@
-package data
+package en_us
 
-//TODO: check updates en_us translation
+import "github.com/Tnze/go-mc/chat"
 
-// EnUs , the default language translate data
-// When update this data, replace "%[0-9]\$s" with "%[0-9]s"
-var EnUs = map[string]string{
+func init() { chat.SetLanguage(Map) }
+
+// Map is the translate map of en-us
+var Map = map[string]string{
 	"language.name":                                              "English",
 	"language.region":                                            "United States",
 	"language.code":                                              "en_us",

@@ -1,3 +1,11 @@
+// Package chat implements Minecraft's chat message encoding system.
+//
+// The type Message is the Minecraft chat message. Can be encode as JSON
+// or net/packet.Field .
+//
+// It's very recommended that use SetLanguage before using Message.String or Message.ClearString,
+// or the translate message will be ignore.
+// Note: The package of data/lang/... will SetLanguage on theirs init() so you don't need do again.
 package chat
 
 import (
@@ -7,7 +15,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -102,22 +109,31 @@ var colors = map[string]string{
 	"white":        "97",
 }
 
-// ClearString return the message without escape sequence for ansi color.
+// translateMap is the translation table.
+// By default it's a void map.
+var translateMap = map[string]string{}
+
+// SetLanguage set the translate map to this map.
+func SetLanguage(trans map[string]string) {
+	translateMap = trans
+}
+
+// ClearString return the message String without escape sequence for ansi color.
 func (m Message) ClearString() string {
 	var msg strings.Builder
 	text, _ := trans(m.Text, false)
 	msg.WriteString(text)
 
 	//handle translate
-	if m.Translate != "" {
+	if m.Translate != "" && translateMap != nil {
+
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
 			_ = arg.UnmarshalJSON(v) //ignore error
 			args[i] = arg.ClearString()
 		}
-
-		_, _ = fmt.Fprintf(&msg, data.EnUs[m.Translate], args...)
+		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
 	}
 
 	if m.Extra != nil {
@@ -129,8 +145,8 @@ func (m Message) ClearString() string {
 }
 
 // String return the message string with escape sequence for ansi color.
-// On windows, you may want print this string using
-// github.com/mattn/go-colorable.
+// To convert Translated Message to string, you must set
+// On windows, you may want print this string using github.com/mattn/go-colorable.
 func (m Message) String() string {
 	var msg, format strings.Builder
 	if m.Bold {
@@ -156,7 +172,8 @@ func (m Message) String() string {
 	msg.WriteString(text)
 
 	//handle translate
-	if m.Translate != "" {
+	if m.Translate != "" && translateMap != nil {
+
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
@@ -164,7 +181,7 @@ func (m Message) String() string {
 			args[i] = arg
 		}
 
-		_, _ = fmt.Fprintf(&msg, data.EnUs[m.Translate], args...)
+		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
 	}
 
 	if m.Extra != nil {

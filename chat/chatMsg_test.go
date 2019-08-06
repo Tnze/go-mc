@@ -1,9 +1,12 @@
-package chat
+package chat_test
 
 import (
 	"bytes"
-	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/chat"
 	"testing"
+
+	_ "github.com/Tnze/go-mc/data/lang/en-us"
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 /*
@@ -63,8 +66,9 @@ var ctexts = []string{
 }
 
 func TestChatMsgFormatString(t *testing.T) {
+
 	for i, v := range jsons {
-		var cm Message
+		var cm chat.Message
 		err := cm.UnmarshalJSON([]byte(v))
 		if err != nil {
 			t.Error(err)
@@ -77,19 +81,21 @@ func TestChatMsgFormatString(t *testing.T) {
 
 func TestChatMsgClearString(t *testing.T) {
 	for i, v := range jsons {
-		var cm Message
+		var cm chat.Message
 		err := cm.UnmarshalJSON([]byte(v))
 		if err != nil {
 			t.Error(err)
 		}
-		if str := cm.ClearString(); str != ctexts[i] {
+
+		str := cm.ClearString()
+		if str != ctexts[i] {
 			t.Errorf("gets %q, wants %q", str, texts[i])
 		}
 	}
 }
 
 func TestMessage_Encode(t *testing.T) {
-	codeMsg := Message{Translate: "multiplayer.disconnect.server_full"}.Encode()
+	codeMsg := chat.Message{Translate: "multiplayer.disconnect.server_full"}.Encode()
 
 	var msg pk.Chat
 	if err := msg.Decode(bytes.NewReader(codeMsg)); err != nil {
