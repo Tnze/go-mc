@@ -6,11 +6,12 @@ import (
 	"compress/zlib"
 	"flag"
 	"fmt"
-	"github.com/Tnze/go-mc/save/region"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/Tnze/go-mc/save/region"
 )
 
 var decomp = flag.Bool("x", false, "decompress each chunk to NBT format")

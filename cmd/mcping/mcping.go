@@ -10,6 +10,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
+	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	"github.com/google/uuid"
 )
 

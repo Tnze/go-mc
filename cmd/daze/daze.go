@@ -6,8 +6,8 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
+	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	pk "github.com/Tnze/go-mc/net/packet"
-	// "github.com/Tnze/go-mc/authenticate"
 )
 
 func main() {

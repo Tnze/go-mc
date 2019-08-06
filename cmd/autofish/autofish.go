@@ -1,11 +1,13 @@
 package main
 
 import (
-	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/chat"
-	"github.com/mattn/go-colorable"
 	"log"
 	"time"
+
+	"github.com/Tnze/go-mc/bot"
+	"github.com/Tnze/go-mc/chat"
+	_ "github.com/Tnze/go-mc/data/lang/en-us"
+	"github.com/mattn/go-colorable"
 )
 
 const timeout = 45
