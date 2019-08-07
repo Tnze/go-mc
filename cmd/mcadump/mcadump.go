@@ -32,25 +32,15 @@ func main() {
 		f, o = args[0], args[1]
 	}
 
-	dirName := filepath.Dir(f)
-	patName := filepath.Base(f)
-
-	dir, err := os.Open(dirName)
+	fs, err := filepath.Glob(f)
 	checkerr(err)
 
-	fs, err := dir.Readdirnames(0)
-	checkerr(err)
-
-	for _, f := range fs {
-		ok, err := filepath.Match(patName, f)
-		checkerr(err)
-		if !ok {
-			continue
-		}
-
-		if *repack {
+	if *repack {
+		for _, f := range fs {
 			pack(f, o)
-		} else {
+		}
+	} else {
+		for _, f := range fs {
 			unpack(f, o)
 		}
 	}
