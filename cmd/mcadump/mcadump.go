@@ -32,11 +32,44 @@ func main() {
 		f, o = args[0], args[1]
 	}
 
-	if *repack {
-		pack(f, o)
-		return
-	}
+	dirName := filepath.Dir(f)
+	patName := filepath.Base(f)
 
+	dir, err := os.Open(dirName)
+	checkerr(err)
+
+	fs, err := dir.Readdirnames(0)
+	checkerr(err)
+
+	for _, f := range fs {
+		ok, err := filepath.Match(patName, f)
+		checkerr(err)
+		if !ok {
+			continue
+		}
+
+		if *repack {
+			pack(f, o)
+		} else {
+			unpack(f, o)
+		}
+	}
+}
+
+func usage() {
+	_, _ = fmt.Fprintf(os.Stderr, "usage: %s [-x] [-r] r.<X>.<Z>.mc{a,c} [outdir]\n", flag.Arg(0))
+	os.Exit(1)
+}
+
+// we use this function to check for laziness. Don't scold me >_<
+func checkerr(err error) {
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func unpack(f, o string) {
 	var x, z int
 	rn := filepath.Base(f)
 	_, err := fmt.Sscanf(rn, "r.%d.%d.mca", &x, &z)
@@ -81,24 +114,12 @@ func main() {
 	}
 }
 
-func usage() {
-	_, _ = fmt.Fprintf(os.Stderr, "usage: %s [-x] [-r] r.<X>.<Z>.mca [outdir]\n", flag.Arg(0))
-	os.Exit(1)
-}
-
-func checkerr(err error) {
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-}
-
 func pack(f, o string) {
 	var x, z int
 	rn := filepath.Base(f)
 	_, err := fmt.Sscanf(rn, "c.%d.%d.mcc", &x, &z)
 	if err != nil {
-		checkerr(fmt.Errorf("cannot use %s as mca file name: %v", rn, err))
+		checkerr(fmt.Errorf("cannot use %s as mcc file name: %v", rn, err))
 	}
 
 	fn := fmt.Sprintf("r.%d.%d.mca", x>>5, z>>5)
