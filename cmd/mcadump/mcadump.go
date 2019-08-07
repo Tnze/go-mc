@@ -32,16 +32,20 @@ func main() {
 		f, o = args[0], args[1]
 	}
 
-	if *repack {
-		pack(f, o)
-		return
-	}
-
 	var x, z int
 	rn := filepath.Base(f)
 	_, err := fmt.Sscanf(rn, "r.%d.%d.mca", &x, &z)
 	if err != nil {
 		checkerr(fmt.Errorf("cannot use %s as mca file name: %v", rn, err))
+	}
+
+	if *repack {
+		for i := 0; i < 32; i++ {
+			for j := 0; j < 32; j++ {
+				pack(x*32+i, z*32+j, o)
+			}
+		}
+		return
 	}
 
 	r, err := region.Open(f)
@@ -58,7 +62,7 @@ func main() {
 			checkerr(err)
 			var r io.Reader = bytes.NewReader(data[1:])
 
-			fn := fmt.Sprintf("c.%d.%d.mcc", x+i, z+j)
+			fn := fmt.Sprintf("c.%d.%d.mcc", x*32+i, z*32+j)
 			if *decomp {
 				fn += ".nbt" //解压后就是一个标准的NBT文件，可以加个.nbt后缀
 				switch data[0] {
@@ -93,15 +97,12 @@ func checkerr(err error) {
 	}
 }
 
-func pack(f, o string) {
-	var x, z int
-	rn := filepath.Base(f)
-	_, err := fmt.Sscanf(rn, "c.%d.%d.mcc", &x, &z)
+func pack(x, z int, o string) {
+	fn := fmt.Sprintf("r.%d.%d.mca", x>>5, z>>5)
+	_, err := os.Stat(fmt.Sprintf("c.%d.%d.mcc", x, z))
 	if err != nil {
-		checkerr(fmt.Errorf("cannot use %s as mca file name: %v", rn, err))
+		return
 	}
-
-	fn := fmt.Sprintf("r.%d.%d.mca", x/32, z/32)
 	r, err := region.Open(fn)
 	if err != nil && os.IsNotExist(err) {
 		r, err = region.Create(filepath.Join(o, fn))
@@ -109,7 +110,7 @@ func pack(f, o string) {
 	checkerr(err)
 	defer r.Close()
 
-	mcc, err := ioutil.ReadFile(f)
+	mcc, err := ioutil.ReadFile(fmt.Sprintf("c.%d.%d.mcc", x, z))
 	checkerr(err)
 
 	rx, rz := region.In(x, z)
