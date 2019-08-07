@@ -1,6 +1,4 @@
-package authenticate
-
-//Simple yggdrasil-minecraft-login method.
+package yggdrasil
 
 import (
 	"bytes"
@@ -10,15 +8,15 @@ import (
 	"net/http"
 )
 
-// agent is a struct of auth
-type agent struct {
+// Agent is a struct of auth
+type Agent struct {
 	Name    string `json:"name"`
 	Version int    `json:"version"`
 }
 
-// payload is a authenticate request struct
-type payload struct {
-	Agent       agent  `json:"agent"`
+// AuthPayload is a yggdrasil request struct
+type AuthPayload struct {
+	Agent       Agent  `json:"agent"`
 	UserName    string `json:"username"`
 	Password    string `json:"password"`
 	ClientToken string `json:"clientToken"`
@@ -26,18 +24,18 @@ type payload struct {
 }
 
 // Authenticate authenticates a user using their password.
-func Authenticate(user, passwd string) (respData Response, err error) {
-	j, err := json.Marshal(payload{
-		Agent: agent{
+func Authenticate(user, password string) (respData AuthResp, err error) {
+	j, err := json.Marshal(AuthPayload{
+		Agent: Agent{
 			Name:    "Minecraft",
 			Version: 1,
 		},
 		UserName:    user,
-		Password:    passwd,
+		Password:    password,
 		ClientToken: "go-mc",
 		RequestUser: true,
 	})
-	// fmt.Println(string(j))
+
 	if err != nil {
 		err = fmt.Errorf("encoding json fail: %v", err)
 		return
@@ -45,24 +43,24 @@ func Authenticate(user, passwd string) (respData Response, err error) {
 
 	//Post
 	client := http.Client{}
-	PostRequest, err := http.NewRequest(http.MethodPost, "https://authserver.mojang.com/authenticate",
+	PostRequest, err := http.NewRequest(http.MethodPost, "https://authserver.mojang.com/yggdrasil",
 		bytes.NewReader(j))
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
 		return
 	}
-	PostRequest.Header.Set("User-agent", "go-mc")
+	PostRequest.Header.Set("User-Agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
 	PostRequest.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(PostRequest)
 	if err != nil {
-		err = fmt.Errorf("post authenticate fail: %v", err)
+		err = fmt.Errorf("post yggdrasil fail: %v", err)
 		return
 	}
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		err = fmt.Errorf("read authenticate resp fail: %v", err)
+		err = fmt.Errorf("read yggdrasil resp fail: %v", err)
 		return
 	}
 	err = json.Unmarshal(body, &respData)
@@ -71,15 +69,15 @@ func Authenticate(user, passwd string) (respData Response, err error) {
 		return
 	}
 	if respData.Error != "" {
-		err = fmt.Errorf("authenticate fail: {error: %q, errorMessage: %q, cause: %q}",
+		err = fmt.Errorf("yggdrasil fail: {error: %q, errorMessage: %q, cause: %q}",
 			respData.Error, respData.ErrorMessage, respData.Cause)
 		return
 	}
 	return
 }
 
-// Response is the response from Mojang's auth server
-type Response struct {
+// AuthResp is the response from Mojang's auth server
+type AuthResp struct {
 	Error        string `json:"error"`
 	ErrorMessage string `json:"errorMessage"`
 	Cause        string `json:"cause"`
@@ -90,14 +88,14 @@ type Response struct {
 		ID     string `json:"ID"` // hexadecimal
 		Name   string `json:"name"`
 		Legacy bool   `json:"legacy"` // In practice, this field only appears in the response if true. Default to false.
-	} `json:"availableProfiles"` // only present if the agent field was received
+	} `json:"availableProfiles"` // only present if the Agent field was received
 
-	SelectedProfile struct { // only present if the agent field was received
+	SelectedProfile struct { // only present if the Agent field was received
 		ID     string `json:"id"`
 		Name   string `json:"name"`
 		Legacy bool   `json:"legacy"`
 	} `json:"selectedProfile"`
-	User struct { // only present if requestUser was true in the request payload
+	User struct { // only present if requestUser was true in the request AuthPayload
 		ID         string `json:"id"` // hexadecimal
 		Properties []struct {
 			Name  string `json:"name"`

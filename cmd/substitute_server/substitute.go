@@ -20,7 +20,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Tnze/go-mc/authenticate"
+	"github.com/Tnze/go-mc/yggdrasil"
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
@@ -103,7 +103,7 @@ func Handle(conn net.Conn) {
 	case PlayerLogin:
 		signal := make(chan int)
 		client := bot.NewClient()
-		auth, err := authenticate.Authenticate(Email, Paswd)
+		auth, err := yggdrasil.Authenticate(Email, Paswd)
 		if err != nil {
 			panic(err)
 		}
@@ -374,7 +374,7 @@ func (c *Client) encryptionResponse() ([]byte, []byte, error) {
 		return nil, nil, err
 	}
 	if p.ID != 0x01 {
-		return nil, nil, fmt.Errorf("0x%02X is not Encryption Response", p.ID)
+		return nil, nil, fmt.Errorf("0x%02X is not Encryption AuthResp", p.ID)
 	}
 
 	var (

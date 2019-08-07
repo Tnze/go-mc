@@ -1,7 +1,7 @@
 package bot
 
 import (
-	"github.com/Tnze/go-mc/authenticate"
+	"github.com/Tnze/go-mc/yggdrasil"
 	"log"
 )
 
@@ -43,7 +43,7 @@ func ExampleClient_JoinServer_online() {
 	c := NewClient()
 
 	//Login Mojang account to get AccessToken
-	auth, err := authenticate.Authenticate("Your E-mail", "Your Password")
+	auth, err := yggdrasil.Authenticate("Your E-mail", "Your Password")
 	if err != nil {
 		panic(err)
 	}

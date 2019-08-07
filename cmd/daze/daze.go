@@ -15,7 +15,7 @@ func main() {
 	// For online-mode, you need login your Mojang account
 	// and load your Name and UUID to client:
 	//
-	// 	auth, err := authenticate.Authenticate("Your E-mail", "Your Password")
+	// 	auth, err := yggdrasil.Authenticate("Your E-mail", "Your Password")
 	// 	if err != nil {
 	// 		panic(err)
 	// 	}

@@ -159,7 +159,7 @@ func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("create request packet to authenticate faile: %v", err)
+		return fmt.Errorf("create request packet to yggdrasil faile: %v", err)
 	}
 
 	PostRequest, err := http.NewRequest(http.MethodPost, "https://sessionserver.mojang.com/session/minecraft/join",

@@ -125,15 +125,19 @@ func (m Message) ClearString() string {
 	msg.WriteString(text)
 
 	//handle translate
-	if m.Translate != "" && translateMap != nil {
-
+	if m.Translate != "" {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
 			_ = arg.UnmarshalJSON(v) //ignore error
 			args[i] = arg.ClearString()
 		}
-		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
+
+		if translateMap != nil {
+			_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
+		} else {
+			_, _ = fmt.Fprint(&msg, m.Translate, m.With)
+		}
 	}
 
 	if m.Extra != nil {
@@ -172,8 +176,7 @@ func (m Message) String() string {
 	msg.WriteString(text)
 
 	//handle translate
-	if m.Translate != "" && translateMap != nil {
-
+	if m.Translate != "" {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
@@ -181,7 +184,11 @@ func (m Message) String() string {
 			args[i] = arg
 		}
 
-		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
+		if translateMap != nil {
+			_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
+		} else {
+			_, _ = fmt.Fprint(&msg, m.Translate, m.With)
+		}
 	}
 
 	if m.Extra != nil {

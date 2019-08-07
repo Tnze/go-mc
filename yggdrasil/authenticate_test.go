@@ -1,4 +1,4 @@
-package authenticate
+package yggdrasil
 
 import (
 	"encoding/json"
@@ -7,8 +7,8 @@ import (
 )
 
 func TestEncodingPayload(t *testing.T) {
-	j, err := json.Marshal(payload{
-		Agent: agent{
+	j, err := json.Marshal(AuthPayload{
+		Agent: Agent{
 			Name:    "Minecraft",
 			Version: 1,
 		},
