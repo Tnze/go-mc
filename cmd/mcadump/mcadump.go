@@ -101,7 +101,7 @@ func pack(f, o string) {
 		checkerr(fmt.Errorf("cannot use %s as mca file name: %v", rn, err))
 	}
 
-	fn := fmt.Sprintf("r.%d.%d.mca", x/32, z/32)
+	fn := fmt.Sprintf("r.%d.%d.mca", x>>5, z>>5)
 	r, err := region.Open(fn)
 	if err != nil && os.IsNotExist(err) {
 		r, err = region.Create(filepath.Join(o, fn))
