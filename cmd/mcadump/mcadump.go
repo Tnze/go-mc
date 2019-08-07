@@ -58,7 +58,7 @@ func main() {
 			checkerr(err)
 			var r io.Reader = bytes.NewReader(data[1:])
 
-			fn := fmt.Sprintf("c.%d.%d.mcc", x+i, z+j)
+			fn := fmt.Sprintf("c.%d.%d.mcc", x*32+i, z*32+j)
 			if *decomp {
 				fn += ".nbt" //解压后就是一个标准的NBT文件，可以加个.nbt后缀
 				switch data[0] {
