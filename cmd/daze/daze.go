@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -23,16 +24,21 @@ func main() {
 	// For online-mode, you need login your Mojang account
 	// and load your Name and UUID to client:
 	//
-	auth, err := authenticate.Authenticate("E-Mail", "password")
+	password := os.Getenv("MC_PASSWORD")
+	auth, err := authenticate.Authenticate("3033784236@qq.com", password)
 	if err != nil {
 		panic(err)
 	}
 	c.Name, c.Auth.UUID, c.AsTk = auth.SelectedProfile.Name, auth.SelectedProfile.ID, auth.AccessToken
 
-	realms.New(c.Auth.UUID, c.Name, c.AsTk)
+	realms.SetCookie(c.Auth.UUID, c.Name, c.AsTk)
 	realms.ListWorlds("") //列出Realms Server列表
 	realmsID := realms.ListWorlds("go-mc")
-	address := realms.Join(realmsID)
+	address, err := realms.Join(realmsID)
+	if err != nil {
+		panic(err)
+	}
+
 	log.Println(address)
 
 	i := strings.Index(address, ":")

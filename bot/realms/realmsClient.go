@@ -19,7 +19,7 @@ var (
 	client http.Client = http.Client{}
 )
 
-func New(uuid, name, accessToken string) {
+func SetCookie(uuid, name, accessToken string) {
 	sessionCookie = "sid=token:" + accessToken + ":" + uuid + ",user=" + name + ",version=" + bot.MCVersion
 }
 
@@ -63,30 +63,32 @@ func ListWorlds(realmsName string) int {
 	req, err := http.NewRequest("GET", url, nil)
 	req.Header.Add("Cookie", sessionCookie)
 	req.Header.Add("cache-control", "no-cache")
-
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
-
 	}
+
 	res, err := client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
-		return -1
+		return 1 //非正常退出
 	}
+
 	defer res.Body.Close()
+
 	body, _ := ioutil.ReadAll(res.Body)
 
 	err = json.Unmarshal(body, &serverList)
 	if err != nil {
 		err = fmt.Errorf("unmarshal json data fail: %v", err)
-		return -1
+		return 0 //正常退出
 	}
+
 	if strings.EqualFold("", realmsName) {
 		for _, v := range serverList.Servers {
 			fmt.Print("Name:", v.Name)
 			fmt.Println("\tID:", v.ID)
 		}
-		return 1
+		return 0
 	}
 
 	for _, v := range serverList.Servers {
@@ -101,7 +103,7 @@ func ListWorlds(realmsName string) int {
 	panic("找不到Realms Name对应Realms ID.请检查Realms Name是否正确.")
 }
 
-func Join(serverID int) string {
+func Join(serverID int) (address string, err error) {
 
 	url := "https://pc.realms.minecraft.net/worlds/v1/" + strconv.Itoa(serverID) + "/join/pc"
 	//fmt.Println("Join URL:", url)
@@ -110,18 +112,19 @@ func Join(serverID int) string {
 	req.Header.Add("Cookie", sessionCookie)
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
-		return ""
 	}
+
 	res, err := client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
-		return ""
 	}
+
 	defer res.Body.Close()
 
 	body, _ := ioutil.ReadAll(res.Body)
 	if strings.EqualFold(string(body), "Retry again later") {
-		panic("Failed to get Realms Server ID: Retry again later")
+		// panic("Failed to get Realms Server ID: Retry again later")
+		err = fmt.Errorf("Failed to get Realms Server ID: %v", string(body))
 	}
 
 	fmt.Println(string(body))
@@ -129,8 +132,8 @@ func Join(serverID int) string {
 	err = json.Unmarshal(body, &sInfo)
 	if err != nil {
 		err = fmt.Errorf("Unmarshal json data fail: %v", err)
-		return ""
 	}
 
-	return sInfo.Address
+	address = sInfo.Address
+	return
 }
