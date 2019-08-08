@@ -30,8 +30,8 @@ func main() {
 	c.Name, c.Auth.UUID, c.AsTk = auth.SelectedProfile.Name, auth.SelectedProfile.ID, auth.AccessToken
 
 	realms.New(c.Auth.UUID, c.Name, c.AsTk)
-	realms.ListWorlds("")                        //列出Realms Server列表
-	realmsID := realms.ListWorlds("Realms Name") //传入Realms Name，返回RealmsID
+	realms.ListWorlds("") //列出Realms Server列表
+	realmsID := realms.ListWorlds("go-mc")
 	address := realms.Join(realmsID)
 	log.Println(address)
 

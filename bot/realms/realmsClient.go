@@ -96,9 +96,9 @@ func ListWorlds(realmsName string) int {
 			fmt.Println("\tID:", v.ID)
 			return v.ID
 		}
-		panic("找不到Realms Name对应Realms ID.请检查Realms Name是否正确.")
+
 	}
-	return 1
+	panic("找不到Realms Name对应Realms ID.请检查Realms Name是否正确.")
 }
 
 func Join(serverID int) string {
@@ -124,7 +124,6 @@ func Join(serverID int) string {
 		panic("Failed to get Realms Server ID: Retry again later")
 	}
 
-	//打印请求返回值
 	fmt.Println(string(body))
 
 	err = json.Unmarshal(body, &sInfo)
