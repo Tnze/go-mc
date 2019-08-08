@@ -374,7 +374,7 @@ func (c *Client) encryptionResponse() ([]byte, []byte, error) {
 		return nil, nil, err
 	}
 	if p.ID != 0x01 {
-		return nil, nil, fmt.Errorf("0x%02X is not Encryption AuthResp", p.ID)
+		return nil, nil, fmt.Errorf("0x%02X is not Encryption authResp", p.ID)
 	}
 
 	var (

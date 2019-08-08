@@ -7,12 +7,12 @@ import (
 )
 
 func TestEncodingPayload(t *testing.T) {
-	j, err := json.Marshal(AuthPayload{
-		Agent: Agent{
+	j, err := json.Marshal(authPayload{
+		Agent: agent{
 			Name:    "Minecraft",
 			Version: 1,
 		},
-		UserName:    "mojang account name",
+		UserName:    "mojang account email or name",
 		Password:    "mojang account password",
 		ClientToken: "client identifier",
 		RequestUser: true,
