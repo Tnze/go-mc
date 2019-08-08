@@ -15,6 +15,9 @@ import (
 // ProtocolVersion , the protocol version number of minecraft net protocol
 const ProtocolVersion = 498
 
+//Minecraft Version
+const MCVersion = "1.14.4"
+
 // PingAndList check server status and list online player.
 // Returns a JSON data with server status, and the delay.
 //

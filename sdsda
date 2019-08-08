@@ -1,0 +1,753 @@
+[33mcommit bf46650ffcf0569b4ceb4f1d2cd7ee2833d7c050[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Aug 7 21:58:54 2019 +0800
+
+    mcadump现在支持通配符匹配文件以及路径了
+
+[33mcommit 92f786dfe0bead62aab554285b93da8aa9a43105[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Aug 7 21:50:31 2019 +0800
+
+    mcadump现在支持通配符匹配文件了
+
+[33mcommit 8f5a3a8d9f0cb01d1a391d1e8c5b7e09c843e563[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Aug 7 21:08:46 2019 +0800
+
+    修复了mcadump生成的mca文件名坐标错误的问题
+
+[33mcommit e5d38d49c2144a10afb7386be417d27b1692fc04[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Aug 7 20:04:53 2019 +0800
+
+    修复了mcadump生成的mcc文件名坐标错误的问题
+
+[33mcommit 73af09e2ea37ea70d01ef212ee96aaafe18e8acf[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Aug 7 15:23:25 2019 +0800
+
+    chat package will not ignore the translate message now, but return the row msg.
+
+[33mcommit 72ba5b73455c1e54f8acfb80a58fd5db36dc65d4[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Aug 6 17:46:02 2019 +0800
+
+    yes, all the languages
+
+[33mcommit f11c0e773a8e92d9cc9448335657f6694e2d7dda[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Aug 6 14:56:28 2019 +0800
+
+    update cmd/... for new chat package
+
+[33mcommit ced82a1cabef7dab32b64ef7ca0db6ed1aa0deda[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Aug 6 14:51:48 2019 +0800
+
+    Now we could use package chat to translate in many language.
+    But you must call chat.SetLanguage now.
+    (or just import _ "github.com/Tnze/go-mc/data/lang/en-us"
+
+[33mcommit dad5e0b75f431b148501dde0582a63e1728a5f90[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Aug 5 17:49:47 2019 +0800
+
+    mcadump
+
+[33mcommit 1073099cbda3d3e85db873759dea4ae7c3cbac03[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Aug 3 18:02:18 2019 +0800
+
+    struct column and chunk, and optimization
+
+[33mcommit 2db368fe4a0952489547659d126822626999896e[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Aug 3 14:41:16 2019 +0800
+
+    Update README.md
+
+[33mcommit 19fd388cd90f3f1f2ec84ee229dd54640d27d378[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Aug 3 14:34:51 2019 +0800
+
+    write mca region file (test and optimization)
+
+[33mcommit 0a670a282410a58d261998e24fb1d8525436217d[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Aug 3 01:00:33 2019 +0800
+
+    write mca region file (need test)
+
+[33mcommit b94368d9cab65547411f1f7c2a70e2d4b510d352[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Fri Aug 2 23:32:27 2019 +0800
+
+    read mca region file
+
+[33mcommit fed2cf25ce5b91c3221f36a547a9c4917dad108f[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Fri Aug 2 11:14:58 2019 +0800
+
+    issue #4 临时解决方法
+
+[33mcommit 02eb7283d1afd946bdf07c697b9105106cfae7a2[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Thu Aug 1 12:09:58 2019 +0800
+
+    hide Payload in authenticate
+
+[33mcommit 1cc07c15f5ed8fea904e523aac657165b47fae4e[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Thu Aug 1 11:55:11 2019 +0800
+
+    Goland config
+
+[33mcommit e27bb4e2bcebec4509704f13c1be68211a1e4ad8[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Thu Aug 1 00:03:53 2019 +0800
+
+    struct of Level.dat
+
+[33mcommit e385cb77cb4b00bee5e0da000d5bc61b8fd5dbe2[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 31 21:00:30 2019 +0800
+
+    NBT Unmarshaler support
+
+[33mcommit 4bd9c44f304bf4a69b443fb09a85af71f5961c08[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 31 20:25:41 2019 +0800
+
+    NBT parser can unmarshal TagCompound as map[string]interface{} now
+
+[33mcommit b076c797cd9fabf8b0b737a8a13c53f9b476be39[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 31 18:31:08 2019 +0800
+
+    read player data from .dat file
+
+[33mcommit 5fbc95d4a013a27d091ee91094c1e8bbcb9ffb42[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 31 17:31:16 2019 +0800
+
+    infer compress type before decode NBT fail
+
+[33mcommit 697e09fc5e2cc005963af468d1e35022ac644486[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 31 15:41:57 2019 +0800
+
+    add Content-Type in authenticate
+
+[33mcommit e39f1ec9dc1d489883017374e240479a712d9275[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 31 01:30:31 2019 +0800
+
+    get旧版的方法
+
+[33mcommit c5e4efddcb5c105e2df913aa2edcf7dd11172bad[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jul 30 15:34:55 2019 +0800
+
+    update README
+
+[33mcommit dcbfb3d51d2d30e2929e502157096d34944855ad[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jul 30 15:32:43 2019 +0800
+
+    Delete settings.json
+
+[33mcommit 373f3949381c727bc0ffb88e0fb17f92fe7c948e[m
+Merge: 5e38ea7 ef2203d
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jul 30 15:31:45 2019 +0800
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 5e38ea7d8df525a24d33611507a36f9192386db3[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jul 30 15:31:23 2019 +0800
+
+    implement RCON client and server
+
+[33mcommit fa15141870988f2b5e87852186561d2f605f3b09[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jul 30 01:33:18 2019 +0800
+
+    rcon connection
+
+[33mcommit ef2203d7265bd61729767563115e21b16ee2d6b9[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jul 29 10:47:33 2019 +0800
+
+    Update .travis.yml
+    
+    去掉go1.12测试点
+
+[33mcommit 92c618249c1b0f19aa009e5014b780a80d3f8f88[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jul 29 10:42:08 2019 +0800
+
+    Update README.md
+
+[33mcommit 3bd0049f3a945e12de5d4bb8c7217c830f650fab[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sun Jul 28 19:38:20 2019 +0800
+
+    fix the test error on substitute
+
+[33mcommit 708097608c0ec644dbca1d9b8326d5e35b7a3ae3[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sun Jul 28 19:31:51 2019 +0800
+
+    autofish's colorable output for windows
+    and non color output for daze
+
+[33mcommit cc3789ff22ac495e2623b1529fd46919410b3859[m
+Merge: 9cfdbfc 6f4211c
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sun Jul 28 19:22:42 2019 +0800
+
+    Merge remote-tracking branch 'origin/master'
+
+[33mcommit 9cfdbfc6b7e008243c6deffe1b0e017ff1fdc719[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sun Jul 28 19:22:14 2019 +0800
+
+    we can Encode and Decode the UUID now
+
+[33mcommit 9a960ee8684d675ab1f58b2766a967588268a8d3[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sun Jul 28 19:14:51 2019 +0800
+
+    Use google's UUID lib
+
+[33mcommit 6f4211ce7454748a0778a62b2bc781fd68288033[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Fri Jul 26 11:25:14 2019 +0800
+
+    Update README.md
+
+[33mcommit e5c32df53bb8b2624aa861a5e9ec4ec3490d5291[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 24 15:29:10 2019 +0800
+
+    Fix the NBT decoder return EOF if length equals to 0
+
+[33mcommit d9098676fda3e3e14050e3f5c4f6efee22c9ca1c[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 24 14:14:33 2019 +0800
+
+    Fix the NBT decoder panic if length less than 0
+
+[33mcommit 3a6211d180c1dc62397c9b463bb58dc5528f1551[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 24 03:21:31 2019 +0800
+
+    Chat Message support Encode now,fix test
+
+[33mcommit 020b07fef033ced95786c2c7b82cfc8c61eec826[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 24 03:10:23 2019 +0800
+
+    Chat Message support Encode now,fix
+
+[33mcommit a91caff32f1f15d60dfc8cb9187bdb1dc0dae39f[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jul 24 02:54:36 2019 +0800
+
+    Chat Message support Encode now
+
+[33mcommit 6c4924af96f1820ae750dfe9e89687f2d8a89d23[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jul 22 13:03:26 2019 +0800
+
+    修正ReadWriter接口名
+
+[33mcommit c78d8369eb1362c2e8703cf8ca1d7a1319e4c8eb[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jul 22 12:51:54 2019 +0800
+
+    add Reader and Writer interface of go-mc/net
+
+[33mcommit 927de56d35b232fb7ae60991271402b3eb11424e[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jul 20 10:54:06 2019 +0800
+
+    修改错误的版本号
+
+[33mcommit a1cc368be2c3665c71231825b0de02e97f11cb44[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jul 20 02:13:26 2019 +0800
+
+    升级到1.14.4
+
+[33mcommit 2809be4542e52448d2208c95fcca2e1079385f3f[m[33m ([m[1;33mtag: v1.14.3[m[33m)[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jul 16 23:32:54 2019 +0800
+
+    修正代码中的若干拼写错误
+
+[33mcommit a7858a24599feb61b38483c58bb0befcfe5d7e69[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jul 16 23:28:02 2019 +0800
+
+    修正代码中的若干拼写错误
+
+[33mcommit ce9ce6c6f2a755a4bd52a23d1bb9049dcfc63248[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jun 29 10:09:47 2019 +0800
+
+    把.DS_Store 添加到gitignore
+
+[33mcommit d2dfd0c36f707d69e3ecd7b87e08517dfe9ae959[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jun 29 10:09:14 2019 +0800
+
+    删除.DS_Store
+
+[33mcommit 9df0ae90648d362b4a5f24fb11814157cd44a078[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jun 25 14:01:03 2019 +0800
+
+    plan
+
+[33mcommit 1de05fc44c4c4df0faadc254d0a3ec6459c05980[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jun 25 13:30:43 2019 +0800
+
+    更新ProtocolID
+
+[33mcommit ff7439c28ed8c36720363bec67879c980c880ba0[m[33m ([m[1;33mtag: v1.14.2[m[33m)[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jun 19 02:01:04 2019 +0800
+
+    修复了§设置的格式不恢复的问题
+
+[33mcommit 840e4b1cf876c63f8345730fa6e8dc23a13fc45d[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jun 19 01:51:50 2019 +0800
+
+    修正了解析§格式的大小写敏感问题
+
+[33mcommit 8c0b0e89ab1a25bcb71d61151a05909d63d03b62[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jun 19 01:44:21 2019 +0800
+
+    support old chat format system which based on §
+
+[33mcommit f625f06001ce8b4d55065ff1825d901ce07ba25c[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jun 18 17:41:00 2019 +0800
+
+    you can use chat.Message.ClearString()
+    to output the message without ansi color
+
+[33mcommit 285f582554aafc87ba4ae111334a92e0f4770146[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jun 18 16:51:44 2019 +0800
+
+    can install mcping
+
+[33mcommit eab4df2b257154c75caa3e5b86008067eb36b0a6[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Tue Jun 18 14:37:33 2019 +0800
+
+    重写了ping示例，现在它是一个实用的工具了
+
+[33mcommit 81e21a7713132ab8b4ef37bc2226581e19dca1b5[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jun 15 16:00:55 2019 +0800
+
+    调整bot功能的列举顺序
+
+[33mcommit 777525e03d1508dc55791dfef5a5463b79eafab8[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jun 15 15:55:10 2019 +0800
+
+    update README
+
+[33mcommit 9b2360fc932cd6da56040e1db06180235dcb5206[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jun 15 15:52:25 2019 +0800
+
+    修复了玩家物品栏装有物品时解析出错的问题
+
+[33mcommit eb5d8f3d6022eaa99b70da15bf15487bd9ac81bf[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed Jun 12 21:06:08 2019 +0800
+
+    更新了README
+
+[33mcommit 97ba420565e34a68a6a6097cd0b0514ff1c443ea[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jun 10 17:07:57 2019 +0800
+
+    支持Unmarshal到interface{}
+
+[33mcommit be1a95c27e3e6c8414defb2c1ece6132100711cd[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jun 10 16:32:12 2019 +0800
+
+    support unmarshal to interface{} .no TagCompound
+
+[33mcommit 0a094cf9562ec590caa45c40f53558003065c946[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jun 10 15:24:24 2019 +0800
+
+    add HeldItemChange event
+
+[33mcommit f909ed405e1b983599f41fbad0dfe7c4382bc685[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jun 8 14:17:26 2019 +0800
+
+    测试并改正放置、挖掘方块的API
+
+[33mcommit d53f77dbaea27d5548455bd7710778c6a37e3334[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sat Jun 8 11:07:00 2019 +0800
+
+    更新了几个API
+
+[33mcommit 722c21bff95b7471c7e009cb58e3591fc1cb5610[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Fri Jun 7 12:38:47 2019 +0800
+
+    修复了服务端断开连接时，若不响应Disconnect事件则会崩溃的问题
+
+[33mcommit 74e4d4a2ed565a86c92b28bff50320ddb78a2d98[m
+Merge: b8e2b66 bd9778d
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jun 3 13:25:37 2019 +0800
+
+    mearge
+
+[33mcommit b8e2b66a353b73b19aa8d3bf66f4acca02f5ffc7[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jun 3 13:23:28 2019 +0800
+
+    让ByteArray的Encode不使用指针
+
+[33mcommit bd9778db2ebe8bd6f7745ee9cc1b0adcaef82a9e[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jun 3 13:18:46 2019 +0800
+
+    让ByteArray的Encode不使用指针
+
+[33mcommit 4a0dc34854087d7355d51b4c6687a05930f69487[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Mon Jun 3 13:01:15 2019 +0800
+
+    add support of the byte array with varint len.
+
+[33mcommit 6feed6f193a29270f471f3af4d6c24be28c5d273[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sun Jun 2 20:48:46 2019 +0800
+
+    chat message support json.Marshal
+
+[33mcommit a46106e52308835f914f18004193a861f8813939[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed May 29 22:49:11 2019 +0800
+
+    提高易读性
+
+[33mcommit 9b800804e62b727b38e3ace2f7f87f5420892078[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed May 29 22:36:12 2019 +0800
+
+    添加注释
+
+[33mcommit 778caf1a400f386f2b35c3edcffd67651c71159d[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed May 29 21:34:58 2019 +0800
+
+    format the code
+
+[33mcommit ec50ada707caba188c07e3cca03a110a3fa6e938[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed May 29 21:21:43 2019 +0800
+
+    update to 1.14.2
+
+[33mcommit bfb5e51f243fa6db1e598c61788e7f437c283caf[m[33m ([m[1;33mtag: v1.14.1[m[33m)[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed May 29 21:16:29 2019 +0800
+
+    修复一点风格问题
+
+[33mcommit 2407b4f0edf7d186c0a7bc8c515af2519a72be0a[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Sun May 26 14:59:32 2019 +0800
+
+    update README.mc
+
+[33mcommit 837bb0b213c124000b8b6ad9d4fcb5bfeac9fb96[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Tue May 21 00:11:27 2019 +0800
+
+    try read ChunkData
+
+[33mcommit 6be465640f22878e132a2871042829b5e44a5022[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Tue May 21 00:11:07 2019 +0800
+
+    nbt support skip TagIntArray and TagLongArray
+
+[33mcommit b396e2f9d5d491c1759a86a6dd622b7f58993c72[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Mon May 20 08:06:06 2019 +0800
+
+    fix the login mistake of the example
+
+[33mcommit edc99fc773dad295ce1072ed8f9c77330c53d401[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Mon May 20 00:45:56 2019 +0800
+
+    一个替换登入账号的代理服务器
+
+[33mcommit bb7fffbce6c5e60554c80298090777d7c4d61c6b[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 21:27:07 2019 +0800
+
+    recive Chunk data
+
+[33mcommit 845b7949ddc63b7bd3620c0744a6555e7c2975ec[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 18:48:06 2019 +0800
+
+    remove gomcbot
+
+[33mcommit 438285676d516b1073f7491920ee8c067eaf77be[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 17:44:49 2019 +0800
+
+    support Inventory and Delegate
+
+[33mcommit 2c41d9b901c4b1bcadee8ef6550773fff4560f16[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 15:44:09 2019 +0800
+
+    return ErrEND when reading a TAG_End
+
+[33mcommit e088636fbca9e9d685746c0c67e733ddbaaba88f[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 11:55:58 2019 +0800
+
+    fix some misspell
+
+[33mcommit 637d5e35a332ed567ae6989bd51cd782d4f0e35b[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 11:36:54 2019 +0800
+
+    remove PositionPackTest
+
+[33mcommit 7e8118e21fba8c1dec8949bda93998fcd983dcd6[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 11:32:31 2019 +0800
+
+    PluginMessage event
+
+[33mcommit 4653cab5e18e063a33d60ba7cc0695ead3fce566[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 10:11:20 2019 +0800
+
+    update to 1.14.1
+
+[33mcommit 6ecda56de178d7d67efa7f53afa6550d0ad8357b[m[33m ([m[1;33mtag: v1.14[m[33m)[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 00:23:54 2019 +0800
+
+    fix example output error
+
+[33mcommit 1144956f5779f3baaceb56d36ef011e7b86c7e6d[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 00:17:39 2019 +0800
+
+    update README
+
+[33mcommit b28cc4f2da1ddd382cbe05e9ee5c5b134f4fca44[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 19 00:15:14 2019 +0800
+
+    Marshal without test and TagList
+
+[33mcommit 0b9984da078c9a22adea810a8760ce7c11ae54f8[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 18 22:00:52 2019 +0800
+
+    support IntArray and LongArray
+
+[33mcommit d3c7f45a212eb3572dd38c7b7f3d1d924af4b591[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 18 20:10:05 2019 +0800
+
+    use sync.Map to store  type info
+
+[33mcommit 7953808e3680746e356357cb11238af132dbd482[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 18 19:22:23 2019 +0800
+
+    implement old NBT format.
+    TODO: TAG_Int_Array and TAG_Long_Array
+
+[33mcommit b2164833f5d94a66f24b76789150f438b012d3f0[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 18 18:08:40 2019 +0800
+
+    can parse TagCompound and TagString and TagFloat
+
+[33mcommit 9cdab82ea36d7e499ddec9e5a6d5c115d9a25250[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 18 01:08:32 2019 +0800
+
+    can parse TAG_String
+
+[33mcommit 94fb6502db245921883c54c552dacf99fb9000b4[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Fri May 17 14:10:52 2019 +0800
+
+    添加了一些注释和例子
+
+[33mcommit db9dbc7e767b367b012c4ab9021158489350d458[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Fri May 17 00:17:10 2019 +0800
+
+    add build status to README
+
+[33mcommit 1e235433953a297cb68667e282e1f2a31ed9f3f0[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Fri May 17 00:10:42 2019 +0800
+
+    remove items test
+
+[33mcommit ceebc11e721813850c0fb43d392f285b85bc3de3[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Fri May 17 00:05:17 2019 +0800
+
+    add travis
+
+[33mcommit a005470e2b8edaca1ce2b1daae299b534cfdc331[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Wed May 15 00:02:59 2019 +0800
+
+    fix HealthChange event name error
+
+[33mcommit abf8c72e2607ceaeba0a21baffb720e842ec71df[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Tue May 14 23:47:05 2019 +0800
+
+    add online mode guide to daze example
+
+[33mcommit 2bda0d63c2b03c775fd50edffa676da1e4734e95[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Tue May 14 23:26:22 2019 +0800
+
+    handle encryption error
+
+[33mcommit 4dee74b11957ed5e0eaab5009dd91240cae2a1ec[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 12 11:10:00 2019 +0800
+
+    PingAndList can ping now but not just list
+
+[33mcommit 71e4d24465f96a06606a3d2e5851a775e3ddda48[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sun May 5 00:44:06 2019 +0800
+
+    fix the panic when net.Conn.ReadPacket error.
+
+[33mcommit 17d5cdb6742cb17197839f0aae54cf33299a5144[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 4 17:34:16 2019 +0800
+
+    autofish can automatic rethrow when timeout
+
+[33mcommit 120bf7e244eae2ce5de4f857a1dfb37a741b9da2[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 4 13:39:52 2019 +0800
+
+    simple fish bot
+
+[33mcommit c8505386c6af9c0807f1601ce637643ce218d868[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Sat May 4 00:11:24 2019 +0800
+
+    bot can hear sounds now. add some motion API.
+
+[33mcommit b1422863d05571428af22db75be2bf264c5a4369[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Fri May 3 19:49:13 2019 +0800
+
+    add SwingArm, Respawn and UseItem function
+
+[33mcommit 150a5c6f8cba6d9c5ebd24a77f97c97d4151f52b[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Fri May 3 19:46:53 2019 +0800
+
+    fix chat color error
+
+[33mcommit e3e10e5eee6d9b2dc275fb4ac26969b8b8e134bf[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Fri May 3 09:53:26 2019 +0800
+
+    trans README
+
+[33mcommit 603ab9b09d5f8b66f231397b2af2ac62f012d1d5[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Thu May 2 14:17:53 2019 +0800
+
+    remove gomcbot
+
+[33mcommit 6cd0af6187a04c410b6664566619849a6beb77cd[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Thu May 2 12:34:30 2019 +0800
+
+    fix badge link error
+
+[33mcommit 3b17db47f36eb5830c2efbc5d5080ab1a4c377ea[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Thu May 2 12:28:02 2019 +0800
+
+    add gomcbot link
+
+[33mcommit c74cffcc22450754b21bbfb50203fec77a430e18[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Thu May 2 12:18:00 2019 +0800
+
+    Decode ChatMsg as chat.Message but not pk.String
+
+[33mcommit 1f0bdf19a32129c82938cda645d93165687e09ec[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Thu May 2 00:39:43 2019 +0800
+
+    event system
+
+[33mcommit 45820c10f545d85109b0eea63b38ad5f5e73004b[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Wed May 1 16:09:36 2019 +0800
+
+    bot is nolonger a submodule
+
+[33mcommit 6055f2ca7b245eeb64565b43487827bf5efdd9b5[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Wed May 1 15:57:22 2019 +0800
+
+    add badge
+
+[33mcommit 86a5b11cf4ee77b6a2ce866264ba30aac4c87215[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Wed May 1 15:41:32 2019 +0800
+
+    add readme
+
+[33mcommit 0d436609ce8bac2393c2faa485e4d8dd625d627b[m
+Author: JunDao <Tnze@Tnze.local>
+Date:   Wed May 1 15:22:42 2019 +0800
+
+    init
+
+[33mcommit 2b58eb07b5fa091c1baf7dbe015160a8863a1111[m
+Author: Tnze <cjd001113@outlook.com>
+Date:   Wed May 1 14:00:18 2019 +0800
+
+    Initial commit

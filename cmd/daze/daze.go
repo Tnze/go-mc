@@ -14,7 +14,7 @@ func main() {
 	c := bot.NewClient()
 	// For online-mode, you need login your Mojang account
 	// and load your Name and UUID to client:
-	//
+	//qwq
 	// 	auth, err := yggdrasil.Authenticate("Your E-mail", "Your Password")
 	// 	if err != nil {
 	// 		panic(err)
