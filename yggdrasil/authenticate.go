@@ -16,6 +16,11 @@ type agent struct {
 	Version int    `json:"version"`
 }
 
+var defaultAgent = agent{
+	Name:    "Minecraft",
+	Version: 1,
+}
+
 // authPayload is a yggdrasil request struct
 type authPayload struct {
 	Agent       agent  `json:"agent"`
@@ -57,10 +62,7 @@ type authResp struct {
 func Authenticate(user, password string) (*Access, error) {
 	// Payload
 	pl := authPayload{
-		Agent: agent{
-			Name:    "Minecraft",
-			Version: 1,
-		},
+		Agent:       defaultAgent,
 		UserName:    user,
 		Password:    password,
 		ClientToken: uuid.New().String(),
@@ -88,6 +90,6 @@ func (a *Access) SelectedProfile() (ID uuid.UUID, Name string) {
 	return a.ar.SelectedProfile.ID, a.ar.SelectedProfile.Name
 }
 
-func (a *Access) AccessToken()string{
+func (a *Access) AccessToken() string {
 	return a.ar.AccessToken
 }
