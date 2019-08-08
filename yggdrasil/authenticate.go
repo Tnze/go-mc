@@ -39,18 +39,18 @@ type authResp struct {
 	AccessToken       string `json:"accessToken"`
 	ClientToken       string `json:"clientToken"` // identical to the one received
 	AvailableProfiles []struct {
-		ID     uuid.UUID `json:"ID"` // hexadecimal
-		Name   string    `json:"name"`
-		Legacy bool      `json:"legacy"` // In practice, this field only appears in the response if true. Default to false.
+		ID     string `json:"ID"` // hexadecimal
+		Name   string `json:"name"`
+		Legacy bool   `json:"legacy"` // In practice, this field only appears in the response if true. Default to false.
 	} `json:"availableProfiles"`                  // only present if the agent field was received
 
 	SelectedProfile struct { // only present if the agent field was received
-		ID     uuid.UUID `json:"id"`
-		Name   string    `json:"name"`
-		Legacy bool      `json:"legacy"`
+		ID     string `json:"id"`
+		Name   string `json:"name"`
+		Legacy bool   `json:"legacy"`
 	} `json:"selectedProfile"`
 	User struct { // only present if requestUser was true in the request authPayload
-		ID         uuid.UUID `json:"id"` // hexadecimal
+		ID         string `json:"id"` // hexadecimal
 		Properties []struct {
 			Name  string `json:"name"`
 			Value string `json:"value"`
@@ -86,7 +86,7 @@ func Authenticate(user, password string) (*Access, error) {
 	return &Access{ar: ar, ct: pl.ClientToken}, nil
 }
 
-func (a *Access) SelectedProfile() (ID uuid.UUID, Name string) {
+func (a *Access) SelectedProfile() (ID, Name string) {
 	return a.ar.SelectedProfile.ID, a.ar.SelectedProfile.Name
 }
 
