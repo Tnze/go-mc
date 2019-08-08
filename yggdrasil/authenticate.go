@@ -43,7 +43,7 @@ func Authenticate(user, password string) (respData AuthResp, err error) {
 
 	//Post
 	client := http.Client{}
-	PostRequest, err := http.NewRequest(http.MethodPost, "https://authserver.mojang.com/yggdrasil",
+	PostRequest, err := http.NewRequest(http.MethodPost, "https://authserver.mojang.com/authenticate",
 		bytes.NewReader(j))
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
