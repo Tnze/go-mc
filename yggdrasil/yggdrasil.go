@@ -7,4 +7,50 @@
 // but credentials should never be collected from users. ----- https://wiki.vg
 package yggdrasil
 
-var Server = ""
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"net/http"
+)
+
+var AuthURL = "https://authserver.mojang.com"
+
+var client http.Client
+
+func post(endpoint string, payload interface{}, resp interface{}) error {
+	rowResp,err:=rowPost(endpoint,payload)
+	if err != nil {
+		return fmt.Errorf("request fail: %v",err)
+	}
+	defer rowResp.Body.Close()
+
+	err = json.NewDecoder(rowResp.Body).Decode(resp)
+	if err != nil {
+		return fmt.Errorf("parse resp fail: %v", err)
+	}
+
+	return nil
+}
+
+func rowPost(endpoint string, payload interface{}) (*http.Response, error) {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return nil, fmt.Errorf("marshal payload fail: %v", err)
+	}
+
+	PostRequest, err := http.NewRequest(
+		http.MethodPost,
+		AuthURL+endpoint,
+		bytes.NewReader(data))
+	if err != nil {
+		return nil, fmt.Errorf("make request error: %v", err)
+	}
+
+	PostRequest.Header.Set("User-agent", "go-mc")
+	PostRequest.Header.Set("Connection", "keep-alive")
+	PostRequest.Header.Set("Content-Type", "application/json")
+
+	// Do
+	return client.Do(PostRequest)
+}
