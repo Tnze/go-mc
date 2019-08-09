@@ -9,7 +9,7 @@ import (
 func (a *Access) Validate() (bool, error) {
 	pl := a.ar.tokens
 
-	resp, err := rowPost("/validate", pl)
+	resp, err := rawPost("/validate", pl)
 	if err != nil {
 		return false, fmt.Errorf("request fail: %v", err)
 	}
@@ -21,7 +21,7 @@ func (a *Access) Validate() (bool, error) {
 func (a *Access) Invalidate() error {
 	pl := a.ar.tokens
 
-	resp, err := rowPost("/invalidate", pl)
+	resp, err := rawPost("/invalidate", pl)
 	if err != nil {
 		return fmt.Errorf("request fail: %v", err)
 	}

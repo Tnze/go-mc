@@ -12,7 +12,7 @@ func SignOut(user, password string) error {
 		Password: password,
 	}
 
-	resp, err := rowPost("/signout", pl)
+	resp, err := rawPost("/signout", pl)
 	if err != nil {
 		return fmt.Errorf("request fail: %v", err)
 	}

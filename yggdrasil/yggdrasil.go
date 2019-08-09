@@ -29,7 +29,7 @@ var AuthURL = "https://authserver.mojang.com"
 var client http.Client
 
 func post(endpoint string, payload interface{}, resp interface{}) error {
-	rowResp, err := rowPost(endpoint, payload)
+	rowResp, err := rawPost(endpoint, payload)
 	if err != nil {
 		return fmt.Errorf("request fail: %v", err)
 	}
@@ -43,7 +43,7 @@ func post(endpoint string, payload interface{}, resp interface{}) error {
 	return nil
 }
 
-func rowPost(endpoint string, payload interface{}) (*http.Response, error) {
+func rawPost(endpoint string, payload interface{}) (*http.Response, error) {
 	data, err := json.Marshal(payload)
 	if err != nil {
 		return nil, fmt.Errorf("marshal payload fail: %v", err)
