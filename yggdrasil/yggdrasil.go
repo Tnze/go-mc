@@ -14,14 +14,24 @@ import (
 	"net/http"
 )
 
+type Error struct {
+	Err    string `json:"error"`
+	ErrMsg string `json:"errorMessage"`
+	Cause  string `json:"cause"`
+}
+
+func (e Error) Error() string {
+	return e.Err + ": " + e.ErrMsg + ", " + e.Cause
+}
+
 var AuthURL = "https://authserver.mojang.com"
 
 var client http.Client
 
 func post(endpoint string, payload interface{}, resp interface{}) error {
-	rowResp,err:=rowPost(endpoint,payload)
+	rowResp, err := rowPost(endpoint, payload)
 	if err != nil {
-		return fmt.Errorf("request fail: %v",err)
+		return fmt.Errorf("request fail: %v", err)
 	}
 	defer rowResp.Body.Close()
 
