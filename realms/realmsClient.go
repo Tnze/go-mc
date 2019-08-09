@@ -56,21 +56,25 @@ type serverInfo struct {
 	ResourcePackHash string `json:"resourcePackHash"`
 }
 
-func ListWorlds(realmsName string) int {
+func ListWorlds(realmsName string) (RealmsID int, err error) {
 
 	url := "https://pc.realms.minecraft.net/worlds"
 
 	req, err := http.NewRequest("GET", url, nil)
+	req.Header.Add("User-agent", "go-mc")
+	req.Header.Add("Connection", "keep-alive")
+	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Cookie", sessionCookie)
-	req.Header.Add("cache-control", "no-cache")
+
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
+		return
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
-		return 1 //非正常退出
+		return
 	}
 
 	defer res.Body.Close()
@@ -80,7 +84,7 @@ func ListWorlds(realmsName string) int {
 	err = json.Unmarshal(body, &serverList)
 	if err != nil {
 		err = fmt.Errorf("unmarshal json data fail: %v", err)
-		return 0 //正常退出
+		return
 	}
 
 	if strings.EqualFold("", realmsName) {
@@ -88,7 +92,7 @@ func ListWorlds(realmsName string) int {
 			fmt.Print("Name:", v.Name)
 			fmt.Println("\tID:", v.ID)
 		}
-		return 0
+		return
 	}
 
 	for _, v := range serverList.Servers {
@@ -96,42 +100,48 @@ func ListWorlds(realmsName string) int {
 		if strings.EqualFold(v.Name, realmsName) {
 			fmt.Print("查找到Realms名称:", v.Name)
 			fmt.Println("\tID:", v.ID)
-			return v.ID
+			RealmsID = v.ID
+			return
 		}
 
 	}
-	panic("找不到Realms Name对应Realms ID.请检查Realms Name是否正确.")
+	panic("找不到Realms Name.请检查是否正确.")
 }
 
 func Join(serverID int) (address string, err error) {
 
 	url := "https://pc.realms.minecraft.net/worlds/v1/" + strconv.Itoa(serverID) + "/join/pc"
-	//fmt.Println("Join URL:", url)
+	// fmt.Println("Join URL:", url)
 	req, err := http.NewRequest("GET", url, nil)
-	req.Header.Add("cache-control", "no-cache")
+	req.Header.Add("User-agent", "go-mc")
+	req.Header.Add("Connection", "keep-alive")
 	req.Header.Add("Cookie", sessionCookie)
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
+		return
 	}
 
 	res, err := client.Do(req)
 	if err != nil {
 		err = fmt.Errorf("make request error: %v", err)
+		return
 	}
 
 	defer res.Body.Close()
 
 	body, _ := ioutil.ReadAll(res.Body)
-	if strings.EqualFold(string(body), "Retry again later") {
-		// panic("Failed to get Realms Server ID: Retry again later")
-		err = fmt.Errorf("Failed to get Realms Server ID: %v", string(body))
+	if res.StatusCode != 200 {
+		err = fmt.Errorf("Failed to get realms server address: %v", string(body))
+		return
 	}
 
-	fmt.Println(string(body))
+	// fmt.Println(string(body))
+	// fmt.Println(res)
 
 	err = json.Unmarshal(body, &sInfo)
 	if err != nil {
 		err = fmt.Errorf("Unmarshal json data fail: %v", err)
+		return
 	}
 
 	address = sInfo.Address

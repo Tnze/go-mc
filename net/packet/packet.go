@@ -69,7 +69,8 @@ func RecvPacket(r io.ByteReader, useZlib bool) (*Packet, error) {
 	for i := 0; i < 5; i++ { //读数据前的长度标记
 		b, err := r.ReadByte()
 		if err != nil {
-			return nil, fmt.Errorf("read len of packet fail: %v", err)
+			return nil, fmt.Errorf("1read len of packet fail: %v", err)
+
 		}
 		len |= (int(b&0x7F) << uint(7*i))
 		if b&0x80 == 0 {
@@ -86,7 +87,9 @@ func RecvPacket(r io.ByteReader, useZlib bool) (*Packet, error) {
 	for i := 0; i < len; i++ {
 		data[i], err = r.ReadByte()
 		if err != nil {
-			return nil, fmt.Errorf("read content of packet fail: %v", err)
+			fmt.Println(len)
+			fmt.Println(r.ReadByte())
+			return nil, fmt.Errorf("2read content of packet fail: %v", err)
 		}
 	}
 

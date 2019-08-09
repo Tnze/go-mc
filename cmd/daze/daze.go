@@ -3,13 +3,8 @@ package main
 import (
 	"bytes"
 	"log"
-	"os"
-	"strconv"
-	"strings"
 
-	"github.com/Tnze/go-mc/authenticate"
 	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/bot/realms"
 	"github.com/Tnze/go-mc/chat"
 
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
@@ -21,35 +16,36 @@ import (
 func main() {
 	log.SetOutput(colorable.NewColorableStdout())
 	c := bot.NewClient()
+
 	// For online-mode, you need login your Mojang account
 	// and load your Name and UUID to client:
 	//
-	password := os.Getenv("MC_PASSWORD")
-	auth, err := authenticate.Authenticate("3033784236@qq.com", password)
-	if err != nil {
-		panic(err)
-	}
-	c.Name, c.Auth.UUID, c.AsTk = auth.SelectedProfile.Name, auth.SelectedProfile.ID, auth.AccessToken
+	// 	auth, err := yggdrasil.Authenticate("Your E-mail", "Your Password")
+	// 	if err != nil {
+	// 		panic(err)
+	// 	}
+	// 	c.Name, c.Auth.UUID, c.AsTk =  auth.SelectedProfile.Name, auth.SelectedProfile.ID, auth.AccessToken
 
-	realms.SetCookie(c.Auth.UUID, c.Name, c.AsTk)
-	realms.ListWorlds("") //列出Realms Server列表
-	realmsID := realms.ListWorlds("go-mc")
-	address, err := realms.Join(realmsID)
-	if err != nil {
-		panic(err)
-	}
+	// realms.SetCookie(c.Auth.UUID, c.Name, c.AsTk)
+	// realms.ListWorlds("") //列出Realms Server列表
+	// realmsID, err := realms.ListWorlds("go-mc")
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	log.Println(address)
+	// address, err := realms.Join(realmsID)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	i := strings.Index(address, ":")
-	realmsIP := address[0:i]
-	log.Println(realmsIP)
+	// log.Printf("Realms Address: %s ,  RealmsID: %d", address, realmsID)
 
-	realmsPort, _ := strconv.Atoi(address[i+1 : len(address)])
-	log.Println(realmsPort)
+	// i := strings.Index(address, ":")
+	// realmsIP := address[0:i]
+	// realmsPort, _ := strconv.Atoi(address[i+1 : len(address)])
 
 	//Login
-	err = c.JoinServer(realmsIP, realmsPort)
+	err := c.JoinServer("realmsIP", "realmsPort")
 	if err != nil {
 		log.Fatal(err)
 	}
