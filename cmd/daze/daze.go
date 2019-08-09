@@ -6,46 +6,15 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
-
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	pk "github.com/Tnze/go-mc/net/packet"
-
-	"github.com/mattn/go-colorable"
 )
 
 func main() {
-	log.SetOutput(colorable.NewColorableStdout())
 	c := bot.NewClient()
 
-	// For online-mode, you need login your Mojang account
-	// and load your Name and UUID to client:
-	//
-	// 	auth, err := yggdrasil.Authenticate("Your E-mail", "Your Password")
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-	// 	c.Name, c.Auth.UUID, c.AsTk =  auth.SelectedProfile.Name, auth.SelectedProfile.ID, auth.AccessToken
-
-	// realms.SetCookie(c.Auth.UUID, c.Name, c.AsTk)
-	// realms.ListWorlds("") //列出Realms Server列表
-	// realmsID, err := realms.ListWorlds("go-mc")
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// address, err := realms.Join(realmsID)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// log.Printf("Realms Address: %s ,  RealmsID: %d", address, realmsID)
-
-	// i := strings.Index(address, ":")
-	// realmsIP := address[0:i]
-	// realmsPort, _ := strconv.Atoi(address[i+1 : len(address)])
-
 	//Login
-	err := c.JoinServer("realmsIP", "realmsPort")
+	err := c.JoinServer("localhost", 25565)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,7 +39,7 @@ func onGameStart() error {
 }
 
 func onChatMsg(c chat.Message, pos byte) error {
-	log.Println("Chat:", c) // output chat message without any format code (like color or bold)
+	log.Println("Chat:", c.ClearString()) // output chat message without any format code (like color or bold)
 	return nil
 }
 
