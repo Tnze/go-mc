@@ -1,7 +1,6 @@
 package yggdrasil
 
 import (
-	"fmt"
 	"github.com/google/uuid"
 )
 
@@ -16,6 +15,16 @@ type agent struct {
 	Version int    `json:"version"`
 }
 
+type proof struct {
+	UserName string `json:"username"`
+	Password string `json:"password"`
+}
+
+type tokens struct {
+	AccessToken string `json:"accessToken"`
+	ClientToken string `json:"clientToken"`
+}
+
 var defaultAgent = agent{
 	Name:    "Minecraft",
 	Version: 1,
@@ -23,48 +32,44 @@ var defaultAgent = agent{
 
 // authPayload is a yggdrasil request struct
 type authPayload struct {
-	Agent       agent  `json:"agent"`
-	UserName    string `json:"username"`
-	Password    string `json:"password"`
+	Agent agent `json:"agent"`
+	proof
 	ClientToken string `json:"clientToken"`
 	RequestUser bool   `json:"requestUser"`
 }
 
 // authResp is the response from Mojang's auth server
 type authResp struct {
-	Error        string `json:"error"`
-	ErrorMessage string `json:"errorMessage"`
-	Cause        string `json:"cause"`
+	tokens
+	AvailableProfiles []Profile `json:"availableProfiles"` // only present if the agent field was received
 
-	AccessToken       string `json:"accessToken"`
-	ClientToken       string `json:"clientToken"` // identical to the one received
-	AvailableProfiles []struct {
-		ID     string `json:"ID"` // hexadecimal
-		Name   string `json:"name"`
-		Legacy bool   `json:"legacy"` // In practice, this field only appears in the response if true. Default to false.
-	} `json:"availableProfiles"`                  // only present if the agent field was received
-
-	SelectedProfile struct { // only present if the agent field was received
-		ID     string `json:"id"`
-		Name   string `json:"name"`
-		Legacy bool   `json:"legacy"`
-	} `json:"selectedProfile"`
-	User struct { // only present if requestUser was true in the request authPayload
+	SelectedProfile Profile `json:"selectedProfile"` // only present if the agent field was received
+	User            struct { // only present if requestUser was true in the request authPayload
 		ID         string `json:"id"` // hexadecimal
 		Properties []struct {
 			Name  string `json:"name"`
 			Value string `json:"value"`
 		}
 	} `json:"user"`
+
+	*Error
+}
+
+type Profile struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	//Legacy bool   `json:"legacy"` // we don't care
 }
 
 // Authenticate authenticates a user using their password.
 func Authenticate(user, password string) (*Access, error) {
 	// Payload
 	pl := authPayload{
-		Agent:       defaultAgent,
-		UserName:    user,
-		Password:    password,
+		Agent: defaultAgent,
+		proof: proof{
+			UserName: user,
+			Password: password,
+		},
 		ClientToken: uuid.New().String(),
 		RequestUser: true,
 	}
@@ -77,10 +82,8 @@ func Authenticate(user, password string) (*Access, error) {
 		return nil, err
 	}
 
-	if ar.Error != "" {
-		err = fmt.Errorf("auth fail: %s: %s, %s}",
-			ar.Error, ar.ErrorMessage, ar.Cause)
-		return nil, err
+	if ar.Error != nil {
+		return nil, *ar.Error
 	}
 
 	return &Access{ar: ar, ct: pl.ClientToken}, nil
@@ -92,4 +95,8 @@ func (a *Access) SelectedProfile() (ID, Name string) {
 
 func (a *Access) AccessToken() string {
 	return a.ar.AccessToken
+}
+
+func (a *Access) AvailableProfiles() []Profile {
+	return a.ar.AvailableProfiles
 }
