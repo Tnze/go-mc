@@ -10,10 +10,11 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Chat
 - [x] Parse NBT
 - [x] Simple MC robot lib
-- [x] Mojang authenticate
+- [x] Yggdrasil
 - [x] Minecraft network protocol
 - [x] RCON protocol
 - [x] Saves decoding /encoding
+- [ ] Realms Server
 
 bot:  
 - [x] Swing arm
