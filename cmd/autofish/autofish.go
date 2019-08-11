@@ -7,7 +7,7 @@ import (
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
-	"github.com/mattn/go-colorable"
+	//"github.com/mattn/go-colorable" // this package is nice but cannot get in china mainland because it import golang.org/x/sys
 )
 
 const timeout = 45
@@ -18,7 +18,7 @@ var (
 )
 
 func main() {
-	log.SetOutput(colorable.NewColorableStdout())
+	//log.SetOutput(colorable.NewColorableStdout())
 	c = bot.NewClient()
 
 	//Login
