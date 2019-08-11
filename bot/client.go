@@ -22,8 +22,6 @@ type Client struct {
 	// Do not send at the same goroutine!
 	Delegate chan func() error
 	Events   eventBroker
-
-	Inventory [46]entity.Slot
 }
 
 // NewClient init and return a new Client.
@@ -71,14 +69,4 @@ type PlayerAbilities struct {
 //Position is a 3D vector.
 type Position struct {
 	X, Y, Z int
-}
-
-//HotBar return the hotbar of inventory
-func (c *Client) HotBar() []entity.Slot {
-	return c.Inventory[36:45]
-}
-
-// MainInventory return the main inventory slots
-func (c *Client) MainInventory() []entity.Slot {
-	return c.Inventory[9:36]
 }
