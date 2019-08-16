@@ -14,7 +14,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] Minecraft network protocol
 - [x] RCON protocol
 - [x] Saves decoding /encoding
-- [ ] Realms Server
+- [x] Realms Server
 
 bot:  
 - [x] Swing arm
