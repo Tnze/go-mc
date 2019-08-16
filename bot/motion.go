@@ -2,6 +2,7 @@ package bot
 
 import (
 	"errors"
+	"github.com/Tnze/go-mc/chat"
 	"strconv"
 
 	"github.com/Tnze/go-mc/data"
@@ -177,4 +178,18 @@ func (c *Client) UseItemEnd() error {
 // SwapItem used to swap the items in hands.
 func (c *Client) SwapItem() error {
 	return c.playerAction(6, 0, 0, 0, 0)
+}
+
+// Disconnect send disconnect packet to server.
+// Server will close the connection after receive this packet.
+func (c *Client) Disconnect(reason chat.Message) error {
+	return c.conn.WritePacket(pk.Marshal(
+		data.DisconnectPlay,
+		reason,
+	))
+}
+
+// SendPacket send the packet to server.
+func (c *Client) SendPacket(packet pk.Packet) error {
+	return c.conn.WritePacket(packet)
 }

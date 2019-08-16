@@ -51,6 +51,16 @@ func (c *Client) HandleGame() error {
 }
 
 func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
+	if c.Events.ReceivePacket != nil {
+		pass, err := c.Events.ReceivePacket(p)
+		if err != nil {
+			return false, err
+		}
+		if pass {
+			return false, nil
+		}
+	}
+
 	switch p.ID {
 	case data.JoinGame:
 		err = handleJoinGamePacket(c, p)
