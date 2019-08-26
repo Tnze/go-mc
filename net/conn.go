@@ -6,6 +6,7 @@ import (
 	"crypto/cipher"
 	"io"
 	"net"
+	"time"
 
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -51,8 +52,18 @@ func DialMC(addr string) (*Conn, error) {
 	}, err
 }
 
+// DialMCTimeout acts like DialMC but takes a timeout.
+func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
+	conn, err := net.DialTimeout("tcp", addr, timeout)
+	return &Conn{
+		Socket:     conn,
+		ByteReader: bufio.NewReader(conn),
+		Writer:     conn,
+	}, err
+}
+
 // WrapConn warp an net.Conn to MC-Conn
-// Helps you modify the connection process (eg. set timeout).
+// Helps you modify the connection process (eg. using DialContext).
 func WrapConn(conn net.Conn) *Conn {
 	return &Conn{
 		Socket:     conn,
