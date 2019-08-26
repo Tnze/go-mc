@@ -8,13 +8,13 @@
 There's some library in Go support you to create your Minecraft client or server.  
 这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器，
 - [x] Chat
-- [x] Parse NBT
-- [x] Simple MC robot lib
+- [x] NBT
 - [x] Yggdrasil
-- [x] Minecraft network protocol
+- [x] Realms Server
 - [x] RCON protocol
 - [x] Saves decoding /encoding
-- [x] Realms Server
+- [x] Minecraft network protocol
+- [x] Simple MC robot lib
 
 bot:  
 - [x] Swing arm
@@ -27,6 +27,7 @@ bot:
 - [x] Attack entity
 - [x] Use/Place block
 - [x] Mine block
+- [x] Custom packets
 - [ ] Record entities
 
 

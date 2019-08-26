@@ -3,6 +3,8 @@ package bot
 import (
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
+
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type eventBroker struct {
@@ -15,6 +17,10 @@ type eventBroker struct {
 	PluginMessage  func(channel string, data []byte) error
 	HeldItemChange func(slot int) error
 
-	WindowsItem    func(id byte, slots []entity.Slot) error
-	WindowsItemChange func(id byte, slotID int, slot entity.Slot)error
+	WindowsItem       func(id byte, slots []entity.Slot) error
+	WindowsItemChange func(id byte, slotID int, slot entity.Slot) error
+
+	// ReceivePacket will be called when new packet arrive.
+	// Default handler will run only if pass == false.
+	ReceivePacket func(p pk.Packet) (pass bool, err error)
 }
