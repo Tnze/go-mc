@@ -51,6 +51,16 @@ func DialMC(addr string) (*Conn, error) {
 	}, err
 }
 
+// WrapConn warp an net.Conn to MC-Conn
+// Helps you modify the connection process (eg. set timeout).
+func WrapConn(conn net.Conn) *Conn {
+	return &Conn{
+		Socket:     conn,
+		ByteReader: bufio.NewReader(conn),
+		Writer:     conn,
+	}
+}
+
 //Close close the connection
 func (c *Conn) Close() error { return c.Socket.Close() }
 
