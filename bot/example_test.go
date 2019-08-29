@@ -2,6 +2,7 @@ package bot
 
 import (
 	"encoding/hex"
+	"fmt"
 	"github.com/Tnze/go-mc/yggdrasil"
 	"log"
 )
@@ -73,4 +74,11 @@ func ExampleClient_JoinServer_online() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func ExampleOfflineUUID() {
+	fmt.Println(OfflineUUID("Tnze"))
+
+	// output:
+	//	c7b9eece-2f2e-325c-8da8-6fc8f3d0edb0
 }
