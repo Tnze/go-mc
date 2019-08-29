@@ -3,7 +3,7 @@ package yggdrasil
 import "fmt"
 
 type refreshPayload struct {
-	tokens
+	Tokens
 	SelectedProfile *Profile `json:"selectedProfile,omitempty"`
 
 	RequestUser bool `json:"requestUser"`
@@ -16,7 +16,7 @@ type refreshPayload struct {
 // the user's password in a file
 func (a *Access) Refresh(profile *Profile) error {
 	pl := refreshPayload{
-		tokens:          a.ar.tokens,
+		Tokens:          a.ar.Tokens,
 		SelectedProfile: profile, //used to change profile, don't use now
 		RequestUser:     true,
 	}

@@ -7,7 +7,7 @@ import (
 
 // Validate checks if an accessToken is usable for authentication with a Minecraft server.
 func (a *Access) Validate() (bool, error) {
-	pl := a.ar.tokens
+	pl := a.ar.Tokens
 
 	resp, err := rawPost("/validate", pl)
 	if err != nil {
@@ -19,7 +19,7 @@ func (a *Access) Validate() (bool, error) {
 
 // Invalidate invalidates accessTokens using a client/access token pair.
 func (a *Access) Invalidate() error {
-	pl := a.ar.tokens
+	pl := a.ar.Tokens
 
 	resp, err := rawPost("/invalidate", pl)
 	if err != nil {

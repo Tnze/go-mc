@@ -6,7 +6,6 @@ import (
 
 type Access struct {
 	ar authResp
-	ct string
 }
 
 // agent is a struct of auth
@@ -20,7 +19,8 @@ type proof struct {
 	Password string `json:"password"`
 }
 
-type tokens struct {
+// Tokens store AccessToken and ClientToken
+type Tokens struct {
 	AccessToken string `json:"accessToken"`
 	ClientToken string `json:"clientToken"`
 }
@@ -34,17 +34,18 @@ var defaultAgent = agent{
 type authPayload struct {
 	Agent agent `json:"agent"`
 	proof
-	ClientToken string `json:"clientToken"`
+	ClientToken string `json:"clientToken,omitempty"`
 	RequestUser bool   `json:"requestUser"`
 }
 
 // authResp is the response from Mojang's auth server
 type authResp struct {
-	tokens
+	Tokens
 	AvailableProfiles []Profile `json:"availableProfiles"` // only present if the agent field was received
 
 	SelectedProfile Profile `json:"selectedProfile"` // only present if the agent field was received
-	User            struct { // only present if requestUser was true in the request authPayload
+	User            struct {
+		// only present if requestUser was true in the request authPayload
 		ID         string `json:"id"` // hexadecimal
 		Properties []struct {
 			Name  string `json:"name"`
@@ -86,7 +87,7 @@ func Authenticate(user, password string) (*Access, error) {
 		return nil, *ar.Error
 	}
 
-	return &Access{ar: ar, ct: pl.ClientToken}, nil
+	return &Access{ar}, nil
 }
 
 func (a *Access) SelectedProfile() (ID, Name string) {
@@ -99,4 +100,11 @@ func (a *Access) AccessToken() string {
 
 func (a *Access) AvailableProfiles() []Profile {
 	return a.ar.AvailableProfiles
+}
+
+func (a *Access) SetTokens(tokens Tokens) {
+	a.ar.Tokens = tokens
+}
+func (a *Access) GetTokens() Tokens {
+	return a.ar.Tokens
 }
