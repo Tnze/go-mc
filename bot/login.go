@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
+	"crypto/md5"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
@@ -16,6 +17,7 @@ import (
 
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/google/uuid"
 )
 
 // Auth includes a account
@@ -23,6 +25,20 @@ type Auth struct {
 	Name string
 	UUID string
 	AsTk string
+}
+
+// OfflineUUID return the UUID from player name in offline mode
+func OfflineUUID(name string) uuid.UUID {
+	var version = 3
+	h := md5.New()
+	h.Reset()
+	h.Write([]byte("OfflinePlayer:" + name))
+	s := h.Sum(nil)
+	var uuid uuid.UUID
+	copy(uuid[:], s)
+	uuid[6] = (uuid[6] & 0x0f) | uint8((version&0xf)<<4)
+	uuid[8] = (uuid[8] & 0x3f) | 0x80 // RFC 4122 variant
+	return uuid
 }
 
 // 加密请求
