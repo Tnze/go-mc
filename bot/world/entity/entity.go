@@ -16,8 +16,7 @@ type Slot struct {
 	Present bool
 	ItemID  int32
 	Count   int8
-	NBT     struct {
-	}
+	NBT     interface{}
 }
 
 //Decode implement packet.FieldDecoder interface
