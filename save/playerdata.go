@@ -55,12 +55,12 @@ type PlayerData struct {
 
 	Abilities struct {
 		FlySpeed     float32 `nbt:"flySpeed"`
-		WalkSpeed    float32 `nbt:"warkSpeed"`
+		WalkSpeed    float32 `nbt:"walkSpeed"`
 		Flying       byte    `nbt:"flying"`
 		InstantBuild byte    `nbt:"instabuild"`
 		Invulnerable byte    `nbt:"invulnerable"`
 		MayBuild     byte    `nbt:"mayBuild"`
-		MayFly       byte    `nbt:"mayFly"`
+		MayFly       byte    `nbt:"mayfly"`
 	} `nbt:"abilities"`
 
 	RecipeBook struct {
