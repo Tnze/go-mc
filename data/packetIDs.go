@@ -10,6 +10,7 @@ const (
 	SpawnPlayer
 	AnimationClientbound
 	Statistics
+	AcknowledgePlayerDigging
 	BlockBreakAnimation
 	UpdateBlockEntity
 	BlockAction
@@ -17,9 +18,9 @@ const (
 	BossBar
 	ServerDifficulty
 	ChatMessageClientbound
-	MultiBlockChange
 
-	TabComplete //0x10
+	MultiBlockChange //0x10
+	TabComplete
 	DeclareCommands
 	ConfirmTransaction
 	CloseWindow
@@ -34,9 +35,9 @@ const (
 	Explosion
 	UnloadChunk
 	ChangeGameState
-	OpenHorseWindow
 
-	KeepAliveClientbound //0x20
+	OpenHorseWindow //0x20
+	KeepAliveClientbound
 	ChunkData
 	Effect
 	Particle
@@ -51,9 +52,9 @@ const (
 	VehicleMoveClientbound
 	OpenBook
 	OpenWindow
-	OpenSignEditor
 
-	CraftRecipeResponse //0x30
+	OpenSignEditor //0x30
+	CraftRecipeResponse
 	PlayerAbilitiesClientbound
 	CombatEvent
 	PlayerInfo
@@ -68,9 +69,9 @@ const (
 	SelectAdvancementTab
 	WorldBorder
 	Camera
-	HeldItemChangeClientbound
 
-	UpdateViewPosition //0x40
+	HeldItemChangeClientbound //0x40
+	UpdateViewPosition
 	UpdateViewDistance
 	DisplayScoreboard
 	EntityMetadata
@@ -85,9 +86,9 @@ const (
 	UpdateScore
 	SpawnPosition
 	TimeUpdate
-	Title
 
-	EntitySoundEffect //0x50
+	Title //0x50
+	EntitySoundEffect
 	SoundEffect
 	StopSound
 	PlayerListHeaderAndFooter
@@ -98,8 +99,7 @@ const (
 	EntityProperties
 	EntityEffect
 	DeclareRecipes
-	Tags
-	AcknowledgePlayerDigging //0x5C
+	Tags //0x5C
 )
 
 // Serverbound packet IDs

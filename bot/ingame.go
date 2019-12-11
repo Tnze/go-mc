@@ -328,12 +328,14 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 		eid          pk.Int
 		gamemode     pk.UnsignedByte
 		dimension    pk.Int
+		hashedSeed   pk.Long
 		maxPlayers   pk.UnsignedByte
 		levelType    pk.String
 		viewDistance pk.VarInt
-		rdi          pk.Boolean
+		rdi          pk.Boolean // Reduced Debug Info
+		ers          pk.Boolean // Enable respawn screen
 	)
-	err := p.Scan(&eid, &gamemode, &dimension, &maxPlayers, &levelType, &rdi)
+	err := p.Scan(&eid, &gamemode, &dimension, &hashedSeed, &maxPlayers, &levelType, &rdi, &ers)
 	if err != nil {
 		return err
 	}
@@ -443,7 +445,7 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 		Data           chunkData
 		BlockEntities  blockEntities
 	)
-
+	// TODO: Biomes data in this packet
 	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Data, &BlockEntities); err != nil {
 		return err
 	}
