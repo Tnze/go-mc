@@ -465,7 +465,7 @@ type biomesData struct {
 }
 
 func (b *biomesData) Decode(r pk.DecodeReader) error {
-	if b.fullChunk == nil || *b.fullChunk {
+	if b.fullChunk == nil || !*b.fullChunk {
 		return nil
 	}
 	for i := range b.data {
