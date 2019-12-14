@@ -328,12 +328,14 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 		eid          pk.Int
 		gamemode     pk.UnsignedByte
 		dimension    pk.Int
+		hashedSeed   pk.Long
 		maxPlayers   pk.UnsignedByte
 		levelType    pk.String
 		viewDistance pk.VarInt
-		rdi          pk.Boolean
+		rdi          pk.Boolean // Reduced Debug Info
+		ers          pk.Boolean // Enable respawn screen
 	)
-	err := p.Scan(&eid, &gamemode, &dimension, &maxPlayers, &levelType, &rdi)
+	err := p.Scan(&eid, &gamemode, &dimension, &hashedSeed, &maxPlayers, &levelType, &rdi, &ers)
 	if err != nil {
 		return err
 	}
@@ -440,14 +442,14 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 		FullChunk      pk.Boolean
 		PrimaryBitMask pk.VarInt
 		Heightmaps     struct{}
+		Biomes         = biomesData{fullChunk: (*bool)(&FullChunk)}
 		Data           chunkData
 		BlockEntities  blockEntities
 	)
-
-	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Data, &BlockEntities); err != nil {
+	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
 		return err
 	}
-	chunk, err := world.DecodeChunkColumn(bool(FullChunk), int32(PrimaryBitMask), Data)
+	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)
 	if err != nil {
 		return fmt.Errorf("decode chunk column fail: %v", err)
 	}
@@ -455,6 +457,24 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	c.Wd.LoadChunk(int(X), int(Z), chunk)
 
 	return err
+}
+
+type biomesData struct {
+	fullChunk *bool
+	data      [1024]int32
+}
+
+func (b *biomesData) Decode(r pk.DecodeReader) error {
+	if b.fullChunk == nil || !*b.fullChunk {
+		return nil
+	}
+	for i := range b.data {
+		err := (*pk.Int)(&b.data[i]).Decode(r)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type chunkData []byte

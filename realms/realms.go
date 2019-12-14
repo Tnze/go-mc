@@ -13,7 +13,6 @@ type Realms struct {
 	c http.Client
 }
 
-
 type Error struct {
 	ErrorCode int
 	ErrorMsg  string

@@ -63,7 +63,7 @@ func (p *Packet) Pack(threshold int) (pack []byte) {
 	return
 }
 
-// RecvPacket recive a packet from server
+// RecvPacket receive a packet from server
 func RecvPacket(r io.ByteReader, useZlib bool) (*Packet, error) {
 	var len int
 	for i := 0; i < 5; i++ { //读数据前的长度标记
@@ -71,7 +71,7 @@ func RecvPacket(r io.ByteReader, useZlib bool) (*Packet, error) {
 		if err != nil {
 			return nil, fmt.Errorf("read len of packet fail: %v", err)
 		}
-		len |= (int(b&0x7F) << uint(7*i))
+		len |= int(b&0x7F) << uint(7*i)
 		if b&0x80 == 0 {
 			break
 		}
