@@ -26,8 +26,8 @@ func (r *Realms) Compatible() (string, error) {
 
 // TOS is what to join Realms servers you must agree to.
 // Call this function will set this flag.
-func (r *Realms) TOS()error{
-	resp,err:=r.c.Post(Domain+"/mco/tos/agreed","application/json",nil)
+func (r *Realms) TOS() error {
+	resp, err := r.c.Post(Domain+"/mco/tos/agreed", "application/json", nil)
 	if err != nil {
 		return err
 	}

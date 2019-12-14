@@ -15,8 +15,8 @@ func ExampleAuthenticate() {
 	fmt.Println(resp.AccessToken())
 }
 
-func Example(){
-	var user, password string// set your proof
+func Example() {
+	var user, password string // set your proof
 
 	// Sign in
 	resp, err := Authenticate(user, password)
@@ -49,7 +49,7 @@ func Example(){
 	fmt.Println("at status: ", ok)
 
 	// Invalidate access token
-	err=resp.Invalidate()
+	err = resp.Invalidate()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
