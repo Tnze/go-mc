@@ -14,7 +14,8 @@ import (
 //go:generate go run $GOFILE
 //go:generate go fmt ./...
 func main() {
-	versionURL := "https://launchermeta.mojang.com/v1/packages/695d8e3d95465bece605c92e9b0385278018eff9/1.14.json"
+	// from {https://launchermeta.mojang.com/mc/game/version_manifest.json}.assetIndex.url
+	versionURL := "https://launchermeta.mojang.com/v1/packages/e8016c24200e6dd1b9001ec5204d4332bae24c38/1.15.json"
 	log.Print("start generating lang packages")
 
 	resp, err := http.Get(versionURL)
@@ -65,7 +66,7 @@ func lang(name, hash string, size int64) {
 	pName := strings.ReplaceAll(name, "_", "-")
 
 	// mkdir
-	err = os.Mkdir(pName, os.ModeDir)
+	err = os.Mkdir(pName, 0777)
 	if err != nil && !os.IsExist(err) {
 		log.Fatal(err)
 	}
