@@ -9,7 +9,7 @@ import (
 )
 
 //DecodeChunkColumn decode the chunk data structure
-func DecodeChunkColumn(isFull bool, mask int32, data []byte) (*Chunk, error) {
+func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 	var c Chunk
 	r := bytes.NewReader(data)
 	for sectionY := 0; sectionY < 16; sectionY++ {
@@ -60,14 +60,7 @@ func DecodeChunkColumn(isFull bool, mask int32, data []byte) (*Chunk, error) {
 		//用数据填充区块
 		fillSection(&c.sections[sectionY], perBits(byte(BitsPerBlock)), DataArray, palette)
 	}
-	// if isFull { //need recive Biomes datas
-	// 	_, err := pk.ReadNBytes(data, 256*4)
-	// 	if err != nil {
-	// 		return nil, fmt.Errorf("read Biomes fail: %v", err)
-	// 	}
-	// }
 
-	// fmt.Println(c)
 	return &c, nil
 }
 
