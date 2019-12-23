@@ -20,4 +20,10 @@ jobs:
       run: go test ./...
 
     - name: Build tools
-      run: go build -o ./ ./cmd/...
+      run: go build -o ./bin/tools ./cmd/...
+      
+    - name: Upload tools
+      uses: actions/upload-artifact@v1
+      with:
+        name: tools
+        path: $GITHUB_WORKSPACE/bin/tools
