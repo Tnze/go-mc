@@ -19,6 +19,8 @@ jobs:
     - name: Test
       run: go test ./...
 
+    - run: mkdir -p $GITHUB_WORKSPACE/bin/tools
+
     - name: Build tools
       run: go build -o ./bin/tools ./cmd/...
       
