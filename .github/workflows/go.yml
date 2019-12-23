@@ -19,7 +19,7 @@ jobs:
     - name: Test
       run: go test ./...
 
-    - run: mkdir -p $GITHUB_WORKSPACE/bin/tools
+    - run: mkdir -p ./bin/tools
 
     - name: Build tools
       run: go build -o ./bin/tools ./cmd/...
@@ -28,4 +28,4 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: tools
-        path: $GITHUB_WORKSPACE/bin/tools
+        path: ./bin/tools
