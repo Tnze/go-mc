@@ -22,32 +22,29 @@ func main() {
 	flag.Parse()
 	args := flag.Args()
 
-	var f, o string
-	switch len(args) {
-	default:
+	var o string
+	o = "."// output dir
+	if len(args) < 2 {
 		usage()
-	case 1:
-		f, o = args[0], "."
-	case 2:
-		f, o = args[0], args[1]
 	}
+	for _, f := range args[1:] {
+		fs, err := filepath.Glob(f)
+		checkerr(err)
 
-	fs, err := filepath.Glob(f)
-	checkerr(err)
-
-	if *repack {
-		for _, f := range fs {
-			pack(f, o)
-		}
-	} else {
-		for _, f := range fs {
-			unpack(f, o)
+		if *repack {
+			for _, f := range fs {
+				pack(f, o)
+			}
+		} else {
+			for _, f := range fs {
+				unpack(f, o)
+			}
 		}
 	}
 }
 
 func usage() {
-	_, _ = fmt.Fprintf(os.Stderr, "usage: %s [-x] [-r] r.<X>.<Z>.mc{a,c} [outdir]\n", flag.Arg(0))
+	_, _ = fmt.Fprintf(os.Stderr, "usage: %s [-x] [-r] r.<X>.<Z>.mc{a,c}\n", flag.Arg(0))
 	os.Exit(1)
 }
 
