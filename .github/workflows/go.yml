@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - name: Set up Go 1.12
+    - name: Setup Go
       uses: actions/setup-go@v1
       with:
-        go-version: 1.12
+        go-version: 1.13
       id: go
 
     - name: Check out code into the Go module directory
@@ -18,3 +18,14 @@ jobs:
 
     - name: Test
       run: go test ./...
+
+    - run: mkdir -p ./bin/tools
+
+    - name: Build tools
+      run: go build -o ./bin/tools ./cmd/...
+      
+    - name: Upload tools
+      uses: actions/upload-artifact@v1
+      with:
+        name: tools
+        path: ./bin/tools
