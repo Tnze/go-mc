@@ -229,9 +229,9 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		if vt.Kind() == reflect.Interface {
 			vt = reflect.TypeOf([]int64{}) // pass
 		} else if vt.Kind() != reflect.Slice {
-			return errors.New("cannot parse TagIntArray to " + vt.String() + ", it must be a slice")
+			return errors.New("cannot parse TagLongArray to " + vt.String() + ", it must be a slice")
 		} else if val.Type().Elem().Kind() != reflect.Int64 {
-			return errors.New("cannot parse TagIntArray to " + vt.String())
+			return errors.New("cannot parse TagLongArray to " + vt.String())
 		}
 
 		buf := reflect.MakeSlice(vt, int(aryLen), int(aryLen))
