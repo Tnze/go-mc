@@ -16,19 +16,26 @@ const ProtocolVersion = 575
 
 // JoinServer connect a Minecraft server for playing the game.
 func (c *Client) JoinServer(addr string, port int) (err error) {
-	//Connect
-	conn, err := mcnet.DialMC(fmt.Sprintf("%s:%d", addr, port))
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
 		err = fmt.Errorf("bot: connect server fail: %v", err)
 		return
 	}
+	return c.join(conn)
+}
 
-	//JoinConn
-	return c.JoinConn(conn.Socket)
+// JoinServerWithDialer is similar to JoinServer but using a Dialer.
+func (c *Client) JoinServerWithDialer(d Dialer, addr string) (err error) {
+	conn, err := d.Dial("tcp", addr)
+	if err != nil {
+		err = fmt.Errorf("bot: connect server fail: %v", err)
+		return
+	}
+	return c.join(conn)
 }
 
 // JoinConn join a Minecraft server through a connection for playing the game.
-func (c *Client) JoinConn(conn net.Conn) (err error) {
+func (c *Client) join(conn net.Conn) (err error) {
 	//Set Conn
 	c.conn = mcnet.WrapConn(conn)
 
@@ -102,6 +109,12 @@ func (c *Client) JoinConn(conn net.Conn) (err error) {
 			}
 		}
 	}
+}
+
+// A Dialer is a means to establish a connection.
+type Dialer interface {
+	// Dial connects to the given address via the proxy.
+	Dial(network, addr string) (c net.Conn, err error)
 }
 
 // Conn return the MCConn of the Client.
