@@ -6,8 +6,9 @@ package bot
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/net"
+	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"net"
 )
 
 // ProtocolVersion , the protocol version number of minecraft net protocol
@@ -15,12 +16,34 @@ const ProtocolVersion = 575
 
 // JoinServer connect a Minecraft server for playing the game.
 func (c *Client) JoinServer(addr string, port int) (err error) {
-	//Connect
-	c.conn, err = net.DialMC(fmt.Sprintf("%s:%d", addr, port))
+	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
 		err = fmt.Errorf("bot: connect server fail: %v", err)
 		return
 	}
+	return c.join(conn)
+}
+
+// JoinServerWithDialer is similar to JoinServer but using a Dialer.
+func (c *Client) JoinServerWithDialer(d Dialer, addr string) (err error) {
+	conn, err := d.Dial("tcp", addr)
+	if err != nil {
+		err = fmt.Errorf("bot: connect server fail: %v", err)
+		return
+	}
+	return c.join(conn)
+}
+
+// JoinConn join a Minecraft server through a connection for playing the game.
+func (c *Client) join(conn net.Conn) (err error) {
+	//Set Conn
+	c.conn = mcnet.WrapConn(conn)
+
+	//Get Addr
+	strform := c.conn.Socket.RemoteAddr().String()
+	var addr string
+	var port int
+	fmt.Sscanf(strform, "%s:%d", &addr, &port)
 
 	//Handshake
 	err = c.conn.WritePacket(
@@ -88,8 +111,14 @@ func (c *Client) JoinServer(addr string, port int) (err error) {
 	}
 }
 
+// A Dialer is a means to establish a connection.
+type Dialer interface {
+	// Dial connects to the given address via the proxy.
+	Dial(network, addr string) (c net.Conn, err error)
+}
+
 // Conn return the MCConn of the Client.
 // Only used when you want to handle the packets by yourself
-func (c *Client) Conn() *net.Conn {
+func (c *Client) Conn() *mcnet.Conn {
 	return c.conn
 }
