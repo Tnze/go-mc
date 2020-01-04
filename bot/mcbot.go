@@ -6,8 +6,9 @@ package bot
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/net"
+	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"net"
 )
 
 // ProtocolVersion , the protocol version number of minecraft net protocol
@@ -16,20 +17,20 @@ const ProtocolVersion = 575
 // JoinServer connect a Minecraft server for playing the game.
 func (c *Client) JoinServer(addr string, port int) (err error) {
 	//Connect
-	conn, err := net.DialMC(fmt.Sprintf("%s:%d", addr, port))
+	conn, err := mcnet.DialMC(fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
 		err = fmt.Errorf("bot: connect server fail: %v", err)
 		return
 	}
 
 	//JoinConn
-	return c.JoinConn(conn)
+	return c.JoinConn(conn.Socket)
 }
 
 // JoinConn join a Minecraft server through a connection for playing the game.
-func (c *Client) JoinConn(conn *net.Conn) (err error) {
+func (c *Client) JoinConn(conn net.Conn) (err error) {
 	//Set Conn
-	c.conn = conn
+	c.conn = mcnet.WrapConn(conn)
 
 	//Get Addr
 	strform := c.conn.Socket.RemoteAddr().String()
@@ -105,6 +106,6 @@ func (c *Client) JoinConn(conn *net.Conn) (err error) {
 
 // Conn return the MCConn of the Client.
 // Only used when you want to handle the packets by yourself
-func (c *Client) Conn() *net.Conn {
+func (c *Client) Conn() *mcnet.Conn {
 	return c.conn
 }
