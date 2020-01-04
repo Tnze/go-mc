@@ -16,11 +16,26 @@ const ProtocolVersion = 575
 // JoinServer connect a Minecraft server for playing the game.
 func (c *Client) JoinServer(addr string, port int) (err error) {
 	//Connect
-	c.conn, err = net.DialMC(fmt.Sprintf("%s:%d", addr, port))
+	conn, err := net.DialMC(fmt.Sprintf("%s:%d", addr, port))
 	if err != nil {
 		err = fmt.Errorf("bot: connect server fail: %v", err)
 		return
 	}
+
+	//JoinConn
+	return c.JoinConn(conn)
+}
+
+// JoinConn join a Minecraft server through a connection for playing the game.
+func (c *Client) JoinConn(conn *net.Conn) (err error) {
+	//Set Conn
+	c.conn = conn
+
+	//Get Addr
+	strform := c.conn.Socket.RemoteAddr().String()
+	var addr string
+	var port int
+	fmt.Sscanf(strform, "%s:%d", &addr, &port)
 
 	//Handshake
 	err = c.conn.WritePacket(
