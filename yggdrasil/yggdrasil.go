@@ -64,3 +64,9 @@ func rawPost(endpoint string, payload interface{}) (*http.Response, error) {
 	// Do
 	return client.Do(PostRequest)
 }
+
+// Client return the HTTP client for Yggdrasil.
+// Only used when you want to modify settings of the HTTP client.
+func Client() *http.Client {
+	return &client
+}
