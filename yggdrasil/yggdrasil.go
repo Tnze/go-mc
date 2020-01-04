@@ -64,9 +64,3 @@ func rawPost(endpoint string, payload interface{}) (*http.Response, error) {
 	// Do
 	return client.Do(PostRequest)
 }
-
-// SetClient set the HTTP client for Yggdrasil.
-// Only used when you want to use custom HTTP client settings.
-func SetClient(newclient http.Client) {
-	client = newclient
-}
