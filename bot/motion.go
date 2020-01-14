@@ -2,7 +2,6 @@ package bot
 
 import (
 	"errors"
-	"github.com/Tnze/go-mc/chat"
 	"strconv"
 
 	"github.com/Tnze/go-mc/data"
@@ -180,13 +179,10 @@ func (c *Client) SwapItem() error {
 	return c.playerAction(6, 0, 0, 0, 0)
 }
 
-// Disconnect send disconnect packet to server.
-// Server will close the connection after receive this packet.
-func (c *Client) Disconnect(reason chat.Message) error {
-	return c.conn.WritePacket(pk.Marshal(
-		data.DisconnectPlay,
-		reason,
-	))
+// Disconnect disconnect the server.
+// Server will close the connection.
+func (c *Client) Disconnect() error {
+	return c.conn.Close()
 }
 
 // SendPacket send the packet to server.
