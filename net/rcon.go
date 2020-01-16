@@ -9,6 +9,8 @@ import (
 	"net"
 )
 
+const MaxRCONPackageSize = 4096
+
 func DialRCON(addr string, password string) (client RCONClientConn, err error) {
 	c := &RCONConn{ReqID: rand.Int31()}
 	client = c
@@ -58,6 +60,16 @@ func (r *RCONConn) ReadPacket() (RequestID, Type int32, Payload string, err erro
 		return
 	}
 
+	//check length
+	if Length < 4+4+0+2 {
+		err = errors.New("packet too short")
+		return
+	}
+	if Length > MaxRCONPackageSize {
+		err = errors.New("packet too large")
+		return
+	}
+
 	//read packet data
 	buf := make([]byte, Length)
 	err = binary.Read(r, binary.LittleEndian, &buf)
@@ -65,13 +77,6 @@ func (r *RCONConn) ReadPacket() (RequestID, Type int32, Payload string, err erro
 		err = fmt.Errorf("read packet body fail: %v", err)
 		return
 	}
-
-	//check length
-	if Length < 4+4+0+2 {
-		err = errors.New("packet too short")
-		return
-	}
-
 	RequestID = int32(binary.LittleEndian.Uint32(buf[:4]))
 	Type = int32(binary.LittleEndian.Uint32(buf[4:8]))
 	Payload = string(buf[8 : Length-2])
