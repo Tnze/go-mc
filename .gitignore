@@ -15,3 +15,5 @@
 *.out
 
 cmd/test/test.go
+.idea/
+.vscode/
