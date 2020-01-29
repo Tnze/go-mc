@@ -33,12 +33,19 @@ func main() {
 	c.Events.ChatMsg = onChatMsg
 	c.Events.Disconnect = onDisconnect
 	c.Events.SoundPlay = onSound
+	c.Events.Die = onDeath
 
 	//JoinGame
 	err = c.HandleGame()
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func onDeath() error {
+	log.Println("Died and Respawned")
+	c.Respawn() // If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
+	return nil
 }
 
 func onGameStart() error {
