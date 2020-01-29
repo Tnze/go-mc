@@ -1,6 +1,7 @@
 package packet
 
 import (
+	"errors"
 	"github.com/google/uuid"
 	"io"
 	"math"
@@ -268,7 +269,7 @@ func (v VarInt) Encode() (vi []byte) {
 //Decode a VarInt
 func (v *VarInt) Decode(r DecodeReader) error {
 	var n uint32
-	for i := 0; i < 5; i++ { //读数据前的长度标记
+	for i := 0; ; i++ { //读数据前的长度标记
 		sec, err := r.ReadByte()
 		if err != nil {
 			return err
@@ -278,10 +279,51 @@ func (v *VarInt) Decode(r DecodeReader) error {
 
 		if sec&0x80 == 0 {
 			break
+		} else if i > 5 {
+			return errors.New("VarInt is too big")
 		}
 	}
 
 	*v = VarInt(n)
+	return nil
+}
+
+//Encode a VarLong
+func (v VarLong) Encode() (vi []byte) {
+	num := uint64(v)
+	for {
+		b := num & 0x7F
+		num >>= 7
+		if num != 0 {
+			b |= 0x80
+		}
+		vi = append(vi, byte(b))
+		if num == 0 {
+			break
+		}
+	}
+	return
+}
+
+//Decode a VarLong
+func (v *VarLong) Decode(r DecodeReader) error {
+	var n uint64
+	for i := 0; ; i++ { //读数据前的长度标记
+		sec, err := r.ReadByte()
+		if err != nil {
+			return err
+		}
+
+		n |= uint64(sec&0x7F) << uint64(7*i)
+
+		if sec&0x80 == 0 {
+			break
+		} else if i > 10 {
+			return errors.New("VarInt is too big")
+		}
+	}
+
+	*v = VarLong(n)
 	return nil
 }
 

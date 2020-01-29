@@ -8,15 +8,15 @@ import (
 var VarInts = []VarInt{0, 1, 2, 127, 128, 255, 2147483647, -1, -2147483648}
 
 var PackedVarInts = [][]byte{
-	[]byte{0x00},
-	[]byte{0x01},
-	[]byte{0x02},
-	[]byte{0x7f},
-	[]byte{0x80, 0x01},
-	[]byte{0xff, 0x01},
-	[]byte{0xff, 0xff, 0xff, 0xff, 0x07},
-	[]byte{0xff, 0xff, 0xff, 0xff, 0x0f},
-	[]byte{0x80, 0x80, 0x80, 0x80, 0x08},
+	{0x00},
+	{0x01},
+	{0x02},
+	{0x7f},
+	{0x80, 0x01},
+	{0xff, 0x01},
+	{0xff, 0xff, 0xff, 0xff, 0x07},
+	{0xff, 0xff, 0xff, 0xff, 0x0f},
+	{0x80, 0x80, 0x80, 0x80, 0x08},
 }
 
 func TestPackVarInt(t *testing.T) {
@@ -39,24 +39,38 @@ func TestUnpackVarInt(t *testing.T) {
 	}
 }
 
-// func TestPositionPack(t *testing.T) {
-// 	// This test is not good.
+var VarLongs = []VarLong{0, 1, 2, 127, 128, 255, 2147483647, 9223372036854775807, -1, -2147483648, -9223372036854775808}
 
-// 	for x := -33554432; x < 33554432; x += 55443 {
-// 		for y := -2048; y < 2048; y += 48 {
-// 			for z := -33554432; z < 33554432; z += 55443 {
-// 				var (
-// 					pos1 Position
-// 					pos2 = Position{x, y, z}
-// 				)
-// 				if err := pos1.Decode(bytes.NewReader(pos2.Encode())); err != nil {
-// 					t.Errorf("Position decode fail: %v", err)
-// 				}
+var PackedVarLongs = [][]byte{
+	{0x00},
+	{0x01},
+	{0x02},
+	{0x7f},
+	{0x80, 0x01},
+	{0xff, 0x01},
+	{0xff, 0xff, 0xff, 0xff, 0x07},
+	{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f},
+	{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01},
+	{0x80, 0x80, 0x80, 0x80, 0xf8, 0xff, 0xff, 0xff, 0xff, 0x01},
+	{0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01},
+}
 
-// 				if pos1 != pos2 {
-// 					t.Errorf("cannot pack %v", pos2)
-// 				}
-// 			}
-// 		}
-// 	}
-// }
+func TestPackVarLong(t *testing.T) {
+	for i, v := range VarLongs {
+		p := v.Encode()
+		if !bytes.Equal(p, PackedVarLongs[i]) {
+			t.Errorf("pack long %d should be \"% x\", get \"% x\"", v, PackedVarLongs[i], p)
+		}
+	}
+}
+func TestUnpackVarLong(t *testing.T) {
+	for i, v := range PackedVarLongs {
+		var vi VarLong
+		if err := vi.Decode(bytes.NewReader(v)); err != nil {
+			t.Errorf("unpack \"% x\" error: %v", v, err)
+		}
+		if vi != VarLongs[i] {
+			t.Errorf("unpack \"% x\" should be %d, get %d", v, VarLongs[i], vi)
+		}
+	}
+}
