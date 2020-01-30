@@ -45,7 +45,7 @@ func ExampleClient_JoinServer_offline() {
 }
 
 func ExampleClient_JoinServer_online() {
-	c := NewClient()
+	c := NewClient("")
 
 	//Login Mojang account to get AccessToken
 	auth, err := yggdrasil.Authenticate("Your E-mail", "Your Password")
