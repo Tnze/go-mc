@@ -19,7 +19,7 @@ var (
 
 func main() {
 	//log.SetOutput(colorable.NewColorableStdout())
-	c = bot.NewClient()
+	c = bot.NewClient("Steve")
 
 	//Login
 	err := c.JoinServer("localhost", 25565)
@@ -29,16 +29,29 @@ func main() {
 	log.Println("Login success")
 
 	//Register event handlers
-	c.Events.GameStart = onGameStart
-	c.Events.ChatMsg = onChatMsg
-	c.Events.Disconnect = onDisconnect
-	c.Events.SoundPlay = onSound
+	c.Events.OnGameBegin = onGameStart
+	c.Events.OnChatMessage = onChatMsg
+	c.Events.OnDisconnect = onDisconnect
+	c.Events.OnSound = onSound
+	c.Events.OnDeath = onDeath
+	c.Events.OnRespawn = onRespawn
 
 	//JoinGame
 	err = c.HandleGame()
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func onRespawn() error {
+	log.Println("Respawned")
+	return nil
+}
+
+func onDeath() error {
+	log.Println("Died")
+	c.Respawn() // If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
+	return nil
 }
 
 func onGameStart() error {
@@ -65,13 +78,13 @@ func onSound(name string, category int, x, y, z float64, volume, pitch float32) 
 	return nil
 }
 
-func onChatMsg(c chat.Message, pos byte) error {
-	log.Println("Chat:", c)
+func onChatMsg(m chat.Message, pos byte) error {
+	log.Println("Chat:", m)
 	return nil
 }
 
-func onDisconnect(c chat.Message) error {
-	log.Println("Disconnect:", c)
+func onDisconnect(m chat.Message) error {
+	log.Println("Disconnect:", m)
 	return nil
 }
 

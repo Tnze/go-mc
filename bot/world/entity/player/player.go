@@ -10,6 +10,7 @@ type Player struct {
 	X, Y, Z    float64
 	Yaw, Pitch float32
 	OnGround   bool
+	IsDead bool // True, when the player becomes dead, do not manually change the value
 
 	HeldItem int //拿着的物品栏位
 

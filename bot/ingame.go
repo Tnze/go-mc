@@ -51,8 +51,8 @@ func (c *Client) HandleGame() error {
 }
 
 func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
-	if c.Events.ReceivePacket != nil {
-		pass, err := c.Events.ReceivePacket(p)
+	if c.Events.OnPacketRecieve != nil {
+		pass, err := c.Events.OnPacketRecieve(p)
 		if err != nil {
 			return false, err
 		}
@@ -65,8 +65,8 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.JoinGame:
 		err = handleJoinGamePacket(c, p)
 
-		if err == nil && c.Events.GameStart != nil {
-			err = c.Events.GameStart()
+		if err == nil && c.Events.OnGameBegin != nil {
+			err = c.Events.OnGameBegin()
 		}
 	case data.PluginMessageClientbound:
 		err = handlePluginPacket(c, p)
@@ -134,47 +134,42 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	return
 }
 
+// Unnamed-sounds use a number ID rather than a name, almost all sounds use the below method to play
 func handleSoundEffect(c *Client, p pk.Packet) error {
 	var (
-		SoundID       pk.VarInt
-		SoundCategory pk.VarInt
+		id            pk.VarInt
+		category      pk.VarInt
 		x, y, z       pk.Int
-		Volume, Pitch pk.Float
+		volume, pitch pk.Float
 	)
-	err := p.Scan(&SoundID, &SoundCategory, &x, &y, &z, &Volume, &Pitch)
+	err := p.Scan(&id, &category, &x, &y, &z, &volume, &pitch)
 	if err != nil {
 		return err
 	}
 
-	if c.Events.SoundPlay != nil {
-		err = c.Events.SoundPlay(
-			data.SoundNames[SoundID], int(SoundCategory),
-			float64(x)/8, float64(y)/8, float64(z)/8,
-			float32(Volume), float32(Pitch))
-	}
-
-	return nil
+	return doSound(c, data.NameOfSound[id], int(category), float64(x), float64(y), float64(z), float32(volume), float32(pitch))
 }
 
+// Named-sounds are actually pretty rare, usually only from the "playsound" command (or a resource pack)
 func handleNamedSoundEffect(c *Client, p pk.Packet) error {
 	var (
-		SoundName     pk.String
-		SoundCategory pk.VarInt
+		name          pk.String
+		category      pk.VarInt
 		x, y, z       pk.Int
-		Volume, Pitch pk.Float
+		volume, pitch pk.Float
 	)
-	err := p.Scan(&SoundName, &SoundCategory, &x, &y, &z, &Volume, &Pitch)
+	err := p.Scan(&name, &category, &x, &y, &z, &volume, &pitch)
 	if err != nil {
 		return err
 	}
 
-	if c.Events.SoundPlay != nil {
-		err = c.Events.SoundPlay(
-			string(SoundName), int(SoundCategory),
-			float64(x)/8, float64(y)/8, float64(z)/8,
-			float32(Volume), float32(Pitch))
-	}
+	return doSound(c, string(name), int(category), float64(x), float64(y), float64(z), float32(volume), float32(pitch))
+}
 
+func doSound(c *Client, name string, category int, x, y, z float64, volume, pitch float32) (error) {
+	if c.Events.OnSound != nil {
+		return c.Events.OnSound(name, category, (x / 8), (y / 8), (z / 8), volume, pitch)
+	}
 	return nil
 }
 
@@ -186,14 +181,14 @@ func handleDisconnectPacket(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	if c.Events.Disconnect != nil {
-		return c.Events.Disconnect(reason)
+	if c.Events.OnDisconnect != nil {
+		return c.Events.OnDisconnect(reason)
 	}
 	return nil
 }
 
 func handleSetSlotPacket(c *Client, p pk.Packet) error {
-	if c.Events.WindowsItemChange == nil {
+	if c.Events.OnWindowsItemChange == nil {
 		return nil
 	}
 	var (
@@ -205,7 +200,7 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	return c.Events.WindowsItemChange(byte(windowID), int(slotI), slot)
+	return c.Events.OnWindowsItemChange(byte(windowID), int(slotI), slot)
 }
 
 // func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
@@ -282,8 +277,8 @@ func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 		return err
 	}
 
-	if c.Events.ChatMsg != nil {
-		err = c.Events.ChatMsg(s, byte(pos))
+	if c.Events.OnChatMessage != nil {
+		err = c.Events.OnChatMessage(s, byte(pos))
 	}
 
 	return err
@@ -305,16 +300,17 @@ func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
 	c.Food = int32(Food)
 	c.FoodSaturation = float32(FoodSaturation)
 
-	if c.Events.HealthChange != nil {
-		err = c.Events.HealthChange()
+	if c.Events.OnHPChange != nil {
+		err = c.Events.OnHPChange()
 		if err != nil {
 			return
 		}
 	}
-	if c.Health < 1 { //player is dead
+	if c.Health < 1 { // The player has become dead
 		sendPlayerPositionAndLookPacket(c)
-		if c.Events.Die != nil {
-			err = c.Events.Die()
+		c.IsDead = true 
+		if c.Events.OnDeath != nil {
+			err = c.Events.OnDeath()
 			if err != nil {
 				return
 			}
@@ -377,8 +373,8 @@ func handlePluginPacket(c *Client, p pk.Packet) error {
 	if err := p.Scan(&Channel, &Data); err != nil {
 		return err
 	}
-	if c.Events.PluginMessage != nil {
-		return c.Events.PluginMessage(string(Channel), []byte(Data))
+	if c.Events.OnPluginMessage != nil {
+		return c.Events.OnPluginMessage(string(Channel), []byte(Data))
 	}
 	return nil
 }
@@ -427,8 +423,8 @@ func handleHeldItemPacket(c *Client, p pk.Packet) error {
 	}
 	c.HeldItem = int(hi)
 
-	if c.Events.HeldItemChange != nil {
-		return c.Events.HeldItemChange(c.HeldItem)
+	if c.Events.OnHeldItemChange != nil {
+		return c.Events.OnHeldItemChange(c.HeldItem)
 	}
 	return nil
 }
@@ -570,7 +566,7 @@ func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 }
 
 func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
-	if c.Events.WindowsItem == nil {
+	if c.Events.OnWindowsItem == nil {
 		return nil
 	}
 
@@ -594,7 +590,7 @@ func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
 		slots = append(slots, slot)
 	}
 
-	return c.Events.WindowsItem(byte(windowID), slots)
+	return c.Events.OnWindowsItem(byte(windowID), slots)
 }
 
 func sendPlayerPositionAndLookPacket(c *Client) {

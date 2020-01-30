@@ -1,9 +1,10 @@
 package data
 
-//TODO: check updates sound names
+// Maps sound numbers to sound names
+// Accurate for 1.15.2, usually has to be updated after every major release, perpetual TODO
+// Generated from Burger's "sound" output
 
-//SoundNames match the sound IDs' name
-var SoundNames = []string{
+var NameOfSound = []string{
 	"ambient.cave",
 	"ambient.underwater.enter",
 	"ambient.underwater.exit",

@@ -18,12 +18,25 @@ func (c *Client) SwingArm(hand int) error {
 	))
 }
 
-// Respawn the player when it was dead.
+// Respawns the player, can only be called when they're dead
 func (c *Client) Respawn() error {
-	return c.conn.WritePacket(pk.Marshal(
+	// Send the respawn packet to the server
+	// Ignored by the server when the player not dead
+	err := c.conn.WritePacket(pk.Marshal(
 		data.ClientStatus,
 		pk.VarInt(0),
 	))
+	if err != nil {
+		return err
+	}
+
+	// If the above was successful then we call the "OnRespawn" event
+	// TODO: maybe move the below to a better place?
+	if c.IsDead && c.Events.OnRespawn != nil {
+		err = c.Events.OnRespawn()
+	}
+	c.IsDead = false // The player has respawned now
+	return err
 }
 
 // UseItem use the item player handing.

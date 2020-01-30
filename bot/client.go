@@ -31,12 +31,12 @@ type Client struct {
 //
 // For online-mode, you need login your Mojang account
 // and load your Name, UUID and AccessToken to client.
-func NewClient() (c *Client) {
+func NewClient(name string) (c *Client) {
 	c = new(Client)
 
 	//init Client
 	c.settings = DefaultSettings
-	c.Name = "Steve"
+	c.Name = name
 	c.Delegate = make(chan func() error)
 
 	c.Wd = world.World{
@@ -57,6 +57,7 @@ type PlayInfo struct {
 	ViewDistance     int    //视距
 	ReducedDebugInfo bool   //减少调试信息
 	// SpawnPosition    Position //主世界出生点
+	IsDead bool // True, when the player becomes dead
 }
 
 // PlayerAbilities defines what player can do.

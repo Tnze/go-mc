@@ -7,20 +7,22 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+// These events usually happen when the server sends us a relevant packet
+
 type eventBroker struct {
-	GameStart      func() error
-	ChatMsg        func(msg chat.Message, pos byte) error
-	Disconnect     func(reason chat.Message) error
-	HealthChange   func() error
-	Die            func() error
-	SoundPlay      func(name string, category int, x, y, z float64, volume, pitch float32) error
-	PluginMessage  func(channel string, data []byte) error
-	HeldItemChange func(slot int) error
+	OnGameBegin      func() error // Happens when the player connects to a server and enters the world
+	OnChatMessage    func(message chat.Message, pos byte) error
+	OnDisconnect     func(reason chat.Message) error
+	OnHPChange       func() error // When the player health changes
+	OnDeath          func() error
+	OnRespawn        func() error 
+	OnSound          func(name string, category int, x, y, z float64, volume, pitch float32) error
+	OnPluginMessage  func(channel string, data []byte) error
+	OnHeldItemChange func(slot int) error
 
-	WindowsItem       func(id byte, slots []entity.Slot) error
-	WindowsItemChange func(id byte, slotID int, slot entity.Slot) error
+	OnWindowsItem       func(id byte, slots []entity.Slot) error
+	OnWindowsItemChange func(id byte, slotID int, slot entity.Slot) error
 
-	// ReceivePacket will be called when new packet arrive.
-	// Default handler will run only if pass == false.
-	ReceivePacket func(p pk.Packet) (pass bool, err error)
+	// Called whenever a new packet reaches us, default handler only runs when pass == false
+	OnPacketRecieve func(p pk.Packet) (pass bool, err error)
 }
