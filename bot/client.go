@@ -57,7 +57,6 @@ type PlayInfo struct {
 	ViewDistance     int    //视距
 	ReducedDebugInfo bool   //减少调试信息
 	// SpawnPosition    Position //主世界出生点
-	IsDead bool // True, when the player becomes dead
 }
 
 // PlayerAbilities defines what player can do.
