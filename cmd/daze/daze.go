@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	c := bot.NewClient()
+	c := bot.NewClient("Steve")
 
 	//Login
 	err := c.JoinServer("localhost", 25565)
@@ -21,10 +21,10 @@ func main() {
 	log.Println("Login success")
 
 	//Register event handlers
-	c.Events.GameStart = onGameStart
-	c.Events.ChatMsg = onChatMsg
-	c.Events.Disconnect = onDisconnect
-	c.Events.PluginMessage = onPluginMessage
+	c.Events.OnGameBegin = OnGameBegin
+	c.Events.OnChatMessage = onChatMsg
+	c.Events.OnDisconnect = onDisconnect
+	c.Events.OnPluginMessage = onPluginMessage
 
 	//JoinGame
 	err = c.HandleGame()
@@ -33,12 +33,12 @@ func main() {
 	}
 }
 
-func onGameStart() error {
+func onGameBegin() error {
 	log.Println("Game start")
 	return nil //if err isn't nil, HandleGame() will return it.
 }
 
-func onChatMsg(c chat.Message, pos byte) error {
+func onChatMessage(c chat.Message, pos byte) error {
 	log.Println("Chat:", c.ClearString()) // output chat message without any format code (like color or bold)
 	return nil
 }
