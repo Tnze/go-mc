@@ -23,7 +23,7 @@ func (d *Decoder) Decode(v interface{}) error {
 	//start read NBT
 	tagType, tagName, err := d.readTag()
 	if err != nil {
-		return fmt.Errorf("nbt: %v", err)
+		return fmt.Errorf("nbt: %w", err)
 	}
 
 	if c := d.checkCompressed(tagType); c != "" {
@@ -32,7 +32,7 @@ func (d *Decoder) Decode(v interface{}) error {
 
 	err = d.unmarshal(val.Elem(), tagType, tagName)
 	if err != nil {
-		return fmt.Errorf("nbt: %v", err)
+		return fmt.Errorf("nbt: %w", err)
 	}
 	return nil
 }

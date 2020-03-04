@@ -37,12 +37,12 @@ func (c *Client) HandleGame() error {
 			//Read packets
 			p, err := c.conn.ReadPacket()
 			if err != nil {
-				return fmt.Errorf("bot: read packet fail: %v", err)
+				return fmt.Errorf("bot: read packet fail: %w", err)
 			}
 			//handle packets
 			disconnect, err := c.handlePacket(p)
 			if err != nil {
-				return fmt.Errorf("handle packet 0x%X error: %v", p.ID, err)
+				return fmt.Errorf("handle packet 0x%X error: %w", p.ID, err)
 			}
 			if disconnect {
 				return nil
@@ -452,7 +452,7 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	}
 	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)
 	if err != nil {
-		return fmt.Errorf("decode chunk column fail: %v", err)
+		return fmt.Errorf("decode chunk column fail: %w", err)
 	}
 
 	c.Wd.LoadChunk(int(X), int(Z), chunk)
