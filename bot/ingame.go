@@ -2,6 +2,7 @@ package bot
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 
@@ -201,7 +202,7 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 		slotI    pk.Short
 		slot     entity.Slot
 	)
-	if err := p.Scan(&windowID, &slotI, &slot); err != nil && err != nbt.ErrEND {
+	if err := p.Scan(&windowID, &slotI, &slot); errors.Is(err, nbt.ErrEND) {
 		return err
 	}
 
