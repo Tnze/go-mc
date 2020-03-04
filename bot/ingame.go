@@ -202,7 +202,7 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 		slotI    pk.Short
 		slot     entity.Slot
 	)
-	if err := p.Scan(&windowID, &slotI, &slot); errors.Is(err, nbt.ErrEND) {
+	if err := p.Scan(&windowID, &slotI, &slot); err != nil && !errors.Is(err, nbt.ErrEND) {
 		return err
 	}
 
@@ -589,7 +589,7 @@ func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
 	}
 	for i := 0; i < int(count); i++ {
 		var slot entity.Slot
-		if err := slot.Decode(r); err != nil && err != nbt.ErrEND {
+		if err := slot.Decode(r); err != nil && !errors.Is(err, nbt.ErrEND) {
 			return err
 		}
 		slots = append(slots, slot)
