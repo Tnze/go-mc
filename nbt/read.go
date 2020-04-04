@@ -32,7 +32,7 @@ func (d *Decoder) Decode(v interface{}) error {
 
 	err = d.unmarshal(val.Elem(), tagType, tagName)
 	if err != nil {
-		return fmt.Errorf("nbt: %w", err)
+		return fmt.Errorf("nbt: fail to decode tag %q: %w", tagName, err)
 	}
 	return nil
 }
@@ -304,7 +304,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 				if field != -1 {
 					err = d.unmarshal(val.Field(field), tt, tn)
 					if err != nil {
-						return err
+						return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 					}
 				} else {
 					if err := d.rawRead(tt); err != nil {
@@ -329,7 +329,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 				}
 				v := reflect.New(val.Type().Elem())
 				if err = d.unmarshal(v.Elem(), tt, tn); err != nil {
-					return err
+					return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 				}
 				val.SetMapIndex(reflect.ValueOf(tn), v.Elem())
 			}
@@ -345,7 +345,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 				}
 				var value interface{}
 				if err = d.unmarshal(reflect.ValueOf(&value).Elem(), tt, tn); err != nil {
-					return err
+					return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 				}
 				buf[tn] = value
 			}

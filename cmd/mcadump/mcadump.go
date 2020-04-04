@@ -23,7 +23,7 @@ func main() {
 	args := flag.Args()
 
 	var o string
-	o = "."// output dir
+	o = "." // output dir
 	if len(args) < 2 {
 		usage()
 	}
@@ -44,7 +44,7 @@ func main() {
 }
 
 func usage() {
-	_, _ = fmt.Fprintf(os.Stderr, "usage: %s [-x] [-r] r.<X>.<Z>.mc{a,c}\n", flag.Arg(0))
+	_, _ = fmt.Fprintf(os.Stderr, "usage: %s [-x] [-r] r.<X>.<Z>.mc{a,c}\n", os.Args[0])
 	os.Exit(1)
 }
 
