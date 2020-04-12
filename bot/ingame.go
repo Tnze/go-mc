@@ -2,6 +2,7 @@ package bot
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 
@@ -36,12 +37,12 @@ func (c *Client) HandleGame() error {
 			//Read packets
 			p, err := c.conn.ReadPacket()
 			if err != nil {
-				return fmt.Errorf("bot: read packet fail: %v", err)
+				return fmt.Errorf("bot: read packet fail: %w", err)
 			}
 			//handle packets
 			disconnect, err := c.handlePacket(p)
 			if err != nil {
-				return fmt.Errorf("handle packet 0x%X error: %v", p.ID, err)
+				return fmt.Errorf("handle packet 0x%X error: %w", p.ID, err)
 			}
 			if disconnect {
 				return nil
@@ -201,7 +202,7 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 		slotI    pk.Short
 		slot     entity.Slot
 	)
-	if err := p.Scan(&windowID, &slotI, &slot); err != nil && err != nbt.ErrEND {
+	if err := p.Scan(&windowID, &slotI, &slot); err != nil && !errors.Is(err, nbt.ErrEND) {
 		return err
 	}
 
@@ -451,7 +452,7 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	}
 	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)
 	if err != nil {
-		return fmt.Errorf("decode chunk column fail: %v", err)
+		return fmt.Errorf("decode chunk column fail: %w", err)
 	}
 
 	c.Wd.LoadChunk(int(X), int(Z), chunk)
@@ -588,7 +589,7 @@ func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
 	}
 	for i := 0; i < int(count); i++ {
 		var slot entity.Slot
-		if err := slot.Decode(r); err != nil && err != nbt.ErrEND {
+		if err := slot.Decode(r); err != nil && !errors.Is(err, nbt.ErrEND) {
 			return err
 		}
 		slots = append(slots, slot)

@@ -82,8 +82,8 @@ func fillSection(s *Section, bpb uint, DataArray []int64, palette []uint) {
 		data := uint(DataArray[offset/64])
 		data >>= offset % 64
 		if offset%64 > 64-bpb {
-			l := bpb + offset%64 - 64
-			data &= uint(DataArray[offset/64+1] << l)
+			l := 64 - offset % 64
+			data |= uint(DataArray[offset/64+1] << l)
 		}
 		data &= mask
 

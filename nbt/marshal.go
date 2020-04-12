@@ -106,6 +106,81 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 				}
 			}
 
+		case reflect.Int16:
+			if err := e.writeTag(TagList, tagName); err != nil {
+				return err
+			}
+			if _, err := e.w.Write([]byte{TagShort}); err != nil {
+				return err
+			}
+			n := val.Len()
+			if err := e.writeInt32(int32(n)); err != nil {
+				return err
+			}
+			for i := 0; i < n; i++ {
+				if err := e.writeInt16(int16(val.Index(i).Int())); err != nil {
+					return err
+				}
+			}
+
+		case reflect.Float32:
+			if err := e.writeTag(TagList, tagName); err != nil {
+				return err
+			}
+			if _, err := e.w.Write([]byte{TagFloat}); err != nil {
+				return err
+			}
+			n := val.Len()
+			if err := e.writeInt32(int32(n)); err != nil {
+				return err
+			}
+			for i := 0; i < n; i++ {
+				if err := e.writeInt32(int32(math.Float32bits(float32(val.Index(i).Float())))); err != nil {
+					return err
+				}
+			}
+
+		case reflect.Float64:
+			if err := e.writeTag(TagList, tagName); err != nil {
+				return err
+			}
+			if _, err := e.w.Write([]byte{TagFloat}); err != nil {
+				return err
+			}
+			n := val.Len()
+			if err := e.writeInt32(int32(n)); err != nil {
+				return err
+			}
+			for i := 0; i < n; i++ {
+				if err := e.writeInt64(int64(math.Float64bits(val.Index(i).Float()))); err != nil {
+					return err
+				}
+			}
+
+		case reflect.String:
+			if err := e.writeTag(TagList, tagName); err != nil {
+				return err
+			}
+			if _, err := e.w.Write([]byte{TagString}); err != nil {
+				return err
+			}
+			n := val.Len()
+			// Write length of strings
+			if err := e.writeInt32(int32(n)); err != nil {
+				return err
+			}
+			for i := 0; i < n; i++ {
+				// Write length of this string
+				s := val.Index(i).String()
+				if err := e.writeInt16(int16(len(s))); err != nil {
+					return err
+				}
+				// Write string
+				if _, err := e.w.Write([]byte(s)); err != nil {
+					return err
+				}
+			}
+
 		default:
 			return errors.New("unknown type " + val.Type().String() + " slice")
 		}
