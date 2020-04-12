@@ -38,6 +38,9 @@ type jsonChat struct {
 
 //UnmarshalJSON decode json to Message
 func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
+	if len(jsonMsg) == 0 {
+		return io.EOF
+	}
 	if jsonMsg[0] == '"' {
 		err = json.Unmarshal(jsonMsg, &m.Text) //Unmarshal as jsonString
 	} else {
@@ -63,6 +66,33 @@ func (m Message) Encode() []byte {
 		panic(err)
 	}
 	return pk.String(code).Encode()
+}
+
+func (m *Message) Append(extraMsg ...Message) {
+	origLen := len(m.Extra)
+	finalLen := origLen + len(extraMsg)
+	if cap(m.Extra) < len(m.Extra)+len(extraMsg) {
+		// pre expansion
+		extra := make([]jsonChat, finalLen)
+		copy(extra, m.Extra)
+		m.Extra = extra
+	}
+	for _, v := range extraMsg {
+		m.Extra = append(m.Extra, jsonChat(v))
+	}
+}
+
+func Text(str string) Message {
+	return Message{Text: str}
+}
+
+func TranslateMsg(key string, with ...Message) (m Message) {
+	m.Translate = key
+	m.With = make([]json.RawMessage, len(with))
+	for i, v := range with {
+		m.With[i], _ = json.Marshal(v)
+	}
+	return
 }
 
 var fmtCode = map[byte]string{

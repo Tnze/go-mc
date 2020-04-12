@@ -1,21 +1,34 @@
+// This program can automatic download language.json file and convert into .go
+// But en-us.json is not included.
 package main
 
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 )
 
 //go:generate go run $GOFILE
 //go:generate go fmt ./...
 func main() {
+	if len(os.Args) == 2 {
+		f, err := os.Open(os.Args[1])
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		readLang("en_us", f)
+		return
+	}
 	// from {https://launchermeta.mojang.com/mc/game/version_manifest.json}.assetIndex.url
-	versionURL := "https://launchermeta.mojang.com/v1/packages/e8016c24200e6dd1b9001ec5204d4332bae24c38/1.15.json"
+	versionURL := "https://launchermeta.mojang.com/v1/packages/93f435ca0c67eff15eb81a0f4aa234708d6b34c9/1.15.json"
 	log.Print("start generating lang packages")
 
 	resp, err := http.Get(versionURL)
@@ -36,15 +49,29 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for i, v := range list.Objects {
-		if strings.HasPrefix(i, "minecraft/lang/") {
-			name := i[len("minecraft/lang/") : len(i)-len(".json")]
-			lang(name, v.Hash, v.Size)
-		}
+	tasks := make(chan string)
+	var wg sync.WaitGroup
+	for i := 0; i < 16; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := range tasks {
+				v := list.Objects[i]
+				if strings.HasPrefix(i, "minecraft/lang/") {
+					name := i[len("minecraft/lang/") : len(i)-len(".json")]
+					lang(name, v.Hash)
+				}
+			}
+		}()
 	}
+	for i := range list.Objects {
+		tasks <- i
+	}
+	close(tasks)
+	wg.Wait()
 }
 
-func lang(name, hash string, size int64) {
+func lang(name, hash string) {
 	log.Print("generating ", name, " package")
 
 	//download language
@@ -54,10 +81,13 @@ func lang(name, hash string, size int64) {
 		log.Fatal(err)
 	}
 	defer resp.Body.Close()
+	readLang(name, resp.Body)
+}
 
-	// read language
+// read one language translation
+func readLang(name string, r io.Reader) {
 	var LangMap map[string]string
-	err = json.NewDecoder(resp.Body).Decode(&LangMap)
+	err := json.NewDecoder(r).Decode(&LangMap)
 	if err != nil {
 		log.Fatal("unmarshal json fail: ", err)
 	}
@@ -105,8 +135,7 @@ func trans(m map[string]string) {
 				if err != nil {
 					log.Fatal(err)
 				}
-
-				return fmt.Sprintf("%%%ds", index)
+				return fmt.Sprintf("%%[%d]s", index)
 			})
 		}
 	}

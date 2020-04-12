@@ -2,6 +2,7 @@ package chat_test
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/Tnze/go-mc/chat"
 	"testing"
 
@@ -106,4 +107,28 @@ func TestMessage_Encode(t *testing.T) {
 	if string(msg) != wantMsg {
 		t.Error("encode Message error: get", string(msg), ", want", wantMsg)
 	}
+}
+
+func ExampleMessage_Append() {
+	msg := chat.Message{Text: "1111"}
+	msg.Append(
+		chat.Message{Text: "22222"},
+		chat.Message{Text: "333333"},
+		chat.Message{Text: "4444444"},
+	)
+	fmt.Print(msg)
+	// Output: 1111222223333334444444
+}
+
+func ExampleTranslateMsg() {
+	fmt.Println(chat.TranslateMsg("translation.test.none"))
+	fmt.Println(chat.TranslateMsg(
+		"translation.test.complex",
+		chat.Text("1111"),
+		chat.Text("2222"),
+		chat.Text("3333"),
+	).String())
+	// Output:
+	// Hello, world!
+	// Prefix, 11112222 again 3333 and 1111 lastly 2222 and also 1111 again!
 }
