@@ -121,7 +121,7 @@ func SetLanguage(trans map[string]string) {
 // ClearString return the message String without escape sequence for ansi color.
 func (m Message) ClearString() string {
 	var msg strings.Builder
-	text, _ := trans(m.Text, false)
+	text, _ := TransCtrlSeq(m.Text, false)
 	msg.WriteString(text)
 
 	//handle translate
@@ -172,7 +172,7 @@ func (m Message) String() string {
 		msg.WriteString("\033[" + format.String()[:format.Len()-1] + "m")
 	}
 
-	text, ok := trans(m.Text, true)
+	text, ok := TransCtrlSeq(m.Text, true)
 	msg.WriteString(text)
 
 	//handle translate
@@ -205,7 +205,10 @@ func (m Message) String() string {
 
 var fmtPat = regexp.MustCompile("(?i)§[0-9A-FK-OR]")
 
-func trans(str string, ansi bool) (dst string, change bool) {
+// TransCtrlSeq will transform control sequences into ANSI code
+// or simply filter them. Depends on the second argument.
+// if the str contains control sequences, returned change=true.
+func TransCtrlSeq(str string, ansi bool) (dst string, change bool) {
 	dst = fmtPat.ReplaceAllStringFunc(
 		str,
 		func(str string) string {
