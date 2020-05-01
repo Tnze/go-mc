@@ -39,6 +39,16 @@ func TestUnpackVarInt(t *testing.T) {
 	}
 }
 
+func TestUnpackVarInt_TooLongData(t *testing.T) {
+	var vi VarInt
+	var data = []byte{0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01}
+	if err := vi.Decode(bytes.NewReader(data)); err != nil {
+		t.Logf("unpack \"% x\" error: %v", data, err)
+	} else {
+		t.Errorf("unpack \"% x\" should be error, get %d", data, vi)
+	}
+}
+
 var VarLongs = []VarLong{0, 1, 2, 127, 128, 255, 2147483647, 9223372036854775807, -1, -2147483648, -9223372036854775808}
 
 var PackedVarLongs = [][]byte{
