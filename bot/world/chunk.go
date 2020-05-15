@@ -8,7 +8,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-//DecodeChunkColumn decode the chunk data structure
+// DecodeChunkColumn decode the chunk data structure
 func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 	var c Chunk
 	r := bytes.NewReader(data)
@@ -26,7 +26,7 @@ func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 		if err := BitsPerBlock.Decode(r); err != nil {
 			return nil, err
 		}
-		//读调色板
+		// Read palette
 		var palette []uint
 		if BitsPerBlock < 9 {
 			var length pk.VarInt
@@ -45,7 +45,7 @@ func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 			}
 		}
 
-		//Section数据
+		// Section data
 		var DataArrayLength pk.VarInt
 		if err := DataArrayLength.Decode(r); err != nil {
 			return nil, fmt.Errorf("read DataArrayLength fail: %v", err)
@@ -57,7 +57,7 @@ func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 				return nil, fmt.Errorf("read DataArray fail: %v", err)
 			}
 		}
-		//用数据填充区块
+		// Fill the block with data
 		fillSection(&c.sections[sectionY], perBits(byte(BitsPerBlock)), DataArray, palette)
 	}
 

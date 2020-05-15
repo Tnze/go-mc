@@ -36,7 +36,7 @@ package world
 // func (g *Client) LookYawPitch(yaw, pitch float32) {
 // 	g.motion <- func() {
 // 		g.player.Yaw, g.player.Pitch = yaw, pitch
-// 		sendPlayerLookPacket(g) //向服务器更新朝向
+// 		sendPlayerLookPacket(g) // Send playerorientation to server
 // 	}
 // }
 

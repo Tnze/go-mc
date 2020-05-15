@@ -29,7 +29,7 @@ type ChunkLoc struct {
 	X, Z int
 }
 
-// //Entity 表示一个实体
+// //Entity Represents an entity
 // type Entity interface {
 // 	EntityID() int32
 // }

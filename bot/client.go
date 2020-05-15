@@ -49,15 +49,16 @@ func NewClient() (c *Client) {
 
 //PlayInfo content player info in server.
 type PlayInfo struct {
-	Gamemode         int    //游戏模式
-	Hardcore         bool   //是否是极限模式
-	Dimension        int    //维度
-	Difficulty       int    //难度
-	LevelType        string //地图类型
-	ViewDistance     int    //视距
-	ReducedDebugInfo bool   //减少调试信息
-	// SpawnPosition    Position //主世界出生点
+	Gamemode         int    // Game mode (self explanatory)
+	Hardcore         bool   // Hardcode (self explanatory)
+	Dimension        int    // The currently loaded Dimension (DIM in gamefiles)
+	Difficulty       int    // Difficulty, 0 peaceful -> 3 hard
+	LevelType        string // type of map that is generated (NORMAL for vanilla, BIOMESOP for biomes o plenty and etc)
+	ViewDistance     int    // radius in which chunks are loaded
+	ReducedDebugInfo bool   // Reduce debug info. This settigns changes how much debug info is displayed on vanilla clients
+	// SpawnPosition    Position // Worldspawn
 }
+
 
 // PlayerAbilities defines what player can do.
 type PlayerAbilities struct {
