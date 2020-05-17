@@ -10,19 +10,14 @@ type World struct {
 	Chunks   map[ChunkLoc]*Chunk
 }
 
-//Chunk store a 256*16*16 clolumn blocks
+//Chunk store a 256*16*16 column blocks
 type Chunk struct {
 	sections [16]Section
 }
 
 //Section store a 16*16*16 cube blocks
-type Section struct {
-	blocks [16][16][16]Block
-}
-
-//Block is the base of world
-type Block struct {
-	id uint
+type Section interface {
+	GetBlock(x, y, z int) (blockID uint32)
 }
 
 type ChunkLoc struct {
