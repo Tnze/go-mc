@@ -21,7 +21,7 @@ func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 			if err != nil {
 				return &c, fmt.Errorf("read section[%d] error: %w", sectionY, err)
 			}
-			c.sections[sectionY] = sec
+			c.Sections[sectionY] = sec
 		}
 	}
 	return &c, nil
@@ -93,7 +93,7 @@ type directSection struct {
 	data []int64
 }
 
-func (d *directSection) GetBlock(x, y, z int) (blockID uint32) {
+func (d *directSection) GetBlock(x, y, z int) BlockStatus {
 	// According to wiki.vg: Data Array is given for each block with increasing x coordinates,
 	// within rows of increasing z coordinates, within layers of increasing y coordinates.
 	// So offset equals to ( x*16^0 + z*16^1 + y*16^2 )*(bits per block).
@@ -104,7 +104,7 @@ func (d *directSection) GetBlock(x, y, z int) (blockID uint32) {
 		l := 64 - offset%64
 		block |= uint32(d.data[offset/64+1] << l)
 	}
-	return block & (1<<d.bpb - 1) // mask
+	return BlockStatus(block & (1<<d.bpb - 1)) // mask
 }
 
 type paletteSection struct {
@@ -112,7 +112,7 @@ type paletteSection struct {
 	directSection
 }
 
-func (p *paletteSection) GetBlock(x, y, z int) (blockID uint32) {
+func (p *paletteSection) GetBlock(x, y, z int) BlockStatus {
 	v := p.directSection.GetBlock(x, y, z)
-	return p.palette[v]
+	return BlockStatus(p.palette[v])
 }

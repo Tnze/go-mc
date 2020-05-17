@@ -4,21 +4,23 @@ import (
 	"github.com/Tnze/go-mc/bot/world/entity"
 )
 
-//World record all of the things in the world where player at
+// World record all of the things in the world where player at
 type World struct {
 	Entities map[int32]entity.Entity
 	Chunks   map[ChunkLoc]*Chunk
 }
 
-//Chunk store a 256*16*16 column blocks
+// Chunk store a 256*16*16 column blocks
 type Chunk struct {
-	sections [16]Section
+	Sections [16]Section
 }
 
-//Section store a 16*16*16 cube blocks
+// Section store a 16*16*16 cube blocks
 type Section interface {
-	GetBlock(x, y, z int) (blockID uint32)
+	GetBlock(x, y, z int) BlockStatus
 }
+
+type BlockStatus uint32
 
 type ChunkLoc struct {
 	X, Z int
@@ -42,25 +44,18 @@ type ChunkLoc struct {
 // 	East
 // )
 
-// // getBlock return the block in the position (x, y, z)
-// func (w *world) getBlock(x, y, z int) Block {
-// 	c := w.chunks[chunkLoc{x >> 4, z >> 4}]
-// 	if c != nil {
-// 		cx, cy, cz := x&15, y&15, z&15
-// 		/*
-// 			n = n&(16-1)
-
-// 			is equal to
-
-// 			n %= 16
-// 			if n < 0 { n += 16 }
-// 		*/
-
-// 		return c.sections[y/16].blocks[cx][cy][cz]
-// 	}
-
-// 	return Block{id: 0}
-// }
+// getBlock return the block in the position (x, y, z)
+func (w *World) GetBlockStatus(x, y, z int) BlockStatus {
+	// Use n>>4 rather then n/16. It acts wrong if n<0.
+	c := w.Chunks[ChunkLoc{x >> 4, z >> 4}]
+	if c != nil {
+		// (n&(16-1)) == (n<0 ? n%16+16 : n%16)
+		if sec := c.Sections[y>>4]; sec != nil {
+			return sec.GetBlock(x&15, y&15, z&15)
+		}
+	}
+	return 0
+}
 
 // func (b Block) String() string {
 // 	return blockNameByID[b.id]
