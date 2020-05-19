@@ -27,14 +27,14 @@ func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 	return &c, nil
 }
 
-func perBits(BitsPerBlock byte) uint32 {
+func perBits(BitsPerBlock byte) int {
 	switch {
 	case BitsPerBlock <= 4:
 		return 4
 	case BitsPerBlock < 9:
-		return uint32(BitsPerBlock)
+		return int(BitsPerBlock)
 	default:
-		return uint32(data.BitsPerBlock) // DefaultBitsPerBlock
+		return data.BitsPerBlock // DefaultBitsPerBlock
 	}
 }
 
@@ -49,20 +49,20 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 	}
 	// If bpb values greater than or equal to 9, use directSection.
 	// Otherwise use paletteSection.
-	var palettes []uint32
+	var palettes []BlockStatus
 	if bpb < 9 {
 		// read palettes
 		var length pk.VarInt
 		if err := length.Decode(data); err != nil {
 			return nil, fmt.Errorf("read palettes length error: %w", err)
 		}
-		palettes = make([]uint32, length)
+		palettes = make([]BlockStatus, length)
 		for i := 0; i < int(length); i++ {
 			var v pk.VarInt
 			if err := v.Decode(data); err != nil {
 				return nil, fmt.Errorf("read palettes[%d] error: %w", i, err)
 			}
-			palettes[i] = uint32(v)
+			palettes[i] = BlockStatus(v)
 		}
 	}
 
@@ -71,13 +71,13 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 	if err := dataLen.Decode(data); err != nil {
 		return nil, fmt.Errorf("read data array length error: %w", err)
 	}
-	dataArray := make([]int64, dataLen)
+	dataArray := make([]uint64, dataLen)
 	for i := 0; i < int(dataLen); i++ {
 		var v pk.Long
 		if err := v.Decode(data); err != nil {
 			return nil, fmt.Errorf("read dataArray[%d] error: %w", i, err)
 		}
-		dataArray[i] = int64(v)
+		dataArray[i] = uint64(v)
 	}
 
 	sec := directSection{bpb: perBits(byte(bpb)), data: dataArray}
@@ -89,30 +89,53 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 }
 
 type directSection struct {
-	bpb  uint32
-	data []int64
+	bpb  int
+	data []uint64
 }
 
 func (d *directSection) GetBlock(x, y, z int) BlockStatus {
 	// According to wiki.vg: Data Array is given for each block with increasing x coordinates,
 	// within rows of increasing z coordinates, within layers of increasing y coordinates.
 	// So offset equals to ( x*16^0 + z*16^1 + y*16^2 )*(bits per block).
-	offset := uint32(x+z*16+y*16*16) * d.bpb
-	block := uint32(d.data[offset/64])
-	block >>= offset % 64
-	if offset%64 > 64-d.bpb {
-		l := 64 - offset%64
+	offset := (x + z*16 + y*16*16) * d.bpb
+	padding := offset % 64
+	block := uint32(d.data[offset/64] >> padding)
+	if padding > 64-d.bpb {
+		l := 64 - padding
 		block |= uint32(d.data[offset/64+1] << l)
 	}
 	return BlockStatus(block & (1<<d.bpb - 1)) // mask
 }
 
+func (d *directSection) SetBlock(x, y, z int, s BlockStatus) {
+	offset := (x + z*16 + y*16*16) * d.bpb
+	padding := offset % 64
+	const maxUint64 = 1<<64 - 1
+	mask := uint64(maxUint64<<(padding+d.bpb) | (1<<padding - 1))
+	d.data[offset/64] = uint64(d.data[offset/64])&mask | uint64(s)<<padding
+	if padding > 64-d.bpb {
+		l := padding - (64 - d.bpb)
+		d.data[offset/64+1] = d.data[offset/64+1]&(maxUint64<<l) | uint64(s)>>(64-padding)
+	}
+}
+
 type paletteSection struct {
-	palette []uint32
+	palette []BlockStatus
 	directSection
 }
 
 func (p *paletteSection) GetBlock(x, y, z int) BlockStatus {
 	v := p.directSection.GetBlock(x, y, z)
-	return BlockStatus(p.palette[v])
+	return p.palette[v]
+}
+
+func (p *paletteSection) SetBlock(x, y, z int, s BlockStatus) {
+	for i := 0; i < len(p.palette); i++ {
+		if p.palette[i] == s {
+			p.directSection.SetBlock(x, y, z, BlockStatus(i))
+			return
+		}
+	}
+	p.palette = append(p.palette, s) // TODO: Handle bpb overflow
+	p.directSection.SetBlock(x, y, z, BlockStatus(len(p.palette)+1))
 }

@@ -18,6 +18,7 @@ type Chunk struct {
 // Section store a 16*16*16 cube blocks
 type Section interface {
 	GetBlock(x, y, z int) BlockStatus
+	SetBlock(x, y, z int, s BlockStatus)
 }
 
 type BlockStatus uint32
