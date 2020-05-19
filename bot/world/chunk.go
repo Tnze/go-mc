@@ -50,6 +50,7 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 	// If bpb values greater than or equal to 9, use directSection.
 	// Otherwise use paletteSection.
 	var palettes []BlockStatus
+	var palettesIndex map[BlockStatus]int
 	if bpb < 9 {
 		// read palettes
 		var length pk.VarInt
@@ -57,12 +58,14 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 			return nil, fmt.Errorf("read palettes length error: %w", err)
 		}
 		palettes = make([]BlockStatus, length)
+		palettesIndex = make(map[BlockStatus]int, length)
 		for i := 0; i < int(length); i++ {
 			var v pk.VarInt
 			if err := v.Decode(data); err != nil {
 				return nil, fmt.Errorf("read palettes[%d] error: %w", i, err)
 			}
 			palettes[i] = BlockStatus(v)
+			palettesIndex[BlockStatus(v)] = i
 		}
 	}
 
@@ -70,6 +73,9 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 	var dataLen pk.VarInt
 	if err := dataLen.Decode(data); err != nil {
 		return nil, fmt.Errorf("read data array length error: %w", err)
+	}
+	if int(dataLen) < 16*16*16*int(bpb)/64 {
+		return nil, fmt.Errorf("data length (%d) is not enough of given bpb (%d)", dataLen, bpb)
 	}
 	dataArray := make([]uint64, dataLen)
 	for i := 0; i < int(dataLen); i++ {
@@ -82,7 +88,11 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 
 	sec := directSection{bpb: perBits(byte(bpb)), data: dataArray}
 	if bpb < 9 {
-		return &paletteSection{palette: palettes, directSection: sec}, nil
+		return &paletteSection{
+			palette:       palettes,
+			palettesIndex: palettesIndex,
+			directSection: sec,
+		}, nil
 	} else {
 		return &sec, nil
 	}
@@ -119,8 +129,24 @@ func (d *directSection) SetBlock(x, y, z int, s BlockStatus) {
 	}
 }
 
+func (d *directSection) clone(bpb int) *directSection {
+	newSection := &directSection{
+		bpb:  bpb,
+		data: make([]uint64, 16*16*16*bpb/64),
+	}
+	for x := 0; x < 16; x++ {
+		for y := 0; y < 16; y++ {
+			for z := 0; z < 16; z++ {
+				newSection.SetBlock(x, y, z, d.GetBlock(x, y, z))
+			}
+		}
+	}
+	return newSection
+}
+
 type paletteSection struct {
-	palette []BlockStatus
+	palette       []BlockStatus
+	palettesIndex map[BlockStatus]int
 	directSection
 }
 
@@ -130,12 +156,12 @@ func (p *paletteSection) GetBlock(x, y, z int) BlockStatus {
 }
 
 func (p *paletteSection) SetBlock(x, y, z int, s BlockStatus) {
-	for i := 0; i < len(p.palette); i++ {
-		if p.palette[i] == s {
-			p.directSection.SetBlock(x, y, z, BlockStatus(i))
-			return
-		}
+	if i, ok := p.palettesIndex[s]; ok {
+		p.directSection.SetBlock(x, y, z, BlockStatus(i))
+		return
 	}
-	p.palette = append(p.palette, s) // TODO: Handle bpb overflow
-	p.directSection.SetBlock(x, y, z, BlockStatus(len(p.palette)+1))
+	i := len(p.palette)
+	p.palette = append(p.palette, s)
+	p.palettesIndex[s] = i
+	p.directSection.SetBlock(x, y, z, BlockStatus(i))
 }
