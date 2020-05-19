@@ -112,7 +112,7 @@ func (d *directSection) SetBlock(x, y, z int, s BlockStatus) {
 	padding := offset % 64
 	const maxUint64 = 1<<64 - 1
 	mask := uint64(maxUint64<<(padding+d.bpb) | (1<<padding - 1))
-	d.data[offset/64] = uint64(d.data[offset/64])&mask | uint64(s)<<padding
+	d.data[offset/64] = d.data[offset/64]&mask | uint64(s)<<padding
 	if padding > 64-d.bpb {
 		l := padding - (64 - d.bpb)
 		d.data[offset/64+1] = d.data[offset/64+1]&(maxUint64<<l) | uint64(s)>>(64-padding)
