@@ -3,9 +3,9 @@ package world
 import (
 	"bytes"
 	"fmt"
-	// "io"
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"math"
 )
 
 // DecodeChunkColumn decode the chunk data structure.
@@ -120,13 +120,16 @@ func (d *directSection) GetBlock(x, y, z int) BlockStatus {
 func (d *directSection) SetBlock(x, y, z int, s BlockStatus) {
 	offset := (x + z*16 + y*16*16) * d.bpb
 	padding := offset % 64
-	const maxUint64 = 1<<64 - 1
-	mask := uint64(maxUint64<<(padding+d.bpb) | (1<<padding - 1))
+	mask := uint64(math.MaxUint64<<(padding+d.bpb) | (1<<padding - 1))
 	d.data[offset/64] = d.data[offset/64]&mask | uint64(s)<<padding
 	if padding > 64-d.bpb {
 		l := padding - (64 - d.bpb)
-		d.data[offset/64+1] = d.data[offset/64+1]&(maxUint64<<l) | uint64(s)>>(64-padding)
+		d.data[offset/64+1] = d.data[offset/64+1]&(math.MaxUint64<<l) | uint64(s)>>(64-padding)
 	}
+}
+
+func (d *directSection) CanContain(s BlockStatus) bool {
+	return s <= (1<<d.bpb - 1)
 }
 
 func (d *directSection) clone(bpb int) *directSection {
@@ -163,5 +166,11 @@ func (p *paletteSection) SetBlock(x, y, z int, s BlockStatus) {
 	i := len(p.palette)
 	p.palette = append(p.palette, s)
 	p.palettesIndex[s] = i
+	if !p.directSection.CanContain(BlockStatus(i)) {
+		// Increase the underlying directSection
+		// Suppose that old bpb fit len(p.palette) before it appended.
+		// So bpb+1 must enough for new len(p.palette).
+		p.directSection = *p.directSection.clone(p.bpb + 1)
+	}
 	p.directSection.SetBlock(x, y, z, BlockStatus(i))
 }

@@ -14,26 +14,49 @@ func newDirectSection(bpb int) Section {
 }
 
 func TestDirectSection(t *testing.T) {
-	for bpb := 4; bpb < data.BitsPerBlock; bpb++ {
-		testSection(t, newDirectSection(bpb), bpb)
+	for bpb := 4; bpb <= data.BitsPerBlock; bpb++ {
+		testSection(newDirectSection(bpb), bpb)(t)
+	}
+}
+
+func TestDirectSection_clone(t *testing.T) {
+	s := newDirectSection(9)
+	dataset := randData(9)
+	for i := 0; i < 16*16*16; i++ {
+		s.SetBlock(i%16, i/16%16, i/16/16, dataset[i])
+	}
+	s = s.(*directSection).clone(data.BitsPerBlock)
+	for i := 0; i < 16*16*16; i++ {
+		if s := s.GetBlock(i%16, i/16%16, i/16/16); dataset[i] != s {
+			t.Fatalf("direct section error: want: %v, get %v", dataset[i], s)
+		}
 	}
 }
 
 func TestPaletteSection(t *testing.T) {
-	testSection(t, &paletteSection{
+	t.Run("Correctness", testSection(&paletteSection{
 		palettesIndex: make(map[BlockStatus]int),
 		directSection: *(newDirectSection(7).(*directSection)),
-	}, 7)
+	}, 7))
+	t.Run("AutomaticExpansion", testSection(&paletteSection{
+		palettesIndex: make(map[BlockStatus]int),
+		directSection: *(newDirectSection(4).(*directSection)),
+	}, 9))
 }
 
-func testSection(t *testing.T, s Section, bpb int) {
-	for _, dataset := range [][16 * 16 * 16]BlockStatus{secData(bpb), randData(bpb)} {
-		for i := 0; i < 16*16*16; i++ {
-			s.SetBlock(i%16, i/16%16, i/16/16, dataset[i])
-		}
-		for i := 0; i < 16*16*16; i++ {
-			if s := s.GetBlock(i%16, i/16%16, i/16/16); dataset[i] != s {
-				t.Fatalf("direct section error: want: %v, get %v", dataset[i], s)
+func testSection(s Section, bpb int) func(t *testing.T) {
+	return func(t *testing.T) {
+		for _, dataset := range [][16 * 16 * 16]BlockStatus{secData(bpb), randData(bpb)} {
+			for i := 0; i < 16*16*16; i++ {
+				s.SetBlock(i%16, i/16%16, i/16/16, dataset[i])
+			}
+			for i := 0; i < 16*16*16; i++ {
+				if v := s.GetBlock(i%16, i/16%16, i/16/16); dataset[i] != v {
+					//for i := 0; i < 18; i++ {
+					//	t.Log(s.(*paletteSection).directSection.GetBlock(i%16, i/16%16, i/16/16))
+					//}
+					t.Fatalf("direct section error: want: %v, get %v", dataset[i], v)
+				}
 			}
 		}
 	}
