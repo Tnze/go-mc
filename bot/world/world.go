@@ -17,8 +17,17 @@ type Chunk struct {
 
 // Section store a 16*16*16 cube blocks
 type Section interface {
-	GetBlock(x, y, z int) BlockStatus
-	SetBlock(x, y, z int, s BlockStatus)
+	// GetBlock return block status, offset can be calculate by SectionOffset.
+	GetBlock(offset int) BlockStatus
+	// SetBlock is the reverse operation of GetBlock.
+	SetBlock(offset int, s BlockStatus)
+}
+
+func SectionOffset(x, y, z int) (offset int) {
+	// According to wiki.vg: Data Array is given for each block with increasing x coordinates,
+	// within rows of increasing z coordinates, within layers of increasing y coordinates.
+	// So offset equals to ( x*16^0 + z*16^1 + y*16^2 )*(bits per block).
+	return x + z*16 + y*16*16
 }
 
 type BlockStatus uint32
@@ -52,7 +61,7 @@ func (w *World) GetBlockStatus(x, y, z int) BlockStatus {
 	if c != nil {
 		// (n&(16-1)) == (n<0 ? n%16+16 : n%16)
 		if sec := c.Sections[y>>4]; sec != nil {
-			return sec.GetBlock(x&15, y&15, z&15)
+			return sec.GetBlock(SectionOffset(x&15, y&15, z&15))
 		}
 	}
 	return 0

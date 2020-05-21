@@ -103,11 +103,8 @@ type directSection struct {
 	data []uint64
 }
 
-func (d *directSection) GetBlock(x, y, z int) BlockStatus {
-	// According to wiki.vg: Data Array is given for each block with increasing x coordinates,
-	// within rows of increasing z coordinates, within layers of increasing y coordinates.
-	// So offset equals to ( x*16^0 + z*16^1 + y*16^2 )*(bits per block).
-	offset := (x + z*16 + y*16*16) * d.bpb
+func (d *directSection) GetBlock(offset int) BlockStatus {
+	offset *= d.bpb
 	padding := offset % 64
 	block := uint32(d.data[offset/64] >> padding)
 	if padding > 64-d.bpb {
@@ -117,8 +114,8 @@ func (d *directSection) GetBlock(x, y, z int) BlockStatus {
 	return BlockStatus(block & (1<<d.bpb - 1)) // mask
 }
 
-func (d *directSection) SetBlock(x, y, z int, s BlockStatus) {
-	offset := (x + z*16 + y*16*16) * d.bpb
+func (d *directSection) SetBlock(offset int, s BlockStatus) {
+	offset *= d.bpb
 	padding := offset % 64
 	mask := uint64(math.MaxUint64<<(padding+d.bpb) | (1<<padding - 1))
 	d.data[offset/64] = d.data[offset/64]&mask | uint64(s)<<padding
@@ -137,12 +134,8 @@ func (d *directSection) clone(bpb int) *directSection {
 		bpb:  bpb,
 		data: make([]uint64, 16*16*16*bpb/64),
 	}
-	for x := 0; x < 16; x++ {
-		for y := 0; y < 16; y++ {
-			for z := 0; z < 16; z++ {
-				newSection.SetBlock(x, y, z, d.GetBlock(x, y, z))
-			}
-		}
+	for offset := 0; offset < 16*16*16; offset++ {
+		newSection.SetBlock(offset, d.GetBlock(offset))
 	}
 	return newSection
 }
@@ -153,14 +146,14 @@ type paletteSection struct {
 	directSection
 }
 
-func (p *paletteSection) GetBlock(x, y, z int) BlockStatus {
-	v := p.directSection.GetBlock(x, y, z)
+func (p *paletteSection) GetBlock(offset int) BlockStatus {
+	v := p.directSection.GetBlock(offset)
 	return p.palette[v]
 }
 
-func (p *paletteSection) SetBlock(x, y, z int, s BlockStatus) {
+func (p *paletteSection) SetBlock(offset int, s BlockStatus) {
 	if i, ok := p.palettesIndex[s]; ok {
-		p.directSection.SetBlock(x, y, z, BlockStatus(i))
+		p.directSection.SetBlock(offset, BlockStatus(i))
 		return
 	}
 	i := len(p.palette)
@@ -172,5 +165,5 @@ func (p *paletteSection) SetBlock(x, y, z int, s BlockStatus) {
 		// So bpb+1 must enough for new len(p.palette).
 		p.directSection = *p.directSection.clone(p.bpb + 1)
 	}
-	p.directSection.SetBlock(x, y, z, BlockStatus(i))
+	p.directSection.SetBlock(offset, BlockStatus(i))
 }

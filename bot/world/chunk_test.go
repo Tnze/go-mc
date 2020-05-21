@@ -23,11 +23,11 @@ func TestDirectSection_clone(t *testing.T) {
 	s := newDirectSection(9)
 	dataset := randData(9)
 	for i := 0; i < 16*16*16; i++ {
-		s.SetBlock(i%16, i/16%16, i/16/16, dataset[i])
+		s.SetBlock(i, dataset[i])
 	}
 	s = s.(*directSection).clone(data.BitsPerBlock)
 	for i := 0; i < 16*16*16; i++ {
-		if s := s.GetBlock(i%16, i/16%16, i/16/16); dataset[i] != s {
+		if s := s.GetBlock(i); dataset[i] != s {
 			t.Fatalf("direct section error: want: %v, get %v", dataset[i], s)
 		}
 	}
@@ -48,13 +48,10 @@ func testSection(s Section, bpb int) func(t *testing.T) {
 	return func(t *testing.T) {
 		for _, dataset := range [][16 * 16 * 16]BlockStatus{secData(bpb), randData(bpb)} {
 			for i := 0; i < 16*16*16; i++ {
-				s.SetBlock(i%16, i/16%16, i/16/16, dataset[i])
+				s.SetBlock(i, dataset[i])
 			}
 			for i := 0; i < 16*16*16; i++ {
-				if v := s.GetBlock(i%16, i/16%16, i/16/16); dataset[i] != v {
-					//for i := 0; i < 18; i++ {
-					//	t.Log(s.(*paletteSection).directSection.GetBlock(i%16, i/16%16, i/16/16))
-					//}
+				if v := s.GetBlock(i); dataset[i] != v {
 					t.Fatalf("direct section error: want: %v, get %v", dataset[i], v)
 				}
 			}
