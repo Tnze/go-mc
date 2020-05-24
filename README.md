@@ -71,4 +71,26 @@ p := pk.Marshal(
 )
 ```
 
-Then send it to server using `conn.WritePacket(p)`. `conn` is a `net.Conn` returned by `net.Dial()`
+Then you can send it to server using `conn.WritePacket(p)`. The `conn` is a `net.Conn` which is returned by `net.Dial()`. And don't forget to handle the error.^_^
+
+Receiving packet is quite easy too. To read a packet, call `p.Scan()` like this:
+
+```go
+var (
+    x, y, z    pk.Double
+    yaw, pitch pk.Float
+    flags      pk.Byte
+    TeleportID pk.VarInt
+)
+
+err := p.Scan(&x, &y, &z, &yaw, &pitch, &flags, &TeleportID)
+if err != nil {
+    return err
+}
+```
+
+As the net package implements the minecraft network protocol, there is no update between the versions at this level. So net package actually supports any version. It's just that the ID and content of the package are different between different versions.
+
+Originally it's all right to write a bot with only `go-mc/net` package. But considering that the process of handshake, login and encryption is not difficult but complicated, I have implemented it in `go-mc/bot` package. You may use it directly or as a reference for your own implementation.
+
+Now, go and have a look at the example! 
