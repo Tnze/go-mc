@@ -38,11 +38,37 @@ Some examples are at `/cmd` folder.
 
 > `1.13.2` version is at [gomcbot](https://github.com/Tnze/gomcbot).
 
-# Getting start
+## Getting start
 After you install golang tools:  
 To get latest version: `go get github.com/Tnze/go-mc@master`  
 To get old versions (eg. 1.14.3): `go get github.com/Tnze/go-mc@v1.14.3`
+
+First of all, you might have a try of the simple examples. It's a good start.
+
+### Run Examples
+
 - Run `go run github.com/Tnze/go-mc/cmd/mcping localhost` to ping and list the localhost mc server.  
 - Run `go run github.com/Tnze/go-mc/cmd/daze` to join local server at *localhost:25565* as Steve on offline mode.
 
-See `/bot` folder to get more information about how to create your own robot.
+### Basic Useage
+
+One of the most useful functions of this lib is that it implements the network communication protocol of minecraft. It allows you to construct, send, receive, and parse network packets. All of them are encapsulated in `go-mc/net` and `go-mc/net/packet`.
+
+```go
+import "github.com/Tnze/go-mc/net"
+import pk "github.com/Tnze/go-mc/net/packet"
+```
+
+It's very easy to create a packet. For example, after any client connected the server, it sends a [Handshake Packet](https://wiki.vg/Protocol#Handshake). You can create this package with the following code:
+
+```go
+p := pk.Marshal(
+    0x00,                       // Handshake packet ID
+    pk.VarInt(ProtocolVersion), // Protocol version
+    pk.String("localhost"),     // Server's address
+    pk.UnsignedShort(25565),    // Server's port
+    pk.Byte(1),                 // 1 for status ping, 2 for login
+)
+```
+
+Then send it to server using `conn.WritePacket(p)`. `conn` is a `net.Conn` returned by `net.Dial()`
