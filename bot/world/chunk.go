@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"math"
 )
 
 // DecodeChunkColumn decode the chunk data structure.
@@ -117,11 +116,12 @@ func (d *directSection) GetBlock(offset int) BlockStatus {
 func (d *directSection) SetBlock(offset int, s BlockStatus) {
 	offset *= d.bpb
 	padding := offset % 64
-	mask := uint64(math.MaxUint64<<(padding+d.bpb) | (1<<padding - 1))
+	mask := ^uint64((1<<d.bpb - 1) << padding)
 	d.data[offset/64] = d.data[offset/64]&mask | uint64(s)<<padding
 	if padding > 64-d.bpb {
 		l := padding - (64 - d.bpb)
-		d.data[offset/64+1] = d.data[offset/64+1]&(math.MaxUint64<<l) | uint64(s)>>(64-padding)
+		const maxUint64 = 1<<64 - 1
+		d.data[offset/64+1] = d.data[offset/64+1]&(maxUint64<<l) | uint64(s)>>(64-padding)
 	}
 }
 
