@@ -27,16 +27,19 @@ func ListenMC(addr string) (*Listener, error) {
 func (l Listener) Accept() (Conn, error) {
 	conn, err := l.Listener.Accept()
 	return Conn{
-		Socket:     conn,
-		ByteReader: bufio.NewReader(conn),
-		Writer:     conn,
+		Socket: conn,
+		Reader: bufio.NewReader(conn),
+		Writer: conn,
 	}, err
 }
 
 //Conn is a minecraft Connection
 type Conn struct {
 	Socket net.Conn
-	io.ByteReader
+	Reader interface {
+		io.ByteReader
+		io.Reader
+	}
 	io.Writer
 
 	threshold int
@@ -46,9 +49,9 @@ type Conn struct {
 func DialMC(addr string) (*Conn, error) {
 	conn, err := net.Dial("tcp", addr)
 	return &Conn{
-		Socket:     conn,
-		ByteReader: bufio.NewReader(conn),
-		Writer:     conn,
+		Socket: conn,
+		Reader: bufio.NewReader(conn),
+		Writer: conn,
 	}, err
 }
 
@@ -56,9 +59,9 @@ func DialMC(addr string) (*Conn, error) {
 func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 	conn, err := net.DialTimeout("tcp", addr, timeout)
 	return &Conn{
-		Socket:     conn,
-		ByteReader: bufio.NewReader(conn),
-		Writer:     conn,
+		Socket: conn,
+		Reader: bufio.NewReader(conn),
+		Writer: conn,
 	}, err
 }
 
@@ -66,9 +69,9 @@ func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 // Helps you modify the connection process (eg. using DialContext).
 func WrapConn(conn net.Conn) *Conn {
 	return &Conn{
-		Socket:     conn,
-		ByteReader: bufio.NewReader(conn),
-		Writer:     conn,
+		Socket: conn,
+		Reader: bufio.NewReader(conn),
+		Writer: conn,
 	}
 }
 
@@ -77,7 +80,7 @@ func (c *Conn) Close() error { return c.Socket.Close() }
 
 // ReadPacket read a Packet from Conn.
 func (c *Conn) ReadPacket() (pk.Packet, error) {
-	p, err := pk.RecvPacket(c.ByteReader, c.threshold > 0)
+	p, err := pk.RecvPacket(c.Reader, c.threshold > 0)
 	if err != nil {
 		return pk.Packet{}, err
 	}
@@ -93,7 +96,7 @@ func (c *Conn) WritePacket(p pk.Packet) error {
 // SetCipher load the decode/encode stream to this Conn
 func (c *Conn) SetCipher(ecoStream, decoStream cipher.Stream) {
 	//加密连接
-	c.ByteReader = bufio.NewReader(cipher.StreamReader{ //Set receiver for AES
+	c.Reader = bufio.NewReader(cipher.StreamReader{ //Set receiver for AES
 		S: decoStream,
 		R: c.Socket,
 	})

@@ -2,7 +2,7 @@ package data
 
 // Clientbound packet IDs
 const (
-	SpawnObject byte = iota //0x00
+	SpawnObject int32 = iota //0x00
 	SpawnExperienceOrb
 	SpawnGlobalEntity
 	SpawnMob
@@ -104,7 +104,7 @@ const (
 
 // Serverbound packet IDs
 const (
-	TeleportConfirm byte = iota //0x00
+	TeleportConfirm int32 = iota //0x00
 	QueryBlockNBT
 	SetDifficulty
 	ChatMessageServerbound
