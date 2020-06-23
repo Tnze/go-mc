@@ -185,6 +185,7 @@ func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest
 	}
 	PostRequest.Header.Set("User-agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
+	PostRequest.Header.Set("Content-Type", "application/json")
 	resp, err := client.Do(PostRequest)
 	if err != nil {
 		return fmt.Errorf("post fail: %v", err)
