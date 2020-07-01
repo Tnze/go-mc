@@ -274,8 +274,9 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 
 func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 	var (
-		s   chat.Message
-		pos pk.Byte
+		s      chat.Message
+		pos    pk.Byte
+		sender pk.UUID
 	)
 
 	err = p.Scan(&s, &pos)
