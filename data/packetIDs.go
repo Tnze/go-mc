@@ -37,11 +37,11 @@ const (
 	OpenHorseWindow
 
 	KeepAliveClientbound //0x20
-	ChunkData            // TODO Pre
+	ChunkData
 	Effect
 	Particle
 	UpdateLight
-	JoinGame // TODO Pre
+	JoinGame
 	MapData
 	TradeList
 	EntityRelativeMove
@@ -97,8 +97,8 @@ const (
 	Advancements
 	EntityProperties
 	EntityEffect
-	DeclareRecipes // TODO Pre
-	Tags           //0x5B
+	DeclareRecipes
+	Tags //0x5B
 )
 
 // Serverbound packet IDs
