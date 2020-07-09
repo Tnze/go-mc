@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"io/ioutil"
 
 	"github.com/Tnze/go-mc/bot/world"
@@ -285,7 +286,7 @@ func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 	}
 
 	if c.Events.ChatMsg != nil {
-		err = c.Events.ChatMsg(s, byte(pos), string(sender.Encode()))
+		err = c.Events.ChatMsg(s, byte(pos), uuid.UUID(sender))
 	}
 
 	return err

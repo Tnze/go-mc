@@ -3,13 +3,14 @@ package bot
 import (
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
+	"github.com/google/uuid"
 
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type eventBroker struct {
 	GameStart      func() error
-	ChatMsg        func(msg chat.Message, pos byte, sender string) error
+	ChatMsg        func(msg chat.Message, pos byte, sender uuid.UUID) error
 	Disconnect     func(reason chat.Message) error
 	HealthChange   func() error
 	Die            func() error
