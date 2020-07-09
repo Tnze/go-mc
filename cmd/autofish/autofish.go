@@ -72,7 +72,7 @@ func onSound(name string, category int, x, y, z float64, volume, pitch float32) 
 	return nil
 }
 
-func onChatMsg(c chat.Message, pos byte) error {
+func onChatMsg(c chat.Message, pos byte, uuid string) error {
 	log.Println("Chat:", c)
 	return nil
 }

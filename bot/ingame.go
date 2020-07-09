@@ -274,17 +274,18 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 
 func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 	var (
-		s   chat.Message
-		pos pk.Byte
+		s      chat.Message
+		pos    pk.Byte
+		sender pk.UUID
 	)
 
-	err = p.Scan(&s, &pos)
+	err = p.Scan(&s, &pos, &sender)
 	if err != nil {
 		return err
 	}
 
 	if c.Events.ChatMsg != nil {
-		err = c.Events.ChatMsg(s, byte(pos))
+		err = c.Events.ChatMsg(s, byte(pos), string(sender.Encode()))
 	}
 
 	return err
@@ -326,17 +327,25 @@ func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
 
 func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	var (
-		eid          pk.Int
-		gamemode     pk.UnsignedByte
+		eid        pk.Int
+		gamemode   pk.UnsignedByte
+		previousGm pk.UnsignedByte
+		worldCount pk.VarInt
+		worldNames pk.Identifier
+		_          pk.NBT
+		//dimensionCodec pk.NBT
 		dimension    pk.Int
+		worldName    pk.Identifier
 		hashedSeed   pk.Long
 		maxPlayers   pk.UnsignedByte
-		levelType    pk.String
 		viewDistance pk.VarInt
 		rdi          pk.Boolean // Reduced Debug Info
 		ers          pk.Boolean // Enable respawn screen
+		isDebug      pk.Boolean
+		isFlat       pk.Boolean
 	)
-	err := p.Scan(&eid, &gamemode, &dimension, &hashedSeed, &maxPlayers, &levelType, &rdi, &ers)
+	err := p.Scan(&eid, &gamemode, &previousGm, &worldCount, &worldNames, &dimension, &worldName,
+		&hashedSeed, &maxPlayers, &rdi, &ers, &isDebug, &isFlat)
 	if err != nil {
 		return err
 	}
@@ -345,9 +354,12 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	c.Gamemode = int(gamemode & 0x7)
 	c.Hardcore = gamemode&0x8 != 0
 	c.Dimension = int(dimension)
-	c.LevelType = string(levelType)
+	c.WorldName = string(worldName)
 	c.ViewDistance = int(viewDistance)
 	c.ReducedDebugInfo = bool(rdi)
+	c.IsDebug = bool(isDebug)
+	c.IsFlat = bool(isFlat)
+
 	return nil
 }
 
@@ -441,13 +453,14 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	var (
 		X, Z           pk.Int
 		FullChunk      pk.Boolean
+		IgnoreOldData  pk.Boolean
 		PrimaryBitMask pk.VarInt
 		Heightmaps     struct{}
 		Biomes         = biomesData{fullChunk: (*bool)(&FullChunk)}
 		Data           chunkData
 		BlockEntities  blockEntities
 	)
-	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
+	if err := p.Scan(&X, &Z, &FullChunk, &IgnoreOldData, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
 		return err
 	}
 	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)

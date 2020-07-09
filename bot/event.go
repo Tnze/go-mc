@@ -9,7 +9,7 @@ import (
 
 type eventBroker struct {
 	GameStart      func() error
-	ChatMsg        func(msg chat.Message, pos byte) error
+	ChatMsg        func(msg chat.Message, pos byte, sender string) error
 	Disconnect     func(reason chat.Message) error
 	HealthChange   func() error
 	Die            func() error
