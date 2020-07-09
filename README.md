@@ -1,5 +1,5 @@
 # Go-MC
-![Version](https://img.shields.io/badge/Minecraft-1.15.2-blue.svg)
+![Version](https://img.shields.io/badge/Minecraft-1.16.1-blue.svg)
 ![Protocol](https://img.shields.io/badge/Protocol-578-blue.svg)
 [![GoDoc](https://godoc.org/github.com/Tnze/go-mc?status.svg)](https://godoc.org/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
