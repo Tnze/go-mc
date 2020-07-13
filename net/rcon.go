@@ -177,12 +177,14 @@ func (r *RCONConn) RespCmd(resp string) error {
 type RCONClientConn interface {
 	Cmd(cmd string) error
 	Resp() (resp string, err error)
+	Close() error
 }
 
 type RCONServerConn interface {
 	AcceptLogin(password string) error
 	AcceptCmd() (cmd string, err error)
 	RespCmd(resp string) error
+	Close() error
 }
 
 func ListenRCON(addr string) (*RCONListener, error) {
