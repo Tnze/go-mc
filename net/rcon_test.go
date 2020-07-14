@@ -17,6 +17,8 @@ func server(t *testing.T, prepare chan<- int) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer l.Close()
+
 	prepare <- 1
 
 	for {
@@ -55,6 +57,7 @@ func client(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer conn.Close()
 
 	err = conn.Cmd("TEST COMMAND")
 	if err != nil {

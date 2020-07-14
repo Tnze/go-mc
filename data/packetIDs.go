@@ -2,28 +2,27 @@ package data
 
 // Clientbound packet IDs
 const (
-	SpawnObject byte = iota //0x00
+	SpawnObject int32 = iota //0x00
 	SpawnExperienceOrb
-	SpawnGlobalEntity
-	SpawnMob
+	SpawnLivingEntity
 	SpawnPainting
 	SpawnPlayer
-	AnimationClientbound
+	EntityAnimationClientbound
 	Statistics
 	AcknowledgePlayerDigging
 	BlockBreakAnimation
-	UpdateBlockEntity
+	BlockEntityData
 	BlockAction
 	BlockChange
 	BossBar
 	ServerDifficulty
 	ChatMessageClientbound
+	MultiBlockChange
 
-	MultiBlockChange //0x10
-	TabComplete
+	TabComplete //0x10
 	DeclareCommands
-	ConfirmTransaction
-	CloseWindow
+	WindowConfirmationClientbound
+	CloseWindowClientbound
 	WindowItems
 	WindowProperty
 	SetSlot
@@ -35,9 +34,9 @@ const (
 	Explosion
 	UnloadChunk
 	ChangeGameState
+	OpenHorseWindow
 
-	OpenHorseWindow //0x20
-	KeepAliveClientbound
+	KeepAliveClientbound //0x20
 	ChunkData
 	Effect
 	Particle
@@ -52,9 +51,9 @@ const (
 	VehicleMoveClientbound
 	OpenBook
 	OpenWindow
+	OpenSignEditor
 
-	OpenSignEditor //0x30
-	CraftRecipeResponse
+	CraftRecipeResponse //0x30
 	PlayerAbilitiesClientbound
 	CombatEvent
 	PlayerInfo
@@ -69,10 +68,11 @@ const (
 	SelectAdvancementTab
 	WorldBorder
 	Camera
+	HeldItemChangeClientbound
 
-	HeldItemChangeClientbound //0x40
-	UpdateViewPosition
+	UpdateViewPosition //0x40
 	UpdateViewDistance
+	SpawnPosition
 	DisplayScoreboard
 	EntityMetadata
 	AttachEntity
@@ -84,11 +84,10 @@ const (
 	SetPassengers
 	Teams
 	UpdateScore
-	SpawnPosition
 	TimeUpdate
+	Title
 
-	Title //0x50
-	EntitySoundEffect
+	EntitySoundEffect //0x50
 	SoundEffect
 	StopSound
 	PlayerListHeaderAndFooter
@@ -99,12 +98,12 @@ const (
 	EntityProperties
 	EntityEffect
 	DeclareRecipes
-	Tags //0x5C
+	Tags //0x5B
 )
 
 // Serverbound packet IDs
 const (
-	TeleportConfirm byte = iota //0x00
+	TeleportConfirm int32 = iota //0x00
 	QueryBlockNBT
 	SetDifficulty
 	ChatMessageServerbound
@@ -119,9 +118,10 @@ const (
 	EditBook
 	QueryEntityNBT
 	UseEntity
-	KeepAliveServerbound
+	GenerateStructure
 
-	LockDifficulty //0x10
+	KeepAliveServerbound //0x10
+	LockDifficulty
 	PlayerPosition
 	PlayerPositionAndLookServerbound
 	PlayerLook
@@ -136,9 +136,9 @@ const (
 	SteerVehicle
 	RecipeBookData
 	NameItem
-	ResourcePackStatus
 
-	AdvancementTab //0x20
+	ResourcePackStatus //0x20
+	AdvancementTab
 	SelectTrade
 	SetBeaconEffect
 	HeldItemChangeServerbound
@@ -151,5 +151,5 @@ const (
 	AnimationServerbound
 	Spectate
 	PlayerBlockPlacement
-	UseItem //0x2D
+	UseItem //0x2E
 )
