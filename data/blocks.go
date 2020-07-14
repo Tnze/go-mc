@@ -33,7 +33,7 @@ func init() {
 	BitsPerBlock = int(math.Ceil(math.Log2(blockStatesLen)))
 }
 
-const blockStatesLen = 14786 + 1
+const blockStatesLen = 15286 + 1
 
 // Generate with follow steps:
 // java -cp minecraft_server.1.16.jar net.minecraft.data.Main --all
