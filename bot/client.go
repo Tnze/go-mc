@@ -53,9 +53,11 @@ type PlayInfo struct {
 	Hardcore         bool   //是否是极限模式
 	Dimension        int    //维度
 	Difficulty       int    //难度
-	LevelType        string //地图类型
 	ViewDistance     int    //视距
 	ReducedDebugInfo bool   //减少调试信息
+	WorldName        string //当前世界的名字
+	IsDebug          bool   //调试
+	IsFlat           bool   //超平坦世界
 	// SpawnPosition    Position //主世界出生点
 }
 
