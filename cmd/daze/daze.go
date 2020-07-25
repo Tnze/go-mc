@@ -2,8 +2,11 @@ package main
 
 import (
 	"bytes"
-	"github.com/google/uuid"
 	"log"
+	"os"
+	"strconv"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
@@ -12,10 +15,24 @@ import (
 )
 
 func main() {
+	host := "localhost"
+	port := 25565
+	if len(os.Args) > 1 {
+		host = os.Args[1]
+	}
+	if len(os.Args) > 2 {
+		p, err := strconv.Atoi(os.Args[2])
+		if err != nil {
+			log.Println("Failed to parse port number")
+			return
+		}
+		port = p
+	}
+
 	c := bot.NewClient()
 
 	//Login
-	err := c.JoinServer("localhost", 25565)
+	err := c.JoinServer(host, port)
 	if err != nil {
 		log.Fatal(err)
 	}
