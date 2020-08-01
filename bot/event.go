@@ -18,6 +18,13 @@ type eventBroker struct {
 	PluginMessage  func(channel string, data []byte) error
 	HeldItemChange func(slot int) error
 
+	// ExperienceChange will be called every time player's experience level updates.
+	// Parameters:
+	//   bar - state of the experience bar from 0.0 to 1.0;
+	//   level - current level;
+	//   total - total amount of experience received from level 0.
+	ExperienceChange func(bar float32, level int32, total int32) error
+
 	WindowsItem       func(id byte, slots []entity.Slot) error
 	WindowsItemChange func(id byte, slotID int, slot entity.Slot) error
 

@@ -130,6 +130,8 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleSoundEffect(c, p)
 	case data.NamedSoundEffect:
 		err = handleNamedSoundEffect(c, p)
+	case data.SetExperience:
+		err = handleSetExperience(c, p)
 	default:
 		// fmt.Printf("ignore pack id %X\n", p.ID)
 	}
@@ -610,6 +612,26 @@ func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
 	}
 
 	return c.Events.WindowsItem(byte(windowID), slots)
+}
+
+func handleSetExperience(c *Client, p pk.Packet) (err error) {
+	var (
+		bar   pk.Float
+		level pk.VarInt
+		total pk.VarInt
+	)
+
+	if err := p.Scan(&bar, &level, &total); err != nil {
+		return err
+	}
+
+	c.Level = int32(level)
+
+	if c.Events.ExperienceChange != nil {
+		return c.Events.ExperienceChange(float32(bar), int32(level), int32(total))
+	}
+
+	return nil
 }
 
 func sendPlayerPositionAndLookPacket(c *Client) {
