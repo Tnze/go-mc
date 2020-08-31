@@ -192,7 +192,6 @@ func handleDisconnectPacket(c *Client, p pk.Packet) error {
 	}
 
 	if c.Events.Disconnect != nil {
-		fmt.Println("c.Events.Disconnect=%+v\n", c.Events.Disconnect)
 		return c.Events.Disconnect(reason)
 	}
 	return nil
