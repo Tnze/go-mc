@@ -486,9 +486,6 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	return err
 }
 
-//
-//  None of this works and I'm all out of ideas
-//
 type biomesData struct {
 	fullChunk *bool
 	data      []pk.VarInt
@@ -499,13 +496,19 @@ func (b *biomesData) Decode(r pk.DecodeReader) error {
 		return nil
 	}
 
-	var nobe pk.VarInt // Number of BlockEntities
-	if err := nobe.Decode(r); err != nil {
+	var nobd pk.VarInt // Number of Biome Datums
+	if err := nobd.Decode(r); err != nil {
 		return err
 	}
-	b.data = make([]pk.VarInt, nobe)
-	if _, err := r.Read(b.data); err != nil {
-		return err
+
+	b.data = make([]pk.VarInt, nobd)
+
+	for i := 0; i < int(nobd); i++ {
+		var d pk.VarInt
+		if err := d.Decode(r); err != nil {
+			return err
+		}
+		b.data[i] = d
 	}
 
 	return nil
