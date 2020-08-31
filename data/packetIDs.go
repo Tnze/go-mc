@@ -134,10 +134,11 @@ const (
 	PlayerDigging
 	EntityAction
 	SteerVehicle
+	DisplayedRecipe
 	RecipeBookData
-	NameItem
 
-	ResourcePackStatus //0x20
+	NameItem //0x20
+	ResourcePackStatus
 	AdvancementTab
 	SelectTrade
 	SetBeaconEffect
@@ -151,5 +152,5 @@ const (
 	AnimationServerbound
 	Spectate
 	PlayerBlockPlacement
-	UseItem //0x2E
+	UseItem //0x2F
 )

@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io/ioutil"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
@@ -191,6 +192,7 @@ func handleDisconnectPacket(c *Client, p pk.Packet) error {
 	}
 
 	if c.Events.Disconnect != nil {
+		fmt.Println("c.Events.Disconnect=%+v\n", c.Events.Disconnect)
 		return c.Events.Disconnect(reason)
 	}
 	return nil
@@ -331,6 +333,7 @@ func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
 func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	var (
 		eid        pk.Int
+		hardcore   pk.Boolean
 		gamemode   pk.UnsignedByte
 		previousGm pk.UnsignedByte
 		worldCount pk.VarInt
@@ -340,14 +343,14 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 		dimension    pk.Int
 		worldName    pk.Identifier
 		hashedSeed   pk.Long
-		maxPlayers   pk.UnsignedByte
+		maxPlayers   pk.VarInt
 		viewDistance pk.VarInt
 		rdi          pk.Boolean // Reduced Debug Info
 		ers          pk.Boolean // Enable respawn screen
 		isDebug      pk.Boolean
 		isFlat       pk.Boolean
 	)
-	err := p.Scan(&eid, &gamemode, &previousGm, &worldCount, &worldNames, &dimension, &worldName,
+	err := p.Scan(&eid, &hardcore, &gamemode, &previousGm, &worldCount, &worldNames, &dimension, &worldName,
 		&hashedSeed, &maxPlayers, &rdi, &ers, &isDebug, &isFlat)
 	if err != nil {
 		return err
@@ -453,17 +456,25 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	if !c.settings.ReceiveMap {
 		return nil
 	}
+
 	var (
 		X, Z           pk.Int
 		FullChunk      pk.Boolean
-		IgnoreOldData  pk.Boolean
 		PrimaryBitMask pk.VarInt
 		Heightmaps     struct{}
 		Biomes         = biomesData{fullChunk: (*bool)(&FullChunk)}
 		Data           chunkData
 		BlockEntities  blockEntities
 	)
-	if err := p.Scan(&X, &Z, &FullChunk, &IgnoreOldData, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
+	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
+		fmt.Println("-- ")
+		fmt.Printf("X=%v Z=%v\n", X, Z)
+		fmt.Printf("Fullchunk %v\n", FullChunk)
+		fmt.Printf("BitMask=%v\n", PrimaryBitMask)
+		fmt.Printf("Heightmaps: %v\n", Heightmaps)
+		fmt.Printf("Biomes: %+v\n", Biomes)
+		fmt.Printf("Data: %+v\n", Data)
+		fmt.Println("-- ")
 		return err
 	}
 	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)
@@ -476,21 +487,28 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	return err
 }
 
+//
+//  None of this works and I'm all out of ideas
+//
 type biomesData struct {
 	fullChunk *bool
-	data      [1024]int32
+	data      []pk.VarInt
 }
 
 func (b *biomesData) Decode(r pk.DecodeReader) error {
 	if b.fullChunk == nil || !*b.fullChunk {
 		return nil
 	}
-	for i := range b.data {
-		err := (*pk.Int)(&b.data[i]).Decode(r)
-		if err != nil {
-			return err
-		}
+
+	var nobe pk.VarInt // Number of BlockEntities
+	if err := nobe.Decode(r); err != nil {
+		return err
 	}
+	b.data = make([]pk.VarInt, nobe)
+	if _, err := r.Read(b.data); err != nil {
+		return err
+	}
+
 	return nil
 }
 
