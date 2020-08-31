@@ -466,14 +466,6 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 		BlockEntities  blockEntities
 	)
 	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
-		fmt.Println("-- ")
-		fmt.Printf("X=%v Z=%v\n", X, Z)
-		fmt.Printf("Fullchunk %v\n", FullChunk)
-		fmt.Printf("BitMask=%v\n", PrimaryBitMask)
-		fmt.Printf("Heightmaps: %v\n", Heightmaps)
-		fmt.Printf("Biomes: %+v\n", Biomes)
-		fmt.Printf("Data: %+v\n", Data)
-		fmt.Println("-- ")
 		return err
 	}
 	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)
