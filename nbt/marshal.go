@@ -67,6 +67,7 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 		return e.writeInt64(int64(math.Float64bits(val.Float())))
 
 	case reflect.Array, reflect.Slice:
+		n := val.Len()
 		switch val.Type().Elem().Kind() {
 		case reflect.Uint8: // []byte
 			if err := e.writeTag(TagByteArray, tagName); err != nil {
@@ -82,7 +83,6 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 			if err := e.writeTag(TagIntArray, tagName); err != nil {
 				return err
 			}
-			n := val.Len()
 			if err := e.writeInt32(int32(n)); err != nil {
 				return err
 			}
@@ -96,7 +96,6 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 			if err := e.writeTag(TagLongArray, tagName); err != nil {
 				return err
 			}
-			n := val.Len()
 			if err := e.writeInt32(int32(n)); err != nil {
 				return err
 			}
@@ -107,14 +106,7 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 			}
 
 		case reflect.Int16:
-			if err := e.writeTag(TagList, tagName); err != nil {
-				return err
-			}
-			if _, err := e.w.Write([]byte{TagShort}); err != nil {
-				return err
-			}
-			n := val.Len()
-			if err := e.writeInt32(int32(n)); err != nil {
+			if err := e.writeListHeader(TagShort, tagName, val.Len()); err != nil {
 				return err
 			}
 			for i := 0; i < n; i++ {
@@ -124,14 +116,7 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 			}
 
 		case reflect.Float32:
-			if err := e.writeTag(TagList, tagName); err != nil {
-				return err
-			}
-			if _, err := e.w.Write([]byte{TagFloat}); err != nil {
-				return err
-			}
-			n := val.Len()
-			if err := e.writeInt32(int32(n)); err != nil {
+			if err := e.writeListHeader(TagFloat, tagName, val.Len()); err != nil {
 				return err
 			}
 			for i := 0; i < n; i++ {
@@ -141,14 +126,7 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 			}
 
 		case reflect.Float64:
-			if err := e.writeTag(TagList, tagName); err != nil {
-				return err
-			}
-			if _, err := e.w.Write([]byte{TagFloat}); err != nil {
-				return err
-			}
-			n := val.Len()
-			if err := e.writeInt32(int32(n)); err != nil {
+			if err := e.writeListHeader(TagDouble, tagName, val.Len()); err != nil {
 				return err
 			}
 			for i := 0; i < n; i++ {
@@ -158,15 +136,7 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 			}
 
 		case reflect.String:
-			if err := e.writeTag(TagList, tagName); err != nil {
-				return err
-			}
-			if _, err := e.w.Write([]byte{TagString}); err != nil {
-				return err
-			}
-			n := val.Len()
-			// Write length of strings
-			if err := e.writeInt32(int32(n)); err != nil {
+			if err := e.writeListHeader(TagString, tagName, n); err != nil {
 				return err
 			}
 			for i := 0; i < n; i++ {
@@ -180,7 +150,20 @@ func (e *Encoder) marshal(val reflect.Value, tagName string) error {
 					return err
 				}
 			}
-
+		case reflect.Struct, reflect.Interface:
+			if err := e.writeListHeader(TagCompound, tagName, n); err != nil {
+				return err
+			}
+			for i := 0; i < n; i++ {
+				elemVal := val.Index(i)
+				if val.Type().Elem().Kind() == reflect.Interface {
+					elemVal = reflect.ValueOf(elemVal.Interface())
+				}
+				err := e.marshal(elemVal, "")
+				if err != nil {
+					return err
+				}
+			}
 		default:
 			return errors.New("unknown type " + val.Type().String() + " slice")
 		}
@@ -234,6 +217,20 @@ func (e *Encoder) writeTag(tagType byte, tagName string) error {
 	}
 	_, err := e.w.Write(bName)
 	return err
+}
+
+func (e *Encoder) writeListHeader(elementType byte, tagName string, n int) (err error) {
+	if err = e.writeTag(TagList, tagName); err != nil {
+		return
+	}
+	if _, err = e.w.Write([]byte{elementType}); err != nil {
+		return
+	}
+	// Write length of strings
+	if err = e.writeInt32(int32(n)); err != nil {
+		return
+	}
+	return nil
 }
 
 func (e *Encoder) writeNamelessTag(tagType byte, tagName string) error {
