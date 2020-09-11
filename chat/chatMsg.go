@@ -25,7 +25,7 @@ type jsonChat struct {
 	Text string `json:"text,omitempty"`
 
 	Bold          bool   `json:"bold,omitempty"`          //粗体
-	Italic        bool   `json:"Italic,omitempty"`        //斜体
+	Italic        bool   `json:"italic,omitempty"`        //斜体
 	UnderLined    bool   `json:"underlined,omitempty"`    //下划线
 	StrikeThrough bool   `json:"strikethrough,omitempty"` //删除线
 	Obfuscated    bool   `json:"obfuscated,omitempty"`    //随机
