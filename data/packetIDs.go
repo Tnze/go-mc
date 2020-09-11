@@ -17,10 +17,9 @@ const (
 	BossBar
 	ServerDifficulty
 	ChatMessageClientbound
-	MultiBlockChange
+	TabComplete
 
-	TabComplete //0x10
-	DeclareCommands
+	DeclareCommands //0x10
 	WindowConfirmationClientbound
 	CloseWindowClientbound
 	WindowItems
@@ -35,9 +34,9 @@ const (
 	UnloadChunk
 	ChangeGameState
 	OpenHorseWindow
+	KeepAliveClientbound
 
-	KeepAliveClientbound //0x20
-	ChunkData
+	ChunkData //0x20
 	Effect
 	Particle
 	UpdateLight
@@ -52,9 +51,9 @@ const (
 	OpenBook
 	OpenWindow
 	OpenSignEditor
+	CraftRecipeResponse
 
-	CraftRecipeResponse //0x30
-	PlayerAbilitiesClientbound
+	PlayerAbilitiesClientbound //0x30
 	CombatEvent
 	PlayerInfo
 	FacePlayer
@@ -65,6 +64,7 @@ const (
 	ResourcePackSend
 	Respawn
 	EntityHeadLook
+	MultiBlockChange
 	SelectAdvancementTab
 	WorldBorder
 	Camera
@@ -134,10 +134,11 @@ const (
 	PlayerDigging
 	EntityAction
 	SteerVehicle
+	DisplayedRecipe
 	RecipeBookData
-	NameItem
 
-	ResourcePackStatus //0x20
+	NameItem //0x20
+	ResourcePackStatus
 	AdvancementTab
 	SelectTrade
 	SetBeaconEffect
@@ -151,5 +152,5 @@ const (
 	AnimationServerbound
 	Spectate
 	PlayerBlockPlacement
-	UseItem //0x2E
+	UseItem //0x2F
 )
