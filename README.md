@@ -1,6 +1,6 @@
 # Go-MC
-![Version](https://img.shields.io/badge/Minecraft-1.16.2-blue.svg)
-![Protocol](https://img.shields.io/badge/Protocol-751-blue.svg)
+![Version](https://img.shields.io/badge/Minecraft-1.16.3-blue.svg)
+![Protocol](https://img.shields.io/badge/Protocol-753-blue.svg)
 [![GoDoc](https://godoc.org/github.com/Tnze/go-mc?status.svg)](https://godoc.org/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
@@ -105,4 +105,4 @@ Originally it's all right to write a bot with only `go-mc/net` package. But cons
 
 理论上讲，只用`go-mc/net`包实现一个bot是完全可行的，但是为了节省大家从头去理解MC握手、登录、加密等协议的过程，在`go-mc/bot`中我已经把这些都实现了，只不过它不是跨版本的。你可以直接使用，或者作为自己实现的参考。
 
-Now, go and have a look at the example! 
+Now, go and have a look at the example!

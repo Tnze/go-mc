@@ -71,12 +71,33 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		if err == nil && c.Events.GameStart != nil {
 			err = c.Events.GameStart()
 		}
+
+		_ = c.conn.WritePacket(
+			//PluginMessage packet (serverbound) - sending minecraft brand.
+			pk.Marshal(
+				data.PluginMessageServerbound,
+				pk.Identifier("minecraft:brand"),
+				pk.String(c.settings.Brand),
+			),
+		)
+		if err2 := c.Events.updateSeenPackets(seenJoinGame); err == nil {
+			err = err2
+		}
 	case data.PluginMessageClientbound:
 		err = handlePluginPacket(c, p)
 	case data.ServerDifficulty:
 		err = handleServerDifficultyPacket(c, p)
+		if err == nil && c.Events.ServerDifficultyChange != nil {
+			err = c.Events.ServerDifficultyChange(c.Difficulty)
+		}
+		if err2 := c.Events.updateSeenPackets(seenServerDifficulty); err == nil {
+			err = err2
+		}
 	case data.SpawnPosition:
 		err = handleSpawnPositionPacket(c, p)
+		if err2 := c.Events.updateSeenPackets(seenSpawnPos); err == nil {
+			err = err2
+		}
 	case data.PlayerAbilitiesClientbound:
 		err = handlePlayerAbilitiesPacket(c, p)
 		_ = c.conn.WritePacket(
@@ -91,13 +112,24 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 				pk.VarInt(c.settings.MainHand),
 			),
 		)
+		if err2 := c.Events.updateSeenPackets(seenPlayerAbilities); err == nil {
+			err = err2
+		}
 	case data.HeldItemChangeClientbound:
 		err = handleHeldItemPacket(c, p)
+	case data.UpdateLight:
+		err = c.Events.updateSeenPackets(seenUpdateLight)
 	case data.ChunkData:
 		err = handleChunkDataPacket(c, p)
+		if err2 := c.Events.updateSeenPackets(seenChunkData); err == nil {
+			err = err2
+		}
 	case data.PlayerPositionAndLookClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
 		sendPlayerPositionAndLookPacket(c) // to confirm the position
+		if err2 := c.Events.updateSeenPackets(seenPlayerPositionAndLook); err == nil {
+			err = err2
+		}
 	case data.DeclareRecipes:
 		// handleDeclareRecipesPacket(g, reader)
 	case data.EntityLookAndRelativeMove:
@@ -395,6 +427,16 @@ func handlePluginPacket(c *Client, p pk.Packet) error {
 	if err := p.Scan(&Channel, &Data); err != nil {
 		return err
 	}
+
+	switch Channel {
+	case "minecraft:brand":
+		var brandRaw pk.String
+		if err := brandRaw.Decode(bytes.NewReader(Data)); err != nil {
+			return err
+		}
+		c.ServInfo.Brand = string(brandRaw)
+	}
+
 	if c.Events.PluginMessage != nil {
 		return c.Events.PluginMessage(string(Channel), []byte(Data))
 	}
@@ -417,8 +459,8 @@ func handleSpawnPositionPacket(c *Client, p pk.Packet) error {
 	if err != nil {
 		return err
 	}
-	// c.SpawnPosition.X, c.SpawnPosition.Y, c.SpawnPosition.Z =
-	// 	pos.X, pos.Y, pos.Z
+	c.SpawnPosition.X, c.SpawnPosition.Y, c.SpawnPosition.Z =
+		pos.X, pos.Y, pos.Z
 	return nil
 }
 
@@ -598,11 +640,7 @@ func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 	))
 }
 
-func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
-	if c.Events.WindowsItem == nil {
-		return nil
-	}
-
+func handleWindowItemsPacket(c *Client, p pk.Packet) error {
 	r := bytes.NewReader(p.Data)
 	var (
 		windowID pk.Byte
@@ -623,6 +661,14 @@ func handleWindowItemsPacket(c *Client, p pk.Packet) (err error) {
 		slots = append(slots, slot)
 	}
 
+	if windowID == 0 { // Window ID 0 is the players' inventory.
+		if err := c.Events.updateSeenPackets(seenPlayerInventory); err != nil {
+			return err
+		}
+	}
+	if c.Events.WindowsItem == nil {
+		return nil
+	}
 	return c.Events.WindowsItem(byte(windowID), slots)
 }
 
