@@ -3,8 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/Tnze/go-mc/yggdrasil"
 	"os"
+
+	"github.com/Tnze/go-mc/yggdrasil"
 )
 
 var user = flag.String("user", "", "Can be an email address or player name for unmigrated accounts")

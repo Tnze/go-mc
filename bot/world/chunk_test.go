@@ -1,9 +1,10 @@
 package world
 
 import (
-	"github.com/Tnze/go-mc/data"
 	"math/rand"
 	"testing"
+
+	"github.com/Tnze/go-mc/data"
 )
 
 func newDirectSection(bpb int) Section {

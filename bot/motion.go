@@ -13,7 +13,7 @@ import (
 // It's just animation.
 func (c *Client) SwingArm(hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.AnimationServerbound,
+		data.ArmAnimation,
 		pk.VarInt(hand),
 	))
 }
@@ -21,7 +21,7 @@ func (c *Client) SwingArm(hand int) error {
 // Respawn the player when it was dead.
 func (c *Client) Respawn() error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.ClientStatus,
+		data.ClientCommand,
 		pk.VarInt(0),
 	))
 }
@@ -77,7 +77,7 @@ func (c *Client) Chat(msg string) error {
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
-		data.ChatMessageServerbound,
+		data.ChatServerbound,
 		pk.String(msg),
 	))
 }
@@ -85,7 +85,7 @@ func (c *Client) Chat(msg string) error {
 // PluginMessage is used by mods and plugins to send their data.
 func (c *Client) PluginMessage(channal string, msg []byte) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.PluginMessageServerbound,
+		data.CustomPayloadServerbound,
 		pk.Identifier(channal),
 		pluginMessageData(msg),
 	))
@@ -103,7 +103,7 @@ func (c *Client) PluginMessage(channal string, msg []byte) error {
 // insideBlock is true when the player's head is inside of a block's collision.
 func (c *Client) UseBlock(hand, locX, locY, locZ, face int, cursorX, cursorY, cursorZ float32, insideBlock bool) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.PlayerBlockPlacement,
+		data.UseItem,
 		pk.VarInt(hand),
 		pk.Position{X: locX, Y: locY, Z: locZ},
 		pk.VarInt(face),
@@ -120,7 +120,7 @@ func (c *Client) SelectItem(slot int) error {
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
-		data.HeldItemChangeServerbound,
+		data.HeldItemSlotServerbound,
 		pk.Short(slot),
 	))
 }
@@ -144,7 +144,7 @@ func (c *Client) PickItem(slot int) error {
 
 func (c *Client) playerAction(status, locX, locY, locZ, face int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.PlayerDigging,
+		data.BlockDig,
 		pk.VarInt(status),
 		pk.Position{X: locX, Y: locY, Z: locZ},
 		pk.Byte(face),

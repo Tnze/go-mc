@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/google/uuid"
 	"log"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"

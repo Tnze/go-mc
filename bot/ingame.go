@@ -64,8 +64,8 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		}
 	}
 
-	switch p.ID {
-	case data.JoinGame:
+	switch data.PktID(p.ID) {
+	case data.Login:
 		err = handleJoinGamePacket(c, p)
 
 		if err == nil && c.Events.GameStart != nil {
@@ -75,7 +75,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		_ = c.conn.WritePacket(
 			//PluginMessage packet (serverbound) - sending minecraft brand.
 			pk.Marshal(
-				data.PluginMessageServerbound,
+				data.CustomPayloadServerbound,
 				pk.Identifier("minecraft:brand"),
 				pk.String(c.settings.Brand),
 			),
@@ -83,9 +83,9 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		if err2 := c.Events.updateSeenPackets(seenJoinGame); err == nil {
 			err = err2
 		}
-	case data.PluginMessageClientbound:
+	case data.CustomPayloadClientbound:
 		err = handlePluginPacket(c, p)
-	case data.ServerDifficulty:
+	case data.Difficulty:
 		err = handleServerDifficultyPacket(c, p)
 		if err == nil && c.Events.ServerDifficultyChange != nil {
 			err = c.Events.ServerDifficultyChange(c.Difficulty)
@@ -98,12 +98,12 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		if err2 := c.Events.updateSeenPackets(seenSpawnPos); err == nil {
 			err = err2
 		}
-	case data.PlayerAbilitiesClientbound:
+	case data.AbilitiesClientbound:
 		err = handlePlayerAbilitiesPacket(c, p)
 		_ = c.conn.WritePacket(
 			//ClientSettings packet (serverbound)
 			pk.Marshal(
-				data.ClientSettings,
+				data.Settings,
 				pk.String(c.settings.Locale),
 				pk.Byte(c.settings.ViewDistance),
 				pk.VarInt(c.settings.ChatMode),
@@ -115,16 +115,16 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		if err2 := c.Events.updateSeenPackets(seenPlayerAbilities); err == nil {
 			err = err2
 		}
-	case data.HeldItemChangeClientbound:
+	case data.HeldItemSlotClientbound:
 		err = handleHeldItemPacket(c, p)
 	case data.UpdateLight:
 		err = c.Events.updateSeenPackets(seenUpdateLight)
-	case data.ChunkData:
+	case data.MapChunk:
 		err = handleChunkDataPacket(c, p)
 		if err2 := c.Events.updateSeenPackets(seenChunkData); err == nil {
 			err = err2
 		}
-	case data.PlayerPositionAndLookClientbound:
+	case data.PositionClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
 		sendPlayerPositionAndLookPacket(c) // to confirm the position
 		if err2 := c.Events.updateSeenPackets(seenPlayerPositionAndLook); err == nil {
@@ -132,29 +132,23 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		}
 	case data.DeclareRecipes:
 		// handleDeclareRecipesPacket(g, reader)
-	case data.EntityLookAndRelativeMove:
-		// err = handleEntityLookAndRelativeMove(g, reader)
-	case data.EntityHeadLook:
-		// handleEntityHeadLookPacket(g, reader)
-	case data.EntityRelativeMove:
-		// err = handleEntityRelativeMovePacket(g, reader)
 	case data.KeepAliveClientbound:
 		err = handleKeepAlivePacket(c, p)
 	case data.Entity:
 		//handleEntityPacket(g, reader)
-	case data.SpawnPlayer:
+	case data.NamedEntitySpawn:
 		// err = handleSpawnPlayerPacket(g, reader)
 	case data.WindowItems:
 		err = handleWindowItemsPacket(c, p)
 	case data.UpdateHealth:
 		err = handleUpdateHealthPacket(c, p)
-	case data.ChatMessageClientbound:
+	case data.ChatClientbound:
 		err = handleChatMessagePacket(c, p)
 	case data.BlockChange:
 		////err = handleBlockChangePacket(c, p)
 	case data.MultiBlockChange:
 		////err = handleMultiBlockChangePacket(c, p)
-	case data.DisconnectPlay:
+	case data.KickDisconnect:
 		err = handleDisconnectPacket(c, p)
 		disconnect = true
 	case data.SetSlot:
@@ -163,7 +157,7 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleSoundEffect(c, p)
 	case data.NamedSoundEffect:
 		err = handleNamedSoundEffect(c, p)
-	case data.SetExperience:
+	case data.Experience:
 		err = handleSetExperience(c, p)
 	default:
 		// fmt.Printf("ignore pack id %X\n", p.ID)
@@ -694,7 +688,7 @@ func handleSetExperience(c *Client, p pk.Packet) (err error) {
 
 func sendPlayerPositionAndLookPacket(c *Client) {
 	c.conn.WritePacket(pk.Marshal(
-		data.PlayerPositionAndLookServerbound,
+		data.PositionLook,
 		pk.Double(c.X),
 		pk.Double(c.Y),
 		pk.Double(c.Z),
