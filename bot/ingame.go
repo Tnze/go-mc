@@ -2,18 +2,15 @@ package bot
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot/world"
-	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
-	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/ptypes"
 )
 
 // //GetPosition return the player's position
@@ -166,44 +163,32 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 }
 
 func handleSoundEffect(c *Client, p pk.Packet) error {
-	var (
-		SoundID       pk.VarInt
-		SoundCategory pk.VarInt
-		x, y, z       pk.Int
-		Volume, Pitch pk.Float
-	)
-	err := p.Scan(&SoundID, &SoundCategory, &x, &y, &z, &Volume, &Pitch)
-	if err != nil {
+	var s ptypes.SoundEffect
+	if err := s.Decode(p); err != nil {
 		return err
 	}
 
 	if c.Events.SoundPlay != nil {
-		err = c.Events.SoundPlay(
-			data.SoundNames[SoundID], int(SoundCategory),
-			float64(x)/8, float64(y)/8, float64(z)/8,
-			float32(Volume), float32(Pitch))
+		return c.Events.SoundPlay(
+			data.SoundNames[s.Sound], int(s.Category),
+			float64(s.X)/8, float64(s.Y)/8, float64(s.Z)/8,
+			float32(s.Volume), float32(s.Pitch))
 	}
 
 	return nil
 }
 
 func handleNamedSoundEffect(c *Client, p pk.Packet) error {
-	var (
-		SoundName     pk.String
-		SoundCategory pk.VarInt
-		x, y, z       pk.Int
-		Volume, Pitch pk.Float
-	)
-	err := p.Scan(&SoundName, &SoundCategory, &x, &y, &z, &Volume, &Pitch)
-	if err != nil {
+	var s ptypes.NamedSoundEffect
+	if err := s.Decode(p); err != nil {
 		return err
 	}
 
 	if c.Events.SoundPlay != nil {
-		err = c.Events.SoundPlay(
-			string(SoundName), int(SoundCategory),
-			float64(x)/8, float64(y)/8, float64(z)/8,
-			float32(Volume), float32(Pitch))
+		return c.Events.SoundPlay(
+			string(s.Sound), int(s.Category),
+			float64(s.X)/8, float64(s.Y)/8, float64(s.Z)/8,
+			float32(s.Volume), float32(s.Pitch))
 	}
 
 	return nil
@@ -227,16 +212,12 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 	if c.Events.WindowsItemChange == nil {
 		return nil
 	}
-	var (
-		windowID pk.Byte
-		slotI    pk.Short
-		slot     entity.Slot
-	)
-	if err := p.Scan(&windowID, &slotI, &slot); err != nil && !errors.Is(err, nbt.ErrEND) {
+	var pkt ptypes.SetSlot
+	if err := pkt.Decode(p); err != nil {
 		return err
 	}
 
-	return c.Events.WindowsItemChange(byte(windowID), int(slotI), slot)
+	return c.Events.WindowsItemChange(byte(pkt.WindowID), int(pkt.Slot), pkt.SlotData)
 }
 
 // func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
@@ -303,136 +284,80 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 // }
 
 func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
-	var (
-		s      chat.Message
-		pos    pk.Byte
-		sender pk.UUID
-	)
-
-	err = p.Scan(&s, &pos, &sender)
-	if err != nil {
+	var msg ptypes.ChatMessageClientbound
+	if err := msg.Decode(p); err != nil {
 		return err
 	}
 
 	if c.Events.ChatMsg != nil {
-		err = c.Events.ChatMsg(s, byte(pos), uuid.UUID(sender))
+		return c.Events.ChatMsg(msg.S, byte(msg.Pos), uuid.UUID(msg.Sender))
 	}
-
-	return err
+	return nil
 }
 
-func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
-	var (
-		Health         pk.Float
-		Food           pk.VarInt
-		FoodSaturation pk.Float
-	)
-
-	err = p.Scan(&Health, &Food, &FoodSaturation)
-	if err != nil {
-		return
+func handleUpdateHealthPacket(c *Client, p pk.Packet) error {
+	var pkt ptypes.UpdateHealth
+	if err := pkt.Decode(p); err != nil {
+		return err
 	}
 
-	c.Health = float32(Health)
-	c.Food = int32(Food)
-	c.FoodSaturation = float32(FoodSaturation)
+	c.Health = float32(pkt.Health)
+	c.Food = int32(pkt.Food)
+	c.FoodSaturation = float32(pkt.FoodSaturation)
 
 	if c.Events.HealthChange != nil {
-		err = c.Events.HealthChange()
-		if err != nil {
-			return
+		if err := c.Events.HealthChange(); err != nil {
+			return err
 		}
 	}
 	if c.Health < 1 { //player is dead
 		sendPlayerPositionAndLookPacket(c)
 		if c.Events.Die != nil {
-			err = c.Events.Die()
-			if err != nil {
-				return
+
+			if err := c.Events.Die(); err != nil {
+				return err
 			}
 		}
 	}
-	return
-}
-
-func handleJoinGamePacket(c *Client, p pk.Packet) error {
-	var (
-		eid        pk.Int
-		hardcore   pk.Boolean
-		gamemode   pk.UnsignedByte
-		previousGm pk.UnsignedByte
-		worldCount pk.VarInt
-		worldNames pk.Identifier
-		_          pk.NBT
-		//dimensionCodec pk.NBT
-		dimension    pk.Int
-		worldName    pk.Identifier
-		hashedSeed   pk.Long
-		maxPlayers   pk.VarInt
-		viewDistance pk.VarInt
-		rdi          pk.Boolean // Reduced Debug Info
-		ers          pk.Boolean // Enable respawn screen
-		isDebug      pk.Boolean
-		isFlat       pk.Boolean
-	)
-	err := p.Scan(&eid, &hardcore, &gamemode, &previousGm, &worldCount, &worldNames, &dimension, &worldName,
-		&hashedSeed, &maxPlayers, &rdi, &ers, &isDebug, &isFlat)
-	if err != nil {
-		return err
-	}
-
-	c.EntityID = int(eid)
-	c.Gamemode = int(gamemode & 0x7)
-	c.Hardcore = gamemode&0x8 != 0
-	c.Dimension = int(dimension)
-	c.WorldName = string(worldName)
-	c.ViewDistance = int(viewDistance)
-	c.ReducedDebugInfo = bool(rdi)
-	c.IsDebug = bool(isDebug)
-	c.IsFlat = bool(isFlat)
-
 	return nil
 }
 
-// The PluginMessageData only used in recive PluginMessage packet.
-// When decode it, read to end.
-type pluginMessageData []byte
-
-//Encode a PluginMessageData
-func (p pluginMessageData) Encode() []byte {
-	return []byte(p)
-}
-
-//Decode a PluginMessageData
-func (p *pluginMessageData) Decode(r pk.DecodeReader) error {
-	data, err := ioutil.ReadAll(r)
-	if err != nil {
+func handleJoinGamePacket(c *Client, p pk.Packet) error {
+	var pkt ptypes.JoinGame
+	if err := pkt.Decode(p); err != nil {
 		return err
 	}
-	*p = data
+
+	c.EntityID = int(pkt.PlayerEntity)
+	c.Gamemode = int(pkt.Gamemode & 0x7)
+	c.Hardcore = pkt.Gamemode&0x8 != 0
+	c.Dimension = int(pkt.Dimension)
+	c.WorldName = string(pkt.WorldName)
+	c.ViewDistance = int(pkt.ViewDistance)
+	c.ReducedDebugInfo = bool(pkt.RDI)
+	c.IsDebug = bool(pkt.IsDebug)
+	c.IsFlat = bool(pkt.IsFlat)
+
 	return nil
 }
 
 func handlePluginPacket(c *Client, p pk.Packet) error {
-	var (
-		Channel pk.Identifier
-		Data    pluginMessageData
-	)
-	if err := p.Scan(&Channel, &Data); err != nil {
+	var msg ptypes.PluginMessage
+	if err := msg.Decode(p); err != nil {
 		return err
 	}
 
-	switch Channel {
+	switch msg.Channel {
 	case "minecraft:brand":
 		var brandRaw pk.String
-		if err := brandRaw.Decode(bytes.NewReader(Data)); err != nil {
+		if err := brandRaw.Decode(bytes.NewReader(msg.Data)); err != nil {
 			return err
 		}
 		c.ServInfo.Brand = string(brandRaw)
 	}
 
 	if c.Events.PluginMessage != nil {
-		return c.Events.PluginMessage(string(Channel), []byte(Data))
+		return c.Events.PluginMessage(string(msg.Channel), []byte(msg.Data))
 	}
 	return nil
 }
@@ -492,133 +417,56 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 		return nil
 	}
 
-	var (
-		X, Z           pk.Int
-		FullChunk      pk.Boolean
-		PrimaryBitMask pk.VarInt
-		Heightmaps     struct{}
-		Biomes         = biomesData{fullChunk: (*bool)(&FullChunk)}
-		Data           chunkData
-		BlockEntities  blockEntities
-	)
-	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
+	var pkt ptypes.ChunkData
+	if err := pkt.Decode(p); err != nil {
 		return err
 	}
-	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)
+
+	chunk, err := world.DecodeChunkColumn(int32(pkt.PrimaryBitMask), pkt.Data)
 	if err != nil {
-		return fmt.Errorf("decode chunk column fail: %w", err)
+		return fmt.Errorf("decode chunk column: %w", err)
 	}
 
-	c.Wd.LoadChunk(int(X), int(Z), chunk)
-
-	return err
-}
-
-type biomesData struct {
-	fullChunk *bool
-	data      []pk.VarInt
-}
-
-func (b *biomesData) Decode(r pk.DecodeReader) error {
-	if b.fullChunk == nil || !*b.fullChunk {
-		return nil
-	}
-
-	var nobd pk.VarInt // Number of Biome Datums
-	if err := nobd.Decode(r); err != nil {
-		return err
-	}
-
-	b.data = make([]pk.VarInt, nobd)
-
-	for i := 0; i < int(nobd); i++ {
-		var d pk.VarInt
-		if err := d.Decode(r); err != nil {
-			return err
-		}
-		b.data[i] = d
-	}
-
-	return nil
-}
-
-type chunkData []byte
-type blockEntities []blockEntitie
-type blockEntitie struct {
-}
-
-// Decode implement net.packet.FieldDecoder
-func (c *chunkData) Decode(r pk.DecodeReader) error {
-	var Size pk.VarInt
-	if err := Size.Decode(r); err != nil {
-		return err
-	}
-	*c = make([]byte, Size)
-	if _, err := r.Read(*c); err != nil {
-		return err
-	}
-	return nil
-}
-
-// Decode implement net.packet.FieldDecoder
-func (b *blockEntities) Decode(r pk.DecodeReader) error {
-	var nobe pk.VarInt // Number of BlockEntities
-	if err := nobe.Decode(r); err != nil {
-		return err
-	}
-	*b = make(blockEntities, nobe)
-	decoder := nbt.NewDecoder(r)
-	for i := 0; i < int(nobe); i++ {
-		if err := decoder.Decode(&(*b)[i]); err != nil {
-			return err
-		}
-	}
+	c.Wd.LoadChunk(int(pkt.X), int(pkt.Z), chunk)
 	return nil
 }
 
 func handlePlayerPositionAndLookPacket(c *Client, p pk.Packet) error {
-	var (
-		x, y, z    pk.Double
-		yaw, pitch pk.Float
-		flags      pk.Byte
-		TeleportID pk.VarInt
-	)
-
-	err := p.Scan(&x, &y, &z, &yaw, &pitch, &flags, &TeleportID)
-	if err != nil {
+	var pkt ptypes.PositionAndLookClientbound
+	if err := pkt.Decode(p); err != nil {
 		return err
 	}
 
-	if flags&0x01 == 0 {
-		c.X = float64(x)
+	if pkt.RelativeX() {
+		c.X = float64(pkt.X)
 	} else {
-		c.X += float64(x)
+		c.X += float64(pkt.X)
 	}
-	if flags&0x02 == 0 {
-		c.Y = float64(y)
+	if pkt.RelativeY() {
+		c.Y = float64(pkt.Y)
 	} else {
-		c.Y += float64(y)
+		c.Y += float64(pkt.Y)
 	}
-	if flags&0x04 == 0 {
-		c.Z = float64(z)
+	if pkt.RelativeZ() {
+		c.Z = float64(pkt.Z)
 	} else {
-		c.Z += float64(z)
+		c.Z += float64(pkt.Z)
 	}
-	if flags&0x08 == 0 {
-		c.Yaw = float32(yaw)
+	if pkt.RelativeYaw() {
+		c.Yaw = float32(pkt.Yaw)
 	} else {
-		c.Yaw += float32(yaw)
+		c.Yaw += float32(pkt.Yaw)
 	}
-	if flags&0x10 == 0 {
-		c.Pitch = float32(pitch)
+	if pkt.RelativePitch() {
+		c.Pitch = float32(pkt.Pitch)
 	} else {
-		c.Pitch += float32(pitch)
+		c.Pitch += float32(pkt.Pitch)
 	}
 
 	//Confirm
 	return c.conn.WritePacket(pk.Marshal(
 		data.TeleportConfirm,
-		pk.VarInt(TeleportID),
+		pk.VarInt(pkt.TeleportID),
 	))
 }
 
@@ -635,35 +483,20 @@ func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 }
 
 func handleWindowItemsPacket(c *Client, p pk.Packet) error {
-	r := bytes.NewReader(p.Data)
-	var (
-		windowID pk.Byte
-		count    pk.Short
-		slots    []entity.Slot
-	)
-	if err := windowID.Decode(r); err != nil {
+	var pkt ptypes.WindowItems
+	if err := pkt.Decode(p); err != nil {
 		return err
-	}
-	if err := count.Decode(r); err != nil {
-		return err
-	}
-	for i := 0; i < int(count); i++ {
-		var slot entity.Slot
-		if err := slot.Decode(r); err != nil && !errors.Is(err, nbt.ErrEND) {
-			return err
-		}
-		slots = append(slots, slot)
 	}
 
-	if windowID == 0 { // Window ID 0 is the players' inventory.
+	if pkt.WindowID == 0 { // Window ID 0 is the players' inventory.
 		if err := c.Events.updateSeenPackets(seenPlayerInventory); err != nil {
 			return err
 		}
 	}
-	if c.Events.WindowsItem == nil {
-		return nil
+	if c.Events.WindowsItem != nil {
+		return c.Events.WindowsItem(byte(pkt.WindowID), pkt.Slots)
 	}
-	return c.Events.WindowsItem(byte(windowID), slots)
+	return nil
 }
 
 func handleSetExperience(c *Client, p pk.Packet) (err error) {

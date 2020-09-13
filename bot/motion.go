@@ -6,6 +6,7 @@ import (
 
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/ptypes"
 )
 
 // SwingArm swing player's arm.
@@ -83,12 +84,11 @@ func (c *Client) Chat(msg string) error {
 }
 
 // PluginMessage is used by mods and plugins to send their data.
-func (c *Client) PluginMessage(channal string, msg []byte) error {
-	return c.conn.WritePacket(pk.Marshal(
-		data.CustomPayloadServerbound,
-		pk.Identifier(channal),
-		pluginMessageData(msg),
-	))
+func (c *Client) PluginMessage(channel string, msg []byte) error {
+	return c.conn.WritePacket((&ptypes.PluginMessage{
+		Channel: pk.Identifier(channel),
+		Data:    ptypes.PluginData(msg),
+	}).Encode())
 }
 
 // UseBlock is used to place or use a block.
