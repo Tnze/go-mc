@@ -4,7 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/block"
 )
 
 func newDirectSection(bpb int) Section {
@@ -15,7 +15,7 @@ func newDirectSection(bpb int) Section {
 }
 
 func TestDirectSection(t *testing.T) {
-	for bpb := 4; bpb <= data.BitsPerBlock; bpb++ {
+	for bpb := 4; bpb <= block.BitsPerBlock; bpb++ {
 		testSection(newDirectSection(bpb), bpb)(t)
 	}
 }
@@ -26,7 +26,7 @@ func TestDirectSection_clone(t *testing.T) {
 	for i := 0; i < 16*16*16; i++ {
 		s.SetBlock(i, dataset[i])
 	}
-	s = s.(*directSection).clone(data.BitsPerBlock)
+	s = s.(*directSection).clone(block.BitsPerBlock)
 	for i := 0; i < 16*16*16; i++ {
 		if s := s.GetBlock(i); dataset[i] != s {
 			t.Fatalf("direct section error: want: %v, get %v", dataset[i], s)

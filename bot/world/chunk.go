@@ -3,7 +3,8 @@ package world
 import (
 	"bytes"
 	"fmt"
-	"github.com/Tnze/go-mc/data"
+
+	"github.com/Tnze/go-mc/data/block"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -33,7 +34,7 @@ func perBits(BitsPerBlock byte) int {
 	case BitsPerBlock < 9:
 		return int(BitsPerBlock)
 	default:
-		return data.BitsPerBlock // DefaultBitsPerBlock
+		return block.BitsPerBlock
 	}
 }
 
