@@ -64,32 +64,10 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	switch data.PktID(p.ID) {
 	case data.Login:
 		err = handleJoinGamePacket(c, p)
-
-		if err == nil && c.Events.GameStart != nil {
-			err = c.Events.GameStart()
-		}
-
-		_ = c.conn.WritePacket(
-			//PluginMessage packet (serverbound) - sending minecraft brand.
-			pk.Marshal(
-				data.CustomPayloadServerbound,
-				pk.Identifier("minecraft:brand"),
-				pk.String(c.settings.Brand),
-			),
-		)
-		if err2 := c.Events.updateSeenPackets(seenJoinGame); err == nil {
-			err = err2
-		}
 	case data.CustomPayloadClientbound:
 		err = handlePluginPacket(c, p)
 	case data.Difficulty:
 		err = handleServerDifficultyPacket(c, p)
-		if err == nil && c.Events.ServerDifficultyChange != nil {
-			err = c.Events.ServerDifficultyChange(c.Difficulty)
-		}
-		if err2 := c.Events.updateSeenPackets(seenServerDifficulty); err == nil {
-			err = err2
-		}
 	case data.SpawnPosition:
 		err = handleSpawnPositionPacket(c, p)
 		if err2 := c.Events.updateSeenPackets(seenSpawnPos); err == nil {
@@ -97,30 +75,12 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		}
 	case data.AbilitiesClientbound:
 		err = handlePlayerAbilitiesPacket(c, p)
-		_ = c.conn.WritePacket(
-			//ClientSettings packet (serverbound)
-			pk.Marshal(
-				data.Settings,
-				pk.String(c.settings.Locale),
-				pk.Byte(c.settings.ViewDistance),
-				pk.VarInt(c.settings.ChatMode),
-				pk.Boolean(c.settings.ChatColors),
-				pk.UnsignedByte(c.settings.DisplayedSkinParts),
-				pk.VarInt(c.settings.MainHand),
-			),
-		)
-		if err2 := c.Events.updateSeenPackets(seenPlayerAbilities); err == nil {
-			err = err2
-		}
 	case data.HeldItemSlotClientbound:
 		err = handleHeldItemPacket(c, p)
 	case data.UpdateLight:
 		err = c.Events.updateSeenPackets(seenUpdateLight)
 	case data.MapChunk:
 		err = handleChunkDataPacket(c, p)
-		if err2 := c.Events.updateSeenPackets(seenChunkData); err == nil {
-			err = err2
-		}
 	case data.PositionClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
 		sendPlayerPositionAndLookPacket(c) // to confirm the position
@@ -142,9 +102,9 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 	case data.ChatClientbound:
 		err = handleChatMessagePacket(c, p)
 	case data.BlockChange:
-		////err = handleBlockChangePacket(c, p)
+		err = handleBlockChangePacket(c, p)
 	case data.MultiBlockChange:
-		////err = handleMultiBlockChangePacket(c, p)
+		err = handleMultiBlockChangePacket(c, p)
 	case data.KickDisconnect:
 		err = handleDisconnectPacket(c, p)
 		disconnect = true
@@ -220,68 +180,67 @@ func handleSetSlotPacket(c *Client, p pk.Packet) error {
 	return c.Events.WindowsItemChange(byte(pkt.WindowID), int(pkt.Slot), pkt.SlotData)
 }
 
-// func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
-// 	if !c.settings.ReceiveMap {
-// 		return nil
-// 	}
+func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
+	if !c.settings.ReceiveMap {
+		return nil
+	}
+	r := bytes.NewReader(p.Data)
 
-// 	var cX, cY pk.Int
+	var (
+		loc            pk.Long
+		dontTrustEdges pk.Boolean
+		sz             pk.VarInt
+	)
 
-// 	err := p.Scan(&cX, &cY)
-// 	if err != nil {
-// 		return err
-// 	}
+	if err := loc.Decode(r); err != nil {
+		return fmt.Errorf("packed location: %v", err)
+	}
+	if err := dontTrustEdges.Decode(r); err != nil {
+		return fmt.Errorf("unknown 1: %v", err)
+	}
+	if err := sz.Decode(r); err != nil {
+		return fmt.Errorf("array size: %v", err)
+	}
 
-// 	c := g.wd.chunks[chunkLoc{int(cX), int(cY)}]
-// 	if c != nil {
-// 		RecordCount, err := pk.UnpackVarInt(r)
-// 		if err != nil {
-// 			return err
-// 		}
+	packedBlocks := make([]pk.VarLong, int(sz))
+	for i := 0; i < int(sz); i++ {
+		if err := packedBlocks[i].Decode(r); err != nil {
+			return fmt.Errorf("block[%d]: %v", i, err)
+		}
+	}
 
-// 		for i := int32(0); i < RecordCount; i++ {
-// 			xz, err := r.ReadByte()
-// 			if err != nil {
-// 				return err
-// 			}
-// 			y, err := r.ReadByte()
-// 			if err != nil {
-// 				return err
-// 			}
-// 			BlockID, err := pk.UnpackVarInt(r)
-// 			if err != nil {
-// 				return err
-// 			}
-// 			x, z := xz>>4, xz&0x0F
+	x, z, y := int((loc>>42)&((1<<22)-1)),
+		int((loc>>20)&((1<<22)-1)),
+		int(loc&((1<<20)-1))
 
-// 			c.sections[y/16].blocks[x][y%16][z] = Block{id: uint(BlockID)}
-// 		}
-// 	}
+	// Apply transform into negative (these numbers are signed)
+	if x >= 1<<21 {
+		x -= 1 << 22
+	}
+	if z >= 1<<21 {
+		z -= 1 << 22
+	}
 
-// 	return nil
-// }
+	c.Wd.MultiBlockUpdate(world.ChunkLoc{X: x, Z: z}, y, packedBlocks)
+	return nil
+}
 
-// func handleBlockChangePacket(c *Client, p pk.Packet) error {
-// 	if !c.settings.ReceiveMap {
-// 		return nil
-// 	}
-// 	var pos pk.Position
-// 	err := p.Scan(&pos)
-// 	if err != nil {
-// 		return err
-// 	}
+func handleBlockChangePacket(c *Client, p pk.Packet) error {
+	if !c.settings.ReceiveMap {
+		return nil
+	}
+	var (
+		pos pk.Position
+		bID pk.VarInt
+	)
 
-// 	c := g.wd.chunks[chunkLoc{x >> 4, z >> 4}]
-// 	if c != nil {
-// 		id, err := pk.UnpackVarInt(r)
-// 		if err != nil {
-// 			return err
-// 		}
-// 		c.sections[y/16].blocks[x&15][y&15][z&15] = Block{id: uint(id)}
-// 	}
+	if err := p.Scan(&pos, &bID); err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	c.Wd.UnaryBlockUpdate(pos, world.BlockStatus(bID))
+	return nil
+}
 
 func handleChatMessagePacket(c *Client, p pk.Packet) (err error) {
 	var msg ptypes.ChatMessageClientbound
@@ -338,6 +297,23 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	c.IsDebug = bool(pkt.IsDebug)
 	c.IsFlat = bool(pkt.IsFlat)
 
+	if c.Events.GameStart != nil {
+		if err := c.Events.GameStart(); err != nil {
+			return err
+		}
+	}
+
+	c.conn.WritePacket(
+		//PluginMessage packet (serverbound) - sending minecraft brand.
+		pk.Marshal(
+			data.CustomPayloadServerbound,
+			pk.Identifier("minecraft:brand"),
+			pk.String(c.settings.Brand),
+		),
+	)
+	if err := c.Events.updateSeenPackets(seenJoinGame); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -364,12 +340,17 @@ func handlePluginPacket(c *Client, p pk.Packet) error {
 
 func handleServerDifficultyPacket(c *Client, p pk.Packet) error {
 	var difficulty pk.Byte
-	err := p.Scan(&difficulty)
-	if err != nil {
+	if err := p.Scan(&difficulty); err != nil {
 		return err
 	}
 	c.Difficulty = int(difficulty)
-	return nil
+
+	if c.Events.ServerDifficultyChange != nil {
+		if err := c.Events.ServerDifficultyChange(c.Difficulty); err != nil {
+			return err
+		}
+	}
+	return c.Events.updateSeenPackets(seenServerDifficulty)
 }
 
 func handleSpawnPositionPacket(c *Client, p pk.Packet) error {
@@ -383,7 +364,7 @@ func handleSpawnPositionPacket(c *Client, p pk.Packet) error {
 	return nil
 }
 
-func handlePlayerAbilitiesPacket(g *Client, p pk.Packet) error {
+func handlePlayerAbilitiesPacket(c *Client, p pk.Packet) error {
 	var (
 		flags    pk.Byte
 		flySpeed pk.Float
@@ -393,10 +374,23 @@ func handlePlayerAbilitiesPacket(g *Client, p pk.Packet) error {
 	if err != nil {
 		return err
 	}
-	g.abilities.Flags = int8(flags)
-	g.abilities.FlyingSpeed = float32(flySpeed)
-	g.abilities.FieldofViewModifier = float32(viewMod)
-	return nil
+	c.abilities.Flags = int8(flags)
+	c.abilities.FlyingSpeed = float32(flySpeed)
+	c.abilities.FieldofViewModifier = float32(viewMod)
+
+	c.conn.WritePacket(
+		//ClientSettings packet (serverbound)
+		pk.Marshal(
+			data.Settings,
+			pk.String(c.settings.Locale),
+			pk.Byte(c.settings.ViewDistance),
+			pk.VarInt(c.settings.ChatMode),
+			pk.Boolean(c.settings.ChatColors),
+			pk.UnsignedByte(c.settings.DisplayedSkinParts),
+			pk.VarInt(c.settings.MainHand),
+		),
+	)
+	return c.Events.updateSeenPackets(seenPlayerAbilities)
 }
 
 func handleHeldItemPacket(c *Client, p pk.Packet) error {
@@ -413,6 +407,9 @@ func handleHeldItemPacket(c *Client, p pk.Packet) error {
 }
 
 func handleChunkDataPacket(c *Client, p pk.Packet) error {
+	if err := c.Events.updateSeenPackets(seenChunkData); err != nil {
+		return err
+	}
 	if !c.settings.ReceiveMap {
 		return nil
 	}

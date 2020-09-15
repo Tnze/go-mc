@@ -8,6 +8,8 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+const maxPaletteBits = 8
+
 // DecodeChunkColumn decode the chunk data structure.
 // If decoding went error, successful decoded data will be returned.
 func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
@@ -27,35 +29,35 @@ func DecodeChunkColumn(mask int32, data []byte) (*Chunk, error) {
 	return &c, nil
 }
 
-func perBits(BitsPerBlock byte) int {
+func perBits(bpb byte) uint {
 	switch {
-	case BitsPerBlock <= 4:
+	case bpb <= 4:
 		return 4
-	case BitsPerBlock < 9:
-		return int(BitsPerBlock)
+	case bpb <= maxPaletteBits:
+		return uint(bpb)
 	default:
-		return block.BitsPerBlock
+		return uint(block.BitsPerBlock)
 	}
 }
 
 func readSection(data pk.DecodeReader) (s Section, err error) {
-	var BlockCount pk.Short
-	if err := BlockCount.Decode(data); err != nil {
-		return nil, fmt.Errorf("read block count error: %w", err)
+	var nonAirBlockCount pk.Short
+	if err := nonAirBlockCount.Decode(data); err != nil {
+		return nil, fmt.Errorf("block count: %w", err)
 	}
 	var bpb pk.UnsignedByte
 	if err := bpb.Decode(data); err != nil {
-		return nil, fmt.Errorf("read bits per block error: %w", err)
+		return nil, fmt.Errorf("bits per block: %w", err)
 	}
 	// If bpb values greater than or equal to 9, use directSection.
 	// Otherwise use paletteSection.
 	var palettes []BlockStatus
 	var palettesIndex map[BlockStatus]int
-	if bpb < 9 {
+	if bpb <= maxPaletteBits {
 		// read palettes
 		var length pk.VarInt
 		if err := length.Decode(data); err != nil {
-			return nil, fmt.Errorf("read palettes length error: %w", err)
+			return nil, fmt.Errorf("palette length: %w", err)
 		}
 		palettes = make([]BlockStatus, length)
 		palettesIndex = make(map[BlockStatus]int, length)
@@ -86,8 +88,15 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 		dataArray[i] = uint64(v)
 	}
 
-	sec := directSection{bpb: perBits(byte(bpb)), data: dataArray}
-	if bpb < 9 {
+	width := perBits(byte(bpb))
+	sec := directSection{
+		bitArray{
+			width:          width,
+			valsPerElement: valsPerBitArrayElement(width),
+			data:           dataArray,
+		},
+	}
+	if bpb <= maxPaletteBits {
 		return &paletteSection{
 			palette:       palettes,
 			palettesIndex: palettesIndex,
@@ -99,46 +108,38 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 }
 
 type directSection struct {
-	bpb  int
-	data []uint64
+	bitArray
 }
 
-func (d *directSection) GetBlock(offset int) BlockStatus {
-	offset *= d.bpb
-	padding := offset % 64
-	block := uint32(d.data[offset/64] >> padding)
-	if padding > 64-d.bpb {
-		l := 64 - padding
-		block |= uint32(d.data[offset/64+1] << l)
-	}
-	return BlockStatus(block & (1<<d.bpb - 1)) // mask
+func (d *directSection) GetBlock(offset uint) BlockStatus {
+	return BlockStatus(d.Get(offset))
 }
 
-func (d *directSection) SetBlock(offset int, s BlockStatus) {
-	offset *= d.bpb
-	padding := offset % 64
-	mask := ^uint64((1<<d.bpb - 1) << padding)
-	d.data[offset/64] = d.data[offset/64]&mask | uint64(s)<<padding
-	if padding > 64-d.bpb {
-		l := padding - (64 - d.bpb)
-		const maxUint64 = 1<<64 - 1
-		d.data[offset/64+1] = d.data[offset/64+1]&(maxUint64<<l) | uint64(s)>>(64-padding)
-	}
+func (d *directSection) SetBlock(offset uint, s BlockStatus) {
+	d.Set(offset, uint(s))
 }
 
 func (d *directSection) CanContain(s BlockStatus) bool {
-	return s <= (1<<d.bpb - 1)
+	return s <= (1<<d.width - 1)
 }
 
-func (d *directSection) clone(bpb int) *directSection {
-	newSection := &directSection{
-		bpb:  bpb,
-		data: make([]uint64, 16*16*16*bpb/64),
+func (d *directSection) clone(bpb uint) *directSection {
+	out := newSectionWithSize(bpb)
+	for offset := uint(0); offset < 16*16*16; offset++ {
+		out.SetBlock(offset, d.GetBlock(offset))
 	}
-	for offset := 0; offset < 16*16*16; offset++ {
-		newSection.SetBlock(offset, d.GetBlock(offset))
+	return out
+}
+
+func newSectionWithSize(bpb uint) *directSection {
+	valsPerElement := valsPerBitArrayElement(bpb)
+	return &directSection{
+		bitArray{
+			width:          bpb,
+			valsPerElement: valsPerElement,
+			data:           make([]uint64, 16*16*16/valsPerElement),
+		},
 	}
-	return newSection
 }
 
 type paletteSection struct {
@@ -147,12 +148,12 @@ type paletteSection struct {
 	directSection
 }
 
-func (p *paletteSection) GetBlock(offset int) BlockStatus {
+func (p *paletteSection) GetBlock(offset uint) BlockStatus {
 	v := p.directSection.GetBlock(offset)
 	return p.palette[v]
 }
 
-func (p *paletteSection) SetBlock(offset int, s BlockStatus) {
+func (p *paletteSection) SetBlock(offset uint, s BlockStatus) {
 	if i, ok := p.palettesIndex[s]; ok {
 		p.directSection.SetBlock(offset, BlockStatus(i))
 		return
@@ -164,7 +165,7 @@ func (p *paletteSection) SetBlock(offset int, s BlockStatus) {
 		// Increase the underlying directSection
 		// Suppose that old bpb fit len(p.palette) before it appended.
 		// So bpb+1 must enough for new len(p.palette).
-		p.directSection = *p.directSection.clone(p.bpb + 1)
+		p.directSection = *p.directSection.clone(p.width + 1)
 	}
 	p.directSection.SetBlock(offset, BlockStatus(i))
 }
