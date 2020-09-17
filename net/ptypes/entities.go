@@ -7,7 +7,7 @@ type SpawnEntity struct {
 	ID               pk.VarInt
 	UUID             pk.UUID
 	Type             pk.VarInt
-	X, Y, Z          pk.Int
+	X, Y, Z          pk.Double
 	Pitch, Yaw       pk.Angle
 	Data             pk.Int
 	VelX, VelY, VelZ pk.Short

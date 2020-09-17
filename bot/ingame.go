@@ -14,6 +14,7 @@ import (
 	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/entity"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/ptypes"
 )
@@ -208,7 +209,11 @@ func handleSpawnEntityPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Printf("SpawnEntity: %+v\n", se)
+	if e := entity.ByID[entity.ID(se.Type)]; e != nil {
+		fmt.Printf("Spawning %s at (%f,%f,%f)\n", e.DisplayName, se.X, se.Y, se.Z)
+	} else {
+		fmt.Printf("SpawnEntity: %+v\n", se)
+	}
 	return nil
 }
 
@@ -217,7 +222,11 @@ func handleSpawnLivingEntityPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Printf("SpawnLivingEntity: %+v\n", se)
+	if e := entity.ByID[entity.ID(se.Type)]; e != nil {
+		fmt.Printf("Spawning %s at (%f,%f,%f)\n", e.DisplayName, se.X, se.Y, se.Z)
+	} else {
+		fmt.Printf("SpawnLivingEntity: %+v\n", se)
+	}
 	return nil
 }
 
@@ -235,7 +244,7 @@ func handleEntityPositionPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Printf("EntityPosition: %+v\n", se)
+	// fmt.Printf("EntityPosition: %+v\n", se)
 	return nil
 }
 
@@ -244,7 +253,7 @@ func handleEntityPositionLookPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Printf("EntityPositionLook: %+v\n", se)
+	// fmt.Printf("EntityPositionLook: %+v\n", se)
 	return nil
 }
 
@@ -253,7 +262,7 @@ func handleEntityLookPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Printf("EntityRotation: %+v\n", se)
+	// fmt.Printf("EntityRotation: %+v\n", se)
 	return nil
 }
 
