@@ -24,6 +24,7 @@ type Client struct {
 	settings  Settings
 
 	Wd        world.World //the map data
+	Inputs    phy.Inputs
 	Physics   phy.State
 	lastPosTx time.Time
 

@@ -82,7 +82,7 @@ func (c *Client) HandleGame() error {
 		case <-c.closing:
 			return http.ErrServerClosed
 		case <-cTick.C:
-			if err := c.Physics.Tick(&c.Wd); err != nil {
+			if err := c.Physics.Tick(c.Inputs, &c.Wd); err != nil {
 				c.disconnect()
 				return err
 			}

@@ -60,7 +60,7 @@ type ChunkLoc struct {
 func (w *World) GetBlockStatus(x, y, z int) BlockStatus {
 	// Use n>>4 rather then n/16. It acts wrong if n<0.
 	c := w.Chunks[ChunkLoc{x >> 4, z >> 4}]
-	if c != nil {
+	if c != nil && y >= 0 {
 		if sec := c.Sections[y>>4]; sec != nil {
 			return sec.GetBlock(SectionIdx(x&15, y&15, z&15))
 		}

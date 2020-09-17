@@ -14,7 +14,13 @@ const (
 	playerHeight = 1.8
 	resetVel     = 0.003
 
-	gravity = 0.08
+	yawSpeed = 3.0
+
+	gravity      = 0.08
+	drag         = 0.98
+	acceleration = 0.02
+	inertia      = 0.91
+	slipperiness = 0.6
 )
 
 // World represents a provider of information about the surrounding world.
@@ -81,10 +87,33 @@ func (s *State) surroundings(query AABB, w World) Surrounds {
 	return out
 }
 
-func (s *State) Tick(w World) error {
+func (s *State) applyInputs(input Inputs, acceleration, inertia float64) {
+	speed := math.Sqrt(input.ThrottleX*input.ThrottleX + input.ThrottleZ*input.ThrottleZ)
+	if speed < 0.01 {
+		return
+	}
+	speed = acceleration / math.Max(speed, 1)
+
+	input.ThrottleX *= speed
+	input.ThrottleZ *= speed
+
+	s.Vel.X += input.ThrottleX
+	s.Vel.Z += input.ThrottleZ
+}
+
+func (s *State) Tick(input Inputs, w World) error {
 	if !s.Run {
 		return nil
 	}
+	var inertia = inertia
+	var acceleration = acceleration
+	if s.onGround {
+		inertia *= slipperiness
+		acceleration = 0.1 * (0.1627714 / (inertia * inertia * inertia))
+	}
+	s.applyInputs(input, acceleration, inertia)
+
+	// Deadzone velocities when they get too low.
 	if math.Abs(s.Vel.X) < resetVel {
 		s.Vel.X = 0
 	}
@@ -94,7 +123,12 @@ func (s *State) Tick(w World) error {
 	if math.Abs(s.Vel.Z) < resetVel {
 		s.Vel.Z = 0
 	}
+	// Gravity
 	s.Vel.Y -= gravity
+	// Drag & friction.
+	s.Vel.Y *= drag
+	s.Vel.X *= inertia
+	s.Vel.Z *= inertia
 
 	// Apply collision.
 	var (
