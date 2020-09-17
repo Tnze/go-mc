@@ -132,36 +132,60 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		}
 	case data.AbilitiesClientbound:
 		err = handlePlayerAbilitiesPacket(c, p)
+	case data.UpdateHealth:
+		err = handleUpdateHealthPacket(c, p)
+	case data.ChatClientbound:
+		err = handleChatMessagePacket(c, p)
+
 	case data.HeldItemSlotClientbound:
 		err = handleHeldItemPacket(c, p)
+	case data.WindowItems:
+		err = handleWindowItemsPacket(c, p)
+
+	case data.DeclareRecipes:
+		// handleDeclareRecipesPacket(g, reader)
+	case data.KeepAliveClientbound:
+		err = handleKeepAlivePacket(c, p)
+
+	case data.SpawnEntity:
+		err = handleSpawnEntityPacket(c, p)
+	case data.NamedEntitySpawn:
+		err = handleSpawnPlayerPacket(c, p)
+	case data.SpawnEntityLiving:
+		err = handleSpawnLivingEntityPacket(c, p)
+	case data.Animation:
+		err = handleEntityAnimationPacket(c, p)
+	case data.EntityStatus:
+		err = handleEntityStatusPacket(c, p)
+	case data.EntityDestroy:
+		err = handleDestroyEntitiesPacket(c, p)
+	case data.RelEntityMove:
+		err = handleEntityPositionPacket(c, p)
+	case data.EntityMoveLook:
+		err = handleEntityPositionLookPacket(c, p)
+	case data.EntityLook:
+		err = handleEntityLookPacket(c, p)
+	case data.Entity:
+		err = handleEntityMovePacket(c, p)
+
 	case data.UpdateLight:
 		err = c.Events.updateSeenPackets(seenUpdateLight)
 	case data.MapChunk:
 		err = handleChunkDataPacket(c, p)
+	case data.BlockChange:
+		err = handleBlockChangePacket(c, p)
+	case data.MultiBlockChange:
+		err = handleMultiBlockChangePacket(c, p)
+	case data.UnloadChunk:
+		err = handleUnloadChunkPacket(c, p)
+
 	case data.PositionClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
 		sendPlayerPositionAndLookPacket(c) // to confirm the position
 		if err2 := c.Events.updateSeenPackets(seenPlayerPositionAndLook); err == nil {
 			err = err2
 		}
-	case data.DeclareRecipes:
-		// handleDeclareRecipesPacket(g, reader)
-	case data.KeepAliveClientbound:
-		err = handleKeepAlivePacket(c, p)
-	case data.Entity:
-		//handleEntityPacket(g, reader)
-	case data.NamedEntitySpawn:
-		// err = handleSpawnPlayerPacket(g, reader)
-	case data.WindowItems:
-		err = handleWindowItemsPacket(c, p)
-	case data.UpdateHealth:
-		err = handleUpdateHealthPacket(c, p)
-	case data.ChatClientbound:
-		err = handleChatMessagePacket(c, p)
-	case data.BlockChange:
-		err = handleBlockChangePacket(c, p)
-	case data.MultiBlockChange:
-		err = handleMultiBlockChangePacket(c, p)
+
 	case data.KickDisconnect:
 		err = handleDisconnectPacket(c, p)
 		disconnect = true
@@ -177,6 +201,110 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		// fmt.Printf("ignore pack id %X\n", p.ID)
 	}
 	return
+}
+
+func handleSpawnEntityPacket(c *Client, p pk.Packet) error {
+	var se ptypes.SpawnEntity
+	if err := se.Decode(p); err != nil {
+		return err
+	}
+	fmt.Printf("SpawnEntity: %+v\n", se)
+	return nil
+}
+
+func handleSpawnLivingEntityPacket(c *Client, p pk.Packet) error {
+	var se ptypes.SpawnLivingEntity
+	if err := se.Decode(p); err != nil {
+		return err
+	}
+	fmt.Printf("SpawnLivingEntity: %+v\n", se)
+	return nil
+}
+
+func handleSpawnPlayerPacket(c *Client, p pk.Packet) error {
+	var se ptypes.SpawnPlayer
+	if err := se.Decode(p); err != nil {
+		return err
+	}
+	fmt.Printf("SpawnPlayer: %+v\n", se)
+	return nil
+}
+
+func handleEntityPositionPacket(c *Client, p pk.Packet) error {
+	var se ptypes.EntityPosition
+	if err := se.Decode(p); err != nil {
+		return err
+	}
+	fmt.Printf("EntityPosition: %+v\n", se)
+	return nil
+}
+
+func handleEntityPositionLookPacket(c *Client, p pk.Packet) error {
+	var se ptypes.EntityPositionLook
+	if err := se.Decode(p); err != nil {
+		return err
+	}
+	fmt.Printf("EntityPositionLook: %+v\n", se)
+	return nil
+}
+
+func handleEntityLookPacket(c *Client, p pk.Packet) error {
+	var se ptypes.EntityRotation
+	if err := se.Decode(p); err != nil {
+		return err
+	}
+	fmt.Printf("EntityRotation: %+v\n", se)
+	return nil
+}
+
+func handleEntityMovePacket(c *Client, p pk.Packet) error {
+	var id pk.VarInt
+	if err := p.Scan(&id); err != nil {
+		return err
+	}
+	fmt.Printf("EntityMove (probs didnt for players): %+v\n", id)
+	return nil
+}
+
+func handleEntityAnimationPacket(c *Client, p pk.Packet) error {
+	var se ptypes.EntityAnimationClientbound
+	if err := se.Decode(p); err != nil {
+		return err
+	}
+	fmt.Printf("EntityAnimationClientbound: %+v\n", se)
+	return nil
+}
+
+func handleEntityStatusPacket(c *Client, p pk.Packet) error {
+	var (
+		id     pk.Int
+		status pk.Byte
+	)
+	if err := p.Scan(&id, &status); err != nil {
+		return err
+	}
+	fmt.Printf("EntityStatus: %v, %v\n", id, status)
+	return nil
+}
+
+func handleDestroyEntitiesPacket(c *Client, p pk.Packet) error {
+	var (
+		count pk.VarInt
+		r     = bytes.NewReader(p.Data)
+	)
+	if err := count.Decode(r); err != nil {
+		return err
+	}
+
+	entities := make([]pk.VarInt, int(count))
+	for i := 0; i < int(count); i++ {
+		if err := entities[i].Decode(r); err != nil {
+			return err
+		}
+	}
+
+	fmt.Printf("DestroyEntities: %v\n", entities)
+	return nil
 }
 
 func handleSoundEffect(c *Client, p pk.Packet) error {
@@ -460,6 +588,19 @@ func handleHeldItemPacket(c *Client, p pk.Packet) error {
 	if c.Events.HeldItemChange != nil {
 		return c.Events.HeldItemChange(c.HeldItem)
 	}
+	return nil
+}
+
+func handleUnloadChunkPacket(c *Client, p pk.Packet) error {
+	if !c.settings.ReceiveMap {
+		return nil
+	}
+
+	var x, z pk.Int
+	if err := p.Scan(&x, &z); err != nil {
+		return err
+	}
+	c.Wd.UnloadChunk(world.ChunkLoc{X: int(x) >> 4, Z: int(z) >> 4})
 	return nil
 }
 

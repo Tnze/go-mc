@@ -2,9 +2,10 @@ package packet
 
 import (
 	"errors"
-	"github.com/google/uuid"
 	"io"
 	"math"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/nbt"
 )
@@ -361,6 +362,16 @@ func (p *Position) Decode(r DecodeReader) error {
 	}
 
 	p.X, p.Y, p.Z = x, y, z
+	return nil
+}
+
+//Decodes an Angle
+func (b *Angle) Decode(r DecodeReader) error {
+	v, err := r.ReadByte()
+	if err != nil {
+		return err
+	}
+	*b = Angle(v)
 	return nil
 }
 

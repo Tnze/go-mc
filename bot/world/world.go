@@ -68,6 +68,10 @@ func (w *World) GetBlockStatus(x, y, z int) BlockStatus {
 	return 0
 }
 
+func (w *World) UnloadChunk(loc ChunkLoc) {
+	delete(w.Chunks, loc)
+}
+
 func (w *World) UnaryBlockUpdate(pos pk.Position, bStateID BlockStatus) bool {
 	c := w.Chunks[ChunkLoc{X: pos.X >> 4, Z: pos.Z >> 4}]
 	if c == nil {
