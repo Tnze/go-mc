@@ -2,6 +2,7 @@ package bot
 
 import (
 	"github.com/Tnze/go-mc/bot/world/entity"
+	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/google/uuid"
 
@@ -63,6 +64,9 @@ type eventBroker struct {
 	// Use this callback as a signal as to when your bot should start 'doing'
 	// things.
 	GameReady func() error
+
+	// PositionChange is called whenever the player position is updated.
+	PositionChange func(pos player.Pos) error
 
 	// ReceivePacket will be called when new packets arrive.
 	// The default handler will run only if pass == false.

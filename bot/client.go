@@ -1,10 +1,15 @@
 package bot
 
 import (
+	"sync"
+	"time"
+
+	"github.com/Tnze/go-mc/bot/phy"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/net"
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 // Client is used to access Minecraft server
@@ -17,12 +22,26 @@ type Client struct {
 	ServInfo
 	abilities PlayerAbilities
 	settings  Settings
+
 	Wd        world.World //the map data
+	Physics   phy.State
+	lastPosTx time.Time
 
 	// Delegate allows you push a function to let HandleGame run.
 	// Do not send at the same goroutine!
 	Delegate chan func() error
 	Events   eventBroker
+
+	closing chan struct{}
+	inbound chan pk.Packet
+	wg      sync.WaitGroup
+}
+
+func (c *Client) Close() error {
+	close(c.closing)
+	err := c.disconnect()
+	c.wg.Wait()
+	return err
 }
 
 // NewClient init and return a new Client.
@@ -32,20 +51,18 @@ type Client struct {
 //
 // For online-mode, you need login your Mojang account
 // and load your Name, UUID and AccessToken to client.
-func NewClient() (c *Client) {
-	c = new(Client)
-
-	//init Client
-	c.settings = DefaultSettings
-	c.Name = "Steve"
-	c.Delegate = make(chan func() error)
-
-	c.Wd = world.World{
-		Entities: make(map[int32]entity.Entity),
-		Chunks:   make(map[world.ChunkLoc]*world.Chunk),
+func NewClient() *Client {
+	return &Client{
+		settings: DefaultSettings,
+		Auth:     Auth{Name: "Steve"},
+		Delegate: make(chan func() error),
+		Wd: world.World{
+			Entities: make(map[int32]entity.Entity),
+			Chunks:   make(map[world.ChunkLoc]*world.Chunk),
+		},
+		closing: make(chan struct{}),
+		inbound: make(chan pk.Packet, 5),
 	}
-
-	return
 }
 
 //PlayInfo content player info in server.

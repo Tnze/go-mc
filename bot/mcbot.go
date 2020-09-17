@@ -98,7 +98,7 @@ func (c *Client) join(d Dialer, addr string) (err error) {
 		case 0x02: //Login Success
 			// uuid, l := pk.UnpackString(pack.Data)
 			// name, _ := unpackString(pack.Data[l:])
-			return //switches the connection state to PLAY.
+			return nil
 		case 0x03: //Set Compression
 			var threshold pk.VarInt
 			if err := pack.Scan(&threshold); err != nil {

@@ -2,6 +2,7 @@
 package ptypes
 
 import (
+	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -32,4 +33,55 @@ func (p *PositionAndLookClientbound) RelativePitch() bool {
 
 func (p *PositionAndLookClientbound) Decode(pkt pk.Packet) error {
 	return pkt.Scan(&p.X, &p.Y, &p.Z, &p.Yaw, &p.Pitch, &p.Flags, &p.TeleportID)
+}
+
+// PositionAndLookServerbound describes the location and orientation of
+// the player.
+type PositionAndLookServerbound struct {
+	X, Y, Z    pk.Double
+	Yaw, Pitch pk.Float
+	OnGround   pk.Boolean
+}
+
+func (p PositionAndLookServerbound) Encode() pk.Packet {
+	return pk.Marshal(
+		data.PositionLook,
+		pk.Double(p.X),
+		pk.Double(p.Y),
+		pk.Double(p.Z),
+		pk.Float(p.Yaw),
+		pk.Float(p.Pitch),
+		pk.Boolean(p.OnGround),
+	)
+}
+
+// Position describes the position of the player.
+type Position struct {
+	X, Y, Z  pk.Double
+	OnGround pk.Boolean
+}
+
+func (p Position) Encode() pk.Packet {
+	return pk.Marshal(
+		data.PositionServerbound,
+		pk.Double(p.X),
+		pk.Double(p.Y),
+		pk.Double(p.Z),
+		pk.Boolean(p.OnGround),
+	)
+}
+
+// Look describes the rotation of the player.
+type Look struct {
+	Yaw, Pitch pk.Float
+	OnGround   pk.Boolean
+}
+
+func (p Look) Encode() pk.Packet {
+	return pk.Marshal(
+		data.PositionLook,
+		pk.Float(p.Yaw),
+		pk.Float(p.Pitch),
+		pk.Boolean(p.OnGround),
+	)
 }

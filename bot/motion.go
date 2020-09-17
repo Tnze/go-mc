@@ -180,7 +180,7 @@ func (c *Client) SwapItem() error {
 
 // Disconnect disconnect the server.
 // Server will close the connection.
-func (c *Client) Disconnect() error {
+func (c *Client) disconnect() error {
 	return c.conn.Close()
 }
 

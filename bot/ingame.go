@@ -3,44 +3,101 @@ package bot
 import (
 	"bytes"
 	"fmt"
+	"net"
+	"net/http"
+	"os"
+	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot/world"
+	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/ptypes"
 )
 
-// //GetPosition return the player's position
-// func (p *Player) GetPosition() (x, y, z float64) {
-// 	return p.X, p.Y, p.Z
-// }
+func (c *Client) updateServerPos(pos player.Pos) error {
+	prev := c.Player.Pos
+	c.Player.Pos = pos
 
-// //GetBlockPos return the position of the Block at player's feet
-// func (p *Player) GetBlockPos() (x, y, z int) {
-// 	return int(math.Floor(p.X)), int(math.Floor(p.Y)), int(math.Floor(p.Z))
-// }
+	switch {
+	case !prev.LookEqual(pos) && !prev.PosEqual(pos):
+		sendPlayerPositionAndLookPacket(c)
+	case !prev.PosEqual(pos):
+		sendPlayerPositionPacket(c)
+	case !prev.LookEqual(pos):
+		sendPlayerLookPacket(c)
+	case prev.OnGround != pos.OnGround:
+		c.conn.WritePacket(
+			//ClientSettings packet (serverbound)
+			pk.Marshal(
+				data.Flying,
+				pk.Boolean(pos.OnGround),
+			),
+		)
+	case time.Now().Add(-time.Second).After(c.lastPosTx):
+		c.lastPosTx = time.Now()
+		sendPlayerPositionPacket(c)
+	}
+
+	if c.Events.PositionChange != nil && !prev.Equal(pos) {
+		if err := c.Events.PositionChange(pos); err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 // HandleGame receive server packet and response them correctly.
 // Note that HandleGame will block if you don't receive from Events.
 func (c *Client) HandleGame() error {
+	c.wg.Add(1)
+	go func() {
+		defer c.wg.Done()
+		for {
+			select {
+			case <-c.closing:
+				return
+
+			default:
+				//Read packets
+				p, err := c.conn.ReadPacket()
+				if err != nil {
+					if e, ok := err.(*net.OpError); ok && e.Err.Error() != "use of closed network connection" {
+						fmt.Fprintf(os.Stderr, "ReadPacket error: %v\n", err)
+					}
+					return
+				}
+				c.inbound <- p
+			}
+		}
+	}()
+
+	cTick := time.NewTicker(time.Second / 10 / 2)
+	defer cTick.Stop()
 	for {
 		select {
-		case task := <-c.Delegate:
-			if err := task(); err != nil {
+		case <-c.closing:
+			return http.ErrServerClosed
+		case <-cTick.C:
+			if err := c.Physics.Tick(&c.Wd); err != nil {
+				c.disconnect()
 				return err
 			}
-		default:
-			//Read packets
-			p, err := c.conn.ReadPacket()
-			if err != nil {
-				return fmt.Errorf("bot: read packet fail: %w", err)
+			c.updateServerPos(c.Physics.Position())
+
+		case task := <-c.Delegate:
+			if err := task(); err != nil {
+				c.disconnect()
+				return err
 			}
+		case p := <-c.inbound:
 			//handle packets
 			disconnect, err := c.handlePacket(p)
 			if err != nil {
+				c.disconnect()
 				return fmt.Errorf("handle packet 0x%X error: %w", p.ID, err)
 			}
 			if disconnect {
@@ -270,9 +327,9 @@ func handleUpdateHealthPacket(c *Client, p pk.Packet) error {
 		}
 	}
 	if c.Health < 1 { //player is dead
+		c.Physics.Run = false
 		sendPlayerPositionAndLookPacket(c)
 		if c.Events.Die != nil {
-
 			if err := c.Events.Die(); err != nil {
 				return err
 			}
@@ -434,30 +491,41 @@ func handlePlayerPositionAndLookPacket(c *Client, p pk.Packet) error {
 		return err
 	}
 
+	pp := c.Player.Pos
 	if pkt.RelativeX() {
-		c.X = float64(pkt.X)
+		pp.X += float64(pkt.X)
 	} else {
-		c.X += float64(pkt.X)
+		pp.X = float64(pkt.X)
 	}
 	if pkt.RelativeY() {
-		c.Y = float64(pkt.Y)
+		pp.Y += float64(pkt.Y)
 	} else {
-		c.Y += float64(pkt.Y)
+		pp.Y = float64(pkt.Y)
 	}
 	if pkt.RelativeZ() {
-		c.Z = float64(pkt.Z)
+		pp.Z += float64(pkt.Z)
 	} else {
-		c.Z += float64(pkt.Z)
+		pp.Z = float64(pkt.Z)
 	}
 	if pkt.RelativeYaw() {
-		c.Yaw = float32(pkt.Yaw)
+		pp.Yaw += float32(pkt.Yaw)
 	} else {
-		c.Yaw += float32(pkt.Yaw)
+		pp.Yaw = float32(pkt.Yaw)
 	}
 	if pkt.RelativePitch() {
-		c.Pitch = float32(pkt.Pitch)
+		pp.Pitch += float32(pkt.Pitch)
 	} else {
-		c.Pitch += float32(pkt.Pitch)
+		pp.Pitch = float32(pkt.Pitch)
+	}
+	if err := c.Physics.ServerPositionUpdate(pp, &c.Wd); err != nil {
+		return err
+	}
+	c.Player.Pos = pp
+
+	if c.Events.PositionChange != nil {
+		if err := c.Events.PositionChange(pp); err != nil {
+			return err
+		}
 	}
 
 	//Confirm
@@ -516,14 +584,33 @@ func handleSetExperience(c *Client, p pk.Packet) (err error) {
 	return nil
 }
 
-func sendPlayerPositionAndLookPacket(c *Client) {
-	c.conn.WritePacket(pk.Marshal(
-		data.PositionLook,
-		pk.Double(c.X),
-		pk.Double(c.Y),
-		pk.Double(c.Z),
-		pk.Float(c.Yaw),
-		pk.Float(c.Pitch),
-		pk.Boolean(c.OnGround),
-	))
+func sendPlayerPositionAndLookPacket(c *Client) error {
+	// fmt.Println("PPL")
+	return c.conn.WritePacket(ptypes.PositionAndLookServerbound{
+		X:        pk.Double(c.Pos.X),
+		Y:        pk.Double(c.Pos.Y),
+		Z:        pk.Double(c.Pos.Z),
+		Yaw:      pk.Float(c.Pos.Yaw),
+		Pitch:    pk.Float(c.Pos.Pitch),
+		OnGround: pk.Boolean(c.Pos.OnGround),
+	}.Encode())
+}
+
+func sendPlayerPositionPacket(c *Client) error {
+	// fmt.Println("P")
+	return c.conn.WritePacket(ptypes.Position{
+		X:        pk.Double(c.Pos.X),
+		Y:        pk.Double(c.Pos.Y),
+		Z:        pk.Double(c.Pos.Z),
+		OnGround: pk.Boolean(c.Pos.OnGround),
+	}.Encode())
+}
+
+func sendPlayerLookPacket(c *Client) error {
+	// fmt.Println("L")
+	return c.conn.WritePacket(ptypes.Look{
+		Yaw:      pk.Float(c.Pos.Yaw),
+		Pitch:    pk.Float(c.Pos.Pitch),
+		OnGround: pk.Boolean(c.Pos.OnGround),
+	}.Encode())
 }
