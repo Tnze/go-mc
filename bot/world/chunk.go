@@ -3,6 +3,7 @@ package world
 import (
 	"bytes"
 	"fmt"
+	"math"
 
 	"github.com/Tnze/go-mc/data/block"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -137,7 +138,7 @@ func newSectionWithSize(bpb uint) *directSection {
 		bitArray{
 			width:          bpb,
 			valsPerElement: valsPerElement,
-			data:           make([]uint64, 16*16*16/valsPerElement),
+			data:           make([]uint64, int(math.Ceil(16*16*16/float64(valsPerElement)))),
 		},
 	}
 }
