@@ -59,6 +59,24 @@ func makeEntityDeclaration(entities []Entity) *ast.DeclStmt {
 		for i := 0; i < t.NumField(); i++ {
 			ft := t.Field(i)
 
+			if ft.Name == "Category" {
+				val := &ast.BasicLit{Kind: token.IDENT, Value: "Unknown"}
+				switch e.Category {
+				case "Passive mobs":
+					val.Value = "PassiveMob"
+				case "Hostile mobs":
+					val.Value = "HostileMob"
+				case "UNKNOWN":
+				default:
+					val.Value = e.Category
+				}
+				fields[i] = &ast.KeyValueExpr{
+					Key:   &ast.Ident{Name: ft.Name},
+					Value: val,
+				}
+				continue
+			}
+
 			var val ast.Expr
 			switch ft.Type.Kind() {
 			case reflect.Uint32, reflect.Int:
@@ -121,6 +139,21 @@ package entity
 // ID describes the numeric ID of an entity.
 type ID uint32
 
+// Category groups like entities.
+type Category uint8
+
+// Valid entity categories.
+const (
+	Unknown Category = iota
+	Blocks
+	Immobile
+	Vehicles
+	Drops
+	Projectiles
+	PassiveMob
+	HostileMob
+)
+
 // Entity describes information about a type of entity.
 type Entity struct {
 	ID          ID
@@ -132,7 +165,7 @@ type Entity struct {
 	Height float64
 
 	Type     string
-	Category string
+	Category Category
 }
 
 `)
