@@ -2,7 +2,6 @@ package nbt
 
 import (
 	"bytes"
-	"io/ioutil"
 	"math"
 	"testing"
 )
@@ -165,81 +164,5 @@ func TestMarshal_StructArray(t *testing.T) {
 				return
 			}
 		})
-	}
-}
-
-
-// This test is for compliance with the "bigtest.dat" described in detail here:
-// https://wiki.vg/NBT#bigtest.nbt
-func TestMarshal_BigTest(t *testing.T) {
-	byteValues := make([]byte, 1000)
-	for n := 0; n < 1000; n++ {
-		byteValues[n] = byte((n*n*255 + n*7) % 100)
-	}
-
-	type NestedCompound struct {
-		Name  string  `nbt:"name"`
-		Value float32 `nbt:"value"`
-	}
-
-	type NestedCompoundCont struct {
-		Ham NestedCompound `nbt:"ham"`
-		Egg NestedCompound `nbt:"egg"`
-	}
-
-	type ListCompound struct {
-		Name      string `nbt:"name"`
-		CreatedOn int64  `nbt:"created-on"`
-	}
-
-	val := struct {
-		LongTest           int64              `nbt:"longTest"`
-		ShortTest          int16              `nbt:"shortTest"`
-		StringTest         string             `nbt:"stringTest"`
-		FloatTest          float32            `nbt:"floatTest"`
-		IntTest            int32              `nbt:"intTest"`
-		NestedCompoundTest NestedCompoundCont `nbt:"nested compound test"`
-		ListTestLong       []int64            `nbt:"listTest (long)" nbt_type:"noarray"`
-		ListTestCompound   []ListCompound     `nbt:"listTest (compound)"`
-		ByteTest           byte               `nbt:"byteTest"`
-		ByteArrayTest      []byte             `nbt:"byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))"`
-		DoubleTest         float64            `nbt:"doubleTest"`
-	}{
-		LongTest:   9223372036854775807,
-		ShortTest:  32767,
-		StringTest: "HELLO WORLD THIS IS A TEST STRING \xc3\x85\xc3\x84\xc3\x96!",
-		FloatTest:  0.49823147058486938,
-		IntTest:    2147483647,
-		NestedCompoundTest: NestedCompoundCont{
-			NestedCompound{"Hampus", 0.75},
-			NestedCompound{"Eggbert", 0.5},
-		},
-		ListTestLong: []int64{11, 12, 13, 14, 15},
-		ListTestCompound: []ListCompound{
-			{"Compound tag #0", 1264099775885},
-			{"Compound tag #1", 1264099775885},
-		},
-		ByteTest:      127,
-		ByteArrayTest: byteValues,
-		DoubleTest:    0.49312871321823148,
-	}
-
-	var b bytes.Buffer
-	err := MarshalCompound(&b, val, "Level")
-	if err != nil {
-		t.Error(err)
-	}
-
-	want, err := ioutil.ReadFile("bigtest.nbt")
-	if err != nil {
-		t.Error(err)
-	}
-
-	err = ioutil.WriteFile("bigtest_got.nbt", b.Bytes(), 0644)
-	if err != nil {
-		t.Error(err)
-	}
-	if !bytes.Equal(b.Bytes(), want) {
-		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", b.Bytes(), want)
 	}
 }

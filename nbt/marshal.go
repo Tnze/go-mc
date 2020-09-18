@@ -38,10 +38,11 @@ func (e *Encoder) Encode(v interface{}) error {
 	return e.marshal(val, getTagType(val.Type()), "")
 }
 
-func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) (err error) {
-	err = e.writeHeader(val, tagType, tagName)
-	err = e.writeValue(val, tagType)
-	return err
+func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error {
+	if err := e.writeHeader(val, tagType, tagName); err != nil {
+		return err
+	}
+	return e.writeValue(val, tagType)
 }
 
 func (e *Encoder) writeHeader(val reflect.Value, tagType byte, tagName string) (err error) {
