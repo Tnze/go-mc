@@ -23,10 +23,11 @@ type Client struct {
 	abilities PlayerAbilities
 	settings  Settings
 
-	Wd        world.World //the map data
-	Inputs    phy.Inputs
-	Physics   phy.State
-	lastPosTx time.Time
+	Wd             world.World //the map data
+	Inputs         phy.Inputs
+	Physics        phy.State
+	lastPosTx      time.Time
+	justTeleported bool
 
 	// Delegate allows you push a function to let HandleGame run.
 	// Do not send at the same goroutine!
@@ -58,8 +59,8 @@ func NewClient() *Client {
 		Auth:     Auth{Name: "Steve"},
 		Delegate: make(chan func() error),
 		Wd: world.World{
-			Entities: make(map[int32]entity.Entity),
-			Chunks:   make(map[world.ChunkLoc]*world.Chunk),
+			Entities: make(map[int32]*entity.Entity, 8192),
+			Chunks:   make(map[world.ChunkLoc]*world.Chunk, 2048),
 		},
 		closing: make(chan struct{}),
 		inbound: make(chan pk.Packet, 5),

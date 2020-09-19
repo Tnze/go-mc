@@ -71,6 +71,9 @@ type eventBroker struct {
 	// ReceivePacket will be called when new packets arrive.
 	// The default handler will run only if pass == false.
 	ReceivePacket func(p pk.Packet) (pass bool, err error)
+
+	// PrePhysics will be called before a phyiscs tick.
+	PrePhysics func() error
 }
 
 func (b *eventBroker) updateSeenPackets(f seenPacketFlags) error {

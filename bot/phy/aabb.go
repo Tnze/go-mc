@@ -10,6 +10,8 @@ type MinMax struct {
 	Min, Max float64
 }
 
+// Extends adjusts the bounds of the MinMax. A negative number will reduce the
+// minimum bound, whereas a positive number will increase the maximum bound.
 func (mm MinMax) Extend(delta float64) MinMax {
 	if delta < 0 {
 		return MinMax{
@@ -24,6 +26,8 @@ func (mm MinMax) Extend(delta float64) MinMax {
 	}
 }
 
+// Contract reduces both the minimum and maximum bound by the provided amount,
+// such that the difference between the bounds decreases for positive values.
 func (mm MinMax) Contract(amt float64) MinMax {
 	return MinMax{
 		Min: mm.Min + amt,
@@ -31,6 +35,8 @@ func (mm MinMax) Contract(amt float64) MinMax {
 	}
 }
 
+// Expand changes the minimum and maximum bounds by the provided amount, such
+// that the difference between the bounds increases for positive values.
 func (mm MinMax) Expand(amt float64) MinMax {
 	return MinMax{
 		Min: mm.Min - amt,
@@ -38,6 +44,7 @@ func (mm MinMax) Expand(amt float64) MinMax {
 	}
 }
 
+// Offset adds the provided value to both the minimum and maximum value.
 func (mm MinMax) Offset(amt float64) MinMax {
 	return MinMax{
 		Min: mm.Min + amt,
@@ -51,6 +58,8 @@ type AABB struct {
 	Block   world.BlockStatus
 }
 
+// Extend adjusts the minimum (for negative values) or maximum bounds (for
+// positive values) by the provided scalar for each dimension.
 func (bb AABB) Extend(dx, dy, dz float64) AABB {
 	return AABB{
 		X:     bb.X.Extend(dx),
@@ -60,6 +69,8 @@ func (bb AABB) Extend(dx, dy, dz float64) AABB {
 	}
 }
 
+// Contract reduces the difference between the min/max bounds (for positive
+// values) for each dimension.
 func (bb AABB) Contract(x, y, z float64) AABB {
 	return AABB{
 		X:     bb.X.Contract(x),
@@ -69,6 +80,8 @@ func (bb AABB) Contract(x, y, z float64) AABB {
 	}
 }
 
+// Expand increases both the minimum and maximum bounds by the provided amount
+// (for positive values) for each dimension.
 func (bb AABB) Expand(x, y, z float64) AABB {
 	return AABB{
 		X:     bb.X.Expand(x),
@@ -78,6 +91,8 @@ func (bb AABB) Expand(x, y, z float64) AABB {
 	}
 }
 
+// Offset moves both the minimum and maximum bound by the provided value for
+// each dimension.
 func (bb AABB) Offset(x, y, z float64) AABB {
 	return AABB{
 		X:     bb.X.Offset(x),

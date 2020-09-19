@@ -14,7 +14,6 @@ import (
 	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
-	"github.com/Tnze/go-mc/data/entity"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/ptypes"
 )
@@ -38,7 +37,10 @@ func (c *Client) updateServerPos(pos player.Pos) error {
 				pk.Boolean(pos.OnGround),
 			),
 		)
-	case time.Now().Add(-time.Second).After(c.lastPosTx):
+	}
+
+	if c.justTeleported || time.Now().Add(-time.Second).After(c.lastPosTx) {
+		c.justTeleported = false
 		c.lastPosTx = time.Now()
 		sendPlayerPositionPacket(c)
 	}
@@ -83,6 +85,11 @@ func (c *Client) HandleGame() error {
 		case <-c.closing:
 			return http.ErrServerClosed
 		case <-cTick.C:
+			if c.Events.PrePhysics != nil {
+				if err := c.Events.PrePhysics(); err != nil {
+					return err
+				}
+			}
 			if err := c.Physics.Tick(c.Inputs, &c.Wd); err != nil {
 				c.disconnect()
 				return err
@@ -209,12 +216,7 @@ func handleSpawnEntityPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	if e := entity.ByID[entity.ID(se.Type)]; e != nil {
-		fmt.Printf("Spawning %s at (%f,%f,%f)\n", e.DisplayName, se.X, se.Y, se.Z)
-	} else {
-		fmt.Printf("SpawnEntity: %+v\n", se)
-	}
-	return nil
+	return c.Wd.OnSpawnEntity(se)
 }
 
 func handleSpawnLivingEntityPacket(c *Client, p pk.Packet) error {
@@ -222,12 +224,7 @@ func handleSpawnLivingEntityPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	if e := entity.ByID[entity.ID(se.Type)]; e != nil {
-		fmt.Printf("Spawning %s at (%f,%f,%f)\n", e.DisplayName, se.X, se.Y, se.Z)
-	} else {
-		fmt.Printf("SpawnLivingEntity: %+v\n", se)
-	}
-	return nil
+	return c.Wd.OnSpawnLivingEntity(se)
 }
 
 func handleSpawnPlayerPacket(c *Client, p pk.Packet) error {
@@ -235,35 +232,32 @@ func handleSpawnPlayerPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Printf("SpawnPlayer: %+v\n", se)
-	return nil
+	fmt.Println(se)
+	return c.Wd.OnSpawnPlayer(se)
 }
 
 func handleEntityPositionPacket(c *Client, p pk.Packet) error {
-	var se ptypes.EntityPosition
-	if err := se.Decode(p); err != nil {
+	var pu ptypes.EntityPosition
+	if err := pu.Decode(p); err != nil {
 		return err
 	}
-	// fmt.Printf("EntityPosition: %+v\n", se)
-	return nil
+	return c.Wd.OnEntityPosUpdate(pu)
 }
 
 func handleEntityPositionLookPacket(c *Client, p pk.Packet) error {
-	var se ptypes.EntityPositionLook
-	if err := se.Decode(p); err != nil {
+	var epr ptypes.EntityPositionLook
+	if err := epr.Decode(p); err != nil {
 		return err
 	}
-	// fmt.Printf("EntityPositionLook: %+v\n", se)
-	return nil
+	return c.Wd.OnEntityPosLookUpdate(epr)
 }
 
 func handleEntityLookPacket(c *Client, p pk.Packet) error {
-	var se ptypes.EntityRotation
-	if err := se.Decode(p); err != nil {
+	var er ptypes.EntityRotation
+	if err := er.Decode(p); err != nil {
 		return err
 	}
-	// fmt.Printf("EntityRotation: %+v\n", se)
-	return nil
+	return c.Wd.OnEntityLookUpdate(er)
 }
 
 func handleEntityMovePacket(c *Client, p pk.Packet) error {
@@ -312,8 +306,7 @@ func handleDestroyEntitiesPacket(c *Client, p pk.Packet) error {
 		}
 	}
 
-	fmt.Printf("DestroyEntities: %v\n", entities)
-	return nil
+	return c.Wd.OnEntityDestroy(entities)
 }
 
 func handleSoundEffect(c *Client, p pk.Packet) error {
@@ -481,7 +474,7 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	c.EntityID = int(pkt.PlayerEntity)
+	c.Player.ID = int32(pkt.PlayerEntity)
 	c.Gamemode = int(pkt.Gamemode & 0x7)
 	c.Hardcore = pkt.Gamemode&0x8 != 0
 	c.Dimension = int(pkt.Dimension)
@@ -671,6 +664,7 @@ func handlePlayerPositionAndLookPacket(c *Client, p pk.Packet) error {
 		return err
 	}
 	c.Player.Pos = pp
+	c.justTeleported = true
 
 	if c.Events.PositionChange != nil {
 		if err := c.Events.PositionChange(pp); err != nil {
@@ -735,7 +729,6 @@ func handleSetExperience(c *Client, p pk.Packet) (err error) {
 }
 
 func sendPlayerPositionAndLookPacket(c *Client) error {
-	// fmt.Println("PPL")
 	return c.conn.WritePacket(ptypes.PositionAndLookServerbound{
 		X:        pk.Double(c.Pos.X),
 		Y:        pk.Double(c.Pos.Y),
@@ -747,7 +740,6 @@ func sendPlayerPositionAndLookPacket(c *Client) error {
 }
 
 func sendPlayerPositionPacket(c *Client) error {
-	// fmt.Println("P")
 	return c.conn.WritePacket(ptypes.Position{
 		X:        pk.Double(c.Pos.X),
 		Y:        pk.Double(c.Pos.Y),
@@ -757,7 +749,6 @@ func sendPlayerPositionPacket(c *Client) error {
 }
 
 func sendPlayerLookPacket(c *Client) error {
-	// fmt.Println("L")
 	return c.conn.WritePacket(ptypes.Look{
 		Yaw:      pk.Float(c.Pos.Yaw),
 		Pitch:    pk.Float(c.Pos.Pitch),

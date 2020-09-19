@@ -79,7 +79,7 @@ type Look struct {
 
 func (p Look) Encode() pk.Packet {
 	return pk.Marshal(
-		data.PositionLook,
+		data.Look,
 		pk.Float(p.Yaw),
 		pk.Float(p.Pitch),
 		pk.Boolean(p.OnGround),

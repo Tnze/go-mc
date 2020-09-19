@@ -14,7 +14,8 @@ const (
 	playerHeight = 1.8
 	resetVel     = 0.003
 
-	yawSpeed = 3.0
+	maxYawChange   = 33
+	maxPitchChange = 22
 
 	gravity      = 0.08
 	drag         = 0.98
@@ -87,7 +88,12 @@ func (s *State) surroundings(query AABB, w World) Surrounds {
 	return out
 }
 
-func (s *State) applyInputs(input Inputs, acceleration, inertia float64) {
+func (s *State) applyLookInputs(input Inputs) {
+	errYaw := math.Min(math.Max(input.Yaw-s.Yaw, -maxYawChange), maxYawChange)
+	s.Yaw += errYaw
+}
+
+func (s *State) applyPosInputs(input Inputs, acceleration, inertia float64) {
 	speed := math.Sqrt(input.ThrottleX*input.ThrottleX + input.ThrottleZ*input.ThrottleZ)
 	if speed < 0.01 {
 		return
@@ -111,7 +117,8 @@ func (s *State) Tick(input Inputs, w World) error {
 		inertia *= slipperiness
 		acceleration = 0.1 * (0.1627714 / (inertia * inertia * inertia))
 	}
-	s.applyInputs(input, acceleration, inertia)
+	s.applyLookInputs(input)
+	s.applyPosInputs(input, acceleration, inertia)
 
 	// Deadzone velocities when they get too low.
 	if math.Abs(s.Vel.X) < resetVel {

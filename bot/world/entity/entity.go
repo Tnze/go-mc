@@ -2,13 +2,27 @@ package entity
 
 import (
 	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/entity"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/google/uuid"
 )
 
-//Entity is the entity of minecraft
+//Entity represents an instance of an entity.
 type Entity struct {
-	EntityID int //实体ID
+	ID   int32
+	Data int32
+	Base *entity.Entity
+
+	UUID uuid.UUID
+
+	X, Y, Z          float64
+	Pitch, Yaw       int8
+	VelX, VelY, VelZ int16
+	OnGround         bool
+
+	IsLiving  bool
+	HeadPitch int8
 }
 
 // The Slot data structure is how Minecraft represents an item and its associated data in the Minecraft Protocol
