@@ -15,7 +15,7 @@ const (
 	resetVel     = 0.003
 
 	maxYawChange   = 33
-	maxPitchChange = 22
+	maxPitchChange = 11
 
 	gravity      = 0.08
 	drag         = 0.98
@@ -91,6 +91,8 @@ func (s *State) surroundings(query AABB, w World) Surrounds {
 func (s *State) applyLookInputs(input Inputs) {
 	errYaw := math.Min(math.Max(input.Yaw-s.Yaw, -maxYawChange), maxYawChange)
 	s.Yaw += errYaw
+	errPitch := math.Min(math.Max(input.Pitch-s.Pitch, -maxPitchChange), maxPitchChange)
+	s.Pitch += errPitch
 }
 
 func (s *State) applyPosInputs(input Inputs, acceleration, inertia float64) {
