@@ -8,6 +8,23 @@ import (
 	"github.com/google/uuid"
 )
 
+// BlockEntity describes the representation of a tile entity at a position.
+type BlockEntity struct {
+	ID string `nbt:"id"`
+
+	// global co-ordinates
+	X int `nbt:"x"`
+	Y int `nbt:"y"`
+	Z int `nbt:"z"`
+
+	// sign-specific.
+	Color string `nbt:"color"`
+	Text1 string `nbt:"Text1"`
+	Text2 string `nbt:"Text2"`
+	Text3 string `nbt:"Text3"`
+	Text4 string `nbt:"Text4"`
+}
+
 //Entity represents an instance of an entity.
 type Entity struct {
 	ID   int32

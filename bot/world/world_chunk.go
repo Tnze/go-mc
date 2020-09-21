@@ -1,14 +1,17 @@
 package world
 
 import (
+	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/data/block"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/ptypes"
 )
 
 // Chunk store a 256*16*16 area of blocks, sharded on the Y axis into 16
 // sections.
 type Chunk struct {
-	Sections [16]Section
+	Sections     [16]Section
+	TileEntities map[TilePosition]entity.BlockEntity
 }
 
 // Section implements storage of blocks within a fixed 16*16*16 area.
@@ -27,6 +30,23 @@ type BlockStatus uint32
 
 type ChunkLoc struct {
 	X, Z int
+}
+
+// Signs returns a list of signs on the server within viewing range.
+func (w *World) Signs() []entity.BlockEntity {
+	w.chunkLock.RLock()
+	defer w.chunkLock.RUnlock()
+
+	out := make([]entity.BlockEntity, 0, 4)
+	for _, c := range w.Chunks {
+		for _, e := range c.TileEntities {
+			if e.ID == "minecraft:sign" {
+				out = append(out, e)
+			}
+		}
+	}
+
+	return out
 }
 
 // GetBlockStatus return the state ID of the block at the given position.
@@ -67,6 +87,10 @@ func (w *World) UnaryBlockUpdate(pos pk.Position, bStateID BlockStatus) bool {
 		sec.SetBlock(bIdx, bStateID)
 		c.Sections[sIdx] = sec
 	} else {
+		tp := ToTilePos(pos.X, pos.Y, pos.Z)
+		if _, ok := c.TileEntities[tp]; ok && sec.GetBlock(bIdx) != bStateID {
+			delete(c.TileEntities, tp)
+		}
 		sec.SetBlock(bIdx, bStateID)
 	}
 	return true
@@ -90,9 +114,16 @@ func (w *World) MultiBlockUpdate(loc ChunkLoc, sectionY int, blocks []pk.VarLong
 	}
 
 	for _, b := range blocks {
-		bStateID := b >> 12
-		x, z, y := (b>>8)&0xf, (b>>4)&0xf, b&0xf
-		sec.SetBlock(sectionIdx(int(x&15), int(y&15), int(z&15)), BlockStatus(bStateID))
+		var (
+			bStateID = BlockStatus(b >> 12)
+			x, z, y  = (b >> 8) & 0xf, (b >> 4) & 0xf, b & 0xf
+			bIdx     = sectionIdx(int(x&15), int(y&15), int(z&15))
+			tp       = ToTilePos(int(x), int(y), int(z))
+		)
+		if _, ok := c.TileEntities[tp]; ok && sec.GetBlock(bIdx) != bStateID {
+			delete(c.TileEntities, tp)
+		}
+		sec.SetBlock(bIdx, bStateID)
 	}
 
 	return true
@@ -103,4 +134,19 @@ func (w *World) LoadChunk(x, z int, c *Chunk) {
 	w.chunkLock.Lock()
 	w.Chunks[ChunkLoc{X: x, Z: z}] = c
 	w.chunkLock.Unlock()
+}
+
+func (w *World) TileEntityUpdate(pkt ptypes.TileEntityData) error {
+	w.chunkLock.Lock()
+	defer w.chunkLock.Unlock()
+	c := w.Chunks[ChunkLoc{X: pkt.Pos.X >> 4, Z: pkt.Pos.Z >> 4}]
+	if c == nil {
+		return nil
+	}
+
+	switch pkt.Action {
+	case 9: // Sign update
+		c.TileEntities[ToTilePos(pkt.Pos.X, pkt.Pos.Y, pkt.Pos.Z)] = pkt.Data
+	}
+	return nil
 }

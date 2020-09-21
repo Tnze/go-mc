@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 
+	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -77,8 +78,7 @@ func (b *biomesData) Decode(r pk.DecodeReader) error {
 }
 
 type chunkData []byte
-type blockEntities []blockEntity
-type blockEntity struct{}
+type blockEntities []entity.BlockEntity
 
 // Decode implement net.packet.FieldDecoder
 func (c *chunkData) Decode(r pk.DecodeReader) error {
@@ -107,4 +107,22 @@ func (b *blockEntities) Decode(r pk.DecodeReader) error {
 		}
 	}
 	return nil
+}
+
+// TileEntityData describes a change to a tile entity.
+type TileEntityData struct {
+	Pos    pk.Position
+	Action pk.UnsignedByte
+	Data   entity.BlockEntity
+}
+
+func (p *TileEntityData) Decode(pkt pk.Packet) error {
+	r := bytes.NewReader(pkt.Data)
+	if err := p.Pos.Decode(r); err != nil {
+		return fmt.Errorf("position: %v", err)
+	}
+	if err := p.Action.Decode(r); err != nil {
+		return fmt.Errorf("action: %v", err)
+	}
+	return nbt.NewDecoder(r).Decode(&p.Data)
 }

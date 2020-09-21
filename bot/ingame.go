@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot/world"
+	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data"
@@ -186,6 +187,8 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleMultiBlockChangePacket(c, p)
 	case data.UnloadChunk:
 		err = handleUnloadChunkPacket(c, p)
+	case data.TileEntityData:
+		err = handleTileEntityDataPacket(c, p)
 
 	case data.PositionClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
@@ -623,9 +626,21 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	if err != nil {
 		return fmt.Errorf("decode chunk column: %w", err)
 	}
+	chunk.TileEntities = make(map[world.TilePosition]entity.BlockEntity, 64)
+	for _, e := range pkt.BlockEntities {
+		chunk.TileEntities[world.ToTilePos(e.X, e.Y, e.Z)] = e
+	}
 
 	c.Wd.LoadChunk(int(pkt.X), int(pkt.Z), chunk)
 	return nil
+}
+
+func handleTileEntityDataPacket(c *Client, p pk.Packet) error {
+	var pkt ptypes.TileEntityData
+	if err := pkt.Decode(p); err != nil {
+		return err
+	}
+	return c.Wd.TileEntityUpdate(pkt)
 }
 
 func handlePlayerPositionAndLookPacket(c *Client, p pk.Packet) error {
