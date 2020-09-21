@@ -14,7 +14,7 @@ import (
 )
 
 // ProtocolVersion , the protocol version number of minecraft net protocol
-const ProtocolVersion = 736
+const ProtocolVersion = 751
 
 // JoinServer connect a Minecraft server for playing the game.
 func (c *Client) JoinServer(addr string, port int) (err error) {

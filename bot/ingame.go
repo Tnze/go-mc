@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"io/ioutil"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
@@ -331,6 +332,7 @@ func handleUpdateHealthPacket(c *Client, p pk.Packet) (err error) {
 func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	var (
 		eid        pk.Int
+		hardcore   pk.Boolean
 		gamemode   pk.UnsignedByte
 		previousGm pk.UnsignedByte
 		worldCount pk.VarInt
@@ -340,14 +342,14 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 		dimension    pk.Int
 		worldName    pk.Identifier
 		hashedSeed   pk.Long
-		maxPlayers   pk.UnsignedByte
+		maxPlayers   pk.VarInt
 		viewDistance pk.VarInt
 		rdi          pk.Boolean // Reduced Debug Info
 		ers          pk.Boolean // Enable respawn screen
 		isDebug      pk.Boolean
 		isFlat       pk.Boolean
 	)
-	err := p.Scan(&eid, &gamemode, &previousGm, &worldCount, &worldNames, &dimension, &worldName,
+	err := p.Scan(&eid, &hardcore, &gamemode, &previousGm, &worldCount, &worldNames, &dimension, &worldName,
 		&hashedSeed, &maxPlayers, &rdi, &ers, &isDebug, &isFlat)
 	if err != nil {
 		return err
@@ -453,17 +455,17 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	if !c.settings.ReceiveMap {
 		return nil
 	}
+
 	var (
 		X, Z           pk.Int
 		FullChunk      pk.Boolean
-		IgnoreOldData  pk.Boolean
 		PrimaryBitMask pk.VarInt
 		Heightmaps     struct{}
 		Biomes         = biomesData{fullChunk: (*bool)(&FullChunk)}
 		Data           chunkData
 		BlockEntities  blockEntities
 	)
-	if err := p.Scan(&X, &Z, &FullChunk, &IgnoreOldData, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
+	if err := p.Scan(&X, &Z, &FullChunk, &PrimaryBitMask, pk.NBT{V: &Heightmaps}, &Biomes, &Data, &BlockEntities); err != nil {
 		return err
 	}
 	chunk, err := world.DecodeChunkColumn(int32(PrimaryBitMask), Data)
@@ -478,19 +480,29 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 
 type biomesData struct {
 	fullChunk *bool
-	data      [1024]int32
+	data      []pk.VarInt
 }
 
 func (b *biomesData) Decode(r pk.DecodeReader) error {
 	if b.fullChunk == nil || !*b.fullChunk {
 		return nil
 	}
-	for i := range b.data {
-		err := (*pk.Int)(&b.data[i]).Decode(r)
-		if err != nil {
+
+	var nobd pk.VarInt // Number of Biome Datums
+	if err := nobd.Decode(r); err != nil {
+		return err
+	}
+
+	b.data = make([]pk.VarInt, nobd)
+
+	for i := 0; i < int(nobd); i++ {
+		var d pk.VarInt
+		if err := d.Decode(r); err != nil {
 			return err
 		}
+		b.data[i] = d
 	}
+
 	return nil
 }
 
