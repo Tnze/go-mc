@@ -186,11 +186,11 @@ func parseTag(f reflect.StructField, tagName string) tagProps {
 
 	nbtType := f.Tag.Get("nbt_type")
 	result.Type = getTagType(f.Type)
-	if strings.Contains(nbtType, "noarray") {
+	if strings.Contains(nbtType, "list") {
 		if IsArrayTag(result.Type) {
 			result.Type = TagList // for expanding the array to a standard list
 		} else {
-			panic("noarray is only supported for array types (byte, int, long)")
+			panic("list is only supported for array types (byte, int, long)")
 		}
 	}
 

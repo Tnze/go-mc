@@ -145,7 +145,7 @@ type BigTestStruct struct {
 			Value float32 `nbt:"value"`
 		} `nbt:"egg"`
 	} `nbt:"nested compound test"`
-	ListTest  []int64 `nbt:"listTest (long)" nbt_type:"noarray"`
+	ListTest  []int64 `nbt:"listTest (long)" nbt_type:"list"`
 	ListTest2 [2]struct {
 		Name      string `nbt:"name"`
 		CreatedOn int64  `nbt:"created-on"`
