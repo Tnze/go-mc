@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Tnze/go-mc/bot/path"
 	"github.com/Tnze/go-mc/bot/phy"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
@@ -24,7 +25,7 @@ type Client struct {
 	settings  Settings
 
 	Wd             world.World //the map data
-	Inputs         phy.Inputs
+	Inputs         path.Inputs
 	Physics        phy.State
 	lastPosTx      time.Time
 	justTeleported bool

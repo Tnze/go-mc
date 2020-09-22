@@ -2,8 +2,9 @@
 package path
 
 import (
+	"math"
+
 	"github.com/Tnze/go-mc/bot/world"
-	"github.com/Tnze/go-mc/data/block"
 	"github.com/beefsack/go-astar"
 )
 
@@ -36,27 +37,14 @@ func (n *Nav) Path() (path []astar.Pather, distance float64, found bool) {
 		})
 }
 
-// Movement represents a single type of movement in a path.
-type Movement uint8
-
-var allMovements = []Movement{TraverseNorth, TraverseSouth, TraverseEast, TraverseWest}
-
-// Valid movement values.
-const (
-	Waypoint Movement = iota
-	TraverseNorth
-	TraverseSouth
-	TraverseEast
-	TraverseWest
-)
-
 // Tile represents a point in a path. All tiles in a path are adjaceent their
 // preceeding tiles.
 type Tile struct {
 	Nav *Nav
 
-	Movement Movement
-	Pos      V3
+	Movement  Movement
+	Pos       V3
+	ExtraCost int
 }
 
 func (t Tile) PathNeighborCost(to astar.Pather) float64 {
@@ -67,11 +55,16 @@ func (t Tile) PathNeighborCost(to astar.Pather) float64 {
 func (t Tile) PathEstimatedCost(to astar.Pather) float64 {
 	other := to.(Tile)
 	cost := t.Pos.Cost(other.Pos)
+
 	return cost + other.Movement.BaseCost()
 }
 
 func (t Tile) PathNeighbors() []astar.Pather {
 	possibles := make([]astar.Pather, 0, 8)
+
+	if t.PathEstimatedCost(Tile{Pos: t.Nav.Start}) > 1200 {
+		return nil
+	}
 
 	if t.Pos == t.Nav.Dest && t.Movement != Waypoint {
 		dupe := t
@@ -82,7 +75,7 @@ func (t Tile) PathNeighbors() []astar.Pather {
 	for _, m := range allMovements {
 		x, y, z := m.Offset()
 		pos := V3{X: t.Pos.X + x, Y: t.Pos.Y + y, Z: t.Pos.Z + z}
-		if m.Possible(t.Nav, pos.X, pos.Y, pos.Z) {
+		if m.Possible(t.Nav, pos.X, pos.Y, pos.Z, t.Pos) {
 			possibles = append(possibles, Tile{
 				Nav:      t.Nav,
 				Movement: m,
@@ -95,63 +88,18 @@ func (t Tile) PathNeighbors() []astar.Pather {
 	return possibles
 }
 
-func (m Movement) Possible(nav *Nav, x, y, z int) bool {
-	// fmt.Printf("%s.Possible(%d,%d,%d)\n", m, x, y, z)
-	switch m {
-	case Waypoint, TraverseNorth, TraverseSouth, TraverseEast, TraverseWest:
-		b := nav.World.GetBlockStatus(x, y, z)
-		if _, safe := safeStepBlocks[b]; !safe {
-			return false
-		}
-		above1 := uint32(nav.World.GetBlockStatus(x, y+1, z))
-		above2 := uint32(nav.World.GetBlockStatus(x, y+2, z))
-		return above1 == block.Air.MinStateID && above2 == block.Air.MinStateID
-	default:
-		panic(m)
+func (t Tile) Inputs(dX, dY, dZ float64) Inputs {
+	// Sufficient for simple movements.
+	at := math.Atan2(-dX, -dZ)
+	out := Inputs{
+		ThrottleX: math.Sin(at),
+		ThrottleZ: math.Cos(at),
 	}
-}
 
-func (m Movement) Offset() (x, y, z int) {
-	switch m {
-	case Waypoint:
-		return 0, 0, 0
-	case TraverseNorth:
-		return 0, 0, -1
-	case TraverseSouth:
-		return 0, 0, 1
-	case TraverseEast:
-		return 1, 0, 0
-	case TraverseWest:
-		return -1, 0, 0
-	default:
-		panic(m)
+	switch t.Movement {
+	case AscendNorth, AscendSouth, AscendEast, AscendWest:
+		out.Jump = math.Sqrt(dX*dX+dZ*dZ) < 1.75
+		out.Yaw = 0
 	}
-}
-
-func (m Movement) BaseCost() float64 {
-	switch m {
-	case Waypoint:
-		return 0
-	case TraverseNorth, TraverseSouth, TraverseEast, TraverseWest:
-		return 1
-	default:
-		panic(m)
-	}
-}
-
-func (m Movement) String() string {
-	switch m {
-	case Waypoint:
-		return "waypoint"
-	case TraverseNorth:
-		return "traverse-north"
-	case TraverseSouth:
-		return "traverse-south"
-	case TraverseEast:
-		return "traverse-east"
-	case TraverseWest:
-		return "traverse-west"
-	default:
-		panic(m)
-	}
+	return out
 }

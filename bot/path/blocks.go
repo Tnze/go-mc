@@ -7,7 +7,7 @@ import (
 
 var (
 	safeStepBlocks = make(map[world.BlockStatus]struct{}, 1024)
-	blocks         = []block.Block{
+	stepBlocks     = []block.Block{
 		block.Stone,
 		block.Granite,
 		block.PolishedGranite,
@@ -34,10 +34,35 @@ var (
 		block.Sandstone,
 		block.RedstoneOre,
 	}
+
+	safeWalkBlocks = make(map[world.BlockStatus]struct{}, 128)
+	walkBlocks     = []block.Block{
+		block.Air,
+		block.Grass,
+		block.Torch,
+		block.OakSign,
+		block.SpruceSign,
+		block.BirchSign,
+		block.AcaciaSign,
+		block.JungleSign,
+		block.DarkOakSign,
+		block.OakWallSign,
+		block.SpruceWallSign,
+		block.BirchWallSign,
+		block.AcaciaWallSign,
+		block.JungleWallSign,
+		block.DarkOakWallSign,
+		block.Cornflower,
+	}
+
+	additionalCostBlocks = map[*block.Block]int{
+		&block.Rail:        120,
+		&block.PoweredRail: 200,
+	}
 )
 
 func init() {
-	for _, b := range blocks {
+	for _, b := range stepBlocks {
 		if b.MinStateID == b.MaxStateID {
 			safeStepBlocks[world.BlockStatus(b.MinStateID)] = struct{}{}
 		} else {
@@ -46,4 +71,24 @@ func init() {
 			}
 		}
 	}
+
+	for _, b := range walkBlocks {
+		if b.MinStateID == b.MaxStateID {
+			safeWalkBlocks[world.BlockStatus(b.MinStateID)] = struct{}{}
+		} else {
+			for i := b.MinStateID; i <= b.MaxStateID; i++ {
+				safeWalkBlocks[world.BlockStatus(i)] = struct{}{}
+			}
+		}
+	}
+}
+
+func SteppableBlock(bID world.BlockStatus) bool {
+	_, ok := safeStepBlocks[bID]
+	return ok
+}
+
+func AirLikeBlock(bID world.BlockStatus) bool {
+	_, ok := safeWalkBlocks[bID]
+	return ok
 }
