@@ -8,6 +8,11 @@ import (
 	"github.com/beefsack/go-astar"
 )
 
+// Point represents a point in 3D space.
+type Point struct {
+	X, Y, Z float64
+}
+
 type V3 struct {
 	X, Y, Z int
 }
@@ -62,7 +67,7 @@ func (t Tile) PathEstimatedCost(to astar.Pather) float64 {
 func (t Tile) PathNeighbors() []astar.Pather {
 	possibles := make([]astar.Pather, 0, 8)
 
-	if t.PathEstimatedCost(Tile{Pos: t.Nav.Start}) > 1200 {
+	if c := t.PathEstimatedCost(Tile{Pos: t.Nav.Start}); c > 8000 {
 		return nil
 	}
 
@@ -88,9 +93,9 @@ func (t Tile) PathNeighbors() []astar.Pather {
 	return possibles
 }
 
-func (t Tile) Inputs(dX, dY, dZ float64) Inputs {
+func (t Tile) Inputs(deltaPos, vel Point) Inputs {
 	// Sufficient for simple movements.
-	at := math.Atan2(-dX, -dZ)
+	at := math.Atan2(-deltaPos.X, -deltaPos.Z)
 	out := Inputs{
 		ThrottleX: math.Sin(at),
 		ThrottleZ: math.Cos(at),
@@ -98,7 +103,13 @@ func (t Tile) Inputs(dX, dY, dZ float64) Inputs {
 
 	switch t.Movement {
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
-		out.Jump = math.Sqrt(dX*dX+dZ*dZ) < 1.75
+		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
+		out.Jump = dist2 < 1.75 && deltaPos.Y < -0.81
+
+		// Turn off the throttle if we get stuck on the jump.
+		if dist2 < 1 && deltaPos.Y < 0 && vel.Y == 0 {
+			out.ThrottleX, out.ThrottleZ = 0, 0
+		}
 		out.Yaw = 0
 	}
 	return out

@@ -36,16 +36,11 @@ type World interface {
 // Surrounds represents the blocks surrounding the player (Y, Z, X).
 type Surrounds []AABB
 
-// Point represents a point in 3D space.
-type Point struct {
-	X, Y, Z float64
-}
-
 // State tracks physics state.
 type State struct {
 	// player state.
-	Pos        Point
-	Vel        Point
+	Pos        path.Point
+	Vel        path.Point
 	Yaw, Pitch float64
 	lastJump   uint32
 
@@ -61,9 +56,9 @@ type State struct {
 }
 
 func (s *State) ServerPositionUpdate(player player.Pos, w World) error {
-	s.Pos = Point{X: player.X, Y: player.Y, Z: player.Z}
+	s.Pos = path.Point{X: player.X, Y: player.Y, Z: player.Z}
 	s.Yaw, s.Pitch = float64(player.Yaw), float64(player.Pitch)
-	s.Vel = Point{}
+	s.Vel = path.Point{}
 	s.onGround, s.collision.vertical, s.collision.horizontal = false, false, false
 	s.Run = true
 	return nil
@@ -202,7 +197,7 @@ func (s *State) tickVelocity(input path.Inputs, w World) {
 	s.Vel.Z *= inertia
 }
 
-func (s *State) computeCollision(bb, query AABB, w World) (outBB AABB, outVel Point) {
+func (s *State) computeCollision(bb, query AABB, w World) (outBB AABB, outVel path.Point) {
 	surroundings := s.surroundings(query, w)
 	outVel = s.Vel
 

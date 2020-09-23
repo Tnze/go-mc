@@ -123,7 +123,7 @@ func (m Movement) BaseCost() float64 {
 	case TraverseNorth, TraverseSouth, TraverseEast, TraverseWest:
 		return 1
 	case TraverseNorthWest, TraverseNorthEast, TraverseSouthWest, TraverseSouthEast:
-		return 1.5
+		return 1.25
 
 	case DropNorth, DropSouth, DropEast, DropWest:
 		return 2
