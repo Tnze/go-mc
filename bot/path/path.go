@@ -19,7 +19,7 @@ type V3 struct {
 
 func (v V3) Cost(other V3) float64 {
 	x, y, z := v.X-other.X, v.Y-other.Y, v.Z-other.Z
-	return float64(x*x+z*z) + 1.2*float64(y*y)
+	return math.Sqrt(float64(x*x+z*z)) + math.Sqrt(1.2*float64(y*y))
 }
 
 // Nav represents a navigation to a position.
@@ -119,8 +119,8 @@ func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
 			pos.X -= (0.55 * float64(x))
 			pos.Z -= (0.55 * float64(z))
 		} else {
-			pos.X += (0.55 * float64(x))
-			pos.Z += (0.55 * float64(z))
+			pos.X += (0.42 * float64(x))
+			pos.Z += (0.42 * float64(z))
 		}
 
 		at = math.Atan2(-pos.X+float64(t.Pos.X)+0.5, -pos.Z+float64(t.Pos.Z)+0.5)

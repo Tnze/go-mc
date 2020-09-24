@@ -199,20 +199,20 @@ func (m Movement) BaseCost() float64 {
 	case Waypoint:
 		return 0
 	case TraverseNorth, TraverseSouth, TraverseEast, TraverseWest:
-		return 1
+		return 2
 	case TraverseNorthWest, TraverseNorthEast, TraverseSouthWest, TraverseSouthEast:
-		return 1.25
+		return 2.5
 
 	case DropNorth, DropSouth, DropEast, DropWest:
-		return 2
+		return 4
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
-		return 2.25
+		return 4
 	case DescendLadderNorth, DescendLadderSouth, DescendLadderEast, DescendLadderWest:
 		return 1.5
 	case DescendLadder:
-		return 1.2
+		return 1
 	case AscendLadder:
-		return 1.5
+		return 3
 	default:
 		panic(m)
 	}
