@@ -95,7 +95,8 @@ func (t Tile) PathNeighbors() []astar.Pather {
 	return possibles
 }
 
-func (t Tile) Inputs(deltaPos, vel Point) Inputs {
+func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
+
 	// Sufficient for simple movements.
 	at := math.Atan2(-deltaPos.X, -deltaPos.Z)
 	out := Inputs{
@@ -104,6 +105,30 @@ func (t Tile) Inputs(deltaPos, vel Point) Inputs {
 	}
 
 	switch t.Movement {
+	case DescendLadder, DescendLadderEast, DescendLadderWest, DescendLadderNorth, DescendLadderSouth:
+		// Deadzone the throttle to prevent an accidental ascend.
+		if dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z); dist2 < (0.22 * 0.22 * 2) {
+			out.ThrottleX, out.ThrottleZ = 0, 0
+		}
+
+	case AscendLadder:
+		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
+		bStateID := t.Nav.World.GetBlockStatus(t.Pos.X, t.Pos.Y, t.Pos.Z)
+
+		if x, _, z := LadderDirection(bStateID).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
+			pos.X -= (0.55 * float64(x))
+			pos.Z -= (0.55 * float64(z))
+		} else {
+			pos.X += (0.55 * float64(x))
+			pos.Z += (0.55 * float64(z))
+		}
+
+		at = math.Atan2(-pos.X+float64(t.Pos.X)+0.5, -pos.Z+float64(t.Pos.Z)+0.5)
+		out = Inputs{
+			ThrottleX: math.Sin(at),
+			ThrottleZ: math.Cos(at),
+		}
+
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
 		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
 		out.Jump = dist2 < 1.75 && deltaPos.Y < -0.81
@@ -119,8 +144,11 @@ func (t Tile) Inputs(deltaPos, vel Point) Inputs {
 
 func (t Tile) IsComplete(d Point) bool {
 	switch t.Movement {
-	case DescendLadder, DescendLadderNorth, DescendLadderSouth, DescendLadderWest, DescendLadderEast, DropNorth, DropSouth, DropEast, DropWest:
-		return (d.X*d.X+d.Z*d.Z) < (0.1*0.1*0.13) && d.Y <= 0.05
+	case DescendLadder, DescendLadderNorth, DescendLadderSouth, DescendLadderWest, DescendLadderEast,
+		DropNorth, DropSouth, DropEast, DropWest:
+		return (d.X*d.X+d.Z*d.Z) < (2*0.2*0.25) && d.Y <= 0.05
+	case AscendLadder:
+		return d.Y >= 0
 	}
 
 	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= -0.01 && d.Y <= 0.08

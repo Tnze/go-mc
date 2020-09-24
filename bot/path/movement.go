@@ -58,6 +58,7 @@ var allMovements = []Movement{TraverseNorth, TraverseSouth, TraverseEast, Traver
 	DropNorth, DropSouth, DropEast, DropWest,
 	AscendNorth, AscendSouth, AscendEast, AscendWest,
 	DescendLadder, DescendLadderNorth, DescendLadderSouth, DescendLadderEast, DescendLadderWest,
+	AscendLadder,
 }
 
 // Valid movement values.
@@ -84,6 +85,7 @@ const (
 	DescendLadderSouth
 	DescendLadderEast
 	DescendLadderWest
+	AscendLadder
 )
 
 func (m Movement) Possible(nav *Nav, x, y, z int, from V3, previous Movement) bool {
@@ -125,12 +127,10 @@ func (m Movement) Possible(nav *Nav, x, y, z int, from V3, previous Movement) bo
 			AirLikeBlock(nav.World.GetBlockStatus(from.X, from.Y+1, from.Z)) &&
 			AirLikeBlock(nav.World.GetBlockStatus(from.X, from.Y+2, from.Z))
 
-	case DescendLadder:
+	case DescendLadder, AscendLadder:
 		if bID := nav.World.GetBlockStatus(x, y+1, z); !AirLikeBlock(bID) && !IsLadder(bID) {
 			return false
 		}
-		bID := nav.World.GetBlockStatus(x, y, z)
-		fmt.Println(bID, IsLadder(bID))
 		return IsLadder(nav.World.GetBlockStatus(x, y, z))
 
 	case DescendLadderNorth, DescendLadderSouth, DescendLadderEast, DescendLadderWest:
@@ -139,8 +139,6 @@ func (m Movement) Possible(nav *Nav, x, y, z int, from V3, previous Movement) bo
 				return false
 			}
 		}
-		bID := nav.World.GetBlockStatus(x, y, z)
-		fmt.Println(bID, IsLadder(bID))
 		return IsLadder(nav.World.GetBlockStatus(x, y, z))
 
 	default:
@@ -161,6 +159,8 @@ func (m Movement) Offset() (x, y, z int) {
 	case TraverseWest:
 		return West.Offset()
 
+	case AscendLadder:
+		return 0, 1, 0
 	case DescendLadder:
 		return 0, -1, 0
 	case DropNorth, DescendLadderNorth:
@@ -211,6 +211,8 @@ func (m Movement) BaseCost() float64 {
 		return 1.5
 	case DescendLadder:
 		return 1.2
+	case AscendLadder:
+		return 1.5
 	default:
 		panic(m)
 	}
@@ -266,6 +268,9 @@ func (m Movement) String() string {
 		return "descend-ladder-east"
 	case DescendLadderWest:
 		return "descend-ladder-west"
+
+	case AscendLadder:
+		return "ascend-ladder"
 	default:
 		panic(m)
 	}
