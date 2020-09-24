@@ -43,6 +43,7 @@ func main() {
 package shape
 
 import (
+  "github.com/Tnze/go-mc/bot/world"
   "github.com/Tnze/go-mc/data/block"
 )
 
@@ -61,6 +62,27 @@ type BoundingTriplet struct {
 
 type BoundingBox struct {
   Min,Max BoundingTriplet
+}
+
+// CollisionBoxes returns the set of bounding boxes for that block state ID.
+func CollisionBoxes(bStateID world.BlockStatus) ([]BoundingBox, error) {
+  bID := block.StateID[uint32(bStateID)]
+  if bID == 0 {
+    return nil, fmt.Errorf("unknown state ID: %v", bStateID)
+  }
+  b, ok := block.ByID[bID]
+  if !ok {
+    return nil, fmt.Errorf("unknown block ID: %v", bID)
+  }
+  shapes, ok := ByBlockID[bID]
+  if !ok {
+    return nil, fmt.Errorf("unknown shape for block ID: %v", bID)
+  }
+  shapeIdx := (uint32(bStateID) - b.MinStateID) % uint32(len(shapes))
+  if int(shapeIdx) > len(shapes) {
+    return nil, fmt.Errorf("shape index out of bounds: %v >= %v", shapeIdx, len(shapes))
+  }
+  return Dimensions[shapes[shapeIdx]].Boxes, nil
 }
 
 `)

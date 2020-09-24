@@ -3,11 +3,13 @@
 package phy
 
 import (
+	"fmt"
 	"math"
 
 	"github.com/Tnze/go-mc/bot/path"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity/player"
+	"github.com/Tnze/go-mc/data/block/shape"
 )
 
 const (
@@ -18,8 +20,9 @@ const (
 	maxYawChange   = 33
 	maxPitchChange = 11
 
-	stepHeight   = 0.6
-	minJumpTicks = 14
+	stepHeight     = 0.6
+	minJumpTicks   = 14
+	ladderMaxSpeed = 0.15
 
 	gravity      = 0.08
 	drag         = 0.98
@@ -59,6 +62,7 @@ func (s *State) ServerPositionUpdate(player player.Pos, w World) error {
 	s.Pos = path.Point{X: player.X, Y: player.Y, Z: player.Z}
 	s.Yaw, s.Pitch = float64(player.Yaw), float64(player.Pitch)
 	s.Vel = path.Point{}
+	fmt.Println("TELEPORT!")
 	s.onGround, s.collision.vertical, s.collision.horizontal = false, false, false
 	s.Run = true
 	return nil
@@ -76,12 +80,24 @@ func (s *State) surroundings(query AABB, w World) Surrounds {
 	minZ, maxZ := int(math.Floor(query.Z.Min)), int(math.Floor(query.Z.Max))+1
 	minX, maxX := int(math.Floor(query.X.Min)), int(math.Floor(query.X.Max))+1
 
-	out := Surrounds(make([]AABB, 0, abs(maxY, minY)*abs(maxZ, minZ)*abs(maxX, minX)))
+	out := Surrounds(make([]AABB, 0, abs(maxY, minY)*abs(maxZ, minZ)*abs(maxX, minX)*2))
 	for y := minY; y < maxY; y++ {
 		for z := minZ; z < maxZ; z++ {
 			for x := minX; x < maxX; x++ {
-				if block := w.GetBlockStatus(x, y, z); !path.AirLikeBlock(block) {
-					out = append(out, AABB{X: MinMax{Max: 1}, Y: MinMax{Max: 1}, Z: MinMax{Max: 1}, Block: block}.Offset(float64(x), float64(y), float64(z)))
+				bStateID := w.GetBlockStatus(x, y, z)
+				if !path.AirLikeBlock(bStateID) {
+					bbs, err := shape.CollisionBoxes(bStateID)
+					if err != nil {
+						panic(err)
+					}
+					for _, box := range bbs {
+						out = append(out, AABB{
+							X:     MinMax{Min: box.Min.X, Max: box.Max.X},
+							Y:     MinMax{Min: box.Min.Y, Max: box.Max.Y},
+							Z:     MinMax{Min: box.Min.Z, Max: box.Max.Z},
+							Block: bStateID,
+						}.Offset(float64(x), float64(y), float64(z)))
+					}
 				}
 			}
 		}
@@ -124,7 +140,7 @@ func (s *State) Tick(input path.Inputs, w World) error {
 	}
 	//fmt.Printf("pY = %.2f, maxblockY = %.1f (delta = %.1f)\n", bb.Y.Min, y, bb.Y.Min-y)
 	if d := bb.Y.Min - y; d >= -stepHeight && d < stepHeight-1 {
-		bb := player.Offset(0, stepHeight, 0)
+		bb := player.Offset(0, -d, 0)
 		player, newVel = s.computeCollision(bb, bb.Extend(s.Vel.X, s.Vel.Y, s.Vel.Z), w)
 	}
 
@@ -195,6 +211,14 @@ func (s *State) tickVelocity(input path.Inputs, w World) {
 	s.Vel.Y *= drag
 	s.Vel.X *= inertia
 	s.Vel.Z *= inertia
+
+	lower := w.GetBlockStatus(int(math.Floor(s.Pos.X)), int(math.Floor(s.Pos.Y)), int(math.Floor(s.Pos.Z)))
+	if path.IsLadder(lower) {
+		s.Vel.X = math.Min(math.Max(-ladderMaxSpeed, s.Vel.X), ladderMaxSpeed)
+		s.Vel.Z = math.Min(math.Max(-ladderMaxSpeed, s.Vel.Z), ladderMaxSpeed)
+		s.Vel.Y = math.Min(math.Max(-ladderMaxSpeed, s.Vel.Y), ladderMaxSpeed)
+		fmt.Println(s.Vel)
+	}
 }
 
 func (s *State) computeCollision(bb, query AABB, w World) (outBB AABB, outVel path.Point) {

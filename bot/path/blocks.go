@@ -38,6 +38,7 @@ var (
 	safeWalkBlocks = make(map[world.BlockStatus]struct{}, 128)
 	walkBlocks     = []block.Block{
 		block.Air,
+		block.CaveAir,
 		block.Grass,
 		block.Torch,
 		block.OakSign,
@@ -53,6 +54,7 @@ var (
 		block.JungleWallSign,
 		block.DarkOakWallSign,
 		block.Cornflower,
+		block.TallGrass,
 	}
 
 	additionalCostBlocks = map[*block.Block]int{
@@ -91,4 +93,8 @@ func SteppableBlock(bID world.BlockStatus) bool {
 func AirLikeBlock(bID world.BlockStatus) bool {
 	_, ok := safeWalkBlocks[bID]
 	return ok
+}
+
+func IsLadder(bID world.BlockStatus) bool {
+	return uint32(bID) >= block.Ladder.MinStateID && uint32(bID) <= block.Ladder.MaxStateID
 }
