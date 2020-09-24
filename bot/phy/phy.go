@@ -20,9 +20,10 @@ const (
 	maxYawChange   = 33
 	maxPitchChange = 11
 
-	stepHeight     = 0.6
-	minJumpTicks   = 14
-	ladderMaxSpeed = 0.15
+	stepHeight       = 0.6
+	minJumpTicks     = 14
+	ladderMaxSpeed   = 0.15
+	ladderClimbSpeed = 0.2
 
 	gravity      = 0.08
 	drag         = 0.98
@@ -152,6 +153,10 @@ func (s *State) Tick(input path.Inputs, w World) error {
 	s.collision.vertical = newVel.Y != s.Vel.Y
 	s.onGround = s.collision.vertical && s.Vel.Y < 0
 
+	if path.IsLadder(w.GetBlockStatus(int(math.Floor(s.Pos.X)), int(math.Floor(s.Pos.Y)), int(math.Floor(s.Pos.Z)))) && s.collision.horizontal {
+		newVel.Y = ladderClimbSpeed
+	}
+
 	s.Vel = newVel
 	return nil
 }
@@ -205,20 +210,19 @@ func (s *State) tickVelocity(input path.Inputs, w World) {
 	s.applyLookInputs(input)
 	s.applyPosInputs(input, acceleration, inertia)
 
+	lower := w.GetBlockStatus(int(math.Floor(s.Pos.X)), int(math.Floor(s.Pos.Y)), int(math.Floor(s.Pos.Z)))
+	if path.IsLadder(lower) {
+		s.Vel.X = math.Min(math.Max(-ladderMaxSpeed, s.Vel.X), ladderMaxSpeed)
+		s.Vel.Z = math.Min(math.Max(-ladderMaxSpeed, s.Vel.Z), ladderMaxSpeed)
+		s.Vel.Y = math.Min(math.Max(-ladderMaxSpeed, s.Vel.Y), ladderMaxSpeed)
+	}
+
 	// Gravity
 	s.Vel.Y -= gravity
 	// Drag & friction.
 	s.Vel.Y *= drag
 	s.Vel.X *= inertia
 	s.Vel.Z *= inertia
-
-	lower := w.GetBlockStatus(int(math.Floor(s.Pos.X)), int(math.Floor(s.Pos.Y)), int(math.Floor(s.Pos.Z)))
-	if path.IsLadder(lower) {
-		s.Vel.X = math.Min(math.Max(-ladderMaxSpeed, s.Vel.X), ladderMaxSpeed)
-		s.Vel.Z = math.Min(math.Max(-ladderMaxSpeed, s.Vel.Z), ladderMaxSpeed)
-		s.Vel.Y = math.Min(math.Max(-ladderMaxSpeed, s.Vel.Y), ladderMaxSpeed)
-		fmt.Println(s.Vel)
-	}
 }
 
 func (s *State) computeCollision(bb, query AABB, w World) (outBB AABB, outVel path.Point) {

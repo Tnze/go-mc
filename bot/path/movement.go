@@ -1,5 +1,55 @@
 package path
 
+import (
+	"fmt"
+
+	"github.com/Tnze/go-mc/bot/world"
+	"github.com/Tnze/go-mc/data/block"
+)
+
+// Cardinal directions.
+type Direction uint8
+
+func (d Direction) Offset() (x, y, z int) {
+	switch d {
+	case North:
+		return 0, 0, -1
+	case South:
+		return 0, 0, 1
+	case East:
+		return 1, 0, 0
+	case West:
+		return -1, 0, 0
+	}
+	panic(fmt.Sprintf("unknown direction value: %v", d))
+}
+
+func (d Direction) String() string {
+	switch d {
+	case North:
+		return "north"
+	case South:
+		return "south"
+	case East:
+		return "east"
+	case West:
+		return "west"
+	}
+	return fmt.Sprintf("Direction?<%d>", int(d))
+}
+
+// Valid direction values.
+const (
+	North Direction = iota
+	South
+	West
+	East
+)
+
+func LadderDirection(bStateID world.BlockStatus) Direction {
+	return Direction(((uint32(bStateID) - block.Ladder.MinStateID) & 0xE) >> 1)
+}
+
 // Movement represents a single type of movement in a path.
 type Movement uint8
 
@@ -7,6 +57,7 @@ var allMovements = []Movement{TraverseNorth, TraverseSouth, TraverseEast, Traver
 	TraverseNorthWest, TraverseNorthEast, TraverseSouthWest, TraverseSouthEast,
 	DropNorth, DropSouth, DropEast, DropWest,
 	AscendNorth, AscendSouth, AscendEast, AscendWest,
+	DescendLadder, DescendLadderNorth, DescendLadderSouth, DescendLadderEast, DescendLadderWest,
 }
 
 // Valid movement values.
@@ -28,16 +79,23 @@ const (
 	AscendSouth
 	AscendEast
 	AscendWest
+	DescendLadder
+	DescendLadderNorth
+	DescendLadderSouth
+	DescendLadderEast
+	DescendLadderWest
 )
 
-func (m Movement) Possible(nav *Nav, x, y, z int, from V3) bool {
+func (m Movement) Possible(nav *Nav, x, y, z int, from V3, previous Movement) bool {
 	// fmt.Printf("%s.Possible(%d,%d,%d)\n", m, x, y, z)
 	switch m {
 	case Waypoint, TraverseNorth, TraverseSouth, TraverseEast, TraverseWest:
 		if !SteppableBlock(nav.World.GetBlockStatus(x, y, z)) {
 			return false
 		}
-		return AirLikeBlock(nav.World.GetBlockStatus(x, y+1, z)) && AirLikeBlock(nav.World.GetBlockStatus(x, y+2, z))
+		b1, b2 := nav.World.GetBlockStatus(x, y+1, z), nav.World.GetBlockStatus(x, y+2, z)
+		u1, u2 := AirLikeBlock(b1) || IsLadder(b1), AirLikeBlock(b2) || IsLadder(b2)
+		return u1 && u2
 
 	case TraverseNorthWest, TraverseNorthEast, TraverseSouthWest, TraverseSouthEast:
 		if !SteppableBlock(nav.World.GetBlockStatus(x, y, z)) {
@@ -67,6 +125,24 @@ func (m Movement) Possible(nav *Nav, x, y, z int, from V3) bool {
 			AirLikeBlock(nav.World.GetBlockStatus(from.X, from.Y+1, from.Z)) &&
 			AirLikeBlock(nav.World.GetBlockStatus(from.X, from.Y+2, from.Z))
 
+	case DescendLadder:
+		if bID := nav.World.GetBlockStatus(x, y+1, z); !AirLikeBlock(bID) && !IsLadder(bID) {
+			return false
+		}
+		bID := nav.World.GetBlockStatus(x, y, z)
+		fmt.Println(bID, IsLadder(bID))
+		return IsLadder(nav.World.GetBlockStatus(x, y, z))
+
+	case DescendLadderNorth, DescendLadderSouth, DescendLadderEast, DescendLadderWest:
+		for amt := 0; amt < 2; amt++ {
+			if bID := nav.World.GetBlockStatus(x, y+amt+1, z); !AirLikeBlock(bID) && !IsLadder(bID) {
+				return false
+			}
+		}
+		bID := nav.World.GetBlockStatus(x, y, z)
+		fmt.Println(bID, IsLadder(bID))
+		return IsLadder(nav.World.GetBlockStatus(x, y, z))
+
 	default:
 		panic(m)
 	}
@@ -77,21 +153,23 @@ func (m Movement) Offset() (x, y, z int) {
 	case Waypoint:
 		return 0, 0, 0
 	case TraverseNorth:
-		return 0, 0, -1
+		return North.Offset()
 	case TraverseSouth:
-		return 0, 0, 1
+		return South.Offset()
 	case TraverseEast:
-		return 1, 0, 0
+		return East.Offset()
 	case TraverseWest:
-		return -1, 0, 0
+		return West.Offset()
 
-	case DropNorth:
+	case DescendLadder:
+		return 0, -1, 0
+	case DropNorth, DescendLadderNorth:
 		return 0, -1, -1
-	case DropSouth:
+	case DropSouth, DescendLadderSouth:
 		return 0, -1, 1
-	case DropEast:
+	case DropEast, DescendLadderEast:
 		return 1, -1, 0
-	case DropWest:
+	case DropWest, DescendLadderWest:
 		return -1, -1, 0
 	case AscendNorth:
 		return 0, 1, -1
@@ -129,6 +207,10 @@ func (m Movement) BaseCost() float64 {
 		return 2
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
 		return 2.25
+	case DescendLadderNorth, DescendLadderSouth, DescendLadderEast, DescendLadderWest:
+		return 1.5
+	case DescendLadder:
+		return 1.2
 	default:
 		panic(m)
 	}
@@ -173,6 +255,17 @@ func (m Movement) String() string {
 		return "traverse-southwest"
 	case TraverseSouthEast:
 		return "traverse-southeast"
+
+	case DescendLadder:
+		return "descend-ladder"
+	case DescendLadderNorth:
+		return "descend-ladder-north"
+	case DescendLadderSouth:
+		return "descend-ladder-south"
+	case DescendLadderEast:
+		return "descend-ladder-east"
+	case DescendLadderWest:
+		return "descend-ladder-west"
 	default:
 		panic(m)
 	}

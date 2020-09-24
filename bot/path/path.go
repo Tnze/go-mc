@@ -80,7 +80,9 @@ func (t Tile) PathNeighbors() []astar.Pather {
 	for _, m := range allMovements {
 		x, y, z := m.Offset()
 		pos := V3{X: t.Pos.X + x, Y: t.Pos.Y + y, Z: t.Pos.Z + z}
-		if m.Possible(t.Nav, pos.X, pos.Y, pos.Z, t.Pos) {
+		possible := m.Possible(t.Nav, pos.X, pos.Y, pos.Z, t.Pos, t.Movement)
+		// fmt.Printf("%v-%v: Trying (%v) %v: possible=%v\n", t.Movement, t.Pos, pos, m, possible)
+		if possible {
 			possibles = append(possibles, Tile{
 				Nav:      t.Nav,
 				Movement: m,
@@ -113,4 +115,13 @@ func (t Tile) Inputs(deltaPos, vel Point) Inputs {
 		out.Yaw = 0
 	}
 	return out
+}
+
+func (t Tile) IsComplete(d Point) bool {
+	switch t.Movement {
+	case DescendLadder, DescendLadderNorth, DescendLadderSouth, DescendLadderWest, DescendLadderEast, DropNorth, DropSouth, DropEast, DropWest:
+		return (d.X*d.X+d.Z*d.Z) < (0.1*0.1*0.13) && d.Y <= 0.05
+	}
+
+	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= -0.01 && d.Y <= 0.08
 }
