@@ -4,8 +4,11 @@ package path
 import (
 	"math"
 	"math/rand"
+	"strings"
+	"time"
 
 	"github.com/Tnze/go-mc/bot/world"
+	"github.com/Tnze/go-mc/data/block"
 	"github.com/beefsack/go-astar"
 )
 
@@ -48,9 +51,10 @@ func (n *Nav) Path() (path []astar.Pather, distance float64, found bool) {
 type Tile struct {
 	Nav *Nav
 
-	Movement  Movement
-	Pos       V3
-	ExtraCost int
+	Movement    Movement
+	Pos         V3
+	BlockStatus world.BlockStatus
+	ExtraCost   int
 }
 
 func (t Tile) PathNeighborCost(to astar.Pather) float64 {
@@ -75,6 +79,7 @@ func (t Tile) PathNeighbors() []astar.Pather {
 	if t.Pos == t.Nav.Dest && t.Movement != Waypoint {
 		dupe := t
 		dupe.Movement = Waypoint
+		dupe.BlockStatus = 0
 		return []astar.Pather{dupe}
 	}
 
@@ -85,9 +90,10 @@ func (t Tile) PathNeighbors() []astar.Pather {
 		// fmt.Printf("%v-%v: Trying (%v) %v: possible=%v\n", t.Movement, t.Pos, pos, m, possible)
 		if possible {
 			possibles = append(possibles, Tile{
-				Nav:      t.Nav,
-				Movement: m,
-				Pos:      pos,
+				Nav:         t.Nav,
+				Movement:    m,
+				Pos:         pos,
+				BlockStatus: t.Nav.World.GetBlockStatus(pos.X, pos.Y, pos.Z),
 			})
 		}
 	}
@@ -96,7 +102,7 @@ func (t Tile) PathNeighbors() []astar.Pather {
 	return possibles
 }
 
-func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
+func (t Tile) Inputs(pos, deltaPos, vel Point, runTime time.Duration) Inputs {
 	// Sufficient for simple movements.
 	at := math.Atan2(-deltaPos.X, -deltaPos.Z)
 	mdX, _, mdZ := t.Movement.Offset()
@@ -125,8 +131,8 @@ func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
 		bStateID := t.Nav.World.GetBlockStatus(t.Pos.X, t.Pos.Y, t.Pos.Z)
 
 		if x, _, z := LadderDirection(bStateID).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
-			pos.X -= (0.55 * float64(x))
-			pos.Z -= (0.55 * float64(z))
+			pos.X -= (0.25 * float64(x))
+			pos.Z -= (0.25 * float64(z))
 		} else {
 			pos.X += (0.42 * float64(x))
 			pos.Z += (0.42 * float64(z))
@@ -140,8 +146,11 @@ func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
 		}
 
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
+		b := block.ByID[block.StateID[uint32(t.BlockStatus)]]
+		noJump := strings.HasSuffix(b.Name, "_stairs") && runTime < (1250*time.Millisecond)
+
 		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
-		out.Jump = dist2 < 1.75 && deltaPos.Y < -0.81
+		out.Jump = dist2 < 1.75 && deltaPos.Y < -0.81 && !noJump
 
 		// Turn off the throttle if we get stuck on the jump.
 		if dist2 < 1 && deltaPos.Y < 0 && vel.Y == 0 {
@@ -160,5 +169,5 @@ func (t Tile) IsComplete(d Point) bool {
 		return d.Y >= 0
 	}
 
-	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= -0.01 && d.Y <= 0.08
+	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= -0.065 && d.Y <= 0.08
 }

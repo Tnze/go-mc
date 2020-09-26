@@ -16,6 +16,7 @@ var (
 		block.Andesite,
 		block.PolishedAndesite,
 		block.GrassBlock,
+		block.GrassPath,
 		block.Dirt,
 		block.CoarseDirt,
 		block.Cobblestone,
