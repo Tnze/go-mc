@@ -3,6 +3,7 @@ package path
 
 import (
 	"math"
+	"math/rand"
 
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/beefsack/go-astar"
@@ -96,12 +97,20 @@ func (t Tile) PathNeighbors() []astar.Pather {
 }
 
 func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
-
 	// Sufficient for simple movements.
 	at := math.Atan2(-deltaPos.X, -deltaPos.Z)
+	mdX, _, mdZ := t.Movement.Offset()
+	wantYaw := -math.Atan2(float64(mdX), float64(mdZ)) * 180 / math.Pi
 	out := Inputs{
 		ThrottleX: math.Sin(at),
 		ThrottleZ: math.Cos(at),
+		Yaw:       wantYaw,
+	}
+	if mdX == 0 && mdZ == 0 {
+		out.Yaw = math.NaN()
+	}
+	if (rand.Int() % 14) == 0 {
+		out.Pitch = float64((rand.Int() % 4) - 2)
 	}
 
 	switch t.Movement {
@@ -127,6 +136,7 @@ func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
 		out = Inputs{
 			ThrottleX: math.Sin(at),
 			ThrottleZ: math.Cos(at),
+			Yaw:       math.NaN(),
 		}
 
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
@@ -137,7 +147,6 @@ func (t Tile) Inputs(pos, deltaPos, vel Point) Inputs {
 		if dist2 < 1 && deltaPos.Y < 0 && vel.Y == 0 {
 			out.ThrottleX, out.ThrottleZ = 0, 0
 		}
-		out.Yaw = 0
 	}
 	return out
 }

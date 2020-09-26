@@ -9,6 +9,7 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/Tnze/go-mc/data"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -123,4 +124,14 @@ type Dialer interface {
 // Only used when you want to handle the packets by yourself
 func (c *Client) Conn() *mcnet.Conn {
 	return c.conn
+}
+
+// SendMessage sends a chat message.
+func (c *Client) SendMessage(msg string) error {
+	return c.conn.WritePacket(
+		pk.Marshal(
+			data.ChatServerbound,
+			pk.String(msg),
+		),
+	)
 }

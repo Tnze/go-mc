@@ -32,7 +32,6 @@ func (c *Client) updateServerPos(pos player.Pos) error {
 		sendPlayerLookPacket(c)
 	case prev.OnGround != pos.OnGround:
 		c.conn.WritePacket(
-			//ClientSettings packet (serverbound)
 			pk.Marshal(
 				data.Flying,
 				pk.Boolean(pos.OnGround),
