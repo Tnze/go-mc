@@ -17,8 +17,8 @@ const (
 	playerHeight = 1.8
 	resetVel     = 0.003
 
-	maxYawChange   = 18
-	maxPitchChange = 11
+	maxYawChange   = 7
+	maxPitchChange = 5
 
 	stepHeight       = 0.6
 	minJumpTicks     = 14
@@ -290,4 +290,11 @@ func (s *State) computeCollisionYXZ(bb, query AABB, vel path.Point, w World) (ou
 	}
 	bb = bb.Offset(0, 0, outVel.Z)
 	return bb, outVel
+}
+
+// AtLookTarget returns true if the player look position is actually at the
+// given pitch and yaw.
+func (s *State) AtLookTarget(yaw, pitch float64) bool {
+	dYaw, dPitch := math.Abs(modYaw(yaw, s.Yaw)), math.Abs(pitch-s.Pitch)
+	return dYaw <= 0.8 && dPitch <= 1.1
 }
