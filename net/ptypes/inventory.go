@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/Tnze/go-mc/bot/world/entity"
+	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -49,6 +50,20 @@ func (p *WindowItems) Decode(pkt pk.Packet) error {
 		if err := p.Slots[i].Decode(r); err != nil && !errors.Is(err, nbt.ErrEND) {
 			return err
 		}
+	}
+	return nil
+}
+
+// OpenWindow is a clientbound packet which opens an inventory.
+type OpenWindow struct {
+	WindowID   pk.VarInt
+	WindowType pk.VarInt
+	Title      chat.Message
+}
+
+func (p *OpenWindow) Decode(pkt pk.Packet) error {
+	if err := pkt.Scan(&p.WindowID, &p.WindowType, &p.Title); err != nil && !errors.Is(err, nbt.ErrEND) {
+		return err
 	}
 	return nil
 }

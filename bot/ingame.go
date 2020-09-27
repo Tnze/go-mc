@@ -149,6 +149,8 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleHeldItemPacket(c, p)
 	case data.WindowItems:
 		err = handleWindowItemsPacket(c, p)
+	case data.OpenWindow:
+		err = handleOpenWindowPacket(c, p)
 
 	case data.DeclareRecipes:
 		// handleDeclareRecipesPacket(g, reader)
@@ -276,7 +278,7 @@ func handleEntityAnimationPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Printf("EntityAnimationClientbound: %+v\n", se)
+	// fmt.Printf("EntityAnimationClientbound: %+v\n", se)
 	return nil
 }
 
@@ -288,7 +290,7 @@ func handleEntityStatusPacket(c *Client, p pk.Packet) error {
 	if err := p.Scan(&id, &status); err != nil {
 		return err
 	}
-	fmt.Printf("EntityStatus: %v, %v\n", id, status)
+	// fmt.Printf("EntityStatus: %v, %v\n", id, status)
 	return nil
 }
 
@@ -718,6 +720,18 @@ func handleWindowItemsPacket(c *Client, p pk.Packet) error {
 	}
 	if c.Events.WindowsItem != nil {
 		return c.Events.WindowsItem(byte(pkt.WindowID), pkt.Slots)
+	}
+	return nil
+}
+
+func handleOpenWindowPacket(c *Client, p pk.Packet) error {
+	var pkt ptypes.OpenWindow
+	if err := pkt.Decode(p); err != nil {
+		return err
+	}
+
+	if c.Events.OpenWindow != nil {
+		return c.Events.OpenWindow(pkt)
 	}
 	return nil
 }

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/ptypes"
 )
 
 type seenPacketFlags uint8
@@ -41,6 +42,7 @@ type eventBroker struct {
 	SoundPlay      func(name string, category int, x, y, z float64, volume, pitch float32) error
 	PluginMessage  func(channel string, data []byte) error
 	HeldItemChange func(slot int) error
+	OpenWindow     func(pkt ptypes.OpenWindow) error
 
 	// ExperienceChange will be called every time player's experience level updates.
 	// Parameters:

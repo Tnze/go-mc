@@ -9,7 +9,9 @@ import (
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/bot/world/entity/player"
+	"github.com/Tnze/go-mc/data"
 	"github.com/Tnze/go-mc/net"
+	"github.com/Tnze/go-mc/net/packet"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -45,6 +47,10 @@ func (c *Client) Close() error {
 	err := c.disconnect()
 	c.wg.Wait()
 	return err
+}
+
+func (c *Client) SendCloseWindow(windowID byte) error {
+	return c.conn.WritePacket(packet.Marshal(data.CloseWindowServerbound, pk.UnsignedByte(windowID)))
 }
 
 // NewClient init and return a new Client.
