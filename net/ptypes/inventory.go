@@ -7,6 +7,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/data"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -66,4 +67,23 @@ func (p *OpenWindow) Decode(pkt pk.Packet) error {
 		return err
 	}
 	return nil
+}
+
+type ConfirmTransaction struct {
+	WindowID pk.Byte
+	ActionID pk.Short
+	Accepted pk.Boolean
+}
+
+func (p *ConfirmTransaction) Decode(pkt pk.Packet) error {
+	return pkt.Scan(&p.WindowID, &p.ActionID, &p.Accepted)
+}
+
+func (p ConfirmTransaction) Encode() pk.Packet {
+	return pk.Marshal(
+		data.TransactionServerbound,
+		p.WindowID,
+		p.ActionID,
+		p.Accepted,
+	)
 }

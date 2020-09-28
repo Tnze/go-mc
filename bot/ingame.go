@@ -151,6 +151,8 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleWindowItemsPacket(c, p)
 	case data.OpenWindow:
 		err = handleOpenWindowPacket(c, p)
+	case data.TransactionClientbound:
+		err = handleWindowConfirmationPacket(c, p)
 
 	case data.DeclareRecipes:
 		// handleDeclareRecipesPacket(g, reader)
@@ -732,6 +734,18 @@ func handleOpenWindowPacket(c *Client, p pk.Packet) error {
 
 	if c.Events.OpenWindow != nil {
 		return c.Events.OpenWindow(pkt)
+	}
+	return nil
+}
+
+func handleWindowConfirmationPacket(c *Client, p pk.Packet) error {
+	var pkt ptypes.ConfirmTransaction
+	if err := pkt.Decode(p); err != nil {
+		return err
+	}
+
+	if c.Events.WindowConfirmation != nil {
+		return c.Events.WindowConfirmation(pkt)
 	}
 	return nil
 }

@@ -51,8 +51,9 @@ type eventBroker struct {
 	//   total - total amount of experience received from level 0.
 	ExperienceChange func(bar float32, level int32, total int32) error
 
-	WindowsItem       func(id byte, slots []entity.Slot) error
-	WindowsItemChange func(id byte, slotID int, slot entity.Slot) error
+	WindowsItem        func(id byte, slots []entity.Slot) error
+	WindowsItemChange  func(id byte, slotID int, slot entity.Slot) error
+	WindowConfirmation func(pkt ptypes.ConfirmTransaction) error
 
 	// ServerDifficultyChange is called whenever the gamemode of the server changes.
 	// At time of writing (1.16.3), difficulty values of 0, 1, 2, and 3 correspond
