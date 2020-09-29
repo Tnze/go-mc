@@ -128,9 +128,8 @@ func (t Tile) Inputs(pos, deltaPos, vel Point, runTime time.Duration) Inputs {
 
 	case AscendLadder:
 		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
-		bStateID := t.Nav.World.GetBlockStatus(t.Pos.X, t.Pos.Y, t.Pos.Z)
 
-		if x, _, z := LadderDirection(bStateID).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
+		if x, _, z := LadderDirection(t.BlockStatus).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
 			pos.X -= (0.25 * float64(x))
 			pos.Z -= (0.25 * float64(z))
 		} else {
@@ -146,11 +145,29 @@ func (t Tile) Inputs(pos, deltaPos, vel Point, runTime time.Duration) Inputs {
 		}
 
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
-		b := block.ByID[block.StateID[uint32(t.BlockStatus)]]
-		noJump := strings.HasSuffix(b.Name, "_stairs") && runTime < (1250*time.Millisecond)
+		var (
+			b          = block.ByID[block.StateID[uint32(t.BlockStatus)]]
+			isStairs   = strings.HasSuffix(b.Name, "_stairs")
+			maybeStuck = runTime < 1250*time.Millisecond
+			dist2      = math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
+		)
+		out.Jump = dist2 < 1.75 && deltaPos.Y < -0.81
 
-		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
-		out.Jump = dist2 < 1.75 && deltaPos.Y < -0.81 && !noJump
+		// Special logic for stairs: Try to go towards the downwards edge initially.
+		if isStairs && dist2 > (0.9*0.9) && deltaPos.Y < 0 {
+			if x, _, z := StairsDirection(t.BlockStatus).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
+				pos.X += (0.49 * float64(x))
+				pos.Z += (0.49 * float64(z))
+			}
+
+			at = math.Atan2(-pos.X+float64(t.Pos.X)+0.5, -pos.Z+float64(t.Pos.Z)+0.5)
+			out = Inputs{
+				ThrottleX: math.Sin(at),
+				ThrottleZ: math.Cos(at),
+				Yaw:       math.NaN(),
+				Jump:      out.Jump && !maybeStuck,
+			}
+		}
 
 		// Turn off the throttle if we get stuck on the jump.
 		if dist2 < 1 && deltaPos.Y < 0 && vel.Y == 0 {

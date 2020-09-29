@@ -7,6 +7,18 @@ type Info struct {
 	Slots      int
 }
 
+func (i Info) PlayerInvStart() int {
+	return i.Start
+}
+
+func (i Info) PlayerInvEnd() int {
+	return i.End
+}
+
+func (i Info) HotbarIdx(place int) int {
+	return i.End - (8 - place)
+}
+
 var ByType = map[int]Info{
 	-1: Info{Name: "inventory", Start: 9, End: 44, Slots: 46},
 	0:  Info{Name: "generic_9x1", Start: 1 * 9, End: 1*9 + 35, Slots: 1*9 + 36},

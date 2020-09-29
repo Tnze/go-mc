@@ -50,6 +50,15 @@ func LadderDirection(bStateID world.BlockStatus) Direction {
 	return Direction(((uint32(bStateID) - block.Ladder.MinStateID) & 0xE) >> 1)
 }
 
+func ChestDirection(bStateID world.BlockStatus) Direction {
+	return Direction(((uint32(bStateID) - block.Chest.MinStateID) / 6) & 0x3)
+}
+
+func StairsDirection(bStateID world.BlockStatus) Direction {
+	b := block.StateID[uint32(bStateID)]
+	return Direction(((uint32(bStateID) - block.ByID[b].MinStateID) / 20) & 0x3)
+}
+
 // Movement represents a single type of movement in a path.
 type Movement uint8
 
