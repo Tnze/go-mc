@@ -129,7 +129,7 @@ func (t Tile) Inputs(pos, deltaPos, vel Point, runTime time.Duration) Inputs {
 	case AscendLadder:
 		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
 
-		if x, _, z := LadderDirection(t.BlockStatus).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
+		if x, _, z := LadderDirection(t.BlockStatus).Offset(); dist2 > (0.8*0.8) && deltaPos.Y < 0 {
 			pos.X -= (0.25 * float64(x))
 			pos.Z -= (0.25 * float64(z))
 		} else {
@@ -173,6 +173,10 @@ func (t Tile) Inputs(pos, deltaPos, vel Point, runTime time.Duration) Inputs {
 		if dist2 < 1 && deltaPos.Y < 0 && vel.Y == 0 {
 			out.ThrottleX, out.ThrottleZ = 0, 0
 		}
+
+	case JumpCrossEast, JumpCrossWest, JumpCrossNorth, JumpCrossSouth:
+		dist2 := math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
+		out.Jump = dist2 > 1.5 && dist2 < 1.78
 	}
 	return out
 }
@@ -184,6 +188,8 @@ func (t Tile) IsComplete(d Point) bool {
 		return (d.X*d.X+d.Z*d.Z) < (2*0.2*0.25) && d.Y <= 0.05
 	case AscendLadder:
 		return d.Y >= 0
+	case JumpCrossEast, JumpCrossWest, JumpCrossNorth, JumpCrossSouth:
+		return (d.X*d.X+d.Z*d.Z) < (0.22*0.22) && d.Y >= -0.065
 	}
 
 	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= -0.065 && d.Y <= 0.08

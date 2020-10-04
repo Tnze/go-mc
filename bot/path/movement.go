@@ -24,6 +24,11 @@ func (d Direction) Offset() (x, y, z int) {
 	panic(fmt.Sprintf("unknown direction value: %v", d))
 }
 
+func (d Direction) Offset2x() (x, y, z int) {
+	x, y, z = d.Offset()
+	return x + x, y + y, z + z
+}
+
 func (d Direction) String() string {
 	switch d {
 	case North:
@@ -65,9 +70,11 @@ type Movement uint8
 var allMovements = []Movement{TraverseNorth, TraverseSouth, TraverseEast, TraverseWest,
 	TraverseNorthWest, TraverseNorthEast, TraverseSouthWest, TraverseSouthEast,
 	DropNorth, DropSouth, DropEast, DropWest,
+	Drop2North, Drop2South, Drop2East, Drop2West,
 	AscendNorth, AscendSouth, AscendEast, AscendWest,
 	DescendLadder, DescendLadderNorth, DescendLadderSouth, DescendLadderEast, DescendLadderWest,
 	AscendLadder,
+	JumpCrossNorth, JumpCrossSouth, JumpCrossEast, JumpCrossWest,
 }
 
 // Valid movement values.
@@ -85,6 +92,10 @@ const (
 	DropSouth
 	DropEast
 	DropWest
+	Drop2North
+	Drop2South
+	Drop2East
+	Drop2West
 	AscendNorth
 	AscendSouth
 	AscendEast
@@ -95,6 +106,10 @@ const (
 	DescendLadderEast
 	DescendLadderWest
 	AscendLadder
+	JumpCrossEast
+	JumpCrossWest
+	JumpCrossNorth
+	JumpCrossSouth
 )
 
 func (m Movement) Possible(nav *Nav, x, y, z int, from V3, previous Movement) bool {
@@ -119,6 +134,12 @@ func (m Movement) Possible(nav *Nav, x, y, z int, from V3, previous Movement) bo
 			return false
 		}
 		return AirLikeBlock(nav.World.GetBlockStatus(x, y+1, from.Z)) && AirLikeBlock(nav.World.GetBlockStatus(x, y+2, from.Z))
+
+	case Drop2North, Drop2South, Drop2East, Drop2West:
+		if !AirLikeBlock(nav.World.GetBlockStatus(x, y+4, z)) {
+			return false
+		}
+		fallthrough
 
 	case DropNorth, DropSouth, DropEast, DropWest:
 		for amt := 0; amt < 3; amt++ {
@@ -150,6 +171,19 @@ func (m Movement) Possible(nav *Nav, x, y, z int, from V3, previous Movement) bo
 		}
 		return IsLadder(nav.World.GetBlockStatus(x, y, z))
 
+	case JumpCrossEast, JumpCrossWest, JumpCrossNorth, JumpCrossSouth:
+		if !AirLikeBlock(nav.World.GetBlockStatus(x, y+1, z)) || !AirLikeBlock(nav.World.GetBlockStatus(x, y+2, z)) || !AirLikeBlock(nav.World.GetBlockStatus(x, y+3, z)) {
+			return false
+		}
+		midX, midZ := (from.X+x)/2, (from.Z+z)/2
+		if !AirLikeBlock(nav.World.GetBlockStatus(midX, y+1, midZ)) || !AirLikeBlock(nav.World.GetBlockStatus(midX, y+2, midZ)) || !AirLikeBlock(nav.World.GetBlockStatus(midX, y+3, midZ)) {
+			return false
+		}
+		if !AirLikeBlock(nav.World.GetBlockStatus(from.X, from.Y+3, from.Z)) {
+			return false
+		}
+		return SteppableBlock(nav.World.GetBlockStatus(x, y, z))
+
 	default:
 		panic(m)
 	}
@@ -167,6 +201,15 @@ func (m Movement) Offset() (x, y, z int) {
 		return East.Offset()
 	case TraverseWest:
 		return West.Offset()
+
+	case JumpCrossEast:
+		return East.Offset2x()
+	case JumpCrossWest:
+		return West.Offset2x()
+	case JumpCrossNorth:
+		return North.Offset2x()
+	case JumpCrossSouth:
+		return South.Offset2x()
 
 	case AscendLadder:
 		return 0, 1, 0
@@ -198,6 +241,15 @@ func (m Movement) Offset() (x, y, z int) {
 	case TraverseSouthEast:
 		return 1, 0, 1
 
+	case Drop2North:
+		return 0, -2, -1
+	case Drop2South:
+		return 0, -2, 1
+	case Drop2East:
+		return 1, -2, 0
+	case Drop2West:
+		return -1, -2, 0
+
 	default:
 		panic(m)
 	}
@@ -212,7 +264,7 @@ func (m Movement) BaseCost() float64 {
 	case TraverseNorthWest, TraverseNorthEast, TraverseSouthWest, TraverseSouthEast:
 		return 2.5
 
-	case DropNorth, DropSouth, DropEast, DropWest:
+	case DropNorth, DropSouth, DropEast, DropWest, Drop2North, Drop2South, Drop2East, Drop2West:
 		return 4
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
 		return 4
@@ -222,6 +274,9 @@ func (m Movement) BaseCost() float64 {
 		return 1
 	case AscendLadder:
 		return 3
+
+	case JumpCrossEast, JumpCrossWest, JumpCrossNorth, JumpCrossSouth:
+		return 5.5
 	default:
 		panic(m)
 	}
@@ -248,6 +303,14 @@ func (m Movement) String() string {
 		return "drop-east"
 	case DropWest:
 		return "drop-west"
+	case Drop2North:
+		return "drop-2-north"
+	case Drop2South:
+		return "drop-2-south"
+	case Drop2East:
+		return "drop-2-east"
+	case Drop2West:
+		return "drop-2-west"
 
 	case AscendNorth:
 		return "jump-north"
@@ -280,6 +343,15 @@ func (m Movement) String() string {
 
 	case AscendLadder:
 		return "ascend-ladder"
+
+	case JumpCrossEast:
+		return "jump-crossing-east"
+	case JumpCrossWest:
+		return "jump-crossing-west"
+	case JumpCrossNorth:
+		return "jump-crossing-north"
+	case JumpCrossSouth:
+		return "jump-crossing-south"
 	default:
 		panic(m)
 	}
