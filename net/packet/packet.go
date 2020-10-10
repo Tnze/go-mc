@@ -5,6 +5,8 @@ import (
 	"compress/zlib"
 	"fmt"
 	"io"
+
+	"github.com/Tnze/go-mc/data"
 )
 
 // Packet define a net data package
@@ -14,8 +16,8 @@ type Packet struct {
 }
 
 //Marshal generate Packet with the ID and Fields
-func Marshal(ID int32, fields ...FieldEncoder) (pk Packet) {
-	pk.ID = ID
+func Marshal(id data.PktID, fields ...FieldEncoder) (pk Packet) {
+	pk.ID = int32(id)
 
 	for _, v := range fields {
 		pk.Data = append(pk.Data, v.Encode()...)

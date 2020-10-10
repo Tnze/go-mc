@@ -2,8 +2,9 @@ package main
 
 import (
 	"bytes"
-	"github.com/google/uuid"
 	"log"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"

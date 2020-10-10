@@ -2,12 +2,13 @@
 package main
 
 import (
+	"log"
+
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/data"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
-	"log"
 )
 
 const ProtocolVersion = 578
@@ -64,7 +65,7 @@ func handlePlaying(conn net.Conn, protocol int32) {
 	}
 
 	joinGame(conn)
-	conn.WritePacket(pk.Marshal(data.PlayerPositionAndLookClientbound,
+	conn.WritePacket(pk.Marshal(data.PositionClientbound,
 		// https://wiki.vg/Protocol#Player_Position_And_Look_.28clientbound.29
 		pk.Double(0), pk.Double(0), pk.Double(0), // XYZ
 		pk.Float(0), pk.Float(0), // Yaw Pitch
@@ -139,7 +140,7 @@ func loginSuccess(conn net.Conn, name string, uuid uuid.UUID) error {
 }
 
 func joinGame(conn net.Conn) error {
-	return conn.WritePacket(pk.Marshal(data.JoinGame,
+	return conn.WritePacket(pk.Marshal(data.Login,
 		pk.Int(0),                  // EntityID
 		pk.UnsignedByte(1),         // Gamemode
 		pk.Int(0),                  // Dimension

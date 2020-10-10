@@ -9,12 +9,13 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/Tnze/go-mc/data"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 // ProtocolVersion , the protocol version number of minecraft net protocol
-const ProtocolVersion = 751
+const ProtocolVersion = 753
 
 // JoinServer connect a Minecraft server for playing the game.
 func (c *Client) JoinServer(addr string, port int) (err error) {
@@ -98,7 +99,7 @@ func (c *Client) join(d Dialer, addr string) (err error) {
 		case 0x02: //Login Success
 			// uuid, l := pk.UnpackString(pack.Data)
 			// name, _ := unpackString(pack.Data[l:])
-			return //switches the connection state to PLAY.
+			return nil
 		case 0x03: //Set Compression
 			var threshold pk.VarInt
 			if err := pack.Scan(&threshold); err != nil {
@@ -123,4 +124,14 @@ type Dialer interface {
 // Only used when you want to handle the packets by yourself
 func (c *Client) Conn() *mcnet.Conn {
 	return c.conn
+}
+
+// SendMessage sends a chat message.
+func (c *Client) SendMessage(msg string) error {
+	return c.conn.WritePacket(
+		pk.Marshal(
+			data.ChatServerbound,
+			pk.String(msg),
+		),
+	)
 }

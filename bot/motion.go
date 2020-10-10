@@ -6,6 +6,7 @@ import (
 
 	"github.com/Tnze/go-mc/data"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/ptypes"
 )
 
 // SwingArm swing player's arm.
@@ -13,7 +14,7 @@ import (
 // It's just animation.
 func (c *Client) SwingArm(hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.AnimationServerbound,
+		data.ArmAnimation,
 		pk.VarInt(hand),
 	))
 }
@@ -21,7 +22,7 @@ func (c *Client) SwingArm(hand int) error {
 // Respawn the player when it was dead.
 func (c *Client) Respawn() error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.ClientStatus,
+		data.ClientCommand,
 		pk.VarInt(0),
 	))
 }
@@ -77,18 +78,17 @@ func (c *Client) Chat(msg string) error {
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
-		data.ChatMessageServerbound,
+		data.ChatServerbound,
 		pk.String(msg),
 	))
 }
 
 // PluginMessage is used by mods and plugins to send their data.
-func (c *Client) PluginMessage(channal string, msg []byte) error {
-	return c.conn.WritePacket(pk.Marshal(
-		data.PluginMessageServerbound,
-		pk.Identifier(channal),
-		pluginMessageData(msg),
-	))
+func (c *Client) PluginMessage(channel string, msg []byte) error {
+	return c.conn.WritePacket((&ptypes.PluginMessage{
+		Channel: pk.Identifier(channel),
+		Data:    ptypes.PluginData(msg),
+	}).Encode())
 }
 
 // UseBlock is used to place or use a block.
@@ -103,7 +103,7 @@ func (c *Client) PluginMessage(channal string, msg []byte) error {
 // insideBlock is true when the player's head is inside of a block's collision.
 func (c *Client) UseBlock(hand, locX, locY, locZ, face int, cursorX, cursorY, cursorZ float32, insideBlock bool) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.PlayerBlockPlacement,
+		data.UseItem,
 		pk.VarInt(hand),
 		pk.Position{X: locX, Y: locY, Z: locZ},
 		pk.VarInt(face),
@@ -120,7 +120,7 @@ func (c *Client) SelectItem(slot int) error {
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
-		data.HeldItemChangeServerbound,
+		data.HeldItemSlotServerbound,
 		pk.Short(slot),
 	))
 }
@@ -144,7 +144,7 @@ func (c *Client) PickItem(slot int) error {
 
 func (c *Client) playerAction(status, locX, locY, locZ, face int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.PlayerDigging,
+		data.BlockDig,
 		pk.VarInt(status),
 		pk.Position{X: locX, Y: locY, Z: locZ},
 		pk.Byte(face),
@@ -180,7 +180,7 @@ func (c *Client) SwapItem() error {
 
 // Disconnect disconnect the server.
 // Server will close the connection.
-func (c *Client) Disconnect() error {
+func (c *Client) disconnect() error {
 	return c.conn.Close()
 }
 
