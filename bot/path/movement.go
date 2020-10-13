@@ -64,6 +64,11 @@ func StairsDirection(bStateID world.BlockStatus) Direction {
 	return Direction(((uint32(bStateID) - block.ByID[b].MinStateID) / 20) & 0x3)
 }
 
+func SlabIsBottom(bStateID world.BlockStatus) bool {
+	b := block.StateID[uint32(bStateID)]
+	return ((uint32(bStateID)-block.ByID[b].MinStateID)&0xE)>>1 == 1
+}
+
 // Movement represents a single type of movement in a path.
 type Movement uint8
 
