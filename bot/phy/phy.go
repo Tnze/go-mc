@@ -215,7 +215,7 @@ func (s *State) tickPosition(w World) {
 	if s.onGround || (s.Vel.Y != newVel.Y && s.Vel.Y < 0) {
 		bb := s.BB()
 		//fmt.Printf("Player pos = %0.2f, %0.2f, %0.2f\n", bb.X.Min, bb.Y.Min, bb.Z.Min)
-		surroundings := s.surroundings(bb.Offset(s.Vel.X, stepHeight, s.Vel.Y), w)
+		surroundings := s.surroundings(bb.Offset(s.Vel.X, stepHeight, s.Vel.Z), w)
 		outVel := s.Vel
 
 		outVel.Y = stepHeight
@@ -243,7 +243,7 @@ func (s *State) tickPosition(w World) {
 
 		oldMove := newVel.X*newVel.X + newVel.Z*newVel.Z
 		newMove := outVel.X*outVel.X + outVel.Z*outVel.Z
-		// fmt.Printf("oldMove = %0.2f, newMove = %0.2f\n", oldMove*1000, newMove*1000)
+		// fmt.Printf("oldMove/newmove = %v, (%0.2f >= %0.6f) = %v\n", oldMove >= newMove, outVel.Y, 0.000002-stepHeight, outVel.Y <= (0.000002-stepHeight))
 		if oldMove >= newMove || outVel.Y <= (0.000002-stepHeight) {
 			// fmt.Println("nope")
 		} else {

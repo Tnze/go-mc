@@ -51,6 +51,62 @@ var (
 		block.AndesiteStairs,
 		block.RedNetherBrickStairs,
 		block.PolishedAndesiteStairs,
+		block.OakSlab,
+		block.AcaciaSlab,
+		block.DarkOakSlab,
+		block.RedSandstoneSlab,
+		block.PolishedGraniteSlab,
+		block.SmoothRedSandstoneSlab,
+		block.MossyStoneBrickSlab,
+		block.PolishedDioriteSlab,
+		block.MossyCobblestoneSlab,
+		block.EndStoneBrickSlab,
+		block.StoneSlab,
+		block.SmoothSandstoneSlab,
+		block.SmoothQuartzSlab,
+		block.GraniteSlab,
+		block.AndesiteSlab,
+		block.RedNetherBrickSlab,
+		block.PolishedAndesiteSlab,
+	}
+
+	slabs = map[block.ID]struct{}{
+		block.OakSlab.ID:                struct{}{},
+		block.AcaciaSlab.ID:             struct{}{},
+		block.DarkOakSlab.ID:            struct{}{},
+		block.RedSandstoneSlab.ID:       struct{}{},
+		block.PolishedGraniteSlab.ID:    struct{}{},
+		block.SmoothRedSandstoneSlab.ID: struct{}{},
+		block.MossyStoneBrickSlab.ID:    struct{}{},
+		block.PolishedDioriteSlab.ID:    struct{}{},
+		block.MossyCobblestoneSlab.ID:   struct{}{},
+		block.EndStoneBrickSlab.ID:      struct{}{},
+		block.StoneSlab.ID:              struct{}{},
+		block.SmoothSandstoneSlab.ID:    struct{}{},
+		block.SmoothQuartzSlab.ID:       struct{}{},
+		block.GraniteSlab.ID:            struct{}{},
+		block.AndesiteSlab.ID:           struct{}{},
+		block.RedNetherBrickSlab.ID:     struct{}{},
+		block.PolishedAndesiteSlab.ID:   struct{}{},
+	}
+	stairs = map[block.ID]struct{}{
+		block.OakStairs.ID:                struct{}{},
+		block.AcaciaStairs.ID:             struct{}{},
+		block.DarkOakStairs.ID:            struct{}{},
+		block.RedSandstoneStairs.ID:       struct{}{},
+		block.PolishedGraniteStairs.ID:    struct{}{},
+		block.SmoothRedSandstoneStairs.ID: struct{}{},
+		block.MossyStoneBrickStairs.ID:    struct{}{},
+		block.PolishedDioriteStairs.ID:    struct{}{},
+		block.MossyCobblestoneStairs.ID:   struct{}{},
+		block.EndStoneBrickStairs.ID:      struct{}{},
+		block.StoneStairs.ID:              struct{}{},
+		block.SmoothSandstoneStairs.ID:    struct{}{},
+		block.SmoothQuartzStairs.ID:       struct{}{},
+		block.GraniteStairs.ID:            struct{}{},
+		block.AndesiteStairs.ID:           struct{}{},
+		block.RedNetherBrickStairs.ID:     struct{}{},
+		block.PolishedAndesiteStairs.ID:   struct{}{},
 	}
 
 	safeWalkBlocks = make(map[world.BlockStatus]struct{}, 128)
@@ -115,4 +171,9 @@ func AirLikeBlock(bID world.BlockStatus) bool {
 
 func IsLadder(bID world.BlockStatus) bool {
 	return uint32(bID) >= block.Ladder.MinStateID && uint32(bID) <= block.Ladder.MaxStateID
+}
+
+func IsSlab(bID world.BlockStatus) bool {
+	_, isSlab := slabs[block.StateID[uint32(bID)]]
+	return isSlab
 }

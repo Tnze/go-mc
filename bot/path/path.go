@@ -4,7 +4,6 @@ package path
 import (
 	"math"
 	"math/rand"
-	"strings"
 	"time"
 
 	"github.com/Tnze/go-mc/bot/world"
@@ -51,6 +50,7 @@ func (n *Nav) Path() (path []astar.Pather, distance float64, found bool) {
 type Tile struct {
 	Nav *Nav
 
+	HalfBlock   bool
 	Movement    Movement
 	Pos         V3
 	BlockStatus world.BlockStatus
@@ -89,11 +89,13 @@ func (t Tile) PathNeighbors() []astar.Pather {
 		possible := m.Possible(t.Nav, pos.X, pos.Y, pos.Z, t.Pos, t.Movement)
 		// fmt.Printf("%v-%v: Trying (%v) %v: possible=%v\n", t.Movement, t.Pos, pos, m, possible)
 		if possible {
+			bStateID := t.Nav.World.GetBlockStatus(pos.X, pos.Y, pos.Z)
 			possibles = append(possibles, Tile{
 				Nav:         t.Nav,
 				Movement:    m,
 				Pos:         pos,
-				BlockStatus: t.Nav.World.GetBlockStatus(pos.X, pos.Y, pos.Z),
+				BlockStatus: bStateID,
+				HalfBlock:   IsSlab(bStateID) && SlabIsBottom(bStateID),
 			})
 		}
 	}
@@ -146,27 +148,34 @@ func (t Tile) Inputs(pos, deltaPos, vel Point, runTime time.Duration) Inputs {
 
 	case AscendNorth, AscendSouth, AscendEast, AscendWest:
 		var (
-			b          = block.ByID[block.StateID[uint32(t.BlockStatus)]]
-			isStairs   = strings.HasSuffix(b.Name, "_stairs")
-			maybeStuck = runTime < 1250*time.Millisecond
-			dist2      = math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
+			b           = block.ByID[block.StateID[uint32(t.BlockStatus)]]
+			_, isStairs = stairs[b.ID]
+			_, isSlab   = slabs[b.ID]
+			maybeStuck  = runTime < 1250*time.Millisecond
+			dist2       = math.Sqrt(deltaPos.X*deltaPos.X + deltaPos.Z*deltaPos.Z)
 		)
 		out.Jump = dist2 < 1.75 && deltaPos.Y < -0.81
 
-		// Special logic for stairs: Try to go towards the downwards edge initially.
-		if isStairs && dist2 > (0.9*0.9) && deltaPos.Y < 0 {
-			if x, _, z := StairsDirection(t.BlockStatus).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
-				pos.X += (0.49 * float64(x))
-				pos.Z += (0.49 * float64(z))
-			}
+		switch {
+		case isStairs:
+			// Special logic for stairs: Try to go towards the downwards edge initially.
+			if dist2 > (0.9*0.9) && deltaPos.Y < 0 {
+				if x, _, z := StairsDirection(t.BlockStatus).Offset(); dist2 > (0.9*0.9) && deltaPos.Y < 0 {
+					pos.X += (0.49 * float64(x))
+					pos.Z += (0.49 * float64(z))
+				}
 
-			at = math.Atan2(-pos.X+float64(t.Pos.X)+0.5, -pos.Z+float64(t.Pos.Z)+0.5)
-			out = Inputs{
-				ThrottleX: math.Sin(at),
-				ThrottleZ: math.Cos(at),
-				Yaw:       math.NaN(),
-				Jump:      out.Jump && !maybeStuck,
+				at = math.Atan2(-pos.X+float64(t.Pos.X)+0.5, -pos.Z+float64(t.Pos.Z)+0.5)
+				out = Inputs{
+					ThrottleX: math.Sin(at),
+					ThrottleZ: math.Cos(at),
+					Yaw:       math.NaN(),
+					Jump:      out.Jump && !maybeStuck,
+				}
 			}
+		// We dont need to jump for slabs, so only jump if we get stuck.
+		case isSlab:
+			out.Jump = out.Jump && !maybeStuck
 		}
 
 		// Turn off the throttle if we get stuck on the jump.
@@ -192,5 +201,11 @@ func (t Tile) IsComplete(d Point) bool {
 		return (d.X*d.X+d.Z*d.Z) < (0.22*0.22) && d.Y >= -0.065
 	}
 
-	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= -0.065 && d.Y <= 0.08
+	yLowerCutoff := -0.065
+	if t.HalfBlock {
+		yLowerCutoff -= 0.5
+	}
+
+	// fmt.Println(t.HalfBlock, d.Y, d.Y >= yLowerCutoff, d.Y <= 0.08)
+	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= yLowerCutoff && d.Y <= 0.08
 }
