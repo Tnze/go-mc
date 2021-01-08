@@ -322,14 +322,14 @@ func handleSoundEffect(c *Client, p pk.Packet) error {
 	}
 
 	if c.Events.SoundPlay != nil {
-		if int(s.Sound) < len(data.SoundNames) {
+		if soundName, ok := data.GetSoundNameByID(data.SoundID(s.Sound)); ok {
 			return c.Events.SoundPlay(
-				data.SoundNames[s.Sound], int(s.Category),
+				soundName, int(s.Category),
 				float64(s.X)/8, float64(s.Y)/8, float64(s.Z)/8,
 				float32(s.Volume), float32(s.Pitch))
-		} else {
-			fmt.Fprintf(os.Stderr, "WARN: Unknown sound name. is data.SoundNames out of date?\n")
 		}
+
+		fmt.Fprintf(os.Stderr, "WARN: Unknown sound name (%v). is data.SoundNames out of date?\n", s.Sound)
 	}
 
 	return nil
