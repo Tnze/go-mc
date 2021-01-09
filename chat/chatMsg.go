@@ -33,7 +33,7 @@ type jsonChat struct {
 
 	Translate string            `json:"translate,omitempty"`
 	With      []json.RawMessage `json:"with,omitempty"` // How can go handle an JSON array with Object and String?
-	Extra     []jsonChat        `json:"extra,omitempty"`
+	Extra     []Message         `json:"extra,omitempty"`
 }
 
 //UnmarshalJSON decode json to Message
@@ -73,12 +73,12 @@ func (m *Message) Append(extraMsg ...Message) {
 	finalLen := origLen + len(extraMsg)
 	if cap(m.Extra) < len(m.Extra)+len(extraMsg) {
 		// pre expansion
-		extra := make([]jsonChat, finalLen)
+		extra := make([]Message, finalLen)
 		copy(extra, m.Extra)
 		m.Extra = extra
 	}
 	for _, v := range extraMsg {
-		m.Extra = append(m.Extra, jsonChat(v))
+		m.Extra = append(m.Extra, v)
 	}
 }
 
