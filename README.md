@@ -40,17 +40,17 @@ Some examples are at `/cmd` folder.
 
 ## Getting start
 After you install golang:  
-To get latest version: `go get github.com/Tnze/go-mc@master`  
-To get old versions (eg. 1.14.3): `go get github.com/Tnze/go-mc@v1.14.3`
+To get the latest version: `go get github.com/Tnze/go-mc@master`  
+To get old versions (e.g. 1.14.3): `go get github.com/Tnze/go-mc@v1.14.3`
 
-First of all, you might have a try of the simple examples. It's a good start.
+First, you might have a try of the simple examples. It's a good start.
 
 ### Run Examples
 
 - Run `go run github.com/Tnze/go-mc/cmd/mcping localhost` to ping and list the localhost mc server.  
-- Run `go run github.com/Tnze/go-mc/cmd/daze` to join local server at *localhost:25565* as Steve on offline mode.
+- Run `go run github.com/Tnze/go-mc/cmd/daze` to join the local server at *localhost:25565* as Steve on the offline mode.
 
-### Basic Useage
+### Basic Usage
 
 One of the most useful functions of this lib is that it implements the network communication protocol of minecraft. It allows you to construct, send, receive, and parse network packets. All of them are encapsulated in `go-mc/net` and `go-mc/net/packet`.
 
@@ -101,7 +101,7 @@ As the `go-mc/net` package implements the minecraft network protocol, there is n
 
 由于`go-mc/net`实现的是MC底层的网络协议，而这个协议在MC更新时其实并不会有改动，MC更新时其实只是包的ID和内容的定义发生了变化，所以net包本身是跨版本的。
 
-Originally it's all right to write a bot with only `go-mc/net` package. But considering that the process of handshake, login and encryption is not difficult but complicated, I have implemented it in `go-mc/bot` package, which is **not cross-versions**. You may use it directly or as a reference for your own implementation.
+Originally it's all right to write a bot with only `go-mc/net` package, but considering that the process of handshake, login and encryption is not difficult but complicated, I have implemented it in `go-mc/bot` package, which is **not cross-versions**. You may use it directly or as a reference for your own implementation.
 
 理论上讲，只用`go-mc/net`包实现一个bot是完全可行的，但是为了节省大家从头去理解MC握手、登录、加密等协议的过程，在`go-mc/bot`中我已经把这些都实现了，只不过它不是跨版本的。你可以直接使用，或者作为自己实现的参考。
 
