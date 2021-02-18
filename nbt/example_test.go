@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+//goland:noinspection SpellCheckingInspection
 func ExampleUnmarshal() {
 	var data = []byte{
 		0x08, 0x00, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x09,

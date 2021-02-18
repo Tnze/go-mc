@@ -84,9 +84,13 @@ func (s Slot) Encode() []byte {
 	b.Write(pk.Byte(s.Count).Encode())
 
 	if s.NBT != nil {
-		nbt.NewEncoder(&b).Encode(s.NBT)
+		if err := nbt.NewEncoder(&b).Encode(s.NBT); err != nil {
+			panic(err)
+		}
 	} else {
-		b.Write([]byte{nbt.TagEnd})
+		if _, err := b.Write([]byte{nbt.TagEnd}); err != nil {
+			panic(err)
+		}
 	}
 
 	return b.Bytes()

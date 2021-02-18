@@ -24,7 +24,7 @@ func (w *World) PlayerEntities() []entity.Entity {
 }
 
 // OnSpawnEntity should be called when a SpawnEntity packet
-// is recieved.
+// is received.
 func (w *World) OnSpawnEntity(pkt ptypes.SpawnEntity) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()
@@ -53,7 +53,7 @@ func (w *World) OnSpawnEntity(pkt ptypes.SpawnEntity) error {
 }
 
 // OnSpawnLivingEntity should be called when a SpawnLivingEntity packet
-// is recieved.
+// is received.
 func (w *World) OnSpawnLivingEntity(pkt ptypes.SpawnLivingEntity) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()
@@ -81,7 +81,7 @@ func (w *World) OnSpawnLivingEntity(pkt ptypes.SpawnLivingEntity) error {
 }
 
 // OnSpawnPlayer should be called when a SpawnPlayer packet
-// is recieved.
+// is received.
 func (w *World) OnSpawnPlayer(pkt ptypes.SpawnPlayer) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()
@@ -100,7 +100,7 @@ func (w *World) OnSpawnPlayer(pkt ptypes.SpawnPlayer) error {
 }
 
 // OnEntityPosUpdate should be called when an EntityPosition packet
-// is recieved.
+// is received.
 func (w *World) OnEntityPosUpdate(pkt ptypes.EntityPosition) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()
@@ -118,7 +118,7 @@ func (w *World) OnEntityPosUpdate(pkt ptypes.EntityPosition) error {
 }
 
 // OnEntityPosLookUpdate should be called when an EntityPositionLook packet
-// is recieved.
+// is received.
 func (w *World) OnEntityPosLookUpdate(pkt ptypes.EntityPositionLook) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()
@@ -137,7 +137,7 @@ func (w *World) OnEntityPosLookUpdate(pkt ptypes.EntityPositionLook) error {
 }
 
 // OnEntityLookUpdate should be called when an EntityRotation packet
-// is recieved.
+// is received.
 func (w *World) OnEntityLookUpdate(pkt ptypes.EntityRotation) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()
@@ -153,7 +153,7 @@ func (w *World) OnEntityLookUpdate(pkt ptypes.EntityRotation) error {
 }
 
 // OnEntityDestroy should be called when a DestroyEntities packet
-// is recieved.
+// is received.
 func (w *World) OnEntityDestroy(eIDs []pk.VarInt) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()

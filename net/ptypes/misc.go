@@ -8,7 +8,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-// SoundEffect is a clientbound packet used to play a specific sound ID
+// SoundEffect is a client-bound packet used to play a specific sound ID
 // on the client.
 type SoundEffect struct {
 	Sound         pk.VarInt
@@ -21,7 +21,7 @@ func (p *SoundEffect) Decode(pkt pk.Packet) error {
 	return pkt.Scan(&p.Sound, &p.Category, &p.X, &p.Y, &p.Z, &p.Volume, &p.Pitch)
 }
 
-// NamedSoundEffect is a clientbound packet used to play a sound with the
+// NamedSoundEffect is a client-bound packet used to play a sound with the
 // specified name on the client.
 type NamedSoundEffect struct {
 	Sound         pk.String
@@ -64,11 +64,11 @@ func (p PluginData) Encode() []byte {
 }
 
 func (p *PluginData) Decode(r pk.DecodeReader) error {
-	data, err := ioutil.ReadAll(r)
+	d, err := ioutil.ReadAll(r)
 	if err != nil {
 		return err
 	}
-	*p = data
+	*p = d
 	return nil
 }
 

@@ -2,7 +2,7 @@ package ptypes
 
 import pk "github.com/Tnze/go-mc/net/packet"
 
-// SpawnEntity is a clientbound packet used to spawn a non-mob entity.
+// SpawnEntity is a client-bound packet used to spawn a non-mob entity.
 type SpawnEntity struct {
 	ID               pk.VarInt
 	UUID             pk.UUID
@@ -19,7 +19,7 @@ func (p *SpawnEntity) Decode(pkt pk.Packet) error {
 		&p.Data, &p.VelX, &p.VelY, &p.VelZ)
 }
 
-// SpawnPlayer is a clientbound packet used to describe a player entering
+// SpawnPlayer is a client-bound packet used to describe a player entering
 // visible range.
 type SpawnPlayer struct {
 	ID         pk.VarInt
@@ -32,7 +32,7 @@ func (p *SpawnPlayer) Decode(pkt pk.Packet) error {
 	return pkt.Scan(&p.ID, &p.UUID, &p.X, &p.Y, &p.Z, &p.Yaw, &p.Pitch)
 }
 
-// SpawnLivingEntity is a clientbound packet used to spawn a mob.
+// SpawnLivingEntity is a client-bound packet used to spawn a mob.
 type SpawnLivingEntity struct {
 	ID               pk.VarInt
 	UUID             pk.UUID
@@ -49,7 +49,7 @@ func (p *SpawnLivingEntity) Decode(pkt pk.Packet) error {
 		&p.HeadPitch, &p.VelX, &p.VelY, &p.VelZ)
 }
 
-// EntityAnimationClientbound updates the animationf state of an entity.
+// EntityAnimationClientbound updates the animation state of an entity.
 type EntityAnimationClientbound struct {
 	ID        pk.VarInt
 	Animation pk.UnsignedByte

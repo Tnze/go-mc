@@ -202,7 +202,7 @@ func (s *State) applyPosInputs(input path.Inputs, acceleration, inertia float64)
 }
 
 func (s *State) tickPosition(w World) {
-	player, newVel := s.computeCollisionYXZ(s.BB(), s.BB().Offset(s.Vel.X, s.Vel.Y, s.Vel.Z), s.Vel, w)
+	p, newVel := s.computeCollisionYXZ(s.BB(), s.BB().Offset(s.Vel.X, s.Vel.Y, s.Vel.Z), s.Vel, w)
 
 	if s.onGround || (s.Vel.Y != newVel.Y && s.Vel.Y < 0) {
 		bb := s.BB()
@@ -236,15 +236,15 @@ func (s *State) tickPosition(w World) {
 		if oldMove >= newMove || outVel.Y <= (0.000002-stepHeight) {
 			// fmt.Println("nope")
 		} else {
-			player = bb
+			p = bb
 			newVel = outVel
 		}
 	}
 
 	// Update flags.
-	s.Pos.X = player.X.Min + playerWidth/2
-	s.Pos.Y = player.Y.Min
-	s.Pos.Z = player.Z.Min + playerWidth/2
+	s.Pos.X = p.X.Min + playerWidth/2
+	s.Pos.Y = p.Y.Min
+	s.Pos.Z = p.Z.Min + playerWidth/2
 	s.collision.horizontal = newVel.X != s.Vel.X || newVel.Z != s.Vel.Z
 	s.collision.vertical = newVel.Y != s.Vel.Y
 	s.onGround = s.collision.vertical && s.Vel.Y < 0

@@ -33,6 +33,7 @@ type Entity struct {
 	Category Category
 }
 
+//goland:noinspection ALL
 var (
 	AreaEffectCloud      = Entity{ID: 0, InternalID: 0, DisplayName: "Area Effect Cloud", Name: "area_effect_cloud", Width: 6, Height: 0.5, Type: "mob", Category: Immobile}
 	ArmorStand           = Entity{ID: 1, InternalID: 1, DisplayName: "Armor Stand", Name: "armor_stand", Width: 0.5, Height: 1.975, Type: "mob", Category: Immobile}

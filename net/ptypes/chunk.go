@@ -10,7 +10,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-// ChunkData is a clientbound packet which describes a chunk.
+// ChunkData is a client-bound packet which describes a chunk.
 type ChunkData struct {
 	X, Z           pk.Int
 	FullChunk      pk.Boolean
@@ -24,10 +24,10 @@ type ChunkData struct {
 func (p *ChunkData) Decode(pkt pk.Packet) error {
 	r := bytes.NewReader(pkt.Data)
 	if err := p.X.Decode(r); err != nil {
-		return fmt.Errorf("X: %v", err)
+		return fmt.Errorf("decode X: %v", err)
 	}
 	if err := p.Z.Decode(r); err != nil {
-		return fmt.Errorf("Z: %v", err)
+		return fmt.Errorf("decode Z: %v", err)
 	}
 	if err := p.FullChunk.Decode(r); err != nil {
 		return fmt.Errorf("full chunk: %v", err)
@@ -39,7 +39,7 @@ func (p *ChunkData) Decode(pkt pk.Packet) error {
 		return fmt.Errorf("heightmaps: %v", err)
 	}
 
-	// Biome data is only present for full chunks.
+	// Biomes data is only present for full chunks.
 	if p.FullChunk {
 		if err := p.Biomes.Decode(r); err != nil {
 			return fmt.Errorf("heightmaps: %v", err)
@@ -60,13 +60,13 @@ type biomesData struct {
 }
 
 func (b *biomesData) Decode(r pk.DecodeReader) error {
-	var nobd pk.VarInt // Number of Biome Datums
-	if err := nobd.Decode(r); err != nil {
+	var BiomesDataNums pk.VarInt // Number of Biomes Data
+	if err := BiomesDataNums.Decode(r); err != nil {
 		return err
 	}
-	b.data = make([]pk.VarInt, nobd)
+	b.data = make([]pk.VarInt, BiomesDataNums)
 
-	for i := 0; i < int(nobd); i++ {
+	for i := 0; i < int(BiomesDataNums); i++ {
 		var d pk.VarInt
 		if err := d.Decode(r); err != nil {
 			return err

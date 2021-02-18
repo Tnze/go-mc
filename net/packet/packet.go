@@ -40,24 +40,24 @@ func (p Packet) Scan(fields ...FieldDecoder) error {
 
 // Pack 打包一个数据包
 func (p *Packet) Pack(threshold int) (pack []byte) {
-	data := append(VarInt(p.ID).Encode(), p.Data...)
+	d := append(VarInt(p.ID).Encode(), p.Data...)
 	if threshold > 0 { //是否启用了压缩
-		if len(data) > threshold { //是否需要压缩
-			Len := len(data)
+		if len(d) > threshold { //是否需要压缩
+			Len := len(d)
 			VarLen := VarInt(Len).Encode()
-			data = Compress(data)
+			d = Compress(d)
 
-			pack = append(pack, VarInt(len(VarLen)+len(data)).Encode()...)
+			pack = append(pack, VarInt(len(VarLen)+len(d)).Encode()...)
 			pack = append(pack, VarLen...)
-			pack = append(pack, data...)
+			pack = append(pack, d...)
 		} else {
-			pack = append(pack, VarInt(int32(len(data)+1)).Encode()...)
+			pack = append(pack, VarInt(int32(len(d)+1)).Encode()...)
 			pack = append(pack, 0x00)
-			pack = append(pack, data...)
+			pack = append(pack, d...)
 		}
 	} else {
-		pack = append(pack, VarInt(int32(len(data))).Encode()...) //len
-		pack = append(pack, data...)
+		pack = append(pack, VarInt(int32(len(d))).Encode()...) //len
+		pack = append(pack, d...)
 	}
 
 	return
@@ -73,17 +73,17 @@ func RecvPacket(r DecodeReader, useZlib bool) (*Packet, error) {
 		return nil, fmt.Errorf("packet length too short")
 	}
 
-	data := make([]byte, length) // read packet content
-	if _, err := io.ReadFull(r, data); err != nil {
+	d := make([]byte, length) // read packet content
+	if _, err := io.ReadFull(r, d); err != nil {
 		return nil, fmt.Errorf("read content of packet fail: %v", err)
 	}
 
 	//解压数据
 	if useZlib {
-		return UnCompress(data)
+		return UnCompress(d)
 	}
 
-	buf := bytes.NewBuffer(data)
+	buf := bytes.NewBuffer(d)
 	var packetID VarInt
 	if err := packetID.Decode(buf); err != nil {
 		return nil, fmt.Errorf("read packet id fail: %v", err)

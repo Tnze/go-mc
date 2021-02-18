@@ -9,7 +9,7 @@ import (
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
-	//"github.com/mattn/go-colorable" // this package is nice but cannot get in china mainland because it import golang.org/x/sys
+	"github.com/mattn/go-colorable"
 )
 
 const timeout = 45
@@ -20,7 +20,7 @@ var (
 )
 
 func main() {
-	//log.SetOutput(colorable.NewColorableStdout())
+	log.SetOutput(colorable.NewColorableStdout())
 	c = bot.NewClient()
 
 	//Login
@@ -46,8 +46,8 @@ func main() {
 
 func onDeath() error {
 	log.Println("Died and Respawned")
-	c.Respawn() // If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
-	return nil
+	// If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
+	return c.Respawn()
 }
 
 func onGameStart() error {
@@ -59,6 +59,7 @@ func onGameStart() error {
 	return c.UseItem(0)
 }
 
+//goland:noinspection SpellCheckingInspection
 func onSound(name string, category int, x, y, z float64, volume, pitch float32) error {
 	if name == "entity.fishing_bobber.splash" {
 		if err := c.UseItem(0); err != nil { //retrieve

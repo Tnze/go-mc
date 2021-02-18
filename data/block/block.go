@@ -31,6 +31,7 @@ type Block struct {
 	EmitLightLevel   int
 }
 
+//goland:noinspection ALL
 var (
 	Air                             = Block{ID: 0, DisplayName: "Air", Name: "air", Hardness: 0, Diggable: true, DropIDs: []uint32{0}, NeedsTools: map[uint32]bool{}, MinStateID: 0, MaxStateID: 0, Transparent: true, FilterLightLevel: 0, EmitLightLevel: 0}
 	Stone                           = Block{ID: 1, DisplayName: "Stone", Name: "stone", Hardness: 1.5, Diggable: true, DropIDs: []uint32{1}, NeedsTools: map[uint32]bool{585: true, 590: true, 595: true, 600: true, 605: true}, MinStateID: 1, MaxStateID: 1, Transparent: false, FilterLightLevel: 15, EmitLightLevel: 0}

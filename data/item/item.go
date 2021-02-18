@@ -12,6 +12,7 @@ type Item struct {
 	StackSize   uint
 }
 
+//goland:noinspection GoNameStartsWithPackageName
 var (
 	Air                             = Item{ID: 0, DisplayName: "Air", Name: "air", StackSize: 0}
 	Stone                           = Item{ID: 1, DisplayName: "Stone", Name: "stone", StackSize: 64}

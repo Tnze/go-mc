@@ -8,9 +8,9 @@ import (
 
 func TestBitArrayBasic(t *testing.T) {
 	a := bitArray{
-		width:          5,
-		valsPerElement: valsPerBitArrayElement(5),
-		data:           make([]uint64, 5),
+		width:            5,
+		valuesPerElement: valuesPerBitArrayElement(5),
+		data:             make([]uint64, 5),
 	}
 
 	if got, want := a.Size(), 12*5; got != want {
@@ -32,9 +32,9 @@ func TestBitArrayHardcoded(t *testing.T) {
 	d2, _ := hex.DecodeString("01018A7260F68C87")
 
 	a := bitArray{
-		width:          5,
-		valsPerElement: valsPerBitArrayElement(5),
-		data:           []uint64{binary.BigEndian.Uint64(d1), binary.BigEndian.Uint64(d2)},
+		width:            5,
+		valuesPerElement: valuesPerBitArrayElement(5),
+		data:             []uint64{binary.BigEndian.Uint64(d1), binary.BigEndian.Uint64(d2)},
 	}
 
 	if got, want := a.Size(), 12*2; got != want {

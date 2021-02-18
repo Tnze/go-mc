@@ -34,11 +34,11 @@ func OfflineUUID(name string) uuid.UUID {
 	h.Reset()
 	h.Write([]byte("OfflinePlayer:" + name))
 	s := h.Sum(nil)
-	var uuid uuid.UUID
-	copy(uuid[:], s)
-	uuid[6] = (uuid[6] & 0x0f) | uint8((version&0xf)<<4)
-	uuid[8] = (uuid[8] & 0x3f) | 0x80 // RFC 4122 variant
-	return uuid
+	var id uuid.UUID
+	copy(id[:], s)
+	id[6] = (id[6] & 0x0f) | uint8((version&0xf)<<4)
+	id[8] = (id[8] & 0x3f) | 0x80 // RFC 4122 variant
+	return id
 }
 
 // 加密请求
@@ -140,7 +140,7 @@ func authDigest(serverID string, sharedSecret, publicKey []byte) string {
 func twosComplement(p []byte) []byte {
 	carry := true
 	for i := len(p) - 1; i >= 0; i-- {
-		p[i] = byte(^p[i])
+		p[i] = ^p[i]
 		if carry {
 			carry = p[i] == 0xff
 			p[i]++
@@ -202,7 +202,9 @@ func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest
 // AES/CFB8 with random key
 func newSymmetricEncryption() (key []byte, encoStream, decoStream cipher.Stream) {
 	key = make([]byte, 16)
-	rand.Read(key) //生成密钥
+	if _, err := rand.Read(key); err != nil {
+		panic(err)
+	}
 
 	b, err := aes.NewCipher(key)
 	if err != nil {

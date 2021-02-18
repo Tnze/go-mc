@@ -55,7 +55,7 @@ var texts = []string{
 	" ",
 }
 
-var ctexts = []string{
+var clearTexts = []string{
 	"故我依然™ Kun_QwQ: 为什么想要用炼药锅灭火时总是跳不进去",
 
 	"<Xi_Xi_Mi> 好像是这个id。。",
@@ -95,7 +95,7 @@ func TestChatMsgClearString(t *testing.T) {
 		}
 
 		str := cm.ClearString()
-		if str != ctexts[i] {
+		if str != clearTexts[i] {
 			t.Errorf("gets %q, wants %q", str, texts[i])
 		}
 	}

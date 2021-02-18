@@ -31,7 +31,7 @@ func ExampleClient_JoinServer_offline() {
 	}
 	log.Println("Login success")
 
-	// Regist event handlers
+	// Register event handlers
 	// 	c.Events.GameStart = onGameStartFunc
 	// 	c.Events.ChatMsg = onChatMsgFunc
 	// 	c.Events.Disconnect = onDisconnectFunc
@@ -63,7 +63,7 @@ func ExampleClient_JoinServer_online() {
 	}
 	log.Println("Login success")
 
-	// Regist event handlers
+	// Register event handlers
 	// 	c.Events.GameStart = onGameStartFunc
 	// 	c.Events.ChatMsg = onChatMsgFunc
 	// 	c.Events.Disconnect = onDisconnectFunc

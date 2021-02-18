@@ -92,9 +92,9 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 	width := perBits(byte(bpb))
 	sec := directSection{
 		bitArray{
-			width:          width,
-			valsPerElement: valsPerBitArrayElement(width),
-			data:           dataArray,
+			width:            width,
+			valuesPerElement: valuesPerBitArrayElement(width),
+			data:             dataArray,
 		},
 	}
 	if bpb <= maxPaletteBits {
@@ -133,12 +133,12 @@ func (d *directSection) clone(bpb uint) *directSection {
 }
 
 func newSectionWithSize(bpb uint) *directSection {
-	valsPerElement := valsPerBitArrayElement(bpb)
+	valuesPerElement := valuesPerBitArrayElement(bpb)
 	return &directSection{
 		bitArray{
-			width:          bpb,
-			valsPerElement: valsPerElement,
-			data:           make([]uint64, int(math.Ceil(16*16*16/float64(valsPerElement)))),
+			width:            bpb,
+			valuesPerElement: valuesPerElement,
+			data:             make([]uint64, int(math.Ceil(16*16*16/float64(valuesPerElement)))),
 		},
 	}
 }

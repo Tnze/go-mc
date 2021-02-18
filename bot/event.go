@@ -75,7 +75,7 @@ type eventBroker struct {
 	// The default handler will run only if pass == false.
 	ReceivePacket func(p pk.Packet) (pass bool, err error)
 
-	// PrePhysics will be called before a phyiscs tick.
+	// PrePhysics will be called before a physics tick.
 	PrePhysics func() error
 }
 
