@@ -24,7 +24,7 @@ func main() {
 	c = bot.NewClient()
 
 	//Login
-	err := c.JoinServer("localhost", 25565)
+	err := c.JoinServer("127.0.0.1")
 	if err != nil {
 		log.Fatal(err)
 	}

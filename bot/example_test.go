@@ -25,7 +25,7 @@ func ExampleClient_JoinServer_offline() {
 	c.Auth.UUID = hex.EncodeToString(id[:])
 
 	//Login
-	err := c.JoinServer("localhost", 25565)
+	err := c.JoinServer("127.0.0.1")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,7 +57,7 @@ func ExampleClient_JoinServer_online() {
 	c.AsTk = auth.AccessToken()
 
 	//Connect server
-	err = c.JoinServer("localhost", 25565)
+	err = c.JoinServer("127.0.0.1")
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -14,10 +14,11 @@ import (
 )
 
 var address = flag.String("address", "127.0.0.1", "The server address")
+var c *bot.Client
 
 func main() {
 	flag.Parse()
-	c := bot.NewClient()
+	c = bot.NewClient()
 
 	//Login
 	err := c.JoinServer(*address)
@@ -37,6 +38,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func onDeath() error {
+	log.Println("Died and Respawned")
+	// If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
+	return c.Respawn()
 }
 
 func onGameStart() error {

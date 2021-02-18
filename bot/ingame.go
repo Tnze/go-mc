@@ -460,7 +460,7 @@ func handleUpdateHealthPacket(c *Client, p pk.Packet) error {
 			return err
 		}
 	}
-	if c.Health < 1 { //player is dead
+	if c.Health <= 0 { //player is dead
 		c.Physics.Run = false
 		sendPlayerPositionAndLookPacket(c)
 		if c.Events.Die != nil {
