@@ -7,7 +7,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -81,7 +81,7 @@ func (p *ConfirmTransaction) Decode(pkt pk.Packet) error {
 
 func (p ConfirmTransaction) Encode() pk.Packet {
 	return pk.Marshal(
-		data.TransactionServerbound,
+		packetid.TransactionServerbound,
 		p.WindowID,
 		p.ActionID,
 		p.Accepted,

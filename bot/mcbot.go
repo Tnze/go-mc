@@ -10,7 +10,7 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -155,7 +155,7 @@ func (c *Client) Conn() *mcnet.Conn {
 func (c *Client) SendMessage(msg string) error {
 	return c.conn.WritePacket(
 		pk.Marshal(
-			data.ChatServerbound,
+			packetid.ChatServerbound,
 			pk.String(msg),
 		),
 	)

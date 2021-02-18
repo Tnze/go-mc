@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 
 	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -84,7 +84,7 @@ func (p *PluginMessage) Decode(pkt pk.Packet) error {
 
 func (p *PluginMessage) Encode() pk.Packet {
 	return pk.Marshal(
-		data.CustomPayloadServerbound,
+		packetid.CustomPayloadServerbound,
 		p.Channel,
 		p.Data,
 	)

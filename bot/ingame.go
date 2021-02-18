@@ -3,7 +3,6 @@ package bot
 import (
 	"bytes"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"time"
@@ -14,35 +13,42 @@ import (
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/bot/world/entity/player"
 	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/data/soundid"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/ptypes"
 )
 
-func (c *Client) updateServerPos(pos player.Pos) error {
+func (c *Client) updateServerPos(pos player.Pos) (err error) {
 	prev := c.Player.Pos
 	c.Player.Pos = pos
 
 	switch {
 	case !prev.LookEqual(pos) && !prev.PosEqual(pos):
-		sendPlayerPositionAndLookPacket(c)
+		err = sendPlayerPositionAndLookPacket(c)
 	case !prev.PosEqual(pos):
-		sendPlayerPositionPacket(c)
+		err = sendPlayerPositionPacket(c)
 	case !prev.LookEqual(pos):
-		sendPlayerLookPacket(c)
+		err = sendPlayerLookPacket(c)
 	case prev.OnGround != pos.OnGround:
-		c.conn.WritePacket(
+		err = c.conn.WritePacket(
 			pk.Marshal(
-				data.Flying,
+				packetid.Flying,
 				pk.Boolean(pos.OnGround),
 			),
 		)
+	}
+	if err != nil {
+		return err
 	}
 
 	if c.justTeleported || time.Now().Add(-time.Second).After(c.lastPosTx) {
 		c.justTeleported = false
 		c.lastPosTx = time.Now()
-		sendPlayerPositionPacket(c)
+		err = sendPlayerPositionPacket(c)
+		if err != nil {
+			return err
+		}
 	}
 
 	if c.Events.PositionChange != nil && !prev.Equal(pos) {
@@ -68,9 +74,6 @@ func (c *Client) HandleGame() error {
 				//Read packets
 				p, err := c.conn.ReadPacket()
 				if err != nil {
-					if e, ok := err.(*net.OpError); ok && e.Err.Error() != "use of closed network connection" {
-						fmt.Fprintf(os.Stderr, "ReadPacket error: %v\n", err)
-					}
 					return
 				}
 				c.inbound <- p
@@ -126,90 +129,90 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		}
 	}
 
-	switch data.PktID(p.ID) {
-	case data.Login:
+	switch p.ID {
+	case packetid.Login:
 		err = handleJoinGamePacket(c, p)
-	case data.CustomPayloadClientbound:
+	case packetid.CustomPayloadClientbound:
 		err = handlePluginPacket(c, p)
-	case data.Difficulty:
+	case packetid.Difficulty:
 		err = handleServerDifficultyPacket(c, p)
-	case data.SpawnPosition:
+	case packetid.SpawnPosition:
 		err = handleSpawnPositionPacket(c, p)
 		if err2 := c.Events.updateSeenPackets(seenSpawnPos); err == nil {
 			err = err2
 		}
-	case data.AbilitiesClientbound:
+	case packetid.AbilitiesClientbound:
 		err = handlePlayerAbilitiesPacket(c, p)
-	case data.UpdateHealth:
+	case packetid.UpdateHealth:
 		err = handleUpdateHealthPacket(c, p)
-	case data.ChatClientbound:
+	case packetid.ChatClientbound:
 		err = handleChatMessagePacket(c, p)
 
-	case data.HeldItemSlotClientbound:
+	case packetid.HeldItemSlotClientbound:
 		err = handleHeldItemPacket(c, p)
-	case data.WindowItems:
+	case packetid.WindowItems:
 		err = handleWindowItemsPacket(c, p)
-	case data.OpenWindow:
+	case packetid.OpenWindow:
 		err = handleOpenWindowPacket(c, p)
-	case data.TransactionClientbound:
+	case packetid.TransactionClientbound:
 		err = handleWindowConfirmationPacket(c, p)
 
-	case data.DeclareRecipes:
+	case packetid.DeclareRecipes:
 		// handleDeclareRecipesPacket(g, reader)
-	case data.KeepAliveClientbound:
+	case packetid.KeepAliveClientbound:
 		err = handleKeepAlivePacket(c, p)
 
-	case data.SpawnEntity:
+	case packetid.SpawnEntity:
 		err = handleSpawnEntityPacket(c, p)
-	case data.NamedEntitySpawn:
+	case packetid.NamedEntitySpawn:
 		err = handleSpawnPlayerPacket(c, p)
-	case data.SpawnEntityLiving:
+	case packetid.SpawnEntityLiving:
 		err = handleSpawnLivingEntityPacket(c, p)
-	case data.Animation:
+	case packetid.Animation:
 		err = handleEntityAnimationPacket(c, p)
-	case data.EntityStatus:
+	case packetid.EntityStatus:
 		err = handleEntityStatusPacket(c, p)
-	case data.EntityDestroy:
+	case packetid.EntityDestroy:
 		err = handleDestroyEntitiesPacket(c, p)
-	case data.RelEntityMove:
+	case packetid.RelEntityMove:
 		err = handleEntityPositionPacket(c, p)
-	case data.EntityMoveLook:
+	case packetid.EntityMoveLook:
 		err = handleEntityPositionLookPacket(c, p)
-	case data.EntityLook:
+	case packetid.EntityLook:
 		err = handleEntityLookPacket(c, p)
-	case data.Entity:
+	case packetid.Entity:
 		err = handleEntityMovePacket(c, p)
 
-	case data.UpdateLight:
+	case packetid.UpdateLight:
 		err = c.Events.updateSeenPackets(seenUpdateLight)
-	case data.MapChunk:
+	case packetid.MapChunk:
 		err = handleChunkDataPacket(c, p)
-	case data.BlockChange:
+	case packetid.BlockChange:
 		err = handleBlockChangePacket(c, p)
-	case data.MultiBlockChange:
+	case packetid.MultiBlockChange:
 		err = handleMultiBlockChangePacket(c, p)
-	case data.UnloadChunk:
+	case packetid.UnloadChunk:
 		err = handleUnloadChunkPacket(c, p)
-	case data.TileEntityData:
+	case packetid.TileEntityData:
 		err = handleTileEntityDataPacket(c, p)
 
-	case data.PositionClientbound:
+	case packetid.PositionClientbound:
 		err = handlePlayerPositionAndLookPacket(c, p)
 		sendPlayerPositionAndLookPacket(c) // to confirm the position
 		if err2 := c.Events.updateSeenPackets(seenPlayerPositionAndLook); err == nil {
 			err = err2
 		}
 
-	case data.KickDisconnect:
+	case packetid.KickDisconnect:
 		err = handleDisconnectPacket(c, p)
 		disconnect = true
-	case data.SetSlot:
+	case packetid.SetSlot:
 		err = handleSetSlotPacket(c, p)
-	case data.SoundEffect:
+	case packetid.SoundEffect:
 		err = handleSoundEffect(c, p)
-	case data.NamedSoundEffect:
+	case packetid.NamedSoundEffect:
 		err = handleNamedSoundEffect(c, p)
-	case data.Experience:
+	case packetid.Experience:
 		err = handleSetExperience(c, p)
 	}
 	return
@@ -497,7 +500,7 @@ func handleJoinGamePacket(c *Client, p pk.Packet) error {
 	c.conn.WritePacket(
 		//PluginMessage packet (serverbound) - sending minecraft brand.
 		pk.Marshal(
-			data.CustomPayloadServerbound,
+			packetid.CustomPayloadServerbound,
 			pk.Identifier("minecraft:brand"),
 			pk.String(c.settings.Brand),
 		),
@@ -572,7 +575,7 @@ func handlePlayerAbilitiesPacket(c *Client, p pk.Packet) error {
 	c.conn.WritePacket(
 		//ClientSettings packet (serverbound)
 		pk.Marshal(
-			data.Settings,
+			packetid.Settings,
 			pk.String(c.settings.Locale),
 			pk.Byte(c.settings.ViewDistance),
 			pk.VarInt(c.settings.ChatMode),
@@ -690,7 +693,7 @@ func handlePlayerPositionAndLookPacket(c *Client, p pk.Packet) error {
 
 	//Confirm
 	return c.conn.WritePacket(pk.Marshal(
-		data.TeleportConfirm,
+		packetid.TeleportConfirm,
 		pk.VarInt(pkt.TeleportID),
 	))
 }
@@ -702,7 +705,7 @@ func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 	}
 	//Response
 	return c.conn.WritePacket(pk.Marshal(
-		data.KeepAliveServerbound,
+		packetid.KeepAliveServerbound,
 		KeepAliveID,
 	))
 }

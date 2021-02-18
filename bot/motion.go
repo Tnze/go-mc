@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strconv"
 
-	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/ptypes"
 )
@@ -14,7 +14,7 @@ import (
 // It's just animation.
 func (c *Client) SwingArm(hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.ArmAnimation,
+		packetid.ArmAnimation,
 		pk.VarInt(hand),
 	))
 }
@@ -22,7 +22,7 @@ func (c *Client) SwingArm(hand int) error {
 // Respawn the player when it was dead.
 func (c *Client) Respawn() error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.ClientCommand,
+		packetid.ClientCommand,
 		pk.VarInt(0),
 	))
 }
@@ -31,7 +31,7 @@ func (c *Client) Respawn() error {
 // hand could be one of 0: main hand, 1: off hand
 func (c *Client) UseItem(hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.UseItem,
+		packetid.UseItem,
 		pk.VarInt(hand),
 	))
 }
@@ -43,7 +43,7 @@ func (c *Client) UseItem(hand int) error {
 // and within a 4-unit radius of the player's position.
 func (c *Client) UseEntity(entityID int32, hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.UseEntity,
+		packetid.UseEntity,
 		pk.VarInt(entityID),
 		pk.VarInt(0),
 		pk.VarInt(hand),
@@ -54,7 +54,7 @@ func (c *Client) UseEntity(entityID int32, hand int) error {
 // The attack version of UseEntity. Has the same limit.
 func (c *Client) AttackEntity(entityID int32, hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.UseEntity,
+		packetid.UseEntity,
 		pk.VarInt(entityID),
 		pk.VarInt(1),
 	))
@@ -63,7 +63,7 @@ func (c *Client) AttackEntity(entityID int32, hand int) error {
 // UseEntityAt is a variety of UseEntity with target location
 func (c *Client) UseEntityAt(entityID int32, x, y, z float32, hand int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.UseEntity,
+		packetid.UseEntity,
 		pk.VarInt(entityID),
 		pk.VarInt(2),
 		pk.Float(x), pk.Float(y), pk.Float(z),
@@ -78,7 +78,7 @@ func (c *Client) Chat(msg string) error {
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
-		data.ChatServerbound,
+		packetid.ChatServerbound,
 		pk.String(msg),
 	))
 }
@@ -103,7 +103,7 @@ func (c *Client) PluginMessage(channel string, msg []byte) error {
 // insideBlock is true when the player's head is inside of a block's collision.
 func (c *Client) UseBlock(hand, locX, locY, locZ, face int, cursorX, cursorY, cursorZ float32, insideBlock bool) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.UseItem,
+		packetid.UseItem,
 		pk.VarInt(hand),
 		pk.Position{X: locX, Y: locY, Z: locZ},
 		pk.VarInt(face),
@@ -120,7 +120,7 @@ func (c *Client) SelectItem(slot int) error {
 	}
 
 	return c.conn.WritePacket(pk.Marshal(
-		data.HeldItemSlotServerbound,
+		packetid.HeldItemSlotServerbound,
 		pk.Short(slot),
 	))
 }
@@ -137,14 +137,14 @@ func (c *Client) SelectItem(slot int) error {
 // the server swaps the items and then change player's selected slot (cause the HeldItemChange event).
 func (c *Client) PickItem(slot int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.PickItem,
+		packetid.PickItem,
 		pk.VarInt(slot),
 	))
 }
 
 func (c *Client) playerAction(status, locX, locY, locZ, face int) error {
 	return c.conn.WritePacket(pk.Marshal(
-		data.BlockDig,
+		packetid.BlockDig,
 		pk.VarInt(status),
 		pk.Position{X: locX, Y: locY, Z: locZ},
 		pk.Byte(face),

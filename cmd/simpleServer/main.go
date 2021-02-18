@@ -2,18 +2,21 @@
 package main
 
 import (
-	"log"
-
-	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/data"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/offline"
 	"github.com/google/uuid"
+	"log"
 )
 
 const ProtocolVersion = 578
-const Threshold = 256
 const MaxPlayer = 200
+
+// Packet IDs
+const (
+	PlayerPositionAndLookClientbound = 0x36
+	JoinGame                         = 0x26
+)
 
 func main() {
 	l, err := net.ListenMC(":25565")
@@ -58,20 +61,26 @@ func handlePlaying(conn net.Conn, protocol int32) {
 	}
 
 	// Write LoginSuccess packet
-	err = loginSuccess(conn, info.Name, info.UUID)
-	if err != nil {
+
+	if err = loginSuccess(conn, info.Name, info.UUID); err != nil {
 		log.Print("Login failed on success")
 		return
 	}
 
-	joinGame(conn)
-	conn.WritePacket(pk.Marshal(data.PositionClientbound,
-		// https://wiki.vg/Protocol#Player_Position_And_Look_.28clientbound.29
+	if err := joinGame(conn); err != nil {
+		log.Print("Login failed on joinGame")
+		return
+	}
+	if err := conn.WritePacket(pk.Marshal(PlayerPositionAndLookClientbound,
+		// https://wiki.vg/index.php?title=Protocol&oldid=16067#Player_Position_And_Look_.28clientbound.29
 		pk.Double(0), pk.Double(0), pk.Double(0), // XYZ
 		pk.Float(0), pk.Float(0), // Yaw Pitch
 		pk.Byte(0),   // flag
 		pk.VarInt(0), // TP ID
-	))
+	)); err != nil {
+		log.Print("Login failed on sending PlayerPositionAndLookClientbound")
+		return
+	}
 	// Just for block this goroutine. Keep the connection
 	for {
 		if _, err := conn.ReadPacket(); err != nil {
@@ -109,7 +118,7 @@ func acceptLogin(conn net.Conn) (info PlayerInfo, err error) {
 		log.Panic("Not Implement")
 	} else {
 		// offline-mode UUID
-		info.UUID = bot.OfflineUUID(info.Name)
+		info.UUID = offline.NameToUUID(info.Name)
 	}
 
 	return
@@ -140,7 +149,7 @@ func loginSuccess(conn net.Conn, name string, uuid uuid.UUID) error {
 }
 
 func joinGame(conn net.Conn) error {
-	return conn.WritePacket(pk.Marshal(data.Login,
+	return conn.WritePacket(pk.Marshal(JoinGame,
 		pk.Int(0),                  // EntityID
 		pk.UnsignedByte(1),         // Gamemode
 		pk.Int(0),                  // Dimension

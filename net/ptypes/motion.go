@@ -2,7 +2,7 @@
 package ptypes
 
 import (
-	"github.com/Tnze/go-mc/data"
+	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -45,13 +45,10 @@ type PositionAndLookServerbound struct {
 
 func (p PositionAndLookServerbound) Encode() pk.Packet {
 	return pk.Marshal(
-		data.PositionLook,
-		pk.Double(p.X),
-		pk.Double(p.Y),
-		pk.Double(p.Z),
-		pk.Float(p.Yaw),
-		pk.Float(p.Pitch),
-		pk.Boolean(p.OnGround),
+		packetid.PositionLook,
+		p.X, p.Y, p.Z,
+		p.Yaw, p.Pitch,
+		p.OnGround,
 	)
 }
 
@@ -63,11 +60,9 @@ type Position struct {
 
 func (p Position) Encode() pk.Packet {
 	return pk.Marshal(
-		data.PositionServerbound,
-		pk.Double(p.X),
-		pk.Double(p.Y),
-		pk.Double(p.Z),
-		pk.Boolean(p.OnGround),
+		packetid.PositionServerbound,
+		p.X, p.Y, p.Z,
+		p.OnGround,
 	)
 }
 
@@ -79,9 +74,8 @@ type Look struct {
 
 func (p Look) Encode() pk.Packet {
 	return pk.Marshal(
-		data.Look,
-		pk.Float(p.Yaw),
-		pk.Float(p.Pitch),
-		pk.Boolean(p.OnGround),
+		packetid.Look,
+		p.Yaw, p.Pitch,
+		p.OnGround,
 	)
 }
