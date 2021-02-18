@@ -1,5 +1,4 @@
 // This program can automatic download language.json file and convert into .go
-// But en-us.json is not included.
 package main
 
 import (
@@ -28,8 +27,12 @@ func main() {
 		readLang("en_us", f)
 		return
 	}
-	// from {https://launchermeta.mojang.com/mc/game/version_manifest.json}.assetIndex.url
-	versionURL := "https://launchermeta.mojang.com/v1/packages/93f435ca0c67eff15eb81a0f4aa234708d6b34c9/1.15.json"
+	// Pseudo code for get versionURL:
+	// $manifest = {https://launchermeta.mojang.com/mc/game/version_manifest.json}
+	// $latest = $manifest.latest.release
+	// $version = {$manifest.versions[where .id == $latest ].url}
+	// $versionURL = $version.assetIndex.url
+	versionURL := "https://launchermeta.mojang.com/v1/packages/3a5d110a6ab102c7083bae4296d2de4b8fcf92eb/1.16.json"
 	log.Print("start generating lang packages")
 
 	resp, err := http.Get(versionURL)
