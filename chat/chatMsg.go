@@ -4,8 +4,8 @@
 // or net/packet.Field .
 //
 // It's very recommended that use SetLanguage before using Message.String or Message.ClearString,
-// or the translate message will be ignore.
-// Note: The package of data/lang/... will SetLanguage on theirs init() so you don't need do again.
+// or the `github.com/Tnze/go-mc/data/en-us` will be used.
+// Note: The package of data/lang/... will SetLanguage on theirs init() so you don't need to call by your self.
 package chat
 
 import (
@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"strings"
 
+	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -140,8 +141,8 @@ var colors = map[string]string{
 }
 
 // translateMap is the translation table.
-// By default it's a void map.
-var translateMap = map[string]string{}
+// By default it's set by data/lang/en-us.
+var translateMap map[string]string
 
 // SetLanguage set the translate map to this map.
 func SetLanguage(trans map[string]string) {
