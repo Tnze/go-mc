@@ -3,7 +3,6 @@
 package phy
 
 import (
-	"fmt"
 	"math"
 
 	"github.com/Tnze/go-mc/bot/path"
@@ -60,8 +59,6 @@ type State struct {
 }
 
 func (s *State) ServerPositionUpdate(player player.Pos, w World) error {
-	fmt.Printf("TELEPORT (y=%0.2f, velY=%0.3f): %0.2f, %0.2f, %0.2f\n", s.Pos.Y, s.Vel.Y, player.X-s.Pos.X, player.Y-s.Pos.Y, player.Z-s.Pos.Z)
-
 	s.Pos = path.Point{X: player.X, Y: player.Y, Z: player.Z}
 	s.Yaw, s.Pitch = float64(player.Yaw), float64(player.Pitch)
 	s.Vel = path.Point{}
@@ -186,7 +183,6 @@ func (s *State) applyLookInputs(input path.Inputs) {
 }
 
 func (s *State) applyPosInputs(input path.Inputs, acceleration, inertia float64) {
-	// fmt.Println(input.Jump, s.lastJump, s.onGround)
 	if input.Jump && s.lastJump+minJumpTicks < s.tick && s.onGround {
 		s.lastJump = s.tick
 		s.Vel.Y = 0.42
@@ -206,15 +202,10 @@ func (s *State) applyPosInputs(input path.Inputs, acceleration, inertia float64)
 }
 
 func (s *State) tickPosition(w World) {
-	// fmt.Printf("TICK POSITION: %0.2f, %0.2f, %0.2f - (%0.2f, %0.2f, %0.2f)\n", s.Pos.X, s.Pos.Y, s.Pos.Z, s.Vel.X, s.Vel.Y, s.Vel.Z)
-
 	player, newVel := s.computeCollisionYXZ(s.BB(), s.BB().Offset(s.Vel.X, s.Vel.Y, s.Vel.Z), s.Vel, w)
-	//fmt.Printf("offset = %0.2f, %0.2f, %0.2f\n", player.X.Min-s.Pos.X, player.Y.Min-s.Pos.Y, player.Z.Min-s.Pos.Z)
 
-	//fmt.Printf("onGround = %v, s.Vel.Y = %0.3f, newVel.Y = %0.3f\n", s.onGround, s.Vel.Y, newVel.Y)
 	if s.onGround || (s.Vel.Y != newVel.Y && s.Vel.Y < 0) {
 		bb := s.BB()
-		//fmt.Printf("Player pos = %0.2f, %0.2f, %0.2f\n", bb.X.Min, bb.Y.Min, bb.Z.Min)
 		surroundings := s.surroundings(bb.Offset(s.Vel.X, stepHeight, s.Vel.Z), w)
 		outVel := s.Vel
 
@@ -231,7 +222,6 @@ func (s *State) tickPosition(w World) {
 			outVel.Z = b.ZOffset(bb, outVel.Z)
 		}
 		bb = bb.Offset(0, 0, outVel.Z)
-		//fmt.Printf("Post-collision = %0.2f, %0.2f, %0.2f\n", bb.X.Min, bb.Y.Min, bb.Z.Min)
 
 		outVel.Y *= -1
 		// Lower the player back down to be on the ground.
@@ -239,11 +229,10 @@ func (s *State) tickPosition(w World) {
 			outVel.Y = b.YOffset(bb, outVel.Y)
 		}
 		bb = bb.Offset(0, outVel.Y, 0)
-		//fmt.Printf("Post-lower = %0.2f, %0.2f, %0.2f\n", bb.X.Min, bb.Y.Min, bb.Z.Min)
 
 		oldMove := newVel.X*newVel.X + newVel.Z*newVel.Z
 		newMove := outVel.X*outVel.X + outVel.Z*outVel.Z
-		// fmt.Printf("oldMove/newmove = %v, (%0.2f >= %0.6f) = %v\n", oldMove >= newMove, outVel.Y, 0.000002-stepHeight, outVel.Y <= (0.000002-stepHeight))
+
 		if oldMove >= newMove || outVel.Y <= (0.000002-stepHeight) {
 			// fmt.Println("nope")
 		} else {
@@ -269,7 +258,6 @@ func modYaw(new, old float64) float64 {
 	} else if delta < -180 {
 		delta += 360
 	}
-	// fmt.Printf("(%.2f - %.2f) = %.2f\n", new, old, delta)
 	return delta
 }
 

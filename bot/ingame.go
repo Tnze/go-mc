@@ -211,8 +211,6 @@ func (c *Client) handlePacket(p pk.Packet) (disconnect bool, err error) {
 		err = handleNamedSoundEffect(c, p)
 	case data.Experience:
 		err = handleSetExperience(c, p)
-	default:
-		// fmt.Printf("ignore pack id %X\n", p.ID)
 	}
 	return
 }
@@ -238,7 +236,6 @@ func handleSpawnPlayerPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	fmt.Println(se)
 	return c.Wd.OnSpawnPlayer(se)
 }
 
@@ -271,7 +268,6 @@ func handleEntityMovePacket(c *Client, p pk.Packet) error {
 	if err := p.Scan(&id); err != nil {
 		return err
 	}
-	fmt.Printf("EntityMove (probs didnt for players): %+v\n", id)
 	return nil
 }
 
@@ -280,7 +276,6 @@ func handleEntityAnimationPacket(c *Client, p pk.Packet) error {
 	if err := se.Decode(p); err != nil {
 		return err
 	}
-	// fmt.Printf("EntityAnimationClientbound: %+v\n", se)
 	return nil
 }
 
@@ -292,7 +287,6 @@ func handleEntityStatusPacket(c *Client, p pk.Packet) error {
 	if err := p.Scan(&id, &status); err != nil {
 		return err
 	}
-	// fmt.Printf("EntityStatus: %v, %v\n", id, status)
 	return nil
 }
 

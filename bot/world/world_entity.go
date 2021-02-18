@@ -63,7 +63,6 @@ func (w *World) OnSpawnLivingEntity(pkt ptypes.SpawnLivingEntity) error {
 		return fmt.Errorf("unknown entity ID %v", pkt.Type)
 	}
 
-	// fmt.Printf("SpawnLivingEntity %q\n", base.Name)
 	w.Entities[int32(pkt.ID)] = &entity.Entity{
 		ID:        int32(pkt.ID),
 		Base:      base,
@@ -87,7 +86,6 @@ func (w *World) OnSpawnPlayer(pkt ptypes.SpawnPlayer) error {
 	w.entityLock.Lock()
 	defer w.entityLock.Unlock()
 
-	// fmt.Printf("SpawnPlayer %v\n", pkt)
 	w.Entities[int32(pkt.ID)] = &entity.Entity{
 		ID:    int32(pkt.ID),
 		Base:  &e.Player,

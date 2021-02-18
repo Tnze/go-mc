@@ -87,7 +87,6 @@ func (t Tile) PathNeighbors() []astar.Pather {
 		x, y, z := m.Offset()
 		pos := V3{X: t.Pos.X + x, Y: t.Pos.Y + y, Z: t.Pos.Z + z}
 		possible := m.Possible(t.Nav, pos.X, pos.Y, pos.Z, t.Pos, t.Movement)
-		// fmt.Printf("%v-%v: Trying (%v) %v: possible=%v\n", t.Movement, t.Pos, pos, m, possible)
 		if possible {
 			bStateID := t.Nav.World.GetBlockStatus(pos.X, pos.Y, pos.Z)
 			possibles = append(possibles, Tile{
@@ -100,7 +99,6 @@ func (t Tile) PathNeighbors() []astar.Pather {
 		}
 	}
 
-	// fmt.Printf("%v.Neighbours(): %+v\n", t.Pos, possibles)
 	return possibles
 }
 
@@ -206,6 +204,5 @@ func (t Tile) IsComplete(d Point) bool {
 		yLowerCutoff -= 0.5
 	}
 
-	// fmt.Println(t.HalfBlock, d.Y, d.Y >= yLowerCutoff, d.Y <= 0.08)
 	return (d.X*d.X+d.Z*d.Z) < (0.18*0.18) && d.Y >= yLowerCutoff && d.Y <= 0.08
 }
