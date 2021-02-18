@@ -5,6 +5,7 @@
 package bot
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"strconv"
@@ -16,18 +17,48 @@ import (
 
 // ProtocolVersion , the protocol version number of minecraft net protocol
 const ProtocolVersion = 754
+const DefaultPort = 25565
 
 // JoinServer connect a Minecraft server for playing the game.
-func (c *Client) JoinServer(addr string, port int) (err error) {
-	return c.JoinServerWithDialer(&net.Dialer{}, fmt.Sprintf("%s:%d", addr, port))
+// Using roughly the same way to parse address as minecraft.
+func (c *Client) JoinServer(addr string) (err error) {
+	return c.JoinServerWithDialer(&net.Dialer{}, addr)
+}
+
+func parseAddress(r *net.Resolver, addr string) (string, error) {
+	const missingPort = "missing port in address"
+	var port uint16
+	host, portStr, err := net.SplitHostPort(addr)
+	if addrErr, ok := err.(*net.AddrError); ok && addrErr.Err == missingPort {
+		host, port = addr, DefaultPort
+	} else if err != nil {
+		return "", err
+	} else {
+		if portInt, err := strconv.ParseUint(portStr, 10, 16); err != nil {
+			port = DefaultPort
+		} else {
+			port = uint16(portInt)
+		}
+	}
+
+	_, srvs, err := r.LookupSRV(context.TODO(), "minecraft", "tcp", host)
+	if err != nil && len(srvs) > 0 {
+		host, port = srvs[0].Target, srvs[0].Port
+	}
+
+	return net.JoinHostPort(host, strconv.FormatUint(uint64(port), 10)), nil
 }
 
 // JoinServerWithDialer is similar to JoinServer but using a Dialer.
-func (c *Client) JoinServerWithDialer(d Dialer, addr string) (err error) {
+func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
+	addr, err = parseAddress(d.Resolver, addr)
+	if err != nil {
+		return fmt.Errorf("parse address error: %w", err)
+	}
 	return c.join(d, addr)
 }
 
-func (c *Client) join(d Dialer, addr string) (err error) {
+func (c *Client) join(d *net.Dialer, addr string) (err error) {
 	conn, err := d.Dial("tcp", addr)
 	if err != nil {
 		err = fmt.Errorf("bot: connect server fail: %v", err)
@@ -112,12 +143,6 @@ func (c *Client) join(d Dialer, addr string) (err error) {
 			}
 		}
 	}
-}
-
-// A Dialer is a means to establish a connection.
-type Dialer interface {
-	// Dial connects to the given address via the proxy.
-	Dial(network, addr string) (c net.Conn, err error)
 }
 
 // Conn return the MCConn of the Client.

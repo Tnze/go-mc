@@ -2,21 +2,25 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"log"
 
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
-	_ "github.com/Tnze/go-mc/data/lang/en-us"
+	_ "github.com/Tnze/go-mc/data/lang/zh-cn"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+var address = flag.String("address", "127.0.0.1", "The server address")
+
 func main() {
+	flag.Parse()
 	c := bot.NewClient()
 
 	//Login
-	err := c.JoinServer("localhost", 25565)
+	err := c.JoinServer(*address)
 	if err != nil {
 		log.Fatal(err)
 	}
