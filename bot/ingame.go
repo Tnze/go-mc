@@ -319,7 +319,7 @@ func handleSoundEffect(c *Client, p pk.Packet) error {
 	}
 
 	if c.Events.SoundPlay != nil {
-		if soundName, ok := data.GetSoundNameByID(data.SoundID(s.Sound)); ok {
+		if soundName, ok := soundid.GetSoundNameByID(soundid.SoundID(s.Sound)); ok {
 			return c.Events.SoundPlay(
 				soundName, int(s.Category),
 				float64(s.X)/8, float64(s.Y)/8, float64(s.Z)/8,
