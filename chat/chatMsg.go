@@ -11,11 +11,11 @@ package chat
 import (
 	"encoding/json"
 	"fmt"
+	en_us "github.com/Tnze/go-mc/data/lang/en-us"
 	"io"
 	"regexp"
 	"strings"
 
-	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -141,8 +141,8 @@ var colors = map[string]string{
 }
 
 // translateMap is the translation table.
-// By default it's set by data/lang/en-us.
-var translateMap map[string]string
+// By default it's en-us.
+var translateMap = en_us.Map
 
 // SetLanguage set the translate map to this map.
 func SetLanguage(trans map[string]string) {

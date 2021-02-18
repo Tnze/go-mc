@@ -6,7 +6,6 @@ import (
 	"github.com/Tnze/go-mc/chat"
 	"testing"
 
-	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
