@@ -10,8 +10,9 @@ import (
 )
 
 func acceptListPing(conn net.Conn) {
+	var p pk.Packet
 	for i := 0; i < 2; i++ { // ping or list. Only accept twice
-		p, err := conn.ReadPacket()
+		err := conn.ReadPacket(&p)
 		if err != nil {
 			return
 		}

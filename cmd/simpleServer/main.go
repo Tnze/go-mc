@@ -83,7 +83,8 @@ func handlePlaying(conn net.Conn, protocol int32) {
 	}
 	// Just for block this goroutine. Keep the connection
 	for {
-		if _, err := conn.ReadPacket(); err != nil {
+		var p pk.Packet
+		if err := conn.ReadPacket(&p); err != nil {
 			log.Printf("ReadPacket error: %v", err)
 			break
 		}
@@ -102,7 +103,7 @@ type PlayerInfo struct {
 func acceptLogin(conn net.Conn) (info PlayerInfo, err error) {
 	//login start
 	var p pk.Packet
-	p, err = conn.ReadPacket()
+	err = conn.ReadPacket(&p)
 	if err != nil {
 		return
 	}
@@ -127,14 +128,14 @@ func acceptLogin(conn net.Conn) (info PlayerInfo, err error) {
 // handshake receive and parse Handshake packet
 func handshake(conn net.Conn) (protocol, intention int32, err error) {
 	var (
+		p                   pk.Packet
 		Protocol, Intention pk.VarInt
 		ServerAddress       pk.String        // ignored
 		ServerPort          pk.UnsignedShort // ignored
 	)
 	// receive handshake packet
-	p, err := conn.ReadPacket()
-	if err != nil {
-		return 0, 0, err
+	if err = conn.ReadPacket(&p); err != nil {
+		return
 	}
 	err = p.Scan(&Protocol, &ServerAddress, &ServerPort, &Intention)
 	return int32(Protocol), int32(Intention), err

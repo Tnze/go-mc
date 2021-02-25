@@ -106,8 +106,7 @@ func (c *Client) join(d *net.Dialer, addr string) (err error) {
 	for {
 		//Recive Packet
 		var pack pk.Packet
-		pack, err = c.conn.ReadPacket()
-		if err != nil {
+		if err = c.conn.ReadPacket(&pack); err != nil {
 			err = fmt.Errorf("bot: recv packet for Login fail: %v", err)
 			return
 		}

@@ -59,13 +59,13 @@ func pingAndList(addr string, port int, conn *net.Conn) ([]byte, time.Duration, 
 		return nil, 0, fmt.Errorf("bot: send list packect fail: %v", err)
 	}
 
+	var p pk.Packet
 	//服务器返回状态
-	recv, err := conn.ReadPacket()
-	if err != nil {
+	if err := conn.ReadPacket(&p); err != nil {
 		return nil, 0, fmt.Errorf("bot: recv list packect fail: %v", err)
 	}
 	var s pk.String
-	err = recv.Scan(&s)
+	err = p.Scan(&s)
 	if err != nil {
 		return nil, 0, fmt.Errorf("bot: scan list packect fail: %v", err)
 	}
@@ -77,12 +77,11 @@ func pingAndList(addr string, port int, conn *net.Conn) ([]byte, time.Duration, 
 		return nil, 0, fmt.Errorf("bot: send ping packect fail: %v", err)
 	}
 
-	recv, err = conn.ReadPacket()
-	if err != nil {
+	if err = conn.ReadPacket(&p); err != nil {
 		return nil, 0, fmt.Errorf("bot: recv pong packect fail: %v", err)
 	}
 	var t pk.Long
-	err = recv.Scan(&t)
+	err = p.Scan(&t)
 	if err != nil {
 		return nil, 0, fmt.Errorf("bot: scan pong packect fail: %v", err)
 	}

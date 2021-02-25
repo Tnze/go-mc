@@ -71,9 +71,9 @@ func (c *Client) HandleGame() error {
 				return
 
 			default:
+				var p pk.Packet
 				//Read packets
-				p, err := c.conn.ReadPacket()
-				if err != nil {
+				if err := c.conn.ReadPacket(&p); err != nil {
 					return
 				}
 				c.inbound <- p

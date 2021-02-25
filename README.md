@@ -81,7 +81,7 @@ Then you can send it to server using `conn.WritePacket(p)`. The `conn` is a `net
 
 Receiving packet is quite easy too. To read a packet, call `p.Scan()` like this:
 
-接收包也非常简单，只要调用`conn.ReadPacket()`即可。而要读取包内数据则需要使用`p.Scan()`函数，就像这样：
+接收包也非常简单，只要调用`conn.ReadPacket(&p)`即可。而要读取包内数据则需要使用`p.Scan()`函数，就像这样：
 
 ```go
 var (
