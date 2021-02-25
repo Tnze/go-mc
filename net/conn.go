@@ -85,8 +85,7 @@ func (c *Conn) ReadPacket(p *pk.Packet) error {
 
 //WritePacket write a Packet to Conn.
 func (c *Conn) WritePacket(p pk.Packet) error {
-	_, err := c.Write(p.Pack(c.threshold))
-	return err
+	return p.Pack(c, c.threshold)
 }
 
 // SetCipher load the decode/encode stream to this Conn

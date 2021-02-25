@@ -59,17 +59,18 @@ func (p *UpdateHealth) Decode(pkt pk.Packet) error {
 // PluginData encodes the custom data encoded in a plugin message.
 type PluginData []byte
 
-func (p PluginData) Encode() []byte {
-	return []byte(p)
+func (p PluginData) WriteTo(w io.Writer) (int64, error) {
+	n, err := w.Write(p)
+	return int64(n), err
 }
 
-func (p *PluginData) Decode(r pk.DecodeReader) error {
+func (p *PluginData) ReadFrom(r io.Reader) (int64, error) {
 	d, err := io.ReadAll(r)
 	if err != nil {
-		return err
+		return int64(len(d)), err
 	}
 	*p = d
-	return nil
+	return int64(len(d)), nil
 }
 
 // PluginMessage represents a packet with a customized payload.

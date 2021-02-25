@@ -51,22 +51,23 @@ func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
 }
 
 //Decode for a ChatMsg packet
-func (m *Message) Decode(r pk.DecodeReader) error {
+func (m *Message) ReadFrom(r io.Reader) (int64, error) {
 	var Len pk.VarInt
-	if err := Len.Decode(r); err != nil {
-		return err
+	if n, err := Len.ReadFrom(r); err != nil {
+		return n, err
 	}
-
-	return json.NewDecoder(io.LimitReader(r, int64(Len))).Decode(m)
+	lr := &io.LimitedReader{R: r, N: int64(Len)}
+	err := json.NewDecoder(lr).Decode(m)
+	return int64(Len) - lr.N, err
 }
 
 //Encode for a ChatMsg packet
-func (m Message) Encode() []byte {
+func (m Message) WriteTo(w io.Writer) (int64, error) {
 	code, err := json.Marshal(m)
 	if err != nil {
 		panic(err)
 	}
-	return pk.String(code).Encode()
+	return pk.String(code).WriteTo(w)
 }
 
 func (m *Message) Append(extraMsg ...Message) {

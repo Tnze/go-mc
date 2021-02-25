@@ -65,7 +65,7 @@ func onPluginMessage(channel string, data []byte) error {
 	switch channel {
 	case "minecraft:brand":
 		var brand pk.String
-		if err := brand.Decode(bytes.NewReader(data)); err != nil {
+		if _, err := brand.ReadFrom(bytes.NewReader(data)); err != nil {
 			return err
 		}
 		log.Println("Server brand is:", brand)

@@ -62,34 +62,12 @@ type encryptionRequest struct {
 	VerifyToken []byte
 }
 
-func (e *encryptionRequest) Decode(r pk.DecodeReader) error {
-	var serverID pk.String
-	if err := serverID.Decode(r); err != nil {
-		return err
-	}
-
-	var publicKeyLength, verifyTokenLength pk.VarInt
-
-	if err := publicKeyLength.Decode(r); err != nil {
-		return err
-	}
-	publicKey, err := pk.ReadNBytes(r, int(publicKeyLength))
-	if err != nil {
-		return err
-	}
-
-	if err := verifyTokenLength.Decode(r); err != nil {
-		return err
-	}
-	verifyToken, err := pk.ReadNBytes(r, int(verifyTokenLength))
-	if err != nil {
-		return err
-	}
-
-	e.ServerID = string(serverID)
-	e.PublicKey = publicKey
-	e.VerifyToken = verifyToken
-	return nil
+func (e *encryptionRequest) ReadFrom(r io.Reader) (int64, error) {
+	return pk.Tuple{
+		(*pk.String)(&e.ServerID),
+		(*pk.ByteArray)(&e.PublicKey),
+		(*pk.ByteArray)(&e.VerifyToken),
+	}.ReadFrom(r)
 }
 
 // authDigest computes a special SHA-1 digest required for Minecraft web
@@ -216,14 +194,9 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte) (erp p
 		err = fmt.Errorf("encryption verfy tokenfail: %v", err)
 		return
 	}
-	var data []byte
-	data = append(data, pk.VarInt(int32(len(cryptPK))).Encode()...)
-	data = append(data, cryptPK...)
-	data = append(data, pk.VarInt(int32(len(verifyT))).Encode()...)
-	data = append(data, verifyT...)
-	erp = pk.Packet{
-		ID:   0x01,
-		Data: data,
-	}
-	return
+	return pk.Marshal(
+		0x01,
+		pk.ByteArray(cryptPK),
+		pk.ByteArray(verifyT),
+	), nil
 }

@@ -18,20 +18,10 @@ type Field interface {
 }
 
 // A FieldEncoder can be encode as minecraft protocol used.
-type FieldEncoder interface {
-	Encode() []byte
-}
+type FieldEncoder io.WriterTo
 
 // A FieldDecoder can Decode from minecraft protocol
-type FieldDecoder interface {
-	Decode(r DecodeReader) error
-}
-
-//DecodeReader is both io.Reader and io.ByteReader
-type DecodeReader interface {
-	io.ByteReader
-	io.Reader
-}
+type FieldDecoder io.ReaderFrom
 
 type (
 	//Boolean of True is encoded as 0x01, false as 0x00.
@@ -71,7 +61,7 @@ type (
 	}
 
 	//Angle is rotation angle in steps of 1/256 of a full turn
-	Angle int8
+	Angle Byte
 
 	//UUID encoded as an unsigned 128-bit integer
 	UUID uuid.UUID
@@ -86,174 +76,190 @@ type (
 	ByteArray []byte
 )
 
-//ReadNBytes read N bytes from bytes.Reader
-func ReadNBytes(r DecodeReader, n int) (bs []byte, err error) {
-	bs = make([]byte, n)
-	for i := 0; i < n; i++ {
-		bs[i], err = r.ReadByte()
-		if err != nil {
-			return
-		}
-	}
-	return
-}
+const MaxVarIntLen = 5
+const MaxVarLongLen = 10
 
 //Encode a Boolean
-func (b Boolean) Encode() []byte {
+func (b Boolean) WriteTo(w io.Writer) (n int64, err error) {
+	var nn int
 	if b {
-		return []byte{0x01}
+		nn, err = w.Write([]byte{0x01})
 	}
-	return []byte{0x00}
+	nn, err = w.Write([]byte{0x00})
+	return int64(nn), err
 }
 
 //Decode a Boolean
-func (b *Boolean) Decode(r DecodeReader) error {
-	v, err := r.ReadByte()
+func (b *Boolean) ReadFrom(r io.Reader) (n int64, err error) {
+	v, err := readByte(r)
 	if err != nil {
-		return err
+		return 1, err
 	}
 
-	*b = Boolean(v != 0)
-	return nil
+	*b = v != 0
+	return 1, nil
 }
 
 // Encode a String
-func (s String) Encode() (p []byte) {
-	byteString := []byte(s)
-	p = append(p, VarInt(len(byteString)).Encode()...) //len
-	p = append(p, byteString...)                       //data
-	return
+func (s String) WriteTo(w io.Writer) (int64, error) {
+	byteStr := []byte(s)
+	n1, err := VarInt(len(byteStr)).WriteTo(w)
+	if err != nil {
+		return n1, err
+	}
+	n2, err := w.Write(byteStr)
+	return n1 + int64(n2), err
 }
 
 //Decode a String
-func (s *String) Decode(r DecodeReader) error {
+func (s *String) ReadFrom(r io.Reader) (n int64, err error) {
 	var l VarInt //String length
-	if err := l.Decode(r); err != nil {
-		return err
-	}
 
-	bs, err := ReadNBytes(r, int(l))
+	nn, err := l.ReadFrom(r)
 	if err != nil {
-		return err
+		return nn, err
 	}
+	n += nn
+
+	bs := make([]byte, l)
+	if _, err := io.ReadFull(r, bs); err != nil {
+		return n, err
+	}
+	n += int64(l)
 
 	*s = String(bs)
-	return nil
+	return n, nil
+}
+
+// readByte read one byte from io.Reader
+func readByte(r io.Reader) (byte, error) {
+	if r, ok := r.(io.ByteReader); ok {
+		return r.ReadByte()
+	}
+	var v [1]byte
+	_, err := io.ReadFull(r, v[:])
+	return v[0], err
 }
 
 //Encode a Byte
-func (b Byte) Encode() []byte {
-	return []byte{byte(b)}
+func (b Byte) WriteTo(w io.Writer) (n int64, err error) {
+	nn, err := w.Write([]byte{byte(b)})
+	return int64(nn), err
 }
 
 //Decode a Byte
-func (b *Byte) Decode(r DecodeReader) error {
-	v, err := r.ReadByte()
+func (b *Byte) ReadFrom(r io.Reader) (n int64, err error) {
+	v, err := readByte(r)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	*b = Byte(v)
-	return nil
+	return 1, nil
 }
 
 //Encode a UnsignedByte
-func (ub UnsignedByte) Encode() []byte {
-	return []byte{byte(ub)}
+func (u UnsignedByte) WriteTo(w io.Writer) (n int64, err error) {
+	nn, err := w.Write([]byte{byte(u)})
+	return int64(nn), err
 }
 
 //Decode a UnsignedByte
-func (ub *UnsignedByte) Decode(r DecodeReader) error {
-	v, err := r.ReadByte()
+func (u *UnsignedByte) ReadFrom(r io.Reader) (n int64, err error) {
+	v, err := readByte(r)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	*ub = UnsignedByte(v)
-	return nil
+	*u = UnsignedByte(v)
+	return 1, nil
 }
 
 // Encode a Signed Short
-func (s Short) Encode() []byte {
+func (s Short) WriteTo(w io.Writer) (int64, error) {
 	n := uint16(s)
-	return []byte{
-		byte(n >> 8),
-		byte(n),
-	}
+	nn, err := w.Write([]byte{byte(n >> 8), byte(n)})
+	return int64(nn), err
 }
 
 //Decode a Short
-func (s *Short) Decode(r DecodeReader) error {
-	bs, err := ReadNBytes(r, 2)
-	if err != nil {
-		return err
+func (s *Short) ReadFrom(r io.Reader) (n int64, err error) {
+	var bs [2]byte
+	if nn, err := io.ReadFull(r, bs[:]); err != nil {
+		return int64(nn), err
+	} else {
+		n += int64(nn)
 	}
 
 	*s = Short(int16(bs[0])<<8 | int16(bs[1]))
-	return nil
+	return
 }
 
 // Encode a Unsigned Short
-func (us UnsignedShort) Encode() []byte {
+func (us UnsignedShort) WriteTo(w io.Writer) (int64, error) {
 	n := uint16(us)
-	return []byte{
-		byte(n >> 8),
-		byte(n),
-	}
+	nn, err := w.Write([]byte{byte(n >> 8), byte(n)})
+	return int64(nn), err
 }
 
 //Decode a UnsignedShort
-func (us *UnsignedShort) Decode(r DecodeReader) error {
-	bs, err := ReadNBytes(r, 2)
-	if err != nil {
-		return err
+func (us *UnsignedShort) ReadFrom(r io.Reader) (n int64, err error) {
+	var bs [2]byte
+	if nn, err := io.ReadFull(r, bs[:]); err != nil {
+		return int64(nn), err
+	} else {
+		n += int64(nn)
 	}
 
 	*us = UnsignedShort(int16(bs[0])<<8 | int16(bs[1]))
-	return nil
+	return
 }
 
 // Encode a Int
-func (i Int) Encode() []byte {
+func (i Int) WriteTo(w io.Writer) (int64, error) {
 	n := uint32(i)
-	return []byte{
-		byte(n >> 24), byte(n >> 16),
-		byte(n >> 8), byte(n),
-	}
+	nn, err := w.Write([]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
+	return int64(nn), err
 }
 
 //Decode a Int
-func (i *Int) Decode(r DecodeReader) error {
-	bs, err := ReadNBytes(r, 4)
-	if err != nil {
-		return err
+func (i *Int) ReadFrom(r io.Reader) (n int64, err error) {
+	var bs [4]byte
+	if nn, err := io.ReadFull(r, bs[:]); err != nil {
+		return int64(nn), err
+	} else {
+		n += int64(nn)
 	}
 
 	*i = Int(int32(bs[0])<<24 | int32(bs[1])<<16 | int32(bs[2])<<8 | int32(bs[3]))
-	return nil
+	return
 }
 
 // Encode a Long
-func (l Long) Encode() []byte {
+func (l Long) WriteTo(w io.Writer) (int64, error) {
 	n := uint64(l)
-	return []byte{
+	nn, err := w.Write([]byte{
 		byte(n >> 56), byte(n >> 48), byte(n >> 40), byte(n >> 32),
 		byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n),
-	}
+	})
+	return int64(nn), err
 }
 
 //Decode a Long
-func (l *Long) Decode(r DecodeReader) error {
-	bs, err := ReadNBytes(r, 8)
-	if err != nil {
-		return err
+func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
+	var bs [8]byte
+	if nn, err := io.ReadFull(r, bs[:]); err != nil {
+		return int64(nn), err
+	} else {
+		n += int64(nn)
 	}
 
 	*l = Long(int64(bs[0])<<56 | int64(bs[1])<<48 | int64(bs[2])<<40 | int64(bs[3])<<32 |
 		int64(bs[4])<<24 | int64(bs[5])<<16 | int64(bs[6])<<8 | int64(bs[7]))
-	return nil
+	return
 }
 
 //Encode a VarInt
-func (v VarInt) Encode() (vi []byte) {
+func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
+	var vi = make([]byte, 0, MaxVarIntLen)
 	num := uint32(v)
 	for {
 		b := num & 0x7F
@@ -266,29 +272,28 @@ func (v VarInt) Encode() (vi []byte) {
 			break
 		}
 	}
-	return
+	nn, err := w.Write(vi)
+	return int64(nn), err
 }
 
 //Decode a VarInt
-func (v *VarInt) Decode(r DecodeReader) error {
-	var n uint32
-	for i := 0; ; i++ { //读数据前的长度标记
-		sec, err := r.ReadByte()
+func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
+	var V uint32
+	for sec := byte(0x80); sec&0x80 != 0; n++ {
+		if n > MaxVarIntLen {
+			return n, errors.New("VarInt is too big")
+		}
+
+		sec, err = readByte(r)
 		if err != nil {
-			return err
+			return n, err
 		}
 
-		n |= uint32(sec&0x7F) << uint32(7*i)
-
-		if i >= 5 {
-			return errors.New("VarInt is too big")
-		} else if sec&0x80 == 0 {
-			break
-		}
+		V |= uint32(sec&0x7F) << uint32(7*n)
 	}
 
-	*v = VarInt(n)
-	return nil
+	*v = VarInt(V)
+	return
 }
 
 //Encode a VarLong
@@ -309,44 +314,44 @@ func (v VarLong) Encode() (vi []byte) {
 }
 
 //Decode a VarLong
-func (v *VarLong) Decode(r DecodeReader) error {
-	var n uint64
-	for i := 0; ; i++ { //读数据前的长度标记
-		sec, err := r.ReadByte()
+func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
+	var V uint64
+	for sec := byte(0x80); sec&0x80 != 0; n++ {
+		if n >= MaxVarLongLen {
+			return n, errors.New("VarLong is too big")
+		}
+		sec, err = readByte(r)
 		if err != nil {
-			return err
+			return
 		}
 
-		n |= uint64(sec&0x7F) << uint64(7*i)
-
-		if i >= 10 {
-			return errors.New("VarLong is too big")
-		} else if sec&0x80 == 0 {
-			break
-		}
+		V |= uint64(sec&0x7F) << uint64(7*n)
 	}
 
-	*v = VarLong(n)
-	return nil
+	*v = VarLong(V)
+	return
 }
 
 //Encode a Position
-func (p Position) Encode() []byte {
-	b := make([]byte, 8)
+func (p Position) WriteTo(w io.Writer) (n int64, err error) {
+	var b [8]byte
 	position := uint64(p.X&0x3FFFFFF)<<38 | uint64((p.Z&0x3FFFFFF)<<12) | uint64(p.Y&0xFFF)
 	for i := 7; i >= 0; i-- {
 		b[i] = byte(position)
 		position >>= 8
 	}
-	return b
+	nn, err := w.Write(b[:])
+	return int64(nn), err
 }
 
 // Decode a Position
-func (p *Position) Decode(r DecodeReader) error {
+func (p *Position) ReadFrom(r io.Reader) (n int64, err error) {
 	var v Long
-	if err := v.Decode(r); err != nil {
-		return err
+	nn, err := v.ReadFrom(r)
+	if err != nil {
+		return nn, err
 	}
+	n += nn
 
 	x := int(v >> 38)
 	y := int(v & 0xFFF)
@@ -364,88 +369,111 @@ func (p *Position) Decode(r DecodeReader) error {
 	}
 
 	p.X, p.Y, p.Z = x, y, z
-	return nil
+	return
 }
 
-//Decodes an Angle
-func (b *Angle) Decode(r DecodeReader) error {
-	v, err := r.ReadByte()
-	if err != nil {
-		return err
-	}
-	*b = Angle(v)
-	return nil
+// ToDeg convert Angle to Degree
+func (a Angle) ToDeg() float64 {
+	return 360 * float64(a) / 256
+}
+
+// ToRad convert Angle to Radian
+func (a Angle) ToRad() float64 {
+	return 2 * math.Pi * float64(a) / 256
+}
+
+func (a Angle) WriteTo(w io.Writer) (int64, error) {
+	return Byte(a).WriteTo(w)
+}
+
+func (a *Angle) ReadFrom(r io.Reader) (int64, error) {
+	return (*Byte)(a).ReadFrom(r)
 }
 
 //Encode a Float
-func (f Float) Encode() []byte {
-	return Int(math.Float32bits(float32(f))).Encode()
+func (f Float) WriteTo(w io.Writer) (n int64, err error) {
+	return Int(math.Float32bits(float32(f))).WriteTo(w)
 }
 
 // Decode a Float
-func (f *Float) Decode(r DecodeReader) error {
+func (f *Float) ReadFrom(r io.Reader) (n int64, err error) {
 	var v Int
-	if err := v.Decode(r); err != nil {
-		return err
+
+	n, err = v.ReadFrom(r)
+	if err != nil {
+		return
 	}
 
 	*f = Float(math.Float32frombits(uint32(v)))
-	return nil
+	return
 }
 
 //Encode a Double
-func (d Double) Encode() []byte {
-	return Long(math.Float64bits(float64(d))).Encode()
+func (d Double) WriteTo(w io.Writer) (n int64, err error) {
+	return Long(math.Float64bits(float64(d))).WriteTo(w)
 }
 
 // Decode a Double
-func (d *Double) Decode(r DecodeReader) error {
+func (d *Double) ReadFrom(r io.Reader) (n int64, err error) {
 	var v Long
-	if err := v.Decode(r); err != nil {
-		return err
+	n, err = v.ReadFrom(r)
+	if err != nil {
+		return
 	}
 
 	*d = Double(math.Float64frombits(uint64(v)))
-	return nil
+	return
 }
 
 // Encode a NBT
-func (n NBT) Encode() []byte {
+func (n *NBT) WriteTo(w io.Writer) (int64, error) {
 	var buf bytes.Buffer
 	if err := nbt.NewEncoder(&buf).Encode(n.V); err != nil {
 		panic(err)
 	}
-	return buf.Bytes()
+	return buf.WriteTo(w)
 }
 
 // Decode a NBT
-func (n NBT) Decode(r DecodeReader) error {
-	return nbt.NewDecoder(r).Decode(n.V)
+func (n *NBT) ReadFrom(r io.Reader) (int64, error) {
+	// LimitReader is used to count reader length
+	lr := &io.LimitedReader{R: r, N: math.MaxInt64}
+	err := nbt.NewDecoder(lr).Decode(n.V)
+	return math.MaxInt64 - lr.N, err
 }
 
 // Encode a ByteArray
-func (b ByteArray) Encode() []byte {
-	return append(VarInt(len(b)).Encode(), b...)
+func (b ByteArray) WriteTo(w io.Writer) (n int64, err error) {
+	n1, err := VarInt(len(b)).WriteTo(w)
+	if err != nil {
+		return n1, err
+	}
+	n2, err := w.Write(b)
+	return n1 + int64(n2), err
 }
 
 // Decode a ByteArray
-func (b *ByteArray) Decode(r DecodeReader) error {
+func (b *ByteArray) ReadFrom(r io.Reader) (n int64, err error) {
 	var Len VarInt
-	if err := Len.Decode(r); err != nil {
-		return err
+	n1, err := Len.ReadFrom(r)
+	if err != nil {
+		return n1, err
 	}
-	*b = make([]byte, Len)
-	_, err := r.Read(*b)
-	return err
+	buf := bytes.NewBuffer(*b)
+	buf.Reset()
+	n2, err := io.CopyN(buf, r, int64(Len))
+	*b = buf.Bytes()
+	return n1 + n2, err
 }
 
 // Encode a UUID
-func (u UUID) Encode() []byte {
-	return u[:]
+func (u UUID) WriteTo(w io.Writer) (n int64, err error) {
+	nn, err := w.Write(u[:])
+	return int64(nn), err
 }
 
 // Decode a UUID
-func (u *UUID) Decode(r DecodeReader) error {
-	_, err := io.ReadFull(r, (*u)[:])
-	return err
+func (u *UUID) ReadFrom(r io.Reader) (n int64, err error) {
+	nn, err := io.ReadFull(r, (*u)[:])
+	return int64(nn), err
 }

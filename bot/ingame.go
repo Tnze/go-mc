@@ -294,22 +294,16 @@ func handleEntityStatusPacket(c *Client, p pk.Packet) error {
 }
 
 func handleDestroyEntitiesPacket(c *Client, p pk.Packet) error {
-	var (
-		count pk.VarInt
-		r     = bytes.NewReader(p.Data)
-	)
-	if err := count.Decode(r); err != nil {
+	var count pk.VarInt
+	var data = pk.Ary{
+		Len: &count,
+		Ary: []pk.VarInt{},
+	}
+	if err := p.Scan(&count, &data); err != nil {
 		return err
 	}
 
-	entities := make([]pk.VarInt, int(count))
-	for i := 0; i < int(count); i++ {
-		if err := entities[i].Decode(r); err != nil {
-			return err
-		}
-	}
-
-	return c.Wd.OnEntityDestroy(entities)
+	return c.Wd.OnEntityDestroy(data.Ary.([]pk.VarInt))
 }
 
 func handleSoundEffect(c *Client, p pk.Packet) error {
@@ -378,34 +372,24 @@ func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
 	if !c.settings.ReceiveMap {
 		return nil
 	}
-	r := bytes.NewReader(p.Data)
 
 	var (
 		loc            pk.Long
 		dontTrustEdges pk.Boolean
 		sz             pk.VarInt
-	)
-
-	if err := loc.Decode(r); err != nil {
-		return fmt.Errorf("packed location: %v", err)
-	}
-	if err := dontTrustEdges.Decode(r); err != nil {
-		return fmt.Errorf("unknown 1: %v", err)
-	}
-	if err := sz.Decode(r); err != nil {
-		return fmt.Errorf("array size: %v", err)
-	}
-
-	packedBlocks := make([]pk.VarLong, int(sz))
-	for i := 0; i < int(sz); i++ {
-		if err := packedBlocks[i].Decode(r); err != nil {
-			return fmt.Errorf("block[%d]: %v", i, err)
+		packedBlocks   = pk.Ary{
+			Len: &sz,
+			Ary: []pk.VarLong{},
 		}
+	)
+	err := p.Scan(&loc, &dontTrustEdges, &sz, &packedBlocks)
+	if err != nil {
+		return err
 	}
 
-	x, z, y := int((loc>>42)&((1<<22)-1)),
-		int((loc>>20)&((1<<22)-1)),
-		int(loc&((1<<20)-1))
+	x := int((loc >> 42) & ((1 << 22) - 1))
+	y := int((loc >> 20) & ((1 << 22) - 1))
+	z := int(loc & ((1 << 20) - 1))
 
 	// Apply transform into negative (these numbers are signed)
 	if x >= 1<<21 {
@@ -415,7 +399,7 @@ func handleMultiBlockChangePacket(c *Client, p pk.Packet) error {
 		z -= 1 << 22
 	}
 
-	c.Wd.MultiBlockUpdate(world.ChunkLoc{X: x, Z: z}, y, packedBlocks)
+	c.Wd.MultiBlockUpdate(world.ChunkLoc{X: x, Z: z}, y, packedBlocks.Ary.([]pk.VarLong))
 	return nil
 }
 
@@ -520,14 +504,14 @@ func handlePluginPacket(c *Client, p pk.Packet) error {
 	switch msg.Channel {
 	case "minecraft:brand":
 		var brandRaw pk.String
-		if err := brandRaw.Decode(bytes.NewReader(msg.Data)); err != nil {
+		if _, err := brandRaw.ReadFrom(bytes.NewReader(msg.Data)); err != nil {
 			return err
 		}
 		c.ServInfo.Brand = string(brandRaw)
 	}
 
 	if c.Events.PluginMessage != nil {
-		return c.Events.PluginMessage(string(msg.Channel), []byte(msg.Data))
+		return c.Events.PluginMessage(string(msg.Channel), msg.Data)
 	}
 	return nil
 }
@@ -622,7 +606,7 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 	}
 
 	var pkt ptypes.ChunkData
-	if err := pkt.Decode(p); err != nil {
+	if _, err := pkt.ReadFrom(bytes.NewReader(p.Data)); err != nil {
 		return err
 	}
 
@@ -641,7 +625,7 @@ func handleChunkDataPacket(c *Client, p pk.Packet) error {
 
 func handleTileEntityDataPacket(c *Client, p pk.Packet) error {
 	var pkt ptypes.TileEntityData
-	if err := pkt.Decode(p); err != nil {
+	if _, err := pkt.ReadFrom(bytes.NewReader(p.Data)); err != nil {
 		return err
 	}
 	return c.Wd.TileEntityUpdate(pkt)
@@ -712,7 +696,7 @@ func handleKeepAlivePacket(c *Client, p pk.Packet) error {
 
 func handleWindowItemsPacket(c *Client, p pk.Packet) error {
 	var pkt ptypes.WindowItems
-	if err := pkt.Decode(p); err != nil {
+	if _, err := pkt.ReadFrom(bytes.NewReader(p.Data)); err != nil {
 		return err
 	}
 

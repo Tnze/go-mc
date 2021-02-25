@@ -1,51 +1,84 @@
 package packet
 
 import (
+	"io"
 	"reflect"
 )
 
 type Ary struct {
-	Len Field
-	Ary interface{}
+	Len Field       // One of VarInt, VarLong, Int or Long
+	Ary interface{} // FieldEncoder, FieldDecoder or both (Field)
 }
 
-func (a Ary) Encode() (data []byte) {
+func (a Ary) WriteTo(r io.Writer) (n int64, err error) {
 	length := int(reflect.ValueOf(a.Len).Int())
 	array := reflect.ValueOf(a.Ary).Elem()
 	for i := 0; i < length; i++ {
 		elem := array.Index(i)
-		data = append(data, elem.Interface().(FieldEncoder).Encode()...)
+		nn, err := elem.Interface().(FieldEncoder).WriteTo(r)
+		n += nn
+		if err != nil {
+			return n, err
+		}
+	}
+	return n, nil
+}
+
+func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
+	length := int(reflect.ValueOf(a.Len).Int())
+	array := reflect.ValueOf(a.Ary).Elem()
+	for i := 0; i < length; i++ {
+		elem := array.Index(i)
+		nn, err := elem.Interface().(FieldDecoder).ReadFrom(r)
+		n += nn
+		if err != nil {
+			return n, err
+		}
+	}
+	return n, err
+}
+
+type Opt struct {
+	Has   *Boolean
+	Field interface{} // FieldEncoder, FieldDecoder or both (Field)
+}
+
+func (o Opt) WriteTo(w io.Writer) (int64, error) {
+	if *o.Has {
+		return o.Field.(FieldEncoder).WriteTo(w)
+	}
+	return 0, nil
+}
+
+func (o Opt) ReadFrom(r io.Reader) (int64, error) {
+	if *o.Has {
+		return o.Field.(FieldDecoder).ReadFrom(r)
+	}
+	return 0, nil
+}
+
+type Tuple []interface{} // FieldEncoder, FieldDecoder or both (Field)
+
+// WriteTo write Tuple to io.Writer, panic when any of filed don't implement FieldEncoder
+func (t Tuple) WriteTo(w io.Writer) (n int64, err error) {
+	for _, v := range t {
+		nn, err := v.(FieldEncoder).WriteTo(w)
+		if err != nil {
+			return n, err
+		}
+		n += nn
 	}
 	return
 }
 
-func (a Ary) Decode(r DecodeReader) error {
-	length := int(reflect.ValueOf(a.Len).Int())
-	array := reflect.ValueOf(a.Ary).Elem()
-	for i := 0; i < length; i++ {
-		elem := array.Index(i)
-		if err := elem.Interface().(FieldDecoder).Decode(r); err != nil {
-			return err
+// ReadFrom read Tuple from io.Reader, panic when any of field don't implement FieldDecoder
+func (t Tuple) ReadFrom(r io.Reader) (n int64, err error) {
+	for _, v := range t {
+		nn, err := v.(FieldDecoder).ReadFrom(r)
+		if err != nil {
+			return n, err
 		}
+		n += nn
 	}
-	return nil
-}
-
-type Opt struct {
-	Has   func() bool
-	Field interface{}
-}
-
-func (o Opt) Encode() []byte {
-	if o.Has() {
-		return nil
-	}
-	return o.Field.(FieldEncoder).Encode()
-}
-
-func (o Opt) Decode(r DecodeReader) error {
-	if o.Has() {
-		return nil
-	}
-	return o.Field.(FieldDecoder).Decode(r)
+	return
 }

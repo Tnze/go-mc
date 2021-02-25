@@ -2,8 +2,8 @@
 package ptypes
 
 import (
-	"bytes"
 	"errors"
+	"io"
 
 	"github.com/Tnze/go-mc/bot/world/entity"
 	"github.com/Tnze/go-mc/chat"
@@ -35,24 +35,16 @@ type WindowItems struct {
 	Slots    []entity.Slot
 }
 
-func (p *WindowItems) Decode(pkt pk.Packet) error {
-	r := bytes.NewReader(pkt.Data)
-	if err := p.WindowID.Decode(r); err != nil {
-		return err
-	}
-
+func (p *WindowItems) ReadFrom(r io.Reader) (int64, error) {
 	var count pk.Short
-	if err := count.Decode(r); err != nil {
-		return err
-	}
-
-	p.Slots = make([]entity.Slot, int(count))
-	for i := 0; i < int(count); i++ {
-		if err := p.Slots[i].Decode(r); err != nil && !errors.Is(err, nbt.ErrEND) {
-			return err
-		}
-	}
-	return nil
+	return pk.Tuple{
+		&p.WindowID,
+		&count,
+		&pk.Ary{
+			Len: &count,
+			Ary: []entity.Slot{},
+		},
+	}.ReadFrom(r)
 }
 
 // OpenWindow is a clientbound packet which opens an inventory.

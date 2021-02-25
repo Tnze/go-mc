@@ -101,10 +101,11 @@ func TestChatMsgClearString(t *testing.T) {
 }
 
 func TestMessage_Encode(t *testing.T) {
-	codeMsg := chat.Message{Translate: "multiplayer.disconnect.server_full"}.Encode()
+	var codeMsg bytes.Buffer
+	_, _ = chat.Message{Translate: "multiplayer.disconnect.server_full"}.WriteTo(&codeMsg)
 
 	var msg pk.Chat
-	if err := msg.Decode(bytes.NewReader(codeMsg)); err != nil {
+	if _, err := msg.ReadFrom(&codeMsg); err != nil {
 		t.Errorf("decode message fail: %v", err)
 	}
 

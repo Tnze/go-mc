@@ -3,6 +3,7 @@ package world
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"math"
 
 	"github.com/Tnze/go-mc/data/block"
@@ -41,13 +42,13 @@ func perBits(bpb byte) uint {
 	}
 }
 
-func readSection(data pk.DecodeReader) (s Section, err error) {
+func readSection(data io.Reader) (s Section, err error) {
 	var nonAirBlockCount pk.Short
-	if err := nonAirBlockCount.Decode(data); err != nil {
+	if _, err := nonAirBlockCount.ReadFrom(data); err != nil {
 		return nil, fmt.Errorf("block count: %w", err)
 	}
 	var bpb pk.UnsignedByte
-	if err := bpb.Decode(data); err != nil {
+	if _, err := bpb.ReadFrom(data); err != nil {
 		return nil, fmt.Errorf("bits per block: %w", err)
 	}
 	// If bpb values greater than or equal to 9, use directSection.
@@ -57,14 +58,14 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 	if bpb <= maxPaletteBits {
 		// read palettes
 		var length pk.VarInt
-		if err := length.Decode(data); err != nil {
+		if _, err := length.ReadFrom(data); err != nil {
 			return nil, fmt.Errorf("palette length: %w", err)
 		}
 		palettes = make([]BlockStatus, length)
 		palettesIndex = make(map[BlockStatus]int, length)
 		for i := 0; i < int(length); i++ {
 			var v pk.VarInt
-			if err := v.Decode(data); err != nil {
+			if _, err := v.ReadFrom(data); err != nil {
 				return nil, fmt.Errorf("read palettes[%d] error: %w", i, err)
 			}
 			palettes[i] = BlockStatus(v)
@@ -74,7 +75,7 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 
 	// read data array
 	var dataLen pk.VarInt
-	if err := dataLen.Decode(data); err != nil {
+	if _, err := dataLen.ReadFrom(data); err != nil {
 		return nil, fmt.Errorf("read data array length error: %w", err)
 	}
 	if int(dataLen) < 16*16*16*int(bpb)/64 {
@@ -83,7 +84,7 @@ func readSection(data pk.DecodeReader) (s Section, err error) {
 	dataArray := make([]uint64, dataLen)
 	for i := 0; i < int(dataLen); i++ {
 		var v pk.Long
-		if err := v.Decode(data); err != nil {
+		if _, err := v.ReadFrom(data); err != nil {
 			return nil, fmt.Errorf("read dataArray[%d] error: %w", i, err)
 		}
 		dataArray[i] = uint64(v)

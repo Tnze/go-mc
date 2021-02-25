@@ -20,9 +20,15 @@ var PackedVarInts = [][]byte{
 }
 
 func TestPackVarInt(t *testing.T) {
+	var buf bytes.Buffer
 	for i, v := range VarInts {
-		p := v.Encode()
-		if !bytes.Equal(p, PackedVarInts[i]) {
+		buf.Reset()
+		if n, err := v.WriteTo(&buf); err != nil {
+			t.Fatalf("Write to bytes.Buffer should never fail: %v", err)
+		} else if n != int64(buf.Len()) {
+			t.Errorf("Number of byte returned by WriteTo should equal to buffer.Len()")
+		}
+		if p := buf.Bytes(); !bytes.Equal(p, PackedVarInts[i]) {
 			t.Errorf("pack int %d should be \"% x\", get \"% x\"", v, PackedVarInts[i], p)
 		}
 	}
@@ -30,7 +36,7 @@ func TestPackVarInt(t *testing.T) {
 func TestUnpackVarInt(t *testing.T) {
 	for i, v := range PackedVarInts {
 		var vi VarInt
-		if err := vi.Decode(bytes.NewReader(v)); err != nil {
+		if _, err := vi.ReadFrom(bytes.NewReader(v)); err != nil {
 			t.Errorf("unpack \"% x\" error: %v", v, err)
 		}
 		if vi != VarInts[i] {
@@ -42,7 +48,7 @@ func TestUnpackVarInt(t *testing.T) {
 func TestUnpackVarInt_TooLongData(t *testing.T) {
 	var vi VarInt
 	var data = []byte{0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01}
-	if err := vi.Decode(bytes.NewReader(data)); err != nil {
+	if _, err := vi.ReadFrom(bytes.NewReader(data)); err != nil {
 		t.Logf("unpack \"% x\" error: %v", data, err)
 	} else {
 		t.Errorf("unpack \"% x\" should be error, get %d", data, vi)
@@ -76,7 +82,7 @@ func TestPackVarLong(t *testing.T) {
 func TestUnpackVarLong(t *testing.T) {
 	for i, v := range PackedVarLongs {
 		var vi VarLong
-		if err := vi.Decode(bytes.NewReader(v)); err != nil {
+		if _, err := vi.ReadFrom(bytes.NewReader(v)); err != nil {
 			t.Errorf("unpack \"% x\" error: %v", v, err)
 		}
 		if vi != VarLongs[i] {

@@ -1,11 +1,10 @@
 package entity
 
 import (
-	"bytes"
+	"io"
 
 	"github.com/Tnze/go-mc/data/entity"
 	item "github.com/Tnze/go-mc/data/item"
-	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
 )
@@ -49,53 +48,48 @@ type Slot struct {
 	Present bool
 	ItemID  item.ID
 	Count   int8
-	NBT     interface{}
+	NBT     pk.NBT
+}
+
+type SlotNBT struct {
+	data interface{}
 }
 
 //Decode implement packet.FieldDecoder interface
-func (s *Slot) Decode(r pk.DecodeReader) error {
-	if err := (*pk.Boolean)(&s.Present).Decode(r); err != nil {
-		return err
+func (s *Slot) ReadFrom(r io.Reader) (int64, error) {
+	var itemID pk.VarInt
+	n, err := pk.Tuple{
+		(*pk.Boolean)(&s.Present),
+		pk.Opt{
+			Has: (*pk.Boolean)(&s.Present),
+			Field: pk.Tuple{
+				&itemID,
+				(*pk.Byte)(&s.Count),
+				&s.NBT,
+			},
+		},
+	}.ReadFrom(r)
+	if err != nil {
+		return n, err
 	}
-	if s.Present {
-		var itemID pk.VarInt
-		if err := itemID.Decode(r); err != nil {
-			return err
-		}
-		s.ItemID = item.ID(itemID)
-		if err := (*pk.Byte)(&s.Count).Decode(r); err != nil {
-			return err
-		}
-		if err := nbt.NewDecoder(r).Decode(&s.NBT); err != nil {
-			return err
-		}
-	}
-	return nil
+	s.ItemID = item.ID(itemID)
+	return n, nil
 }
 
-func (s Slot) Encode() []byte {
-	if !s.Present {
-		return pk.Boolean(false).Encode()
-	}
-
-	var b bytes.Buffer
-	b.Write(pk.Boolean(true).Encode())
-	b.Write(pk.VarInt(s.ItemID).Encode())
-	b.Write(pk.Byte(s.Count).Encode())
-
-	if s.NBT != nil {
-		if err := nbt.NewEncoder(&b).Encode(s.NBT); err != nil {
-			panic(err)
-		}
-	} else {
-		if _, err := b.Write([]byte{nbt.TagEnd}); err != nil {
-			panic(err)
-		}
-	}
-
-	return b.Bytes()
+func (s Slot) WriteTo(w io.Writer) (int64, error) {
+	return pk.Tuple{
+		pk.Boolean(s.Present),
+		pk.Opt{
+			Has: (*pk.Boolean)(&s.Present),
+			Field: pk.Tuple{
+				pk.VarInt(s.ItemID),
+				pk.Byte(s.Count),
+				s.NBT,
+			},
+		},
+	}.WriteTo(w)
 }
 
 func (s Slot) String() string {
-	return item.ByID[item.ID(s.ItemID)].DisplayName
+	return item.ByID[s.ItemID].DisplayName
 }

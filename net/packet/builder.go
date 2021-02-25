@@ -8,7 +8,10 @@ type Builder struct {
 
 func (p *Builder) WriteField(fields ...FieldEncoder) {
 	for _, f := range fields {
-		p.buf.Write(f.Encode())
+		_, err := f.WriteTo(&p.buf)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
