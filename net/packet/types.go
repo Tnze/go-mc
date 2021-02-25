@@ -1,6 +1,7 @@
 package packet
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"math"
@@ -76,6 +77,7 @@ type (
 	UUID uuid.UUID
 
 	//NBT encode a value as Named Binary Tag
+	//Tips: define your own struct and implement pk.Field for better performance
 	NBT struct {
 		V interface{}
 	}
@@ -405,6 +407,15 @@ func (d *Double) Decode(r DecodeReader) error {
 
 	*d = Double(math.Float64frombits(uint64(v)))
 	return nil
+}
+
+// Encode a NBT
+func (n NBT) Encode() []byte {
+	var buf bytes.Buffer
+	if err := nbt.NewEncoder(&buf).Encode(n.V); err != nil {
+		panic(err)
+	}
+	return buf.Bytes()
 }
 
 // Decode a NBT

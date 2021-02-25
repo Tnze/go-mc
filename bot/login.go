@@ -10,7 +10,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 
@@ -176,7 +176,7 @@ func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 	if resp.Status != "204 No Content" {
 		return fmt.Errorf("auth fail: %s", string(body))
 	}

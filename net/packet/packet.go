@@ -101,21 +101,21 @@ func UnCompress(data []byte) (*Packet, error) {
 		return nil, err
 	}
 
-	uncompressData := make([]byte, sizeUncompressed)
+	uncompressedData := make([]byte, sizeUncompressed)
 	if sizeUncompressed != 0 { // != 0 means compressed, let's decompress
 		r, err := zlib.NewReader(reader)
 		if err != nil {
 			return nil, fmt.Errorf("decompress fail: %v", err)
 		}
 		defer r.Close()
-		_, err = io.ReadFull(r, uncompressData)
+		_, err = io.ReadFull(r, uncompressedData)
 		if err != nil {
 			return nil, fmt.Errorf("decompress fail: %v", err)
 		}
 	} else {
-		uncompressData = data[1:]
+		uncompressedData = data[1:]
 	}
-	buf := bytes.NewBuffer(uncompressData)
+	buf := bytes.NewBuffer(uncompressedData)
 	var packetID VarInt
 	if err := packetID.Decode(buf); err != nil {
 		return nil, fmt.Errorf("read packet id fail: %v", err)
@@ -130,7 +130,11 @@ func UnCompress(data []byte) (*Packet, error) {
 func Compress(data []byte) []byte {
 	var b bytes.Buffer
 	w := zlib.NewWriter(&b)
-	w.Write(data)
-	w.Close()
+	if _, err := w.Write(data); err != nil {
+		panic(err)
+	}
+	if err := w.Close(); err != nil {
+		panic(err)
+	}
 	return b.Bytes()
 }

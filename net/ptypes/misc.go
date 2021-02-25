@@ -1,7 +1,7 @@
 package ptypes
 
 import (
-	"io/ioutil"
+	"io"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -64,7 +64,7 @@ func (p PluginData) Encode() []byte {
 }
 
 func (p *PluginData) Decode(r pk.DecodeReader) error {
-	d, err := ioutil.ReadAll(r)
+	d, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}

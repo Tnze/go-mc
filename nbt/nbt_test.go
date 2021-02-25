@@ -3,7 +3,7 @@ package nbt
 import (
 	"bytes"
 	"compress/gzip"
-	"io/ioutil"
+	"io"
 	"reflect"
 	"testing"
 )
@@ -225,7 +225,7 @@ func TestMarshal_bigTest(t *testing.T) {
 	}
 
 	rd, _ := gzip.NewReader(bytes.NewReader(bigTestData[:]))
-	want, err := ioutil.ReadAll(rd)
+	want, err := io.ReadAll(rd)
 	if err != nil {
 		t.Error(err)
 	}

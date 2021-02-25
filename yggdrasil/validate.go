@@ -2,7 +2,7 @@ package yggdrasil
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 )
 
 // Validate checks if an accessToken is usable for authentication with a Minecraft server.
@@ -28,7 +28,7 @@ func (a *Access) Invalidate() error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 204 {
-		content, _ := ioutil.ReadAll(resp.Body)
+		content, _ := io.ReadAll(resp.Body)
 		return fmt.Errorf("invalidate error: %v: %s", resp.Status, content)
 	}
 

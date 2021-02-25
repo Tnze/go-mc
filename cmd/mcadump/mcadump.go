@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -117,7 +116,7 @@ func pack(f, o string) {
 	checkerr(err)
 	defer r.Close()
 
-	mcc, err := ioutil.ReadFile(f)
+	mcc, err := os.ReadFile(f)
 	checkerr(err)
 
 	rx, rz := region.In(x, z)

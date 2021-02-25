@@ -1,6 +1,6 @@
 package realms
 
-import "io/ioutil"
+import "io"
 
 // Available returns whether the user can access the Minecraft Realms service
 func (r *Realms) Available() (ok bool, err error) {
@@ -19,7 +19,7 @@ func (r *Realms) Compatible() (string, error) {
 	}
 	defer resp.Body.Close()
 
-	rp, err := ioutil.ReadAll(resp.Body)
+	rp, err := io.ReadAll(resp.Body)
 
 	return string(rp), err
 }
