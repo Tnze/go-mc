@@ -3,7 +3,6 @@
 package nbt
 
 import (
-	"bufio"
 	"io"
 )
 
@@ -42,7 +41,17 @@ func NewDecoder(r io.Reader) *Decoder {
 	if br, ok := r.(DecoderReader); ok {
 		d.r = br
 	} else {
-		d.r = bufio.NewReaderSize(r, 0)
+		d.r = reader{r}
 	}
 	return d
+}
+
+type reader struct {
+	io.Reader
+}
+
+func (r reader) ReadByte() (byte, error) {
+	var b [1]byte
+	_, err := r.Read(b[:])
+	return b[0], err
 }

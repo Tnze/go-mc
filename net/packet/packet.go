@@ -3,10 +3,8 @@ package packet
 import (
 	"bytes"
 	"compress/zlib"
-	"encoding/hex"
 	"fmt"
 	"io"
-	"os"
 )
 
 // Packet define a net data package
@@ -27,9 +25,8 @@ func Marshal(id int32, fields ...FieldEncoder) (pk Packet) {
 //Scan decode the packet and fill data into fields
 func (p Packet) Scan(fields ...FieldDecoder) error {
 	r := bytes.NewReader(p.Data)
-	rr := io.TeeReader(r, hex.Dumper(os.Stdout))
 	for _, v := range fields {
-		_, err := v.ReadFrom(rr)
+		_, err := v.ReadFrom(r)
 		if err != nil {
 			return err
 		}
