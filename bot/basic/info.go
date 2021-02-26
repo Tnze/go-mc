@@ -68,12 +68,22 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 	//	}
 	p.WorldNames = *(*[]string)(unsafe.Pointer(&WorldNames))
 
-	return p.c.Conn.WritePacket(
-		//PluginMessage packet (serverbound) - sending minecraft brand.
-		pk.Marshal(
-			packetid.CustomPayloadServerbound,
-			pk.Identifier("minecraft:brand"),
-			pk.String(p.Settings.Brand),
-		),
-	)
+	err = p.c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
+		packetid.CustomPayloadServerbound,
+		pk.Identifier("minecraft:brand"),
+		pk.String(p.Settings.Brand),
+	))
+	if err != nil {
+		return err
+	}
+
+	return p.c.Conn.WritePacket(pk.Marshal(
+		packetid.Settings, // Client settings
+		pk.String(p.Settings.Locale),
+		pk.Byte(p.Settings.ViewDistance),
+		pk.VarInt(p.Settings.ChatMode),
+		pk.Boolean(p.Settings.ChatColors),
+		pk.UnsignedByte(p.Settings.DisplayedSkinParts),
+		pk.VarInt(p.Settings.MainHand),
+	))
 }

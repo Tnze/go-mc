@@ -21,7 +21,7 @@ func (e EventsListener) Attach(c *bot.Client) {
 	c.Events.AddListener(
 		bot.PacketHandler{Priority: 64, ID: packetid.Login, F: e.onJoinGame},
 		bot.PacketHandler{Priority: 64, ID: packetid.ChatClientbound, F: e.onChatMsg},
-		bot.PacketHandler{Priority: 64, ID: packetid.Disconnect, F: e.onDisconnect},
+		bot.PacketHandler{Priority: 64, ID: packetid.KickDisconnect, F: e.onDisconnect},
 		bot.PacketHandler{Priority: 64, ID: packetid.UpdateHealth, F: e.onUpdateHealth},
 	)
 }

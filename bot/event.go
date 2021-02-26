@@ -15,8 +15,9 @@ func (e *Events) AddListener(listeners ...PacketHandler) {
 		if s, ok = e.handlers[l.ID]; !ok {
 			s = &handlerHeap{l}
 			e.handlers[l.ID] = s
+		} else {
+			s.Push(l)
 		}
-		s.Push(l)
 	}
 }
 
