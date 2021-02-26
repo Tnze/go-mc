@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
+	"math"
 	"reflect"
 	"testing"
 )
@@ -232,6 +233,35 @@ func TestMarshal_bigTest(t *testing.T) {
 
 	if !bytes.Equal(b.Bytes(), want) {
 		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", b.Bytes(), want)
+	}
+}
+
+func TestDecoder_overRead(t *testing.T) {
+	const tail = 16
+	// Uncompressed NBT
+	enc := []byte{
+		TagCompound, 0, 1, 'A',
+		TagString, 0, 1, 'B', 0, 0,
+		TagEnd,
+	}
+	dataLen := len(enc)
+	// these zeros are honeypot, we should not read them
+	enc = append(enc, make([]byte, tail)...)
+
+	var value struct {
+		B string
+	}
+
+	r := bytes.NewReader(enc)
+	// Count read bytes by using io.LimitReader
+	rr := io.LimitReader(r, math.MaxInt64).(*io.LimitedReader)
+	if err := NewDecoder(rr).Decode(&value); err != nil {
+		t.Fatal(err)
+	}
+
+	readBytesNum := math.MaxInt64 - rr.N
+	if readBytesNum > int64(dataLen) || r.Len() < tail {
+		t.Errorf("Over read! nbt length: %d, but you read %d", dataLen, readBytesNum)
 	}
 }
 
