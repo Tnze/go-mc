@@ -36,10 +36,7 @@ func (l Listener) Accept() (Conn, error) {
 //Conn is a minecraft Connection
 type Conn struct {
 	Socket net.Conn
-	Reader interface {
-		io.ByteReader
-		io.Reader
-	}
+	io.Reader
 	io.Writer
 
 	threshold int
@@ -50,7 +47,7 @@ func DialMC(addr string) (*Conn, error) {
 	conn, err := net.Dial("tcp", addr)
 	return &Conn{
 		Socket: conn,
-		Reader: bufio.NewReader(conn),
+		Reader: conn,
 		Writer: conn,
 	}, err
 }
@@ -60,7 +57,7 @@ func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 	conn, err := net.DialTimeout("tcp", addr, timeout)
 	return &Conn{
 		Socket: conn,
-		Reader: bufio.NewReader(conn),
+		Reader: conn,
 		Writer: conn,
 	}, err
 }
@@ -70,7 +67,7 @@ func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 func WrapConn(conn net.Conn) *Conn {
 	return &Conn{
 		Socket: conn,
-		Reader: bufio.NewReader(conn),
+		Reader: conn,
 		Writer: conn,
 	}
 }
@@ -91,10 +88,10 @@ func (c *Conn) WritePacket(p pk.Packet) error {
 // SetCipher load the decode/encode stream to this Conn
 func (c *Conn) SetCipher(ecoStream, decoStream cipher.Stream) {
 	//加密连接
-	c.Reader = bufio.NewReader(cipher.StreamReader{ //Set receiver for AES
+	c.Reader = cipher.StreamReader{ //Set receiver for AES
 		S: decoStream,
 		R: c.Socket,
-	})
+	}
 	c.Writer = cipher.StreamWriter{
 		S: ecoStream,
 		W: c.Socket,

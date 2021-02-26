@@ -5,12 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
-	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	"github.com/google/uuid"
 )
 
@@ -32,11 +30,9 @@ type status struct {
 }
 
 func main() {
-	addr, port := getAddr()
-
-	fmt.Printf("MCPING (%s:%d):\n", addr, port)
-
-	resp, delay, err := bot.PingAndList(addr, port)
+	addr := getAddr()
+	fmt.Printf("MCPING (%s):\n", addr)
+	resp, delay, err := bot.PingAndList(addr)
 	if err != nil {
 		fmt.Printf("ping and list server fail: %v", err)
 		os.Exit(1)
@@ -53,28 +49,14 @@ func main() {
 	fmt.Println("Delay:", delay)
 }
 
-func getAddr() (string, int) {
+func getAddr() string {
 	const usage = "Usage: mcping <hostname>[:port]"
 	if len(os.Args) < 2 {
 		fmt.Println("no host name.", usage)
 		os.Exit(1)
 	}
 
-	addr := strings.Split(os.Args[1], ":")
-	var port int
-	switch len(addr) {
-	case 1:
-		port = 25565
-	case 2:
-		var err error
-		port, err = strconv.Atoi(addr[1])
-		if err != nil {
-			fmt.Println(err, usage)
-			os.Exit(1)
-		}
-	}
-
-	return addr[0], port
+	return os.Args[1]
 }
 
 func (s status) String() string {

@@ -1,4 +1,4 @@
-package bot
+package basic
 
 // Settings of client
 type Settings struct {

@@ -1,49 +1,61 @@
 package main
 
 import (
-	"bytes"
+	"errors"
 	"flag"
 	"log"
 
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/zh-cn"
-	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 var address = flag.String("address", "127.0.0.1", "The server address")
-var c *bot.Client
+var client *bot.Client
+var player *basic.Player
 
 func main() {
 	flag.Parse()
-	c = bot.NewClient()
+	client = bot.NewClient()
+	player = basic.NewPlayer(client, basic.DefaultSettings)
+	basic.EventsListener{
+		GameStart:  onGameStart,
+		ChatMsg:    onChatMsg,
+		Disconnect: onDisconnect,
+		Death:      onDeath,
+	}.Attach(client)
 
 	//Login
-	err := c.JoinServer(*address)
+	err := client.JoinServer(*address)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
 
 	//Register event handlers
-	c.Events.GameStart = onGameStart
-	c.Events.ChatMsg = onChatMsg
-	c.Events.Disconnect = onDisconnect
-	c.Events.PluginMessage = onPluginMessage
 
 	//JoinGame
-	err = c.HandleGame()
-	if err != nil {
-		log.Fatal(err)
+	for {
+		if err = client.HandleGame(); err != nil {
+			var interErr *bot.PacketHandlerError
+			if errors.As(err, &interErr) {
+				log.Print("Internal bugs: ", interErr)
+			} else {
+				log.Fatal(err)
+			}
+		} else {
+			break
+		}
 	}
 }
 
 func onDeath() error {
 	log.Println("Died and Respawned")
 	// If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
-	return c.Respawn()
+	return player.Respawn()
 }
 
 func onGameStart() error {
@@ -56,22 +68,7 @@ func onChatMsg(c chat.Message, pos byte, uuid uuid.UUID) error {
 	return nil
 }
 
-func onDisconnect(c chat.Message) error {
-	log.Println("Disconnect:", c)
-	return nil
-}
-
-func onPluginMessage(channel string, data []byte) error {
-	switch channel {
-	case "minecraft:brand":
-		var brand pk.String
-		if _, err := brand.ReadFrom(bytes.NewReader(data)); err != nil {
-			return err
-		}
-		log.Println("Server brand is:", brand)
-
-	default:
-		log.Println("PluginMessage", channel, data)
-	}
+func onDisconnect(reason chat.Message) error {
+	log.Println("Disconnect:", reason)
 	return nil
 }

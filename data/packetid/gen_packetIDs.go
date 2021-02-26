@@ -19,25 +19,33 @@ const (
 
 package packetid
 
-// Valid PktID values.
+// Login state
 const (
-	// Clientbound packets for connections in the login state.
+	// Clientbound
 {{range $Name, $ID := .Login.Clientbound}}	{{$Name}} = {{$ID}}
 {{end}}
-	// Serverbound packets for connections in the login state
+	// Serverbound
 {{range $Name, $ID := .Login.Serverbound}}	{{$Name}} = {{$ID}}
 {{end}}
-	// Clientbound packets for connections in the play state.
-{{range $Name, $ID := .Play.Clientbound}}	{{$Name}} = {{$ID}}
-{{end}}
-	// Serverbound packets for connections in the play state.
-{{range $Name, $ID := .Play.Serverbound}}	{{$Name}} = {{$ID}}
-{{end}}
-	// Clientbound packets used to respond to ping/status requests.
+)
+
+// Ping state
+const (
+	// Clientbound
 {{range $Name, $ID := .Status.Clientbound}}	{{$Name}} = {{$ID}}
 {{end}}
-	// Serverbound packets used to ping or read server status.
+	// Serverbound
 {{range $Name, $ID := .Status.Serverbound}}	{{$Name}} = {{$ID}}
+{{end}}
+)
+
+// Play state
+const (
+	// Clientbound
+{{range $Name, $ID := .Play.Clientbound}}	{{$Name}} = {{$ID}}
+{{end}}
+	// Serverbound
+{{range $Name, $ID := .Play.Serverbound}}	{{$Name}} = {{$ID}}
 {{end}}
 )
 `

@@ -3,8 +3,10 @@ package packet
 import (
 	"bytes"
 	"compress/zlib"
+	"encoding/hex"
 	"fmt"
 	"io"
+	"os"
 )
 
 // Packet define a net data package
@@ -25,8 +27,9 @@ func Marshal(id int32, fields ...FieldEncoder) (pk Packet) {
 //Scan decode the packet and fill data into fields
 func (p Packet) Scan(fields ...FieldDecoder) error {
 	r := bytes.NewReader(p.Data)
+	rr := io.TeeReader(r, hex.Dumper(os.Stdout))
 	for _, v := range fields {
-		_, err := v.ReadFrom(r)
+		_, err := v.ReadFrom(rr)
 		if err != nil {
 			return err
 		}
@@ -82,25 +85,25 @@ func (p *Packet) UnPack(r io.Reader, threshold int) error {
 	if length < 1 {
 		return fmt.Errorf("packet length too short")
 	}
-
-	buf := bytes.NewBuffer(p.Data[:0])
-	if _, err := io.CopyN(buf, r, int64(length)); err != nil {
+	buf := make([]byte, length)
+	if _, err := io.ReadFull(r, buf); err != nil {
 		return fmt.Errorf("read content of packet fail: %w", err)
 	}
+	buffer := bytes.NewBuffer(buf)
 
 	//解压数据
 	if threshold > 0 {
-		if err := unCompress(buf); err != nil {
+		if err := unCompress(buffer); err != nil {
 			return err
 		}
 	}
 
 	var packetID VarInt
-	if _, err := packetID.ReadFrom(buf); err != nil {
+	if _, err := packetID.ReadFrom(buffer); err != nil {
 		return fmt.Errorf("read packet id fail: %v", err)
 	}
 	p.ID = int32(packetID)
-	p.Data = buf.Bytes()
+	p.Data = buffer.Bytes()
 	return nil
 }
 

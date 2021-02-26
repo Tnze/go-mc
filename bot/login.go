@@ -25,34 +25,35 @@ type Auth struct {
 	AsTk string
 }
 
-// 加密请求
-func handleEncryptionRequest(c *Client, pack pk.Packet) error {
-	//创建AES对称加密密钥
+func handleEncryptionRequest(c *Client, p pk.Packet) error {
+	// 创建AES对称加密密钥
 	key, encoStream, decoStream := newSymmetricEncryption()
 
-	//解析EncryptionRequest包
+	// Read EncryptionRequest
 	var er encryptionRequest
-	if err := pack.Scan(&er); err != nil {
+	if err := p.Scan(&er); err != nil {
 		return err
 	}
-	err := loginAuth(c.AsTk, c.Name, c.Auth.UUID, key, er) //向Mojang验证
+
+	err := loginAuth(c.Auth, key, er) //向Mojang验证
 	if err != nil {
 		return fmt.Errorf("login fail: %v", err)
 	}
 
 	// 响应加密请求
-	var p pk.Packet // Encryption Key Response
+	// Write Encryption Key Response
 	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken)
 	if err != nil {
 		return fmt.Errorf("gen encryption key response fail: %v", err)
 	}
-	err = c.conn.WritePacket(p)
+
+	err = c.Conn.WritePacket(p)
 	if err != nil {
 		return err
 	}
 
 	// 设置连接加密
-	c.conn.SetCipher(encoStream, decoStream)
+	c.Conn.SetCipher(encoStream, decoStream)
 	return nil
 }
 
@@ -122,16 +123,16 @@ type request struct {
 	ServerID        string  `json:"serverId"`
 }
 
-func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest) error {
+func loginAuth(auth Auth, shareSecret []byte, er encryptionRequest) error {
 	digest := authDigest(er.ServerID, shareSecret, er.PublicKey)
 
 	client := http.Client{}
 	requestPacket, err := json.Marshal(
 		request{
-			AccessToken: AsTk,
+			AccessToken: auth.AsTk,
 			SelectedProfile: profile{
-				ID:   UUID,
-				Name: name,
+				ID:   auth.UUID,
+				Name: auth.Name,
 			},
 			ServerID: digest,
 		},
@@ -155,7 +156,7 @@ func loginAuth(AsTk, name, UUID string, shareSecret []byte, er encryptionRequest
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
-	if resp.Status != "204 No Content" {
+	if resp.StatusCode != http.StatusNoContent {
 		return fmt.Errorf("auth fail: %s", string(body))
 	}
 	return nil

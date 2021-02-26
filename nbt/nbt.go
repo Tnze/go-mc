@@ -30,7 +30,7 @@ func IsArrayTag(ty byte) bool {
 }
 
 type DecoderReader = interface {
-	io.ByteScanner
+	io.ByteReader
 	io.Reader
 }
 type Decoder struct {
@@ -42,7 +42,7 @@ func NewDecoder(r io.Reader) *Decoder {
 	if br, ok := r.(DecoderReader); ok {
 		d.r = br
 	} else {
-		d.r = bufio.NewReader(r)
+		d.r = bufio.NewReaderSize(r, 0)
 	}
 	return d
 }
