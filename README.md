@@ -5,31 +5,19 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
 
+Require Go version: 1.16
+
 There's some library in Go support you to create your Minecraft client or server.  
-这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器，
-- [x] Chat
-- [x] NBT
+这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器。
+
+- [x] Chat Message (Support Json or old `§`)
+- [x] NBT (Based on reflection)
 - [x] Yggdrasil
 - [x] Realms Server
-- [x] RCON protocol
-- [x] Saves decoding /encoding
+- [x] RCON protocol (Server & Client)
+- [x] Saves decoding & encoding
 - [x] Minecraft network protocol
-- [x] Simple MC robot lib
-
-bot:  
-- [x] Swing arm
-- [x] Get inventory
-- [x] Pick item
-- [x] Drop item
-- [x] Swap item in hands
-- [x] Use item
-- [x] Use entity
-- [x] Attack entity
-- [x] Use/Place block
-- [x] Mine block
-- [x] Custom packets
-- [ ] Record entities
-
+- [x] Robot player framework
 
 > 由于仍在开发中，部分API在未来版本中可能会变动
 

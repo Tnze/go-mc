@@ -1,15 +1,15 @@
 package bot
 
 import (
+	"log"
+
 	"encoding/hex"
-	"fmt"
 	"github.com/Tnze/go-mc/offline"
 	"github.com/Tnze/go-mc/yggdrasil"
-	"log"
 )
 
 func ExamplePingAndList() {
-	resp, delay, err := PingAndList("localhost", 25565)
+	resp, delay, err := PingAndList("localhost:25565")
 	if err != nil {
 		log.Fatalf("ping and list server fail: %v", err)
 	}
@@ -54,8 +54,8 @@ func ExampleClient_JoinServer_online() {
 		panic(err)
 	}
 
-	c.Auth.UUID, c.Name = auth.SelectedProfile()
-	c.AsTk = auth.AccessToken()
+	c.Auth.UUID, c.Auth.Name = auth.SelectedProfile()
+	c.Auth.AsTk = auth.AccessToken()
 
 	//Connect server
 	err = c.JoinServer("127.0.0.1")
@@ -75,11 +75,4 @@ func ExampleClient_JoinServer_online() {
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func ExampleOfflineUUID() {
-	fmt.Println(offline.NameToUUID("Tnze"))
-
-	// output:
-	//	c7b9eece-2f2e-325c-8da8-6fc8f3d0edb0
 }

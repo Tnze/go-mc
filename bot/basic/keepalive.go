@@ -3,7 +3,6 @@ package basic
 import (
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"log"
 )
 
 func (p Player) handleKeepAlivePacket(packet pk.Packet) error {
@@ -54,7 +53,6 @@ func (p *Player) handlePlayerPositionAndLook(packet pk.Packet) error {
 			return Error{err}
 		}
 		p.isSpawn = true
-		log.Print("Position confirmed")
 	}
 
 	return nil

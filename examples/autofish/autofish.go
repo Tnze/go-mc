@@ -36,13 +36,7 @@ func main() {
 		Disconnect: onDisconnect,
 		Death:      onDeath,
 	}.Attach(c)
-	c.Events.AddListener(bot.PacketHandler{
-		ID:       packetid.NamedSoundEffect,
-		Priority: 0,
-		F: func(p pk.Packet) error {
-			return onSound()
-		},
-	})
+	c.Events.AddListener(soundListener)
 
 	//Login
 	err := c.JoinServer("127.0.0.1")
@@ -70,18 +64,42 @@ func onGameStart() error {
 	watch = make(chan time.Time)
 	go watchDog()
 
-	return c.UseItem(0)
+	return UseItem(0)
+}
+
+var soundListener = bot.PacketHandler{
+	ID:       packetid.NamedSoundEffect,
+	Priority: 0,
+	F: func(p pk.Packet) error {
+		var (
+			SoundName     pk.Identifier
+			SoundCategory pk.VarInt
+			X, Y, Z       pk.Int
+			Volume, Pitch pk.Float
+		)
+		if err := p.Scan(&SoundName, &SoundCategory, &X, &Y, &Z, &Volume, &Pitch); err != nil {
+			return err
+		}
+		return onSound(string(SoundName), int(SoundCategory), float64(X)/8, float64(Y)/8, float64(Z)/8, float32(Volume), float32(Pitch))
+	},
+}
+
+func UseItem(hand int32) error {
+	return c.Conn.WritePacket(pk.Marshal(
+		packetid.UseItem,
+		pk.VarInt(hand),
+	))
 }
 
 //goland:noinspection SpellCheckingInspection
 func onSound(name string, category int, x, y, z float64, volume, pitch float32) error {
 	if name == "entity.fishing_bobber.splash" {
-		if err := c.UseItem(0); err != nil { //retrieve
+		if err := UseItem(0); err != nil { //retrieve
 			return err
 		}
 		log.Println("gra~")
 		time.Sleep(time.Millisecond * 300)
-		if err := c.UseItem(0); err != nil { //throw
+		if err := UseItem(0); err != nil { //throw
 			return err
 		}
 		watch <- time.Now()
@@ -106,7 +124,7 @@ func watchDog() {
 		case <-watch:
 		case <-to.C:
 			log.Println("rethrow")
-			if err := c.UseItem(0); err != nil {
+			if err := UseItem(0); err != nil {
 				panic(err)
 			}
 		}

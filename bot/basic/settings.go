@@ -8,8 +8,8 @@ type Settings struct {
 	ChatColors         bool   //聊天颜色
 	DisplayedSkinParts uint8  //皮肤显示
 	MainHand           int    //主手
-	ReceiveMap         bool   //接收地图数据
-	Brand              string // The brand string presented to the server.
+
+	Brand string // The brand string presented to the server.
 }
 
 /*
@@ -33,6 +33,6 @@ var DefaultSettings = Settings{
 	ChatMode:           0,
 	DisplayedSkinParts: Jacket | LeftSleeve | RightSleeve | LeftPantsLeg | RightPantsLeg | Hat,
 	MainHand:           1,
-	ReceiveMap:         true,
-	Brand:              "vanilla",
+
+	Brand: "vanilla",
 }
