@@ -1,9 +1,10 @@
 package basic
 
 import (
+	"unsafe"
+
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"unsafe"
 )
 
 // WorldInfo content player info in server.
@@ -38,7 +39,7 @@ type ServInfo struct {
 
 func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 	var WorldCount pk.VarInt
-	var WorldNames = []pk.Identifier{}
+	var WorldNames = make([]pk.Identifier, 0)
 	err := packet.Scan(
 		(*pk.Int)(&p.EID),
 		(*pk.Boolean)(&p.Hardcore),
@@ -58,7 +59,7 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		(*pk.Boolean)(&p.IsFlat),
 	)
 	if err != nil {
-		return err
+		return Error{err}
 	}
 
 	// This line should work "like" the following code but without copy things
@@ -74,10 +75,10 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		pk.String(p.Settings.Brand),
 	))
 	if err != nil {
-		return err
+		return Error{err}
 	}
 
-	return p.c.Conn.WritePacket(pk.Marshal(
+	err = p.c.Conn.WritePacket(pk.Marshal(
 		packetid.Settings, // Client settings
 		pk.String(p.Settings.Locale),
 		pk.Byte(p.Settings.ViewDistance),
@@ -86,4 +87,8 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		pk.UnsignedByte(p.Settings.DisplayedSkinParts),
 		pk.VarInt(p.Settings.MainHand),
 	))
+	if err != nil {
+		return Error{err}
+	}
+	return nil
 }

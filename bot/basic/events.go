@@ -37,7 +37,7 @@ func (e *EventsListener) onDisconnect(p pk.Packet) error {
 	if e.Disconnect != nil {
 		var reason chat.Message
 		if err := p.Scan(&reason); err != nil {
-			return err
+			return Error{err}
 		}
 		return e.Disconnect(reason)
 	}
@@ -51,7 +51,7 @@ func (e *EventsListener) onChatMsg(p pk.Packet) error {
 		var sender pk.UUID
 
 		if err := p.Scan(&msg, &pos, &sender); err != nil {
-			return err
+			return Error{err}
 		}
 
 		return e.ChatMsg(msg, byte(pos), uuid.UUID(sender))
@@ -66,7 +66,7 @@ func (e *EventsListener) onUpdateHealth(p pk.Packet) error {
 		var foodSaturation pk.Float
 
 		if err := p.Scan(&health, &food, &foodSaturation); err != nil {
-			return err
+			return Error{err}
 		}
 		if e.HealthChange != nil {
 			if err := e.HealthChange(float32(health)); err != nil {

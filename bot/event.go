@@ -5,7 +5,8 @@ import (
 )
 
 type Events struct {
-	handlers map[int32]*handlerHeap
+	generic  *handlerHeap           // for every packet
+	handlers map[int32]*handlerHeap // for specific packet id only
 }
 
 func (e *Events) AddListener(listeners ...PacketHandler) {
@@ -17,6 +18,18 @@ func (e *Events) AddListener(listeners ...PacketHandler) {
 			e.handlers[l.ID] = s
 		} else {
 			s.Push(l)
+		}
+	}
+}
+
+// AddGeneric adds listeners like AddListener, but the packet ID is ignored.
+// Generic listener is always called before specific packet listener.
+func (e *Events) AddGeneric(listeners ...PacketHandler) {
+	for _, l := range listeners {
+		if e.generic == nil {
+			e.generic = &handlerHeap{l}
+		} else {
+			e.generic.Push(l)
 		}
 	}
 }

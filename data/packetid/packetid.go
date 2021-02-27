@@ -2,169 +2,175 @@
 
 package packetid
 
-// Valid PktID values.
+// Login state
 const (
-	// Clientbound packets for connections in the login state.
-	Compress                   = 0x03
-	Disconnect                 = 0x00
-	EncryptionBeginClientbound = 0x01
-	LoginPluginRequest         = 0x04
-	Success                    = 0x02
+	// Clientbound
+	Disconnect                 = 0x0
+	EncryptionBeginClientbound = 0x1
+	Success                    = 0x2
+	Compress                   = 0x3
+	LoginPluginRequest         = 0x4
 
-	// Serverbound packets for connections in the login state
-	EncryptionBeginServerbound = 0x01
-	LoginPluginResponse        = 0x02
-	LoginStart                 = 0x00
+	// Serverbound
+	LoginStart                 = 0x0
+	EncryptionBeginServerbound = 0x1
+	LoginPluginResponse        = 0x2
+)
 
-	// Clientbound packets for connections in the play state.
-	AbilitiesClientbound       = 0x30
-	AcknowledgePlayerDigging   = 0x07
-	Advancements               = 0x57
-	Animation                  = 0x05
-	AttachEntity               = 0x45
-	BlockAction                = 0x0a
-	BlockBreakAnimation        = 0x08
-	BlockChange                = 0x0b
-	BossBar                    = 0x0c
-	Camera                     = 0x3e
-	ChatClientbound            = 0x0e
-	CloseWindowClientbound     = 0x12
-	Collect                    = 0x55
-	CombatEvent                = 0x31
-	CraftProgressBar           = 0x14
-	CraftRecipeResponse        = 0x2f
-	CustomPayloadClientbound   = 0x17
+// Ping state
+const (
+	// Clientbound
+	ServerInfo      = 0x0
+	PingClientbound = 0x1
+
+	// Serverbound
+	PingStart       = 0x0
+	PingServerbound = 0x1
+)
+
+// Play state
+const (
+	// Clientbound
+	SpawnEntity                = 0x0
+	SpawnEntityExperienceOrb   = 0x1
+	SpawnEntityLiving          = 0x2
+	SpawnEntityPainting        = 0x3
+	NamedEntitySpawn           = 0x4
+	Animation                  = 0x5
+	Statistics                 = 0x6
+	AcknowledgePlayerDigging   = 0x7
+	BlockBreakAnimation        = 0x8
+	TileEntityData             = 0x9
+	BlockAction                = 0xa
+	BlockChange                = 0xb
+	BossBar                    = 0xc
+	Difficulty                 = 0xd
+	ChatClientbound            = 0xe
+	TabCompleteClientbound     = 0xf
 	DeclareCommands            = 0x10
-	DeclareRecipes             = 0x5a
-	Difficulty                 = 0x0d
-	Entity                     = 0x2a
-	EntityDestroy              = 0x36
-	EntityEffect               = 0x59
-	EntityEquipment            = 0x47
-	EntityHeadRotation         = 0x3a
-	EntityLook                 = 0x29
-	EntityMetadata             = 0x44
-	EntityMoveLook             = 0x28
-	EntitySoundEffect          = 0x50
-	EntityStatus               = 0x1a
-	EntityTeleport             = 0x56
-	EntityUpdateAttributes     = 0x58
-	EntityVelocity             = 0x46
-	Experience                 = 0x48
-	Explosion                  = 0x1b
-	FacePlayer                 = 0x33
-	GameStateChange            = 0x1d
-	HeldItemSlotClientbound    = 0x3f
-	KeepAliveClientbound       = 0x1f
+	TransactionClientbound     = 0x11
+	CloseWindowClientbound     = 0x12
+	WindowItems                = 0x13
+	CraftProgressBar           = 0x14
+	SetSlot                    = 0x15
+	SetCooldown                = 0x16
+	CustomPayloadClientbound   = 0x17
+	NamedSoundEffect           = 0x18
 	KickDisconnect             = 0x19
+	EntityStatus               = 0x1a
+	Explosion                  = 0x1b
+	UnloadChunk                = 0x1c
+	GameStateChange            = 0x1d
+	OpenHorseWindow            = 0x1e
+	KeepAliveClientbound       = 0x1f
+	MapChunk                   = 0x20
+	WorldEvent                 = 0x21
+	WorldParticles             = 0x22
+	UpdateLight                = 0x23
 	Login                      = 0x24
 	Map                        = 0x25
-	MapChunk                   = 0x20
-	MultiBlockChange           = 0x3b
-	NamedEntitySpawn           = 0x04
-	NamedSoundEffect           = 0x18
-	NbtQueryResponse           = 0x54
-	OpenBook                   = 0x2c
-	OpenHorseWindow            = 0x1e
-	OpenSignEntity             = 0x2e
-	OpenWindow                 = 0x2d
-	PlayerInfo                 = 0x32
-	PlayerlistHeader           = 0x53
-	PositionClientbound        = 0x34
+	TradeList                  = 0x26
 	RelEntityMove              = 0x27
+	EntityMoveLook             = 0x28
+	EntityLook                 = 0x29
+	Entity                     = 0x2a
+	VehicleMoveClientbound     = 0x2b
+	OpenBook                   = 0x2c
+	OpenWindow                 = 0x2d
+	OpenSignEntity             = 0x2e
+	CraftRecipeResponse        = 0x2f
+	AbilitiesClientbound       = 0x30
+	CombatEvent                = 0x31
+	PlayerInfo                 = 0x32
+	FacePlayer                 = 0x33
+	PositionClientbound        = 0x34
+	UnlockRecipes              = 0x35
+	EntityDestroy              = 0x36
 	RemoveEntityEffect         = 0x37
 	ResourcePackSend           = 0x38
 	Respawn                    = 0x39
-	ScoreboardDisplayObjective = 0x43
-	ScoreboardObjective        = 0x4a
-	ScoreboardScore            = 0x4d
+	EntityHeadRotation         = 0x3a
+	MultiBlockChange           = 0x3b
 	SelectAdvancementTab       = 0x3c
-	SetCooldown                = 0x16
-	SetPassengers              = 0x4b
-	SetSlot                    = 0x15
-	SoundEffect                = 0x51
-	SpawnEntity                = 0x00
-	SpawnEntityExperienceOrb   = 0x01
-	SpawnEntityLiving          = 0x02
-	SpawnEntityPainting        = 0x03
-	SpawnPosition              = 0x42
-	Statistics                 = 0x06
-	StopSound                  = 0x52
-	TabCompleteClientbound     = 0x0f
-	Tags                       = 0x5b
-	Teams                      = 0x4c
-	TileEntityData             = 0x09
-	Title                      = 0x4f
-	TradeList                  = 0x26
-	TransactionClientbound     = 0x11
-	UnloadChunk                = 0x1c
-	UnlockRecipes              = 0x35
-	UpdateHealth               = 0x49
-	UpdateLight                = 0x23
-	UpdateTime                 = 0x4e
-	UpdateViewDistance         = 0x41
-	UpdateViewPosition         = 0x40
-	VehicleMoveClientbound     = 0x2b
-	WindowItems                = 0x13
 	WorldBorder                = 0x3d
-	WorldEvent                 = 0x21
-	WorldParticles             = 0x22
+	Camera                     = 0x3e
+	HeldItemSlotClientbound    = 0x3f
+	UpdateViewPosition         = 0x40
+	UpdateViewDistance         = 0x41
+	SpawnPosition              = 0x42
+	ScoreboardDisplayObjective = 0x43
+	EntityMetadata             = 0x44
+	AttachEntity               = 0x45
+	EntityVelocity             = 0x46
+	EntityEquipment            = 0x47
+	Experience                 = 0x48
+	UpdateHealth               = 0x49
+	ScoreboardObjective        = 0x4a
+	SetPassengers              = 0x4b
+	Teams                      = 0x4c
+	ScoreboardScore            = 0x4d
+	UpdateTime                 = 0x4e
+	Title                      = 0x4f
+	EntitySoundEffect          = 0x50
+	SoundEffect                = 0x51
+	StopSound                  = 0x52
+	PlayerlistHeader           = 0x53
+	NbtQueryResponse           = 0x54
+	Collect                    = 0x55
+	EntityTeleport             = 0x56
+	Advancements               = 0x57
+	EntityUpdateAttributes     = 0x58
+	EntityEffect               = 0x59
+	DeclareRecipes             = 0x5a
+	Tags                       = 0x5b
 
-	// Serverbound packets for connections in the play state.
-	AbilitiesServerbound       = 0x1a
-	AdvancementTab             = 0x22
-	ArmAnimation               = 0x2c
-	BlockDig                   = 0x1b
-	BlockPlace                 = 0x2e
-	ChatServerbound            = 0x03
-	ClientCommand              = 0x04
-	CloseWindowServerbound     = 0x0a
-	CraftRecipeRequest         = 0x19
-	CustomPayloadServerbound   = 0x0b
-	DisplayedRecipe            = 0x1e
-	EditBook                   = 0x0c
-	EnchantItem                = 0x08
-	EntityAction               = 0x1c
-	Flying                     = 0x15
-	GenerateStructure          = 0x0f
-	HeldItemSlotServerbound    = 0x25
+	// Serverbound
+	TeleportConfirm            = 0x0
+	QueryBlockNbt              = 0x1
+	SetDifficulty              = 0x2
+	ChatServerbound            = 0x3
+	ClientCommand              = 0x4
+	Settings                   = 0x5
+	TabCompleteServerbound     = 0x6
+	TransactionServerbound     = 0x7
+	EnchantItem                = 0x8
+	WindowClick                = 0x9
+	CloseWindowServerbound     = 0xa
+	CustomPayloadServerbound   = 0xb
+	EditBook                   = 0xc
+	QueryEntityNbt             = 0xd
+	UseEntity                  = 0xe
+	GenerateStructure          = 0xf
 	KeepAliveServerbound       = 0x10
 	LockDifficulty             = 0x11
-	Look                       = 0x14
-	NameItem                   = 0x20
-	PickItem                   = 0x18
-	PositionLook               = 0x13
 	PositionServerbound        = 0x12
-	QueryBlockNbt              = 0x01
-	QueryEntityNbt             = 0x0d
+	PositionLook               = 0x13
+	Look                       = 0x14
+	Flying                     = 0x15
+	VehicleMoveServerbound     = 0x16
+	SteerBoat                  = 0x17
+	PickItem                   = 0x18
+	CraftRecipeRequest         = 0x19
+	AbilitiesServerbound       = 0x1a
+	BlockDig                   = 0x1b
+	EntityAction               = 0x1c
+	SteerVehicle               = 0x1d
+	DisplayedRecipe            = 0x1e
 	RecipeBook                 = 0x1f
+	NameItem                   = 0x20
 	ResourcePackReceive        = 0x21
+	AdvancementTab             = 0x22
 	SelectTrade                = 0x23
 	SetBeaconEffect            = 0x24
-	SetCreativeSlot            = 0x28
-	SetDifficulty              = 0x02
-	Settings                   = 0x05
-	Spectate                   = 0x2d
-	SteerBoat                  = 0x17
-	SteerVehicle               = 0x1d
-	TabCompleteServerbound     = 0x06
-	TeleportConfirm            = 0x00
-	TransactionServerbound     = 0x07
+	HeldItemSlotServerbound    = 0x25
 	UpdateCommandBlock         = 0x26
 	UpdateCommandBlockMinecart = 0x27
+	SetCreativeSlot            = 0x28
 	UpdateJigsawBlock          = 0x29
-	UpdateSign                 = 0x2b
 	UpdateStructureBlock       = 0x2a
-	UseEntity                  = 0x0e
+	UpdateSign                 = 0x2b
+	ArmAnimation               = 0x2c
+	Spectate                   = 0x2d
+	BlockPlace                 = 0x2e
 	UseItem                    = 0x2f
-	VehicleMoveServerbound     = 0x16
-	WindowClick                = 0x09
-
-	// Clientbound packets used to respond to ping/status requests.
-	PingClientbound = 0x01
-	ServerInfo      = 0x00
-
-	// Serverbound packets used to ping or read server status.
-	PingServerbound = 0x01
-	PingStart       = 0x00
 )

@@ -1,9 +1,14 @@
+// Daze could join an offline-mode server as client.
+// Just standing there and do nothing. Automatically reborn after five seconds of death.
+//
+// BUG(Tnze): Kick by Disconnect: Time Out
 package main
 
 import (
 	"errors"
 	"flag"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -20,6 +25,7 @@ var player *basic.Player
 func main() {
 	flag.Parse()
 	client = bot.NewClient()
+	client.Auth.Name = "Daze"
 	player = basic.NewPlayer(client, basic.DefaultSettings)
 	basic.EventsListener{
 		GameStart:  onGameStart,
@@ -35,19 +41,22 @@ func main() {
 	}
 	log.Println("Login success")
 
-	//Register event handlers
-
 	//JoinGame
 	for {
-		if err = client.HandleGame(); err != nil {
-			var interErr *bot.PacketHandlerError
-			if errors.As(err, &interErr) {
-				log.Print("Internal bugs: ", interErr)
+		if err = client.HandleGame(); err == nil {
+			panic("HandleGame never return nil")
+		}
+
+		if err2 := new(bot.PacketHandlerError); errors.As(err, err2) {
+			if err := new(DisconnectErr); errors.As(err2, err) {
+				log.Print("Disconnect: ", err.Reason)
+				return
 			} else {
-				log.Fatal(err)
+				// print and ignore the error
+				log.Print(err2)
 			}
 		} else {
-			break
+			log.Fatal(err)
 		}
 	}
 }
@@ -55,7 +64,14 @@ func main() {
 func onDeath() error {
 	log.Println("Died and Respawned")
 	// If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
-	return player.Respawn()
+	go func() {
+		time.Sleep(time.Second * 5)
+		err := player.Respawn()
+		if err != nil {
+			log.Print(err)
+		}
+	}()
+	return nil
 }
 
 func onGameStart() error {
@@ -63,12 +79,20 @@ func onGameStart() error {
 	return nil //if err isn't nil, HandleGame() will return it.
 }
 
-func onChatMsg(c chat.Message, pos byte, uuid uuid.UUID) error {
+func onChatMsg(c chat.Message, _ byte, _ uuid.UUID) error {
 	log.Println("Chat:", c.ClearString()) // output chat message without any format code (like color or bold)
 	return nil
 }
 
+type DisconnectErr struct {
+	Reason chat.Message
+}
+
+func (d DisconnectErr) Error() string {
+	return "disconnect: " + d.Reason.String()
+}
+
 func onDisconnect(reason chat.Message) error {
-	log.Println("Disconnect:", reason)
-	return nil
+	// return a error value so that we can stop main loop
+	return DisconnectErr{Reason: reason}
 }

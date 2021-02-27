@@ -1,5 +1,3 @@
-//+build ignore
-
 // gen_packetIDs.go generates the enumeration of packet IDs used on the wire.
 package main
 
@@ -8,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"text/template"
 
 	"github.com/iancoleman/strcase"
@@ -22,30 +21,30 @@ package packetid
 // Login state
 const (
 	// Clientbound
-{{range $Name, $ID := .Login.Clientbound}}	{{$Name}} = {{$ID}}
+{{range $ID, $Name := .Login.Clientbound}}	{{$Name}} = {{$ID | printf "%#x"}}
 {{end}}
 	// Serverbound
-{{range $Name, $ID := .Login.Serverbound}}	{{$Name}} = {{$ID}}
+{{range $ID, $Name := .Login.Serverbound}}	{{$Name}} = {{$ID | printf "%#x"}}
 {{end}}
 )
 
 // Ping state
 const (
 	// Clientbound
-{{range $Name, $ID := .Status.Clientbound}}	{{$Name}} = {{$ID}}
+{{range $ID, $Name := .Status.Clientbound}}	{{$Name}} = {{$ID | printf "%#x"}}
 {{end}}
 	// Serverbound
-{{range $Name, $ID := .Status.Serverbound}}	{{$Name}} = {{$ID}}
+{{range $ID, $Name := .Status.Serverbound}}	{{$Name}} = {{$ID | printf "%#x"}}
 {{end}}
 )
 
 // Play state
 const (
 	// Clientbound
-{{range $Name, $ID := .Play.Clientbound}}	{{$Name}} = {{$ID}}
+{{range $ID, $Name := .Play.Clientbound}}	{{$Name}} = {{$ID | printf "%#x"}}
 {{end}}
 	// Serverbound
-{{range $Name, $ID := .Play.Serverbound}}	{{$Name}} = {{$ID}}
+{{range $ID, $Name := .Play.Serverbound}}	{{$Name}} = {{$ID | printf "%#x"}}
 {{end}}
 )
 `
@@ -69,25 +68,21 @@ func unnest(input map[string]interface{}, keys ...string) (map[string]interface{
 }
 
 type duplexMappings struct {
-	Clientbound map[string]string
-	Serverbound map[string]string
+	Clientbound map[int32]string
+	Serverbound map[int32]string
 }
 
 func (m *duplexMappings) EnsureUniqueNames() {
 	// Assemble a slice of keys to check across both maps, because we cannot
 	// mutate a map while iterating it.
-	clientKeys := make([]string, 0, len(m.Clientbound))
-	for k, _ := range m.Clientbound {
-		clientKeys = append(clientKeys, k)
+	clientBounds := make(map[string]int32)
+	for sk, sv := range m.Clientbound {
+		clientBounds[sv] = sk
 	}
-
-	for _, k := range clientKeys {
-		if _, alsoServerKey := m.Serverbound[k]; alsoServerKey {
-			cVal, sVal := m.Clientbound[k], m.Serverbound[k]
-			delete(m.Clientbound, k)
-			delete(m.Serverbound, k)
-			m.Clientbound[k+"Clientbound"] = cVal
-			m.Serverbound[k+"Serverbound"] = sVal
+	for sk, sv := range m.Serverbound {
+		if ck, ok := clientBounds[sv]; ok {
+			m.Clientbound[ck] = sv + "Clientbound"
+			m.Serverbound[sk] = sv + "Serverbound"
 		}
 	}
 }
@@ -96,8 +91,8 @@ func (m *duplexMappings) EnsureUniqueNames() {
 // game state.
 func unpackMapping(data map[string]interface{}, gameState string) (duplexMappings, error) {
 	out := duplexMappings{
-		Clientbound: make(map[string]string),
-		Serverbound: make(map[string]string),
+		Clientbound: make(map[int32]string),
+		Serverbound: make(map[int32]string),
 	}
 
 	info, err := unnest(data, gameState, "toClient", "types")
@@ -107,7 +102,7 @@ func unpackMapping(data map[string]interface{}, gameState string) (duplexMapping
 	pType := info["packet"].([]interface{})[1].([]interface{})[0].(map[string]interface{})["type"]
 	mappings := pType.([]interface{})[1].(map[string]interface{})["mappings"].(map[string]interface{})
 	for k, v := range mappings {
-		out.Clientbound[strcase.ToCamel(v.(string))] = k
+		out.Clientbound[mustAtoi(k)] = strcase.ToCamel(v.(string))
 	}
 	info, err = unnest(data, gameState, "toServer", "types")
 	if err != nil {
@@ -116,10 +111,18 @@ func unpackMapping(data map[string]interface{}, gameState string) (duplexMapping
 	pType = info["packet"].([]interface{})[1].([]interface{})[0].(map[string]interface{})["type"]
 	mappings = pType.([]interface{})[1].(map[string]interface{})["mappings"].(map[string]interface{})
 	for k, v := range mappings {
-		out.Serverbound[strcase.ToCamel(v.(string))] = k
+		out.Serverbound[mustAtoi(k)] = strcase.ToCamel(v.(string))
 	}
 
 	return out, nil
+}
+
+func mustAtoi(num string) int32 {
+	if n, err := strconv.ParseInt(num, 0, 32); err != nil {
+		panic(err)
+	} else {
+		return int32(n)
+	}
 }
 
 type protocolIDs struct {
@@ -158,7 +161,7 @@ func downloadInfo() (*protocolIDs, error) {
 }
 
 //go:generate go run $GOFILE
-//go:generate go fmt packetid.go
+//go:generate go fmt ../packetid.go
 func main() {
 	pIDs, err := downloadInfo()
 	if err != nil {
@@ -166,7 +169,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	f, err := os.Create("packetid.go")
+	f, err := os.Create("../packetid.go")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

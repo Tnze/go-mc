@@ -37,6 +37,13 @@ func (d PacketHandlerError) Unwrap() error {
 }
 
 func (c *Client) handlePacket(p pk.Packet) (err error) {
+	if c.Events.generic != nil {
+		for _, handler := range *c.Events.generic {
+			if err = handler.F(p); err != nil {
+				return PacketHandlerError{ID: p.ID, Err: err}
+			}
+		}
+	}
 	if listeners := c.Events.handlers[p.ID]; listeners != nil {
 		for _, handler := range *listeners {
 			err = handler.F(p)
