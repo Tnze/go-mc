@@ -1,6 +1,9 @@
 package main
 
 import (
+	"github.com/Tnze/go-mc/bot/basic"
+	"github.com/Tnze/go-mc/data/packetid"
+	pk "github.com/Tnze/go-mc/net/packet"
 	"log"
 	"time"
 
@@ -15,13 +18,31 @@ import (
 const timeout = 45
 
 var (
-	c     *bot.Client
+	c *bot.Client
+	p *basic.Player
+
 	watch chan time.Time
 )
 
 func main() {
 	log.SetOutput(colorable.NewColorableStdout())
 	c = bot.NewClient()
+	p = basic.NewPlayer(c, basic.DefaultSettings)
+
+	//Register event handlers
+	basic.EventsListener{
+		GameStart:  onGameStart,
+		ChatMsg:    onChatMsg,
+		Disconnect: onDisconnect,
+		Death:      onDeath,
+	}.Attach(c)
+	c.Events.AddListener(bot.PacketHandler{
+		ID:       packetid.NamedSoundEffect,
+		Priority: 0,
+		F: func(p pk.Packet) error {
+			return onSound()
+		},
+	})
 
 	//Login
 	err := c.JoinServer("127.0.0.1")
@@ -29,13 +50,6 @@ func main() {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
-
-	//Register event handlers
-	c.Events.GameStart = onGameStart
-	c.Events.ChatMsg = onChatMsg
-	c.Events.Disconnect = onDisconnect
-	c.Events.SoundPlay = onSound
-	c.Events.Die = onDeath
 
 	//JoinGame
 	err = c.HandleGame()
@@ -47,7 +61,7 @@ func main() {
 func onDeath() error {
 	log.Println("Died and Respawned")
 	// If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
-	return c.Respawn()
+	return p.Respawn()
 }
 
 func onGameStart() error {

@@ -22,7 +22,7 @@ jobs:
     - run: mkdir -p ./bin/tools
 
     - name: Build tools
-      run: go build -o ./bin/tools ./cmd/...
+      run: go build -o ./bin/tools ./examples/...
       
     - name: Upload tools
       uses: actions/upload-artifact@v1

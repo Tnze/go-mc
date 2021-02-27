@@ -1,7 +1,7 @@
 // Package bot implements a simple Minecraft client that can join a server
 // or just ping it for getting information.
 //
-// Runnable example could be found at cmd/ .
+// Runnable example could be found at examples/ .
 package bot
 
 import (

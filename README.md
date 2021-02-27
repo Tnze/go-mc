@@ -33,9 +33,6 @@ bot:
 
 > 由于仍在开发中，部分API在未来版本中可能会变动
 
-Some examples are at `/cmd` folder.  
-有一些例子在cmd目录下
-
 > `1.13.2` version is at [gomcbot](https://github.com/Tnze/gomcbot).
 
 ## Getting start
@@ -105,4 +102,4 @@ Originally it's all right to write a bot with only `go-mc/net` package, but cons
 
 理论上讲，只用`go-mc/net`包实现一个bot是完全可行的，但是为了节省大家从头去理解MC握手、登录、加密等协议的过程，在`go-mc/bot`中我已经把这些都实现了，只不过它不是跨版本的。你可以直接使用，或者作为自己实现的参考。
 
-Now, go and have a look at the example!
+Now, go and have a look at the examples!
