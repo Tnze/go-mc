@@ -52,6 +52,9 @@ type reader struct {
 
 func (r reader) ReadByte() (byte, error) {
 	var b [1]byte
-	_, err := r.Read(b[:])
-	return b[0], err
+	n, err := r.Read(b[:])
+	if n == 1 {
+		return b[0], nil
+	}
+	return 0, err
 }
