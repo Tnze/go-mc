@@ -80,12 +80,14 @@ const MaxVarIntLen = 5
 const MaxVarLongLen = 10
 
 //Encode a Boolean
-func (b Boolean) WriteTo(w io.Writer) (n int64, err error) {
-	var nn int
+func (b Boolean) WriteTo(w io.Writer) (int64, error) {
+	var v byte
 	if b {
-		nn, err = w.Write([]byte{0x01})
+		v = 0x01
+	} else {
+		v = 0x00
 	}
-	nn, err = w.Write([]byte{0x00})
+	nn, err := w.Write([]byte{v})
 	return int64(nn), err
 }
 
