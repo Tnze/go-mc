@@ -1,13 +1,17 @@
-# NBT
-This package implement the Named Binary Tag format of Minecraft. It supports all formats
-of NBT including compact arrays for longs.
+# NBT [![Go Reference](https://pkg.go.dev/badge/github.com/Tnze/go-mc/nbt.svg)](https://pkg.go.dev/github.com/Tnze/go-mc/nbt)
+This package implement the [Named Binary Tag](https://wiki.vg/NBT) format of Minecraft. 
 
-# Usage
+The API is very similar to the  standard library `encoding/json`. If you (high probability) have used that, it is easy to use this.
+
+# Basic Usage
+>  I don't know why `Marshal` looks like that, and **I will change it** to `func Marshal(v interface{}) ([]byte, error)`.
+> **Use `Encoder` is recommended now.**
+
 For the following NBT tag:
 
 ```
 TAG_Compound("hello world") {
-    TAG_String('name'): 'Bananrama'
+    TAG_String("name"): "Bananrama"
 }   
 ```
 
@@ -20,7 +24,7 @@ import "bytes"
 import "github.com/Tnze/go-mc/nbt"
 
 type Compound struct {
-    Name string `nbt:"name"` // Note that if name is private (name), the field will not be used
+    Name string `nbt:"name"` // The field must be started with the capital letter
 }
 
 func main() {
@@ -33,14 +37,17 @@ func main() {
 }
 ```
 
+
+
 # Struct field tags
+
 There are two tags supported:
 - nbt
 - nbt_type
 
 The `nbt` tag is used to change the name of the NBT Tag field, whereas the `nbt_type`
  tag is used to enforce a certain NBT Tag type when it is ambiguous.
- 
+
 For example:
 ```go
 type Compound struct {
@@ -49,5 +56,5 @@ type Compound struct {
 }
 ```
 
-# Docs
-[![GoDoc](https://godoc.org/github.com/Tnze/go-mc/nbt?status.svg)](https://godoc.org/github.com/Tnze/go-mc/nbt)
+
+

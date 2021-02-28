@@ -1,7 +1,7 @@
 # Go-MC
 ![Version](https://img.shields.io/badge/Minecraft-1.16.5-blue.svg)
 ![Protocol](https://img.shields.io/badge/Protocol-754-blue.svg)
-[![GoDoc](https://godoc.org/github.com/Tnze/go-mc?status.svg)](https://godoc.org/github.com/Tnze/go-mc)
+[![Go Reference](https://pkg.go.dev/badge/github.com/Tnze/go-mc.svg)](https://pkg.go.dev/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
 
@@ -81,6 +81,51 @@ if err != nil {
     return err
 }
 ```
+
+### Advanced usage
+
+Sometimes you are handling packet like this:
+
+| **Field Name** |     Field Type      | **Notes**                                 |
+| :------------: | :-----------------: | :---------------------------------------- |
+|  World Count   |       VarInt        | Size of the following array.              |
+|  World Names   | Array of Identifier | Identifiers for all worlds on the server. |
+
+That is, the first field is an integer type and the second field is an array (a `[]string` in this case). The integer represents the length of array.
+
+Traditionally, you can use the following method to read such a field:
+
+```go
+r := bytes.Reader(p.Data)
+// Read WorldCount
+var WorldCount pk.VarInt
+if err := WorldCount.ReadFrom(r); err != nil {
+    return err
+}
+// Read WorldNames
+WorldNames := make([]pk.Identifier, WorldCount)
+for i := 0; i < int(WorldCount); i++ {
+    if err := WorldNames[i].ReadFrom(r); err != nil {
+        return err
+    }
+}
+```
+
+But this is tediously long an not compatible with `p.Scan()` method.
+
+In the latest version, two new types is added: `pk.Ary` and `pk.Opt`. Dedicated to handling "Array of ...." and "Optional ...." fields.
+
+```go
+var WorldCount pk.VarInt
+var WorldNames = []pk.Identifier{}
+if err := p.Scan(&WorldCount, pk.Ary{&WorldCount, &WorldNames}); err != nil {
+    return err
+}
+```
+
+
+
+---
 
 As the `go-mc/net` package implements the minecraft network protocol, there is no update between the versions at this level. So net package actually supports any version. It's just that the ID and content of the package are different between different versions.
 
