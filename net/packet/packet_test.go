@@ -3,6 +3,7 @@ package packet_test
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"testing"
 
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -22,7 +23,7 @@ var PackedVarInts = [][]byte{
 	{0x80, 0x80, 0x80, 0x80, 0x08},
 }
 
-func TestPackVarInt(t *testing.T) {
+func TestVarInt_WriteTo(t *testing.T) {
 	var buf bytes.Buffer
 	for i, v := range VarInts {
 		buf.Reset()
@@ -36,7 +37,7 @@ func TestPackVarInt(t *testing.T) {
 		}
 	}
 }
-func TestUnpackVarInt(t *testing.T) {
+func TestVarInt_ReadFrom(t *testing.T) {
 	for i, v := range PackedVarInts {
 		var vi pk.VarInt
 		if _, err := vi.ReadFrom(bytes.NewReader(v)); err != nil {
@@ -48,7 +49,7 @@ func TestUnpackVarInt(t *testing.T) {
 	}
 }
 
-func TestUnpackVarInt_TooLongData(t *testing.T) {
+func TestVarInt_ReadFrom_tooLongData(t *testing.T) {
 	var vi pk.VarInt
 	var data = []byte{0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01}
 	if _, err := vi.ReadFrom(bytes.NewReader(data)); err != nil {
@@ -74,15 +75,19 @@ var PackedVarLongs = [][]byte{
 	{0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01},
 }
 
-func TestPackVarLong(t *testing.T) {
+func TestVarLong_WriteTo(t *testing.T) {
+	var buf bytes.Buffer
 	for i, v := range VarLongs {
-		p := v.Encode()
-		if !bytes.Equal(p, PackedVarLongs[i]) {
-			t.Errorf("pack long %d should be \"% x\", get \"% x\"", v, PackedVarLongs[i], p)
+		buf.Reset()
+		if _, err := v.WriteTo(&buf); err != nil {
+			t.Error(err)
+		}
+		if !bytes.Equal(buf.Bytes(), PackedVarLongs[i]) {
+			t.Errorf("pack long %d should be \"% x\", get \"% x\"", v, PackedVarLongs[i], buf.Bytes())
 		}
 	}
 }
-func TestUnpackVarLong(t *testing.T) {
+func TestVarLong_ReadFrom(t *testing.T) {
 	for i, v := range PackedVarLongs {
 		var vi pk.VarLong
 		if _, err := vi.ReadFrom(bytes.NewReader(v)); err != nil {
@@ -94,18 +99,39 @@ func TestUnpackVarLong(t *testing.T) {
 	}
 }
 
-//go:embed joingame_test.bin
-var joingame []byte
+func TestAry_ReadFrom(t *testing.T) {
+	var num pk.Int = 2
+	var ary []pk.String
+	var bin = []byte{
+		4, 'T', 'n', 'z', 'e',
+		0,
+	}
+	var data = pk.Ary{Len: &num, Ary: &ary}
+	if _, err := data.ReadFrom(bytes.NewReader(bin)); err != nil {
+		t.Fatal(err)
+	}
+	if len(ary) != int(num) {
+		t.Fatalf("length not match: %d != %d", len(ary), num)
+	}
+	for i, v := range []string{"Tnze", ""} {
+		if string(ary[i]) != v {
+			t.Errorf("want %q, get %q", v, ary[i])
+		}
+	}
+}
 
-func TestJoinGamePacket(t *testing.T) {
-	p := pk.Packet{ID: 0x24, Data: joingame}
+//go:embed joingame_test.bin
+var testJoinGameData []byte
+
+func ExamplePacket_Scan_joinGame() {
+	p := pk.Packet{ID: 0x24, Data: testJoinGameData}
 	var (
 		EID            pk.Int
 		Hardcore       pk.Boolean
 		Gamemode       pk.UnsignedByte
 		PreGamemode    pk.Byte
 		WorldCount     pk.VarInt
-		WorldNames     = pk.Ary{Len: &WorldCount, Ary: &[]pk.String{}}
+		WorldNames     = make([]pk.Identifier, 0) // This cannot replace with "var WorldNames []pk.Identifier" because "nil" has no type information
 		DimensionCodec struct {
 			DimensionType interface{} `nbt:"minecraft:dimension_type"`
 			WorldgenBiome interface{} `nbt:"minecraft:worldgen/biome"`
@@ -123,16 +149,18 @@ func TestJoinGamePacket(t *testing.T) {
 		&Gamemode,
 		&PreGamemode,
 		&WorldCount,
-		WorldNames,
-		&pk.NBT{V: &DimensionCodec},
-		&pk.NBT{V: &Dimension},
+		pk.Ary{
+			Len: &WorldCount,
+			Ary: &WorldNames,
+		},
+		pk.NBT(&DimensionCodec),
+		pk.NBT(&Dimension),
 		&WorldName,
 		&HashedSeed,
 		&MaxPlayers,
 		&ViewDistance,
 		&RDI, &ERS, &IsDebug, &IsFlat,
 	)
-	if err != nil {
-		t.Error(err)
-	}
+	fmt.Print(err)
+	// Output: <nil>
 }

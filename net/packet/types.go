@@ -46,7 +46,9 @@ type (
 	String string
 
 	//Chat is encoded as a String with max length of 32767.
+	// Deprecated: Use chat.Message
 	Chat = String
+
 	//Identifier is encoded as a String with max length of 32767.
 	Identifier = String
 
@@ -65,12 +67,6 @@ type (
 
 	//UUID encoded as an unsigned 128-bit integer
 	UUID uuid.UUID
-
-	//NBT encode a value as Named Binary Tag
-	//Tips: define your own struct and implement pk.Field for better performance
-	NBT struct {
-		V interface{}
-	}
 
 	//ByteArray is []byte with prefix VarInt as length
 	ByteArray []byte
@@ -299,7 +295,8 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 //Encode a VarLong
-func (v VarLong) Encode() (vi []byte) {
+func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
+	var vi = make([]byte, 0, MaxVarLongLen)
 	num := uint64(v)
 	for {
 		b := num & 0x7F
@@ -312,7 +309,8 @@ func (v VarLong) Encode() (vi []byte) {
 			break
 		}
 	}
-	return
+	nn, err := w.Write(vi)
+	return int64(nn), err
 }
 
 //Decode a VarLong
@@ -427,8 +425,15 @@ func (d *Double) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-// Encode a NBT
-func (n *NBT) WriteTo(w io.Writer) (int64, error) {
+//NBT encode a value as Named Binary Tag
+func NBT(v interface{}) Field {
+	return nbtField{V: v}
+}
+
+type nbtField struct{ V interface{} }
+
+// Encode a nbtField
+func (n nbtField) WriteTo(w io.Writer) (int64, error) {
 	var buf bytes.Buffer
 	if err := nbt.NewEncoder(&buf).Encode(n.V); err != nil {
 		panic(err)
@@ -436,8 +441,8 @@ func (n *NBT) WriteTo(w io.Writer) (int64, error) {
 	return buf.WriteTo(w)
 }
 
-// Decode a NBT
-func (n *NBT) ReadFrom(r io.Reader) (int64, error) {
+// Decode a nbtField
+func (n nbtField) ReadFrom(r io.Reader) (int64, error) {
 	// LimitReader is used to count reader length
 	lr := &io.LimitedReader{R: r, N: math.MaxInt64}
 	err := nbt.NewDecoder(lr).Decode(n.V)

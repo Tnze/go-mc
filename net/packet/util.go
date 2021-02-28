@@ -28,8 +28,7 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 	length := int(reflect.ValueOf(a.Len).Elem().Int())
 	array := reflect.ValueOf(a.Ary).Elem()
 	if array.Cap() < length {
-		array = reflect.MakeSlice(array.Type(), length, length)
-		a.Ary = array.Interface()
+		array.Set(reflect.MakeSlice(array.Type(), length, length))
 	}
 	for i := 0; i < length; i++ {
 		elem := array.Index(i)

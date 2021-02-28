@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/Tnze/go-mc/chat"
+	en_us "github.com/Tnze/go-mc/data/lang/en-us"
 	"testing"
 
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -71,8 +72,8 @@ var clearTexts = []string{
 	" ",
 }
 
-func TestChatMsgFormatString(t *testing.T) {
-
+func TestMessage_String(t *testing.T) {
+	chat.SetLanguage(en_us.Map)
 	for i, v := range jsons {
 		var cm chat.Message
 		err := cm.UnmarshalJSON([]byte(v))
@@ -85,7 +86,8 @@ func TestChatMsgFormatString(t *testing.T) {
 	}
 }
 
-func TestChatMsgClearString(t *testing.T) {
+func TestMessage_ClearString(t *testing.T) {
+	chat.SetLanguage(en_us.Map)
 	for i, v := range jsons {
 		var cm chat.Message
 		err := cm.UnmarshalJSON([]byte(v))
@@ -100,11 +102,12 @@ func TestChatMsgClearString(t *testing.T) {
 	}
 }
 
-func TestMessage_Encode(t *testing.T) {
+func TestMessage_WriteTo(t *testing.T) {
+	chat.SetLanguage(en_us.Map)
 	var codeMsg bytes.Buffer
 	_, _ = chat.Message{Translate: "multiplayer.disconnect.server_full"}.WriteTo(&codeMsg)
 
-	var msg pk.Chat
+	var msg pk.String // Decode as a String
 	if _, err := msg.ReadFrom(&codeMsg); err != nil {
 		t.Errorf("decode message fail: %v", err)
 	}
@@ -129,6 +132,7 @@ func ExampleMessage_Append() {
 func ExampleTranslateMsg() {
 	fmt.Println(chat.TranslateMsg("translation.test.none"))
 	fmt.Println(chat.TranslateMsg(
+		// translation.test.complex == "Prefix, %s%[2]s again %s and %[1]s lastly %s and also %[1]s again!"
 		"translation.test.complex",
 		chat.Text("1111"),
 		chat.Text("2222"),
