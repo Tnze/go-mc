@@ -6,6 +6,7 @@ package bot
 
 import (
 	"context"
+	"errors"
 	"net"
 	"strconv"
 
@@ -34,11 +35,14 @@ func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
 func parseAddress(r *net.Resolver, addr string) (string, error) {
 	const missingPort = "missing port in address"
 	var port uint16
+	var addrErr *net.AddrError
 	host, portStr, err := net.SplitHostPort(addr)
-	if addrErr, ok := err.(*net.AddrError); ok && addrErr.Err == missingPort {
-		host, port = addr, DefaultPort
-	} else if err != nil {
-		return "", err
+	if err != nil {
+		if errors.As(err, &addrErr) {
+			host, port = addr, DefaultPort
+		} else {
+			return "", err
+		}
 	} else {
 		if portInt, err := strconv.ParseUint(portStr, 10, 16); err != nil {
 			port = DefaultPort
