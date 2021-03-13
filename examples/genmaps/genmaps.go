@@ -43,29 +43,36 @@ func main() {
 		mkmin(&min[1], &pos[1])
 	}
 
-	// Open mca files
-	var rs = make(map[[2]int]*region.Region, len(de))
-	for _, dir := range de {
-		name := dir.Name()
-		path := filepath.Join(*regionsFold, name)
-		var pos [2]int // {x, z}
-		if _, err := fmt.Sscanf(name, "r.%d.%d.mca", &pos[0], &pos[1]); err != nil {
-			log.Printf("Error parsing file name of %s: %v, ignoring", name, err)
-			continue
-		}
-		updateMinMax(pos)
-
-		r, err := region.Open(path)
-		if err != nil {
-			log.Printf("Error when opening %s: %v, ignoring", name, err)
-			continue
-		}
-		rs[pos] = r
+	type regions struct {
+		pos [2]int
+		*region.Region
 	}
+	// Open mca files
+	var rs = make(chan regions, regionWorkerNum)
+	go func() {
+		for _, dir := range de {
+			name := dir.Name()
+			path := filepath.Join(*regionsFold, name)
+			var pos [2]int // {x, z}
+			if _, err := fmt.Sscanf(name, "r.%d.%d.mca", &pos[0], &pos[1]); err != nil {
+				log.Printf("Error parsing file name of %s: %v, ignoring", name, err)
+				continue
+			}
+			updateMinMax(pos)
+
+			r, err := region.Open(path)
+			if err != nil {
+				log.Printf("Error when opening %s: %v, ignoring", name, err)
+				continue
+			}
+			rs <- regions{pos: pos, Region: r}
+		}
+		close(rs)
+	}()
 	bigPicture := image.NewRGBA(image.Rect(min[0]*512, min[1]*512, max[0]*512+512, max[1]*512+512))
 	var bigWg sync.WaitGroup
 	// draw columns
-	for pos, r := range rs {
+	for r := range rs {
 		img := image.NewRGBA(image.Rect(0, 0, 32*16, 32*16))
 		type task struct {
 			data []byte
@@ -111,7 +118,7 @@ func main() {
 		wg.Wait()
 		// Save pictures
 		bigWg.Add(1)
-		log.Print("Draw: ", pos)
+		log.Print("Draw: ", r.pos)
 		go func(img image.Image, pos [2]int) {
 			savePng(img, fmt.Sprintf("r.%d.%d.png", pos[0], pos[1]))
 			draw.Draw(
@@ -119,10 +126,10 @@ func main() {
 				img, image.Pt(0, 0), draw.Src,
 			)
 			bigWg.Done()
-		}(img, pos)
+		}(img, r.pos)
 		// To close mca files
 		if err := r.Close(); err != nil {
-			log.Printf("Close r.%d.%d.mca error: %v", pos[0], pos[1], err)
+			log.Printf("Close r.%d.%d.mca error: %v", r.pos[0], r.pos[1], err)
 		}
 	}
 	bigWg.Wait()
