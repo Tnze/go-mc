@@ -31,7 +31,7 @@ type Column struct {
 		LastUpdate    int64
 		Status        string
 		PosX          int32 `nbt:"xPos"`
-		PosY          int32 `nbt:"yPos"`
+		PosZ          int32 `nbt:"zPos"`
 		Biomes        []int32
 	}
 }

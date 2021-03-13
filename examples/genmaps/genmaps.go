@@ -12,10 +12,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
+	"sync"
 	"unsafe"
 )
 
 var colors []color.RGBA64
+var regionWorkerNum = runtime.NumCPU()
+var sectionWorkerNum = 1
 
 var (
 	regionsFold = flag.String("region", filepath.Join(os.Getenv("AppData"), ".minecraft", "saves", "World", "region"), "region directory path")
@@ -65,10 +69,36 @@ func main() {
 			}
 		}
 	}()
-
+	// draw columns
 	for pos, r := range rs {
-		var column save.Column
 		img := image.NewRGBA(image.Rect(0, 0, 32*16, 32*16))
+		type task struct {
+			data []byte
+			pos  [2]int
+		}
+		c := make(chan task)
+		var wg sync.WaitGroup
+		for i := 0; i < regionWorkerNum; i++ {
+			go func() {
+				var column save.Column
+				for task := range c {
+					if err := column.Load(task.data); err != nil {
+						log.Printf("Decode column (%d.%d) error: %v", task.pos[0], task.pos[1], err)
+					}
+					pos := [2]int{int(column.Level.PosX), int(column.Level.PosZ)}
+					if pos != task.pos {
+						fmt.Printf("chunk position not match: want %v, get %v\n", task.pos, pos)
+					}
+					draw.Draw(
+						img, image.Rect(task.pos[0]*16, task.pos[1]*16, task.pos[0]*16+16, task.pos[1]*16+16),
+						drawColumn(&column), image.Pt(0, 0),
+						draw.Over,
+					)
+					wg.Done()
+				}
+			}()
+		}
+
 		for x := 0; x < 32; x++ {
 			for z := 0; z < 32; z++ {
 				if !r.ExistSector(x, z) {
@@ -78,53 +108,66 @@ func main() {
 				if err != nil {
 					log.Printf("Read sector (%d.%d) error: %v", x, z, err)
 				}
-				if err := column.Load(data); err != nil {
-					log.Printf("Decode column (%d.%d) error: %v", x, z, err)
-				}
-
-				draw.Draw(
-					img, image.Rect(x*16, z*16, x*16+16, z*16+16),
-					drawColumn(&column), image.Pt(0, 0),
-					draw.Over,
-				)
+				wg.Add(1)
+				c <- task{data: data, pos: [2]int{x, z}}
 			}
 		}
+		close(c)
+		wg.Wait()
 		savePng(img, fmt.Sprintf("r.%d.%d.png", pos[0], pos[1]))
-		log.Print(pos, r)
+		log.Print("Draw: ", pos)
 	}
 }
 
 func drawColumn(column *save.Column) (img *image.RGBA) {
 	img = image.NewRGBA(image.Rect(0, 0, 16, 16))
-
 	s := column.Level.Sections
-	for i := range s {
-		s := s[i]
-		// calculate bits per block
-		bpb := len(s.BlockStates) * 64 / (16 * 16 * 16)
-		// skip empty
-		if len(s.BlockStates) == 0 {
-			continue
-		}
-		// decode section
-		//n := int(math.Max(4, math.Ceil(math.Log2(float64(len(s.Palette))))))
-
-		// decode status
-		data := *(*[]uint64)(unsafe.Pointer(&s.BlockStates)) // convert []int64 into []uint64
-		bs := save.NewBitStorage(bpb, 4096, data)
-		for y := 0; y < 16; y++ {
-			layerImg := image.NewRGBA(image.Rect(0, 0, 16, 16))
-			for i := 16*16 - 1; i >= 0; i-- {
-				b := block.ByID[block.StateID[uint32(bs.Get(y*16*16+i))]]
-				c := colors[b.ID]
-				layerImg.Set(i/16, i%16, c)
+	c := make(chan *save.Chunk)
+	var wg sync.WaitGroup
+	for i := 0; i < sectionWorkerNum; i++ {
+		go func() {
+			for s := range c {
+				drawSection(s, img)
+				wg.Done()
 			}
-			draw.Draw(
-				img, image.Rect(0, 0, 16, 16),
-				layerImg, image.Pt(0, 0),
-				draw.Over,
-			)
+		}()
+	}
+	defer close(c)
+
+	wg.Add(len(s))
+	for i := range s {
+		c <- &s[i]
+	}
+	wg.Wait()
+
+	return
+}
+
+func drawSection(s *save.Chunk, img *image.RGBA) {
+	// calculate bits per block
+	bpb := len(s.BlockStates) * 64 / (16 * 16 * 16)
+	// skip empty
+	if len(s.BlockStates) == 0 {
+		return
+	}
+	// decode section
+	//n := int(math.Max(4, math.Ceil(math.Log2(float64(len(s.Palette))))))
+
+	// decode status
+	data := *(*[]uint64)(unsafe.Pointer(&s.BlockStates)) // convert []int64 into []uint64
+	bs := save.NewBitStorage(bpb, 4096, data)
+	for y := 0; y < 16; y++ {
+		layerImg := image.NewRGBA(image.Rect(0, 0, 16, 16))
+		for i := 16*16 - 1; i >= 0; i-- {
+			b := block.ByID[block.StateID[uint32(bs.Get(y*16*16+i))]]
+			c := colors[b.ID]
+			layerImg.Set(i/16, i%16, c)
 		}
+		draw.Draw(
+			img, image.Rect(0, 0, 16, 16),
+			layerImg, image.Pt(0, 0),
+			draw.Over,
+		)
 	}
 	return
 }
