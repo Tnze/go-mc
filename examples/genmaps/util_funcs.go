@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/gob"
 	"fmt"
+	"github.com/Tnze/go-mc/data/block"
 	"image"
 	"image/png"
 	"log"
@@ -49,5 +50,13 @@ func mkmax(c, n *int) {
 func mkmin(c, n *int) {
 	if *c > *n {
 		*c = *n
+	}
+}
+
+var idByName = make(map[string]uint32, len(block.ByID))
+
+func init() {
+	for _, v := range block.ByID {
+		idByName["minecraft:"+v.Name] = uint32(v.ID)
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"image/color"
 	"image/draw"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -85,10 +86,10 @@ func main() {
 					if err := column.Load(task.data); err != nil {
 						log.Printf("Decode column (%d.%d) error: %v", task.pos[0], task.pos[1], err)
 					}
-					pos := [2]int{int(column.Level.PosX), int(column.Level.PosZ)}
-					if pos != task.pos {
-						fmt.Printf("chunk position not match: want %v, get %v\n", task.pos, pos)
-					}
+					//pos := [2]int{int(column.Level.PosX), int(column.Level.PosZ)}
+					//if pos != task.pos {
+					//	fmt.Printf("chunk position not match: want %v, get %v\n", task.pos, pos)
+					//}
 					draw.Draw(
 						img, image.Rect(task.pos[0]*16, task.pos[1]*16, task.pos[0]*16+16, task.pos[1]*16+16),
 						drawColumn(&column), image.Pt(0, 0),
@@ -145,13 +146,13 @@ func drawColumn(column *save.Column) (img *image.RGBA) {
 
 func drawSection(s *save.Chunk, img *image.RGBA) {
 	// calculate bits per block
-	bpb := len(s.BlockStates) * 64 / (16 * 16 * 16)
+	//bpb := len(s.BlockStates) * 64 / (16 * 16 * 16)
 	// skip empty
 	if len(s.BlockStates) == 0 {
 		return
 	}
 	// decode section
-	//n := int(math.Max(4, math.Ceil(math.Log2(float64(len(s.Palette))))))
+	bpb := int(math.Max(4, math.Ceil(math.Log2(float64(len(s.Palette))))))
 
 	// decode status
 	data := *(*[]uint64)(unsafe.Pointer(&s.BlockStates)) // convert []int64 into []uint64
@@ -159,8 +160,19 @@ func drawSection(s *save.Chunk, img *image.RGBA) {
 	for y := 0; y < 16; y++ {
 		layerImg := image.NewRGBA(image.Rect(0, 0, 16, 16))
 		for i := 16*16 - 1; i >= 0; i-- {
-			b := block.ByID[block.StateID[uint32(bs.Get(y*16*16+i))]]
-			c := colors[b.ID]
+			var bid block.ID
+			switch {
+			case bpb > 9:
+				bid = block.StateID[uint32(bs.Get(y*16*16+i))]
+			case bpb > 4:
+				fallthrough
+			case bpb <= 4:
+				b := s.Palette[bs.Get(y*16*16+i)]
+				if id, ok := idByName[b.Name]; ok {
+					bid = block.StateID[id]
+				}
+			}
+			c := colors[block.ByID[bid].ID]
 			layerImg.Set(i/16, i%16, c)
 		}
 		draw.Draw(
