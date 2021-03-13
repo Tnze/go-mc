@@ -62,14 +62,8 @@ func main() {
 		}
 		rs[pos] = r
 	}
-	// To close mca files
-	defer func() {
-		for pos, r := range rs {
-			if err := r.Close(); err != nil {
-				log.Printf("Close r.%d.%d.mca error: %v", pos[0], pos[1], err)
-			}
-		}
-	}()
+	bigPicture := image.NewRGBA(image.Rect(min[0]*512, min[1]*512, max[0]*512+512, max[1]*512+512))
+	var bigWg sync.WaitGroup
 	// draw columns
 	for pos, r := range rs {
 		img := image.NewRGBA(image.Rect(0, 0, 32*16, 32*16))
@@ -110,14 +104,29 @@ func main() {
 					log.Printf("Read sector (%d.%d) error: %v", x, z, err)
 				}
 				wg.Add(1)
-				c <- task{data: data, pos: [2]int{x, z}}
+				c <- task{data: data, pos: [2]int{z, x}}
 			}
 		}
 		close(c)
 		wg.Wait()
-		savePng(img, fmt.Sprintf("r.%d.%d.png", pos[0], pos[1]))
+		// Save pictures
+		bigWg.Add(1)
 		log.Print("Draw: ", pos)
+		go func(img image.Image, pos [2]int) {
+			savePng(img, fmt.Sprintf("r.%d.%d.png", pos[0], pos[1]))
+			draw.Draw(
+				bigPicture, image.Rect(pos[0]*512, pos[1]*512, pos[0]*512+512, pos[1]*512+512),
+				img, image.Pt(0, 0), draw.Src,
+			)
+			bigWg.Done()
+		}(img, pos)
+		// To close mca files
+		if err := r.Close(); err != nil {
+			log.Printf("Close r.%d.%d.mca error: %v", pos[0], pos[1], err)
+		}
 	}
+	bigWg.Wait()
+	savePng(bigPicture, "maps.png")
 }
 
 func drawColumn(column *save.Column) (img *image.RGBA) {
@@ -173,7 +182,7 @@ func drawSection(s *save.Chunk, img *image.RGBA) {
 				}
 			}
 			c := colors[block.ByID[bid].ID]
-			layerImg.Set(i/16, i%16, c)
+			layerImg.Set(i%16, i/16, c)
 		}
 		draw.Draw(
 			img, image.Rect(0, 0, 16, 16),
