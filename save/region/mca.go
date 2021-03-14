@@ -102,7 +102,7 @@ func (r *Region) Close() error {
 	return r.f.Close()
 }
 
-func sectorLoc(offset int32) (o, s int32) {
+func sectorLoc(offset int32) (sec, num int32) {
 	return offset >> 8, offset & 0xFF
 }
 

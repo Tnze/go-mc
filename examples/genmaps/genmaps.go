@@ -3,19 +3,19 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/Tnze/go-mc/data/block"
-	"github.com/Tnze/go-mc/save"
-	"github.com/Tnze/go-mc/save/region"
 	"image"
 	"image/color"
 	"image/draw"
 	"log"
-	"math"
 	"os"
 	"path/filepath"
 	"runtime"
 	"sync"
 	"unsafe"
+
+	"github.com/Tnze/go-mc/data/block"
+	"github.com/Tnze/go-mc/save"
+	"github.com/Tnze/go-mc/save/region"
 )
 
 var colors []color.RGBA64
@@ -23,7 +23,8 @@ var regionWorkerNum = runtime.NumCPU()
 var sectionWorkerNum = 1
 
 var (
-	regionsFold = flag.String("region", filepath.Join(os.Getenv("AppData"), ".minecraft", "saves", "World", "region"), "region directory path")
+	regionsFold    = flag.String("region", filepath.Join(os.Getenv("AppData"), ".minecraft", "saves", "World", "region"), "region directory path")
+	drawBigPicture = flag.Bool("bigmap", true, "draw the bit map")
 )
 
 func main() {
@@ -43,6 +44,18 @@ func main() {
 		mkmin(&min[1], &pos[1])
 	}
 
+	if *drawBigPicture {
+		for _, dir := range de {
+			name := dir.Name()
+			var pos [2]int // {x, z}
+			if _, err := fmt.Sscanf(name, "r.%d.%d.mca", &pos[0], &pos[1]); err != nil {
+				log.Printf("Error parsing file name of %s: %v, ignoring", name, err)
+				continue
+			}
+			updateMinMax(pos)
+		}
+	}
+
 	type regions struct {
 		pos [2]int
 		*region.Region
@@ -58,7 +71,6 @@ func main() {
 				log.Printf("Error parsing file name of %s: %v, ignoring", name, err)
 				continue
 			}
-			updateMinMax(pos)
 
 			r, err := region.Open(path)
 			if err != nil {
@@ -69,7 +81,10 @@ func main() {
 		}
 		close(rs)
 	}()
-	bigPicture := image.NewRGBA(image.Rect(min[0]*512, min[1]*512, max[0]*512+512, max[1]*512+512))
+	var bigPicture *image.RGBA
+	if *drawBigPicture {
+		bigPicture = image.NewRGBA(image.Rect(min[0]*512, min[1]*512, max[0]*512+512, max[1]*512+512))
+	}
 	var bigWg sync.WaitGroup
 	// draw columns
 	for r := range rs {
@@ -121,10 +136,12 @@ func main() {
 		log.Print("Draw: ", r.pos)
 		go func(img image.Image, pos [2]int) {
 			savePng(img, fmt.Sprintf("r.%d.%d.png", pos[0], pos[1]))
-			draw.Draw(
-				bigPicture, image.Rect(pos[0]*512, pos[1]*512, pos[0]*512+512, pos[1]*512+512),
-				img, image.Pt(0, 0), draw.Src,
-			)
+			if *drawBigPicture {
+				draw.Draw(
+					bigPicture, image.Rect(pos[0]*512, pos[1]*512, pos[0]*512+512, pos[1]*512+512),
+					img, image.Pt(0, 0), draw.Src,
+				)
+			}
 			bigWg.Done()
 		}(img, r.pos)
 		// To close mca files
@@ -133,7 +150,9 @@ func main() {
 		}
 	}
 	bigWg.Wait()
-	savePng(bigPicture, "maps.png")
+	if *drawBigPicture {
+		savePng(bigPicture, "maps.png")
+	}
 }
 
 func drawColumn(column *save.Column) (img *image.RGBA) {
@@ -162,13 +181,13 @@ func drawColumn(column *save.Column) (img *image.RGBA) {
 
 func drawSection(s *save.Chunk, img *image.RGBA) {
 	// calculate bits per block
-	//bpb := len(s.BlockStates) * 64 / (16 * 16 * 16)
+	bpb := len(s.BlockStates) * 64 / (16 * 16 * 16)
 	// skip empty
 	if len(s.BlockStates) == 0 {
 		return
 	}
 	// decode section
-	bpb := int(math.Max(4, math.Ceil(math.Log2(float64(len(s.Palette))))))
+	//bpb := int(math.Max(4, math.Ceil(math.Log2(float64(len(s.Palette))))))
 
 	// decode status
 	data := *(*[]uint64)(unsafe.Pointer(&s.BlockStates)) // convert []int64 into []uint64
