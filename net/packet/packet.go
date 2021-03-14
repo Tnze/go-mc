@@ -44,18 +44,20 @@ func (p *Packet) Pack(w io.Writer, threshold int) error {
 		panic(err)
 	}
 	if threshold > 0 { //是否启用了压缩
-		Len := content.Len()
-		var VarLen bytes.Buffer
-		if _, err := VarInt(Len).WriteTo(&VarLen); err != nil {
-			panic(err)
+		rawLen := content.Len()
+		uncompressedLen := VarInt(rawLen)
+		if rawLen > threshold { //是否需要压缩
+			compress(&content)
+		} else {
+			uncompressedLen = 0
 		}
-		if _, err := VarInt(VarLen.Len() + Len).WriteTo(w); err != nil {
+
+		uncompressedLenLen, _ := uncompressedLen.WriteTo(io.Discard)
+		if _, err := VarInt(uncompressedLenLen + int64(rawLen)).WriteTo(w); err != nil {
 			return err
 		}
-		if Len > threshold { //是否需要压缩
-			compress(&content)
-		}
-		if _, err := VarLen.WriteTo(w); err != nil {
+
+		if _, err := uncompressedLen.WriteTo(w); err != nil {
 			return err
 		}
 		if _, err := content.WriteTo(w); err != nil {
