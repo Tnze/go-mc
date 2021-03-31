@@ -1,9 +1,10 @@
 package save
 
 import (
+	"io"
+
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"io"
 )
 
 type BlockState interface {

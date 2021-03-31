@@ -186,7 +186,6 @@ func drawSection(s *save.Chunk, img *image.RGBA) {
 		return
 	}
 	// decode section
-	//bpb := int(math.Max(4, math.Ceil(math.Log2(float64(len(s.Palette))))))
 
 	// decode status
 	data := *(*[]uint64)(unsafe.Pointer(&s.BlockStates)) // convert []int64 into []uint64
