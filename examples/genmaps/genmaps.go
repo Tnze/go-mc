@@ -19,16 +19,15 @@ import (
 )
 
 var colors []color.RGBA64
-var regionWorkerNum = runtime.NumCPU()
 var sectionWorkerNum = 1
 
 var (
-	regionsFold    = flag.String("region", filepath.Join(os.Getenv("AppData"), ".minecraft", "saves", "World", "region"), "region directory path")
-	drawBigPicture = flag.Bool("bigmap", true, "draw the bit map")
+	regionWorkerNum = flag.Int("workers", runtime.NumCPU(), "worker numbers")
+	regionsFold     = flag.String("region", filepath.Join(os.Getenv("AppData"), ".minecraft", "saves", "World", "region"), "region directory path")
+	drawBigPicture  = flag.Bool("bigmap", true, "draw the big map")
 )
 
 func main() {
-	flag.Usage = usage
 	flag.Parse()
 
 	de, err := os.ReadDir(*regionsFold)
@@ -61,7 +60,7 @@ func main() {
 		*region.Region
 	}
 	// Open mca files
-	var rs = make(chan regions, regionWorkerNum)
+	var rs = make(chan regions, *regionWorkerNum)
 	go func() {
 		for _, dir := range de {
 			name := dir.Name()
@@ -95,7 +94,7 @@ func main() {
 		}
 		c := make(chan task)
 		var wg sync.WaitGroup
-		for i := 0; i < regionWorkerNum; i++ {
+		for i := 0; i < *regionWorkerNum; i++ {
 			go func() {
 				var column save.Column
 				for task := range c {

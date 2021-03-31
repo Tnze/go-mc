@@ -4,7 +4,6 @@ import (
 	"bytes"
 	_ "embed"
 	"encoding/gob"
-	"fmt"
 	"github.com/Tnze/go-mc/data/block"
 	"image"
 	"image/png"
@@ -35,11 +34,6 @@ func init() {
 	if err := gob.NewDecoder(bytes.NewReader(colorsBin)).Decode(&colors); err != nil {
 		panic(err)
 	}
-}
-
-func usage() {
-	_, _ = fmt.Fprintf(os.Stderr, "usage: %s [-region <region path>] \n", os.Args[0])
-	os.Exit(1)
 }
 
 func mkmax(c, n *int) {
