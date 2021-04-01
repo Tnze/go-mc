@@ -1,19 +1,31 @@
 package packet
 
 import (
+	"errors"
 	"io"
 	"reflect"
 )
 
+// Ary is used to send or receive the packet field like "Array of X"
+// which has a count must be known from the context.
+//
+// Typically, you must decode an integer representing the length. Then
+// receive the corresponding amount of data according to the length.
+// In this case, the field Len should be a pointer of integer type so
+// the value can be updating when Packet.Scan() method is decoding the
+// previous field.
+// In some special cases, you might want to read an "Array of X" with a fix length.
+// So it's allowed to directly set an integer type Len, but not a pointer.
+//
+// Note that Ary DO NOT read or write the Len. You are controlling it manually.
 type Ary struct {
-	Len Field       // Pointer of VarInt, VarLong, Int or Long
+	Len interface{} // Value or Pointer of any integer type, only needed in ReadFrom
 	Ary interface{} // Slice of FieldEncoder, FieldDecoder or both (Field)
 }
 
 func (a Ary) WriteTo(r io.Writer) (n int64, err error) {
-	length := int(reflect.ValueOf(a.Len).Int())
 	array := reflect.ValueOf(a.Ary)
-	for i := 0; i < length; i++ {
+	for i := 0; i < array.Len(); i++ {
 		elem := array.Index(i)
 		nn, err := elem.Interface().(FieldEncoder).WriteTo(r)
 		n += nn
@@ -24,8 +36,24 @@ func (a Ary) WriteTo(r io.Writer) (n int64, err error) {
 	return n, nil
 }
 
+func (a Ary) length() int {
+	v := reflect.ValueOf(a.Len)
+	for {
+		switch v.Kind() {
+		case reflect.Ptr:
+			v = v.Elem()
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			return int(v.Int())
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			return int(v.Uint())
+		default:
+			panic(errors.New("unsupported Len value: " + v.Type().String()))
+		}
+	}
+}
+
 func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
-	length := int(reflect.ValueOf(a.Len).Elem().Int())
+	length := a.length()
 	array := reflect.ValueOf(a.Ary).Elem()
 	if array.Cap() < length {
 		array.Set(reflect.MakeSlice(array.Type(), length, length))
@@ -42,19 +70,32 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 type Opt struct {
-	Has   *Boolean
+	Has   interface{} // Boolean, *Boolean or func() bool
 	Field interface{} // FieldEncoder, FieldDecoder or both (Field)
 }
 
+func (o Opt) has() bool {
+	switch o.Has.(type) {
+	case Boolean:
+		return bool(o.Has.(Boolean))
+	case *Boolean:
+		return bool(*o.Has.(*Boolean))
+	case func() bool:
+		return o.Has.(func() bool)()
+	default:
+		panic(errors.New("unsupported Has value"))
+	}
+}
+
 func (o Opt) WriteTo(w io.Writer) (int64, error) {
-	if *o.Has {
+	if o.has() {
 		return o.Field.(FieldEncoder).WriteTo(w)
 	}
 	return 0, nil
 }
 
 func (o Opt) ReadFrom(r io.Reader) (int64, error) {
-	if *o.Has {
+	if o.has() {
 		return o.Field.(FieldDecoder).ReadFrom(r)
 	}
 	return 0, nil

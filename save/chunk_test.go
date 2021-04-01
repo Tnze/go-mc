@@ -86,14 +86,19 @@ func ExampleColumn_send() {
 			_, err := pk.Tuple{
 				pk.Short(0),          // Block count
 				pk.UnsignedByte(bpb), // Bits Per Block
-				pk.Opt{
+				hasPalette, pk.Opt{
 					Has: &hasPalette,
-					Field: pk.Ary{
-						Len: &paletteLength,
-						Ary: nil, // TODO: We need translate v.Palette (with type of []Block) to state ID
+					Field: pk.Tuple{
+						paletteLength, pk.Ary{
+							Len: &paletteLength,
+							Ary: nil, // TODO: We need translate v.Palette (with type of []Block) to state ID
+						},
 					},
 				}, // Palette
-				pk.Ary{Len: &dataArrayLength, Ary: dataArray}, // Data Array
+				dataArrayLength, pk.Ary{
+					Len: &dataArrayLength,
+					Ary: dataArray,
+				}, // Data Array
 			}.WriteTo(&buf)
 			if err != nil {
 				panic(err)
@@ -110,12 +115,12 @@ func ExampleColumn_send() {
 		pk.Boolean(true),           // Full chunk
 		PrimaryBitMask,             // PrimaryBitMask
 		pk.NBT(c.Level.Heightmaps), // Heightmaps
-		pk.Ary{
-			Len: &bal,           // Biomes array length
+		bal, pk.Ary{
+			Len: bal,            // Biomes array length
 			Ary: c.Level.Biomes, // Biomes
 		},
-		pk.Ary{
-			Len: &size,                     // Size
+		size, pk.Ary{
+			Len: size,                      // Size
 			Ary: pk.ByteArray(buf.Bytes()), // Data
 		},
 		pk.VarInt(0), // Block entities array length
