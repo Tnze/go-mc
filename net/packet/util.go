@@ -70,20 +70,23 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 type Opt struct {
-	Has   interface{} // Boolean, *Boolean or func() bool
+	Has   interface{} // Pointer of bool, or `func() bool`
 	Field interface{} // FieldEncoder, FieldDecoder or both (Field)
 }
 
 func (o Opt) has() bool {
-	switch o.Has.(type) {
-	case Boolean:
-		return bool(o.Has.(Boolean))
-	case *Boolean:
-		return bool(*o.Has.(*Boolean))
-	case func() bool:
-		return o.Has.(func() bool)()
-	default:
-		panic(errors.New("unsupported Has value"))
+	v := reflect.ValueOf(o.Has)
+	for {
+		switch v.Kind() {
+		case reflect.Ptr:
+			v = v.Elem()
+		case reflect.Bool:
+			return v.Bool()
+		case reflect.Func:
+			return v.Interface().(func() bool)()
+		default:
+			panic(errors.New("unsupported Has value"))
+		}
 	}
 }
 

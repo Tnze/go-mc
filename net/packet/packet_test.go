@@ -99,27 +99,6 @@ func TestVarLong_ReadFrom(t *testing.T) {
 	}
 }
 
-func TestAry_ReadFrom(t *testing.T) {
-	var num pk.Int = 2
-	var ary []pk.String
-	var bin = []byte{
-		4, 'T', 'n', 'z', 'e',
-		0,
-	}
-	var data = pk.Ary{Len: &num, Ary: &ary}
-	if _, err := data.ReadFrom(bytes.NewReader(bin)); err != nil {
-		t.Fatal(err)
-	}
-	if len(ary) != int(num) {
-		t.Fatalf("length not match: %d != %d", len(ary), num)
-	}
-	for i, v := range []string{"Tnze", ""} {
-		if string(ary[i]) != v {
-			t.Errorf("want %q, get %q", v, ary[i])
-		}
-	}
-}
-
 //go:embed joingame_test.bin
 var testJoinGameData []byte
 
