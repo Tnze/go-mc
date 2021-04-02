@@ -35,6 +35,7 @@ func TestUnmarshal_string(t *testing.T) {
 		t.Errorf("Unmarshal NBT fail: get %q, want %q", Name, "Bananrama")
 	}
 }
+
 func TestUnmarshal_simple(t *testing.T) {
 	var data = []byte{
 		0x0a, 0x00, 0x0b, 0x68, 0x65, 0x6c, 0x6c, 0x6f,
@@ -218,21 +219,21 @@ func TestUnmarshal_bigTest(t *testing.T) {
 	// t.Log(inf)
 }
 
-func TestMarshal_bigTest(t *testing.T) {
-	var b bytes.Buffer
-	err := MarshalCompound(&b, MakeBigTestStruct(), "Level")
-	if err != nil {
-		t.Error(err)
+func BenchmarkUnmarshal_bigTest(b *testing.B) {
+	var value BigTestStruct
+	for i := 0; i < b.N; i++ {
+		r, err := gzip.NewReader(bytes.NewReader(bigTestData[:]))
+		if err != nil {
+			b.Fatal(err)
+		}
+		if err := NewDecoder(r).Decode(&value); err != nil {
+			b.Fatal(err)
+		}
 	}
 
-	rd, _ := gzip.NewReader(bytes.NewReader(bigTestData[:]))
-	want, err := io.ReadAll(rd)
-	if err != nil {
-		t.Error(err)
-	}
-
-	if !bytes.Equal(b.Bytes(), want) {
-		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", b.Bytes(), want)
+	want := MakeBigTestStruct()
+	if !reflect.DeepEqual(value, want) {
+		b.Errorf("parse fail, expect %v, get %v", want, value)
 	}
 }
 
@@ -330,6 +331,7 @@ func TestUnmarshal_LongArray(t *testing.T) {
 	}
 	// t.Log(infValue)
 }
+
 func TestUnmarshal_ByteArray(t *testing.T) {
 	data := []byte{
 		TagByteArray, 0, 0,

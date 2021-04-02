@@ -2,7 +2,10 @@ package nbt
 
 import (
 	"bytes"
+	"compress/gzip"
+	"io"
 	"math"
+	"reflect"
 	"testing"
 )
 
@@ -164,5 +167,50 @@ func TestMarshal_StructArray(t *testing.T) {
 				return
 			}
 		})
+	}
+}
+
+func TestMarshal_bigTest(t *testing.T) {
+	var b bytes.Buffer
+	err := MarshalCompound(&b, MakeBigTestStruct(), "Level")
+	if err != nil {
+		t.Error(err)
+	}
+
+	rd, _ := gzip.NewReader(bytes.NewReader(bigTestData[:]))
+	want, err := io.ReadAll(rd)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if !bytes.Equal(b.Bytes(), want) {
+		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", b.Bytes(), want)
+	}
+}
+
+func TestMarshal_map(t *testing.T) {
+	v := map[string][]int32{
+		"Tnze":     {1, 2, 3, 4, 5},
+		"Xi_Xi_Mi": {0, 0, 4, 7, 2},
+	}
+
+	var buf bytes.Buffer
+	if err := Marshal(&buf, v); err != nil {
+		t.Fatal(err)
+	}
+
+	var data struct {
+		Tnze []int32
+		XXM  []int32 `nbt:"Xi_Xi_Mi"`
+	}
+
+	if err := NewDecoder(&buf).Decode(&data); err != nil {
+		t.Fatal(err)
+	}
+	if !reflect.DeepEqual(data.Tnze, v["Tnze"]) {
+		t.Fatalf("Marshal map error: got: %q, want %q", data.Tnze, v["Tnze"])
+	}
+	if !reflect.DeepEqual(data.XXM, v["Xi_Xi_Mi"]) {
+		t.Fatalf("Marshal map error: got: %#v, want %#v", data.XXM, v["Xi_Xi_Mi"])
 	}
 }
