@@ -93,6 +93,24 @@ func TestAry_WriteTo(t *testing.T) {
 	}
 }
 
+func TestAry_WriteTo_pointer(t *testing.T) {
+	var buf bytes.Buffer
+	want := []byte{
+		0x00, 0x00, 0x00, 0x01,
+		0x00, 0x00, 0x00, 0x02,
+		0x00, 0x00, 0x00, 0x03,
+	}
+	data := pk.Ary{Ary: &[]pk.Int{1, 2, 3}}
+
+	_, err := data.WriteTo(&buf)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(buf.Bytes(), want) {
+		t.Fatalf("Ary encoding error: got %#v, want %#v", buf.Bytes(), want)
+	}
+}
+
 func ExampleOpt_ReadFrom() {
 	var has pk.Boolean
 

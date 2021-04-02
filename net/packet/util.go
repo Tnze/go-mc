@@ -25,6 +25,9 @@ type Ary struct {
 
 func (a Ary) WriteTo(r io.Writer) (n int64, err error) {
 	array := reflect.ValueOf(a.Ary)
+	for array.Kind() == reflect.Ptr {
+		array = array.Elem()
+	}
 	for i := 0; i < array.Len(); i++ {
 		elem := array.Index(i)
 		nn, err := elem.Interface().(FieldEncoder).WriteTo(r)
@@ -54,7 +57,13 @@ func (a Ary) length() int {
 
 func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 	length := a.length()
-	array := reflect.ValueOf(a.Ary).Elem()
+	array := reflect.ValueOf(a.Ary)
+	for array.Kind() == reflect.Ptr {
+		array = array.Elem()
+	}
+	if !array.CanAddr() {
+		panic(errors.New("the Ary is not addressable"))
+	}
 	if array.Cap() < length {
 		array.Set(reflect.MakeSlice(array.Type(), length, length))
 	}
