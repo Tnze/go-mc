@@ -436,7 +436,7 @@ type nbtField struct{ V interface{} }
 func (n nbtField) WriteTo(w io.Writer) (int64, error) {
 	var buf bytes.Buffer
 	if err := nbt.NewEncoder(&buf).Encode(n.V); err != nil {
-		panic(err)
+		return 0, err
 	}
 	return buf.WriteTo(w)
 }
