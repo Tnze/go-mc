@@ -172,7 +172,7 @@ func TestMarshal_StructArray(t *testing.T) {
 
 func TestMarshal_bigTest(t *testing.T) {
 	var b bytes.Buffer
-	err := MarshalCompound(&b, MakeBigTestStruct(), "Level")
+	err := Marshal(&b, MakeBigTestStruct(), "Level")
 	if err != nil {
 		t.Error(err)
 	}

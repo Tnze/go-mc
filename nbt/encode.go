@@ -10,21 +10,8 @@ import (
 	"strings"
 )
 
-var (
-	ErrMustBeStruct = errors.New("a compound can only be a struct")
-)
-
-func Marshal(w io.Writer, v interface{}) error {
-	return NewEncoder(w).Encode(v)
-}
-
-func MarshalCompound(w io.Writer, v interface{}, rootTagName string) error {
-	enc := NewEncoder(w)
-	val := reflect.ValueOf(v)
-	if val.Kind() != reflect.Struct {
-		return ErrMustBeStruct
-	}
-	return enc.marshal(val, TagCompound, rootTagName)
+func Marshal(w io.Writer, v interface{}, optionalTagName ...string) error {
+	return NewEncoder(w).Encode(v, optionalTagName...)
 }
 
 type Encoder struct {
@@ -35,9 +22,13 @@ func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
 }
 
-func (e *Encoder) Encode(v interface{}) error {
+func (e *Encoder) Encode(v interface{}, optionalTagName ...string) error {
 	val := reflect.ValueOf(v)
-	return e.marshal(val, getTagType(val.Type()), "")
+	var tagName string
+	if len(optionalTagName) > 0 {
+		tagName = optionalTagName[0]
+	}
+	return e.marshal(val, getTagType(val.Type()), tagName)
 }
 
 func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error {
