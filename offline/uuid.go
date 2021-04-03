@@ -9,8 +9,8 @@ import (
 func NameToUUID(name string) uuid.UUID {
 	var version = 3
 	h := md5.New()
-	h.Reset()
-	h.Write([]byte("OfflinePlayer:" + name))
+	h.Write([]byte("OfflinePlayer:"))
+	h.Write([]byte(name))
 	s := h.Sum(nil)
 	var id uuid.UUID
 	copy(id[:], s)
