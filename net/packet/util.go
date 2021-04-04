@@ -20,7 +20,7 @@ import (
 // Note that Ary DO NOT read or write the Len. You are controlling it manually.
 type Ary struct {
 	Len interface{} // Value or Pointer of any integer type, only needed in ReadFrom
-	Ary interface{} // Slice of FieldEncoder, FieldDecoder or both (Field)
+	Ary interface{} // Slice or Pointer of Slice of FieldEncoder, FieldDecoder or both (Field)
 }
 
 func (a Ary) WriteTo(r io.Writer) (n int64, err error) {

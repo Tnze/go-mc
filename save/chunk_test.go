@@ -5,7 +5,6 @@ import (
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/save/region"
-	"math/rand"
 	"testing"
 	"unsafe"
 )
@@ -41,8 +40,8 @@ func BenchmarkColumn_Load(b *testing.B) {
 	defer r.Close()
 
 	for i := 0; i < b.N; i++ {
-		//x, y := (i%1024)/32, (i%1024)%32
-		x, y := rand.Intn(32), rand.Intn(32)
+		x, y := (i%1024)/32, (i%1024)%32
+		//x, y := rand.Intn(32), rand.Intn(32)
 
 		data, err := r.ReadSector(x, y)
 		if err != nil {
@@ -116,8 +115,8 @@ func ExampleColumn_send() {
 		PrimaryBitMask,             // PrimaryBitMask
 		pk.NBT(c.Level.Heightmaps), // Heightmaps
 		bal, pk.Ary{
-			Len: bal,            // Biomes array length
-			Ary: c.Level.Biomes, // Biomes
+			Len: bal,                                              // Biomes array length
+			Ary: *(*[]pk.VarInt)(unsafe.Pointer(&c.Level.Biomes)), // Biomes
 		},
 		size, pk.Ary{
 			Len: size,                      // Size
