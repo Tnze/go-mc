@@ -49,9 +49,10 @@ func (i initBitStorageErr) Error() string {
 	return fmt.Sprintf("invalid length given for storage, got: %d but expected: %d", i.ArrlLen, i.WantLen)
 }
 
-func (b *BitStorage) cellIndex(n int) int {
-	elemPerLong := 64 / b.bits
-	return n / elemPerLong
+func (b *BitStorage) calcIndex(n int) (c, o int) {
+	c = n / b.valuesPerLong
+	o = (n - c*b.valuesPerLong) * b.bits
+	return
 }
 
 // Swap sets v into [i], and return the previous [i] value.
@@ -60,9 +61,8 @@ func (b *BitStorage) Swap(i, v int) (old int) {
 		v < 0 || uint64(v) > b.mask {
 		panic("out of bounds")
 	}
-	c := b.cellIndex(i)
+	c, offset := b.calcIndex(i)
 	l := b.data[c]
-	offset := uint64((i - c*b.valuesPerLong) * b.bits)
 	old = int(l >> offset & b.mask)
 	b.data[c] = l&(b.mask<<offset^math.MaxUint64) | (uint64(v)&b.mask)<<offset
 	return
@@ -74,9 +74,8 @@ func (b *BitStorage) Set(i, v int) {
 		v < 0 || uint64(v) > b.mask {
 		panic("out of bounds")
 	}
-	c := b.cellIndex(i)
+	c, offset := b.calcIndex(i)
 	l := b.data[c]
-	offset := (i - c*b.valuesPerLong) * b.bits
 	b.data[c] = l&(b.mask<<offset^math.MaxUint64) | (uint64(v)&b.mask)<<offset
 }
 
@@ -85,8 +84,7 @@ func (b *BitStorage) Get(i int) int {
 	if i < 0 || i > b.size-1 {
 		panic("out of bounds")
 	}
-	c := b.cellIndex(i)
+	c, offset := b.calcIndex(i)
 	l := b.data[c]
-	offset := (i - c*b.valuesPerLong) * b.bits
 	return int(l >> offset & b.mask)
 }
