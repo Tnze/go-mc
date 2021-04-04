@@ -56,7 +56,7 @@ func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
 	if err != nil {
 		return nil, 0, LoginErr{"split address", err}
 	}
-	port, err := strconv.Atoi(portStr)
+	port, err := strconv.ParseUint(portStr, 0, 16)
 	if err != nil {
 		return nil, 0, LoginErr{"parse port", err}
 	}

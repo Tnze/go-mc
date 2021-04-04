@@ -33,7 +33,6 @@ func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
 
 // parseAddress will lookup SRV records for the address
 func parseAddress(r *net.Resolver, addr string) (string, error) {
-	const missingPort = "missing port in address"
 	var port uint16
 	var addrErr *net.AddrError
 	host, portStr, err := net.SplitHostPort(addr)
@@ -71,7 +70,7 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 	if err != nil {
 		return LoginErr{"split address", err}
 	}
-	port, err := strconv.Atoi(portStr)
+	port, err := strconv.ParseUint(portStr, 0, 16)
 	if err != nil {
 		return LoginErr{"parse port", err}
 	}
