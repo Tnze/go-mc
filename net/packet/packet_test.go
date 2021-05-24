@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"github.com/Tnze/go-mc/nbt"
 	"testing"
 
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -142,4 +143,58 @@ func ExamplePacket_Scan_joinGame() {
 	)
 	fmt.Print(err)
 	// Output: <nil>
+}
+
+func ExampleMarshal_setSlot() {
+	var buf bytes.Buffer
+	type Enchantment struct {
+		ID  int16 `nbt:"id"`
+		Lvl int16 `nbt:"lvl"`
+	}
+	type SlotNBT struct {
+		StoredEnchantments []Enchantment
+		Unbreakable        int32
+	}
+	for _, pf := range [][]pk.FieldEncoder{
+		{
+			pk.Byte(0),
+			pk.Short(5),
+			pk.Boolean(false),
+			pk.Opt{Has: false},
+		},
+		{
+			pk.Byte(0),
+			pk.Short(5),
+			pk.Boolean(true),
+			pk.Opt{Has: true, Field: pk.Tuple{
+				pk.VarInt(0x01),     // ItemID
+				pk.Byte(1),          // ItemCount
+				pk.Byte(nbt.TagEnd), // NBT, 0 when this is no data
+			}},
+		},
+		{
+			pk.Byte(0),
+			pk.Short(5),
+			pk.Boolean(true),
+			pk.Opt{Has: true, Field: pk.Tuple{
+				pk.VarInt(0x01), // ItemID
+				pk.Byte(1),      // ItemCount
+				pk.NBT(SlotNBT{
+					StoredEnchantments: []Enchantment{
+						{ID: 01, Lvl: 02},
+						{ID: 03, Lvl: 04},
+					},
+					Unbreakable: 1, // true
+				}), // NBT
+			}},
+		},
+	} {
+		buf.Reset()
+		p := pk.Marshal(0x15, pf...)
+		fmt.Printf("%02X % 02X\n", p.ID, p.Data)
+	}
+	// Output:
+	// 15 00 00 05 00
+	// 15 00 00 05 01 01 01 00
+	// 15 00 00 05 01 01 01 0A 00 00 09 00 12 53 74 6F 72 65 64 45 6E 63 68 61 6E 74 6D 65 6E 74 73 0A 00 00 00 02 02 00 02 69 64 00 01 02 00 03 6C 76 6C 00 02 00 02 00 02 69 64 00 03 02 00 03 6C 76 6C 00 04 00 03 00 0B 55 6E 62 72 65 61 6B 61 62 6C 65 00 00 00 01 00
 }
