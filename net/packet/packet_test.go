@@ -145,14 +145,6 @@ func ExamplePacket_Scan_joinGame() {
 }
 
 func ExampleMarshal_setSlot() {
-	type Enchantment struct {
-		ID  int16 `nbt:"id"`
-		Lvl int16 `nbt:"lvl"`
-	}
-	type SlotNBT struct {
-		StoredEnchantments []Enchantment
-		Unbreakable        int32
-	}
 	for _, pf := range []struct {
 		WindowID  byte
 		Slot      int16
@@ -163,13 +155,7 @@ func ExampleMarshal_setSlot() {
 	}{
 		{WindowID: 0, Slot: 5, Present: false},
 		{WindowID: 0, Slot: 5, Present: true, ItemID: 0x01, ItemCount: 1, NBT: pk.Byte(0)},
-		{WindowID: 0, Slot: 5, Present: true, ItemID: 0x01, ItemCount: 1, NBT: pk.NBT(SlotNBT{
-			StoredEnchantments: []Enchantment{
-				{ID: 01, Lvl: 02},
-				{ID: 03, Lvl: 04},
-			},
-			Unbreakable: 1, // true
-		})},
+		{WindowID: 0, Slot: 5, Present: true, ItemID: 0x01, ItemCount: 1, NBT: pk.NBT(int32(0x12345678))},
 	} {
 		p := pk.Marshal(0x15,
 			pk.Byte(pf.WindowID),
@@ -186,5 +172,5 @@ func ExampleMarshal_setSlot() {
 	// Output:
 	// 15 00 00 05 00
 	// 15 00 00 05 01 01 01 00
-	// 15 00 00 05 01 01 01 0A 00 00 09 00 12 53 74 6F 72 65 64 45 6E 63 68 61 6E 74 6D 65 6E 74 73 0A 00 00 00 02 02 00 02 69 64 00 01 02 00 03 6C 76 6C 00 02 00 02 00 02 69 64 00 03 02 00 03 6C 76 6C 00 04 00 03 00 0B 55 6E 62 72 65 61 6B 61 62 6C 65 00 00 00 01 00
+	// 15 00 00 05 01 01 01 03 00 00 12 34 56 78
 }
