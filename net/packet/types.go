@@ -426,16 +426,22 @@ func (d *Double) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 //NBT encode a value as Named Binary Tag
-func NBT(v interface{}) Field {
+func NBT(v interface{}, optionalTagName ...string) Field {
+	if len(optionalTagName) > 0 {
+		return nbtField{V: v, FieldName: optionalTagName[0]}
+	}
 	return nbtField{V: v}
 }
 
-type nbtField struct{ V interface{} }
+type nbtField struct {
+	V         interface{}
+	FieldName string
+}
 
 // Encode a nbtField
 func (n nbtField) WriteTo(w io.Writer) (int64, error) {
 	var buf bytes.Buffer
-	if err := nbt.NewEncoder(&buf).Encode(n.V); err != nil {
+	if err := nbt.NewEncoder(&buf).Encode(n.V, n.FieldName); err != nil {
 		return 0, err
 	}
 	return buf.WriteTo(w)
