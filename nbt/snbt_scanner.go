@@ -4,37 +4,6 @@ import (
 	"errors"
 )
 
-type token int
-
-const (
-	ILLEGAL token = iota
-
-	IDENT // name
-
-	INT // 12345
-	FLT // 12345.67
-
-	BYTE   // b or B
-	SHORT  // s or S
-	LONG   // l or L
-	FLOAT  // f or F
-	DOUBLE // d or D
-
-	STRING // "abc" 'def'
-
-	LPAREN // (
-	LBRACK // [
-	LBRACE // {
-	COMMA  // ,
-	PERIOD // .
-
-	RPAREN    // )
-	RBRACK    // ]
-	RBRACE    // }
-	SEMICOLON // ;
-	COLON     // :
-)
-
 const (
 	scanContinue        = iota // uninteresting byte
 	scanBeginCompound          // begin TAG_Compound (after left-brace )
@@ -130,7 +99,7 @@ func (s *scanner) stateBeginValue(c byte) int {
 		if isNumber(c) {
 			return s.stateNum1(c)
 		}
-		if isNumOrLetter(c) {
+		if isAllowedInUnquotedString(c) {
 			return s.stateBeginString(c)
 		}
 	}
@@ -155,45 +124,42 @@ func (s *scanner) stateBeginString(c byte) int {
 	}
 	switch c {
 	case '\'':
-		s.step = s.stateInSqString
+		s.step = s.stateInSingleQuotedString
 		return scanContinue
 	case '"':
-		s.step = s.stateInDqString
+		s.step = s.stateInDoubleQuotedString
 		return scanContinue
 	default:
-		if isNumOrLetter(c) {
-			s.step = s.stateInPureString
+		if isAllowedInUnquotedString(c) {
+			s.step = s.stateInUnquotedString
 			return scanContinue
 		}
 	}
 	return s.error(c, "looking for beginning of string")
 }
 
-func (s *scanner) stateInSqString(c byte) int {
+func (s *scanner) stateInSingleQuotedString(c byte) int {
 	if c == '\\' {
-		s.step = s.stateInSqStringEsc
+		s.step = s.stateInSingleQuotedStringEsc
 		return scanContinue
 	}
 	if c == '\'' {
 		s.step = s.stateEndValue
 		return scanContinue
 	}
-	if isNumOrLetter(c) {
-		return scanContinue
-	}
-	return s.stateEndValue(c)
+	return scanContinue
 }
 
-func (s *scanner) stateInSqStringEsc(c byte) int {
+func (s *scanner) stateInSingleQuotedStringEsc(c byte) int {
 	switch c {
 	case 'b', 'f', 'n', 'r', 't', '\\', '/', '\'':
-		s.step = s.stateInSqString
+		s.step = s.stateInSingleQuotedString
 		return scanContinue
 	}
 	return s.error(c, "in string escape code")
 }
 
-func (s *scanner) stateInDqString(c byte) int {
+func (s *scanner) stateInDoubleQuotedString(c byte) int {
 	if c == '\\' {
 		s.step = s.stateInDqStringEsc
 		return scanContinue
@@ -202,23 +168,20 @@ func (s *scanner) stateInDqString(c byte) int {
 		s.step = s.stateEndValue
 		return scanContinue
 	}
-	if isNumOrLetter(c) {
-		return scanContinue
-	}
-	return s.stateEndValue(c)
+	return scanContinue
 }
 
 func (s *scanner) stateInDqStringEsc(c byte) int {
 	switch c {
 	case 'b', 'f', 'n', 'r', 't', '\\', '/', '"':
-		s.step = s.stateInDqString
+		s.step = s.stateInDoubleQuotedString
 		return scanContinue
 	}
 	return s.error(c, "in string escape code")
 }
 
-func (s *scanner) stateInPureString(c byte) int {
-	if isNumOrLetter(c) {
+func (s *scanner) stateInUnquotedString(c byte) int {
+	if isAllowedInUnquotedString(c) {
 		return scanContinue
 	}
 	return s.stateEndValue(c)
@@ -244,15 +207,19 @@ func (s *scanner) stateListOrArrayT(c byte) int {
 		s.step = s.stateBeginValue
 		return scanListType
 	}
-	return s.stateInPureString(c)
+	return s.stateInUnquotedString(c)
 }
 
 func (s *scanner) stateNeg(c byte) int {
-	if !isNumber(c) {
-		s.error(c, "not a number after '-'")
+	if isNumber(c) {
+		s.step = s.stateNum1
+		return scanContinue
 	}
-	s.step = s.stateNum1
-	return scanContinue
+	if isAllowedInUnquotedString(c) {
+		s.step = s.stateInUnquotedString
+		return scanContinue
+	}
+	return s.error(c, "not a number after '-'")
 }
 
 func (s *scanner) stateNum1(c byte) int {
@@ -262,6 +229,10 @@ func (s *scanner) stateNum1(c byte) int {
 	}
 	if c == '.' {
 		s.step = s.stateNumDot
+		return scanContinue
+	}
+	if isAllowedInUnquotedString(c) {
+		s.step = s.stateInUnquotedString
 		return scanContinue
 	}
 	return s.stateEndNumValue(c)
@@ -274,6 +245,10 @@ func (s *scanner) stateNumDot(c byte) int {
 		s.step = s.stateNumDot0
 		return scanContinue
 	}
+	if isAllowedInUnquotedString(c) {
+		s.step = s.stateInUnquotedString
+		return scanContinue
+	}
 	return s.error(c, "after decimal point in numeric literal")
 }
 
@@ -282,6 +257,10 @@ func (s *scanner) stateNumDot(c byte) int {
 func (s *scanner) stateNumDot0(c byte) int {
 	if isNumber(c) {
 		s.step = s.stateNumDot0
+		return scanContinue
+	}
+	if isAllowedInUnquotedString(c) {
+		s.step = s.stateInUnquotedString
 		return scanContinue
 	}
 	return s.stateEndNumDotValue(c)
@@ -382,15 +361,13 @@ func isSpace(c byte) bool {
 }
 
 func isNumber(c byte) bool {
-	if c >= '0' && c <= '9' {
-		return true
-	}
-	return false
+	return c >= '0' && c <= '9'
 }
 
-func isNumOrLetter(c byte) bool {
-	if c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || isNumber(c) {
-		return true
-	}
-	return false
+func isAllowedInUnquotedString(c byte) bool {
+	return c == '_' || c == '-' ||
+		c == '.' || c == '+' ||
+		c >= '0' && c <= '9' ||
+		c >= 'A' && c <= 'Z' ||
+		c >= 'a' && c <= 'z'
 }
