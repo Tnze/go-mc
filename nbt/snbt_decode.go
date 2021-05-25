@@ -1,6 +1,8 @@
 package nbt
 
 import (
+	"math"
+	"strconv"
 	"strings"
 )
 
@@ -43,6 +45,24 @@ func writeLiteral(e *Encoder, d *decodeState, tagName string) error {
 		e.writeTag(TagString, tagName)
 		e.writeInt16(int16(len(str)))
 		e.w.Write([]byte(str))
+	case int8:
+		e.writeTag(TagByte, tagName)
+		e.w.Write([]byte{byte(v.(int8))})
+	case int16:
+		e.writeTag(TagShort, tagName)
+		e.writeInt16(v.(int16))
+	case int32:
+		e.writeTag(TagInt, tagName)
+		e.writeInt32(v.(int32))
+	case int64:
+		e.writeTag(TagLong, tagName)
+		e.writeInt64(v.(int64))
+	case float32:
+		e.writeTag(TagFloat, tagName)
+		e.writeInt32(int32(math.Float32bits(v.(float32))))
+	case float64:
+		e.writeTag(TagDouble, tagName)
+		e.writeInt64(int64(math.Float64bits(v.(float64))))
 	}
 	return nil
 }
@@ -68,8 +88,7 @@ func writeCompound(e *Encoder, d *decodeState, tagName string) error {
 		if d.opcode != scanCompoundTagName {
 			panic(phasePanicMsg)
 		}
-		d.scanWhile(scanSkipSpace)
-		writeLiteral(e, d, tagName)
+		writeValue(e, d, tagName)
 
 		// Next token must be , or }.
 		if d.opcode == scanSkipSpace {
@@ -127,6 +146,7 @@ func parseLiteral(literal []byte) interface{} {
 	switch literal[0] {
 	case '"', '\'': // Quoted String
 		var sb strings.Builder
+		sb.Grow(len(literal) - 2)
 		for i := 1; ; i++ {
 			c := literal[i]
 			switch c {
@@ -139,7 +159,81 @@ func parseLiteral(literal []byte) interface{} {
 			sb.WriteByte(c)
 		}
 	default:
+		strlen := len(literal)
+		integer := true
+		number := true
+		unqstr := true
+		var numberType byte
 
+		for i, c := range literal {
+			if isNumber(c) {
+				continue
+			} else if integer {
+				if i == strlen-1 && isIntegerType(c) {
+					numberType = c
+					strlen--
+				} else if i > 0 || i == 0 && c != '-' {
+					integer = false
+					if i == 0 || c != '.' {
+						number = false
+					}
+				}
+			} else if number {
+				if i == strlen-1 && isFloatType(c) {
+					numberType = c
+				} else {
+					number = false
+				}
+			} else if !isAllowedInUnquotedString(c) {
+				unqstr = false
+			}
+		}
+		if integer {
+			num, err := strconv.ParseInt(string(literal[:strlen]), 10, 64)
+			if err != nil {
+				panic(err)
+			}
+			switch numberType {
+			case 'B', 'b':
+				return int8(num)
+			case 'S', 's':
+				return int16(num)
+			default:
+				return int32(num)
+			case 'L', 'l':
+				return num
+			case 'F', 'f':
+				return float32(num)
+			case 'D', 'd':
+				return float64(num)
+			}
+		} else if number {
+			num, err := strconv.ParseFloat(string(literal[:strlen-1]), 64)
+			if err != nil {
+				panic(err)
+			}
+			switch numberType {
+			case 'F', 'f':
+				return float32(num)
+			case 'D', 'd':
+				fallthrough
+			default:
+				return num
+			}
+		} else if unqstr {
+			return string(literal)
+		}
 	}
 	panic(phasePanicMsg)
+}
+
+func isIntegerType(c byte) bool {
+	return isFloatType(c) ||
+		c == 'B' || c == 'b' ||
+		c == 's' || c == 'S' ||
+		c == 'L' || c == 'l'
+}
+
+func isFloatType(c byte) bool {
+	return c == 'F' || c == 'f' || c == 'D' || c == 'd'
 }
