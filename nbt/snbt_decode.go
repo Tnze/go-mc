@@ -1,5 +1,9 @@
 package nbt
 
+import (
+	"strings"
+)
+
 type decodeState struct {
 	data   []byte
 	off    int // next read offset in data
@@ -33,16 +37,12 @@ func writeLiteral(e *Encoder, d *decodeState, tagName string) error {
 	start := d.readIndex()
 	d.scanWhile(scanContinue)
 	literal := d.data[start:d.readIndex()]
-
-	switch literal[0] {
-	case '"', '\'': // TAG_String
-		str := literal // TODO: Parse string
-		e.writeTag(TagString, "")
+	switch v := parseLiteral(literal); v.(type) {
+	case string:
+		str := v.(string)
+		e.writeTag(TagString, tagName)
 		e.writeInt16(int16(len(str)))
-		e.w.Write(str)
-
-	default:
-		e.w.Write(literal) // TODO: Parse other literal
+		e.w.Write([]byte(str))
 	}
 	return nil
 }
@@ -118,4 +118,28 @@ func (d *decodeState) scanWhile(op int) {
 
 	d.off = len(data) + 1 // mark processed EOF with len+1
 	d.opcode = d.scan.eof()
+}
+
+// parseLiteral parse an SNBT literal, might be
+// TAG_String, TAG_Int, TAG_Float, ... etc.
+// so returned value is one of string, int32, float32 ...
+func parseLiteral(literal []byte) interface{} {
+	switch literal[0] {
+	case '"', '\'': // Quoted String
+		var sb strings.Builder
+		for i := 1; ; i++ {
+			c := literal[i]
+			switch c {
+			case literal[0]:
+				return sb.String()
+			case '\\':
+				i++
+				c = literal[i]
+			}
+			sb.WriteByte(c)
+		}
+	default:
+
+	}
+	panic(phasePanicMsg)
 }
