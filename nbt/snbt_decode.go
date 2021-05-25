@@ -22,7 +22,7 @@ func (e *Encoder) WriteSNBT(snbt string) error {
 		panic(phasePanicMsg)
 
 	case scanBeginLiteral:
-
+		return writeLiteral(e, &d)
 	case scanBeginCompound:
 		panic("not implemented")
 

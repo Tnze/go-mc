@@ -6,12 +6,13 @@ import (
 )
 
 func TestSNBT_checkScanCode(t *testing.T) {
-	t.SkipNow()
+	//t.SkipNow()
 	var s scanner
 	s.reset()
-	for _, c := range []byte(`{ "a b\"c": {}, def: 12345}`) {
+	for _, c := range []byte(`1234`) {
 		t.Logf("[%c] - %d", c, s.step(c))
 	}
+	t.Logf("[%c] - %d", ' ', s.eof())
 }
 
 func TestSNBT_number(t *testing.T) {

@@ -86,7 +86,7 @@ func (s *scanner) popParseState() {
 	s.parseState = s.parseState[:n]
 	if n == 0 {
 		s.step = s.stateEndTop
-		//s.endTop = true
+		s.endTop = true
 	} else {
 		s.step = s.stateEndValue
 	}
@@ -324,10 +324,6 @@ func (s *scanner) stateNumDot0(c byte) int {
 }
 
 func (s *scanner) stateEndNumValue(c byte) int {
-	if isSpace(c) {
-		s.step = s.stateEndValue
-		return scanSkipSpace
-	}
 	switch c {
 	case 'b', 'B': // TAG_Byte
 		s.step = s.stateEndValue
