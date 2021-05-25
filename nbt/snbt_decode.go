@@ -1,5 +1,9 @@
 package nbt
 
+import (
+	"errors"
+)
+
 type token int
 
 const (
@@ -32,11 +36,25 @@ const (
 )
 
 const (
-	scanContinue = iota
-	scanSkipSpace
+	scanContinue        = iota // uninteresting byte
+	scanBeginCompound          // begin compound (after left-brace )
+	scanCompoundTagName        // just finished read tag name (before colon)
+	scanCompoundValue          // just finished read value (before comma or right-brace )
+	scanSkipSpace              // space byte; can skip; known to be last "continue" result
 	scanEndValue
+
 	scanEnd
 	scanError
+)
+
+// These values are stored in the parseState stack.
+// They give the current state of a composite value
+// being scanned. If the parser is inside a nested value
+// the parseState describes the nested state, outermost at entry 0.
+const (
+	parseCompoundName  = iota // parsing tag name (before colon)
+	parseCompoundValue        // parsing value (after colon)
+	parseListValue            // parsing list
 )
 
 const maxNestingDepth = 10000
@@ -44,6 +62,7 @@ const maxNestingDepth = 10000
 type scanner struct {
 	step       func(c byte) int
 	parseState []int
+	err        error
 }
 
 // reset prepares the scanner for use.
@@ -82,30 +101,134 @@ func (s *scanner) popParseState() {
 func (s *scanner) stateEndTop(c byte) int {
 	if !isSpace(c) {
 		// Complain about non-space byte on next call.
-		//s.error(c, "after top-level value")
+		s.error(c, "after top-level value")
 	}
 	return scanEnd
 }
 
 func (s *scanner) stateBeginValue(c byte) int {
+	if isSpace(c) {
+		return scanSkipSpace
+	}
 	switch c {
 	case '{': // beginning of TAG_Compound
-		s.step = s.stateCompound
+		s.step = s.stateCompoundOrEmpty
+		return s.pushParseState(c, parseCompoundName, scanBeginCompound)
 	case '[': // beginning of TAG_List
 		s.step = s.stateList
 	case '"', '\'': // beginning of TAG_String
-
+		s.step = s.stateBeginString
+		return scanContinue
+	case '-': // beginning of negative number
+		s.step = s.stateNeg
+		return scanContinue
 	default:
-		if c >= '0' && c <= '9' {
+		if isNumber(c) {
 			s.step = s.stateNum1
 			return scanContinue
 		}
 	}
-	return scanError
+	return s.error(c, "looking for beginning of value")
+}
+
+func (s *scanner) stateCompoundOrEmpty(c byte) int {
+	if isSpace(c) {
+		return scanSkipSpace
+	}
+	if c == '}' {
+		n := len(s.parseState)
+		s.parseState[n-1] = parseCompoundValue
+		return s.stateEndValue(c)
+	}
+	return s.stateBeginString(c)
+}
+
+func (s *scanner) stateBeginString(c byte) int {
+	switch c {
+	case '\'':
+		s.step = s.stateInSqString
+		return scanContinue
+	case '"':
+		s.step = s.stateInDqString
+		return scanContinue
+	default:
+		if isNumOrLetter(c) {
+			s.step = s.stateInPureString
+			return scanContinue
+		}
+	}
+	return s.error(c, "looking for beginning of tag name string")
+}
+
+func (s *scanner) stateInSqString(c byte) int {
+	if c == '\\' {
+		s.step = s.stateInSqStringEsc
+		return scanContinue
+	}
+	if c == '\'' {
+		s.step = s.stateEndValue
+		return scanContinue
+	}
+	if isNumOrLetter(c) {
+		return scanContinue
+	}
+	return s.stateEndValue(c)
+}
+
+func (s *scanner) stateInSqStringEsc(c byte) int {
+	switch c {
+	case 'b', 'f', 'n', 'r', 't', '\\', '/', '\'':
+		s.step = s.stateInSqString
+		return scanContinue
+	}
+	return s.error(c, "in string escape code")
+}
+
+func (s *scanner) stateInDqString(c byte) int {
+	if c == '\\' {
+		s.step = s.stateInDqStringEsc
+		return scanContinue
+	}
+	if c == '"' {
+		s.step = s.stateEndValue
+		return scanContinue
+	}
+	if isNumOrLetter(c) {
+		return scanContinue
+	}
+	return s.stateEndValue(c)
+}
+
+func (s *scanner) stateInDqStringEsc(c byte) int {
+	switch c {
+	case 'b', 'f', 'n', 'r', 't', '\\', '/', '"':
+		s.step = s.stateInDqString
+		return scanContinue
+	}
+	return s.error(c, "in string escape code")
+}
+
+func (s *scanner) stateInPureString(c byte) int {
+	if isNumOrLetter(c) {
+		return scanContinue
+	}
+	return s.stateEndValue(c)
+}
+
+func (s *scanner) stateList(c byte) int {
+	return s.error(c, "not implemented")
+}
+
+func (s *scanner) stateNeg(c byte) int {
+	if !isNumber(c) {
+		s.error(c, "not a number after '-'")
+	}
+	s.step = s.stateNum1
+	return scanContinue
 }
 
 func (s *scanner) stateNum1(c byte) int {
-	if c >= '0' || c <= '9' {
+	if isNumber(c) {
 		s.step = s.stateNum1
 		return scanContinue
 	}
@@ -113,35 +236,27 @@ func (s *scanner) stateNum1(c byte) int {
 		s.step = s.stateNumDot
 		return scanContinue
 	}
-	return s.stateEndValue(c)
+	return s.stateEndNumValue(c)
 }
 
 // stateDot is the state after reading the integer and decimal point in a number,
 // such as after reading `1.`.
 func (s *scanner) stateNumDot(c byte) int {
-	if c >= '0' || c <= '9' {
+	if isNumber(c) {
 		s.step = s.stateNumDot0
 		return scanContinue
 	}
-	return scanError
+	return s.error(c, "after decimal point in numeric literal")
 }
 
 // stateNumDot0 is the state after reading the integer, decimal point, and subsequent
 // digits of a number, such as after reading `3.14`.
 func (s *scanner) stateNumDot0(c byte) int {
-	if c >= '0' || c <= '9' {
+	if isNumber(c) {
 		s.step = s.stateNumDot0
 		return scanContinue
 	}
 	return s.stateEndNumDotValue(c)
-}
-
-func (s *scanner) stateCompound(c byte) int {
-	return s.error(c, "not implemented")
-}
-
-func (s *scanner) stateList(c byte) int {
-	return s.error(c, "not implemented")
 }
 
 func (s *scanner) stateEndNumValue(c byte) int {
@@ -152,13 +267,13 @@ func (s *scanner) stateEndNumValue(c byte) int {
 	switch c {
 	case 'b', 'B': // TAG_Byte
 		s.step = s.stateEndValue
-		return scanSkipSpace
+		return scanContinue
 	case 's', 'S': // TAG_Short
 		s.step = s.stateEndValue
-		return scanSkipSpace
+		return scanContinue
 	case 'l', 'L': // TAG_Long
 		s.step = s.stateEndValue
-		return scanSkipSpace
+		return scanContinue
 	case 'f', 'F', 'd', 'D':
 		return s.stateEndNumDotValue(c)
 	}
@@ -169,20 +284,51 @@ func (s *scanner) stateEndNumDotValue(c byte) int {
 	switch c {
 	case 'f', 'F': // TAG_Float
 		s.step = s.stateEndValue
-		return scanSkipSpace
+		return scanContinue
 	case 'd', 'D': // TAG_Double
 		s.step = s.stateEndValue
-		return scanSkipSpace
+		return scanContinue
 	}
 	return s.stateEndValue(c)
 }
 
 func (s *scanner) stateEndValue(c byte) int {
+	n := len(s.parseState)
+	if n == 0 {
+		// Completed top-level before the current byte.
+		s.step = s.stateEndTop
+		//s.endTop = true
+		return s.stateEndTop(c)
+	}
+	if isSpace(c) {
+		s.step = s.stateEndValue
+		return scanSkipSpace
+	}
+
+	ps := s.parseState[n-1]
+	switch ps {
+	case parseCompoundName:
+		if c == ':' {
+			s.parseState[n-1] = parseCompoundValue
+			s.step = s.stateBeginValue
+			return scanCompoundTagName
+		}
+		return s.error(c, "after object key")
+	case parseCompoundValue:
+		switch c {
+		case ',':
+			s.step = s.stateBeginString
+			return scanCompoundValue
+		case '}':
+			s.popParseState()
+			return scanEndValue
+		}
+	}
 	return s.error(c, "not implemented")
 }
-
 func (s *scanner) error(c byte, context string) int {
 	s.step = s.stateError
+	s.err = errors.New(context)
 	return scanError
 }
 
@@ -194,4 +340,18 @@ func (s *scanner) stateError(c byte) int {
 
 func isSpace(c byte) bool {
 	return c <= ' ' && (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+}
+
+func isNumber(c byte) bool {
+	if c >= '0' && c <= '9' {
+		return true
+	}
+	return false
+}
+
+func isNumOrLetter(c byte) bool {
+	if c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || isNumber(c) {
+		return true
+	}
+	return false
 }
