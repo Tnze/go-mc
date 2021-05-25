@@ -2,10 +2,12 @@ package nbt
 
 import (
 	"errors"
+	"sync"
 )
 
 const (
 	scanContinue        = iota // uninteresting byte
+	scanBeginLiteral           // end implied by next result != scanContinue
 	scanBeginCompound          // begin TAG_Compound (after left-brace )
 	scanBeginList              // begin TAG_List (after left-brack)
 	scanListValue              // just finished read list value
@@ -35,6 +37,7 @@ type scanner struct {
 	step       func(c byte) int
 	parseState []int
 	err        error
+	endTop     bool
 }
 
 // reset prepares the scanner for use.
@@ -42,6 +45,28 @@ type scanner struct {
 func (s *scanner) reset() {
 	s.step = s.stateBeginValue
 	s.parseState = s.parseState[0:0]
+}
+
+var scannerPool = sync.Pool{
+	New: func() interface{} {
+		return &scanner{}
+	},
+}
+
+func newScanner() *scanner {
+	scan := scannerPool.Get().(*scanner)
+	// scan.reset by design doesn't set bytes to zero
+	//scan.bytes = 0
+	scan.reset()
+	return scan
+}
+
+func freeScanner(scan *scanner) {
+	// Avoid hanging on to too much memory in extreme cases.
+	if len(scan.parseState) > 1024 {
+		scan.parseState = nil
+	}
+	scannerPool.Put(scan)
 }
 
 // pushParseState pushes a new parse state p onto the parse stack.
@@ -65,6 +90,25 @@ func (s *scanner) popParseState() {
 	} else {
 		s.step = s.stateEndValue
 	}
+}
+
+// eof tells the scanner that the end of input has been reached.
+// It returns a scan status just as s.step does.
+func (s *scanner) eof() int {
+	if s.err != nil {
+		return scanError
+	}
+	if s.endTop {
+		return scanEnd
+	}
+	s.step(' ')
+	if s.endTop {
+		return scanEnd
+	}
+	if s.err == nil {
+		s.err = errors.New("unexpected end of JSON input")
+	}
+	return scanError
 }
 
 // stateEndTop is the state after finishing the top-level value,
@@ -94,10 +138,11 @@ func (s *scanner) stateBeginValue(c byte) int {
 		return s.stateBeginString(c)
 	case '-': // beginning of negative number
 		s.step = s.stateNeg
-		return scanContinue
+		return scanBeginLiteral
 	default:
 		if isNumber(c) {
-			return s.stateNum1(c)
+			s.stateNum0(c)
+			return scanBeginLiteral
 		}
 		if isAllowedInUnquotedString(c) {
 			return s.stateBeginString(c)
@@ -125,14 +170,14 @@ func (s *scanner) stateBeginString(c byte) int {
 	switch c {
 	case '\'':
 		s.step = s.stateInSingleQuotedString
-		return scanContinue
+		return scanBeginLiteral
 	case '"':
 		s.step = s.stateInDoubleQuotedString
-		return scanContinue
+		return scanBeginLiteral
 	default:
 		if isAllowedInUnquotedString(c) {
 			s.step = s.stateInUnquotedString
-			return scanContinue
+			return scanBeginLiteral
 		}
 	}
 	return s.error(c, "looking for beginning of string")
@@ -212,6 +257,18 @@ func (s *scanner) stateListOrArrayT(c byte) int {
 
 func (s *scanner) stateNeg(c byte) int {
 	if isNumber(c) {
+		s.step = s.stateNum0
+		return scanBeginLiteral
+	}
+	if isAllowedInUnquotedString(c) {
+		s.step = s.stateInUnquotedString
+		return scanBeginLiteral
+	}
+	return s.error(c, "not a number after '-'")
+}
+
+func (s *scanner) stateNum0(c byte) int {
+	if isNumber(c) {
 		s.step = s.stateNum1
 		return scanContinue
 	}
@@ -219,7 +276,7 @@ func (s *scanner) stateNeg(c byte) int {
 		s.step = s.stateInUnquotedString
 		return scanContinue
 	}
-	return s.error(c, "not a number after '-'")
+	return s.stateEndNumValue(c)
 }
 
 func (s *scanner) stateNum1(c byte) int {
@@ -304,7 +361,7 @@ func (s *scanner) stateEndValue(c byte) int {
 	if n == 0 {
 		// Completed top-level before the current byte.
 		s.step = s.stateEndTop
-		//s.endTop = true
+		s.endTop = true
 		return s.stateEndTop(c)
 	}
 	if isSpace(c) {

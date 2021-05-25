@@ -5,6 +5,15 @@ import (
 	"testing"
 )
 
+func TestSNBT_checkScanCode(t *testing.T) {
+	t.SkipNow()
+	var s scanner
+	s.reset()
+	for _, c := range []byte(`{ "a b\"c": {}, def: 12345}`) {
+		t.Logf("[%c] - %d", c, s.step(c))
+	}
+}
+
 func TestSNBT_number(t *testing.T) {
 	goods := []string{
 		"0", "1234567890", "3.1415926",
