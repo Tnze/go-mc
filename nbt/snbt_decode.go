@@ -37,7 +37,10 @@ const (
 
 const (
 	scanContinue        = iota // uninteresting byte
-	scanBeginCompound          // begin compound (after left-brace )
+	scanBeginCompound          // begin TAG_Compound (after left-brace )
+	scanBeginList              // begin TAG_List (after left-brack)
+	scanListValue              // just finished read list value
+	scanListType               // just finished read list type (after "B;" or "L;")
 	scanCompoundTagName        // just finished read tag name (before colon)
 	scanCompoundValue          // just finished read value (before comma or right-brace )
 	scanSkipSpace              // space byte; can skip; known to be last "continue" result
@@ -86,7 +89,7 @@ func (s *scanner) pushParseState(c byte, newParseState int, successState int) in
 // and updates s.step accordingly.
 func (s *scanner) popParseState() {
 	n := len(s.parseState) - 1
-	s.parseState = s.parseState[0:n]
+	s.parseState = s.parseState[:n]
 	if n == 0 {
 		s.step = s.stateEndTop
 		//s.endTop = true
@@ -108,6 +111,7 @@ func (s *scanner) stateEndTop(c byte) int {
 
 func (s *scanner) stateBeginValue(c byte) int {
 	if isSpace(c) {
+		s.step = s.stateBeginValue
 		return scanSkipSpace
 	}
 	switch c {
@@ -115,17 +119,19 @@ func (s *scanner) stateBeginValue(c byte) int {
 		s.step = s.stateCompoundOrEmpty
 		return s.pushParseState(c, parseCompoundName, scanBeginCompound)
 	case '[': // beginning of TAG_List
-		s.step = s.stateList
+		s.step = s.stateListOrArray
+		return s.pushParseState(c, parseListValue, scanBeginList)
 	case '"', '\'': // beginning of TAG_String
-		s.step = s.stateBeginString
-		return scanContinue
+		return s.stateBeginString(c)
 	case '-': // beginning of negative number
 		s.step = s.stateNeg
 		return scanContinue
 	default:
 		if isNumber(c) {
-			s.step = s.stateNum1
-			return scanContinue
+			return s.stateNum1(c)
+		}
+		if isNumOrLetter(c) {
+			return s.stateBeginString(c)
 		}
 	}
 	return s.error(c, "looking for beginning of value")
@@ -144,6 +150,9 @@ func (s *scanner) stateCompoundOrEmpty(c byte) int {
 }
 
 func (s *scanner) stateBeginString(c byte) int {
+	if isSpace(c) {
+		return scanSkipSpace
+	}
 	switch c {
 	case '\'':
 		s.step = s.stateInSqString
@@ -157,7 +166,7 @@ func (s *scanner) stateBeginString(c byte) int {
 			return scanContinue
 		}
 	}
-	return s.error(c, "looking for beginning of tag name string")
+	return s.error(c, "looking for beginning of string")
 }
 
 func (s *scanner) stateInSqString(c byte) int {
@@ -215,8 +224,27 @@ func (s *scanner) stateInPureString(c byte) int {
 	return s.stateEndValue(c)
 }
 
-func (s *scanner) stateList(c byte) int {
-	return s.error(c, "not implemented")
+func (s *scanner) stateListOrArray(c byte) int {
+	if isSpace(c) {
+		return scanSkipSpace
+	}
+	switch c {
+	case 'B', 'I', 'L':
+		s.step = s.stateListOrArrayT
+		return scanContinue
+	case ']':
+		return s.stateEndValue(c)
+	default:
+		return s.stateBeginValue(c)
+	}
+}
+
+func (s *scanner) stateListOrArrayT(c byte) int {
+	if c == ';' {
+		s.step = s.stateBeginValue
+		return scanListType
+	}
+	return s.stateInPureString(c)
 }
 
 func (s *scanner) stateNeg(c byte) int {
@@ -301,7 +329,6 @@ func (s *scanner) stateEndValue(c byte) int {
 		return s.stateEndTop(c)
 	}
 	if isSpace(c) {
-		s.step = s.stateEndValue
 		return scanSkipSpace
 	}
 
@@ -313,18 +340,30 @@ func (s *scanner) stateEndValue(c byte) int {
 			s.step = s.stateBeginValue
 			return scanCompoundTagName
 		}
-		return s.error(c, "after object key")
+		return s.error(c, "after compound tag name")
 	case parseCompoundValue:
 		switch c {
 		case ',':
+			s.parseState[n-1] = parseCompoundName
 			s.step = s.stateBeginString
 			return scanCompoundValue
 		case '}':
 			s.popParseState()
 			return scanEndValue
 		}
+		return s.error(c, "after compound value")
+	case parseListValue:
+		switch c {
+		case ',':
+			s.step = s.stateBeginValue
+			return scanListValue
+		case ']':
+			s.popParseState()
+			return scanEndValue
+		}
+		return s.error(c, "after list element")
 	}
-	return s.error(c, "not implemented")
+	return s.error(c, "")
 }
 func (s *scanner) error(c byte, context string) int {
 	s.step = s.stateError

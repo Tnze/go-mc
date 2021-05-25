@@ -39,7 +39,32 @@ func TestSNBT_number(t *testing.T) {
 func TestSNBT_compound(t *testing.T) {
 	goods := []string{
 		`{}`, `{name:3.14f}`, `{ "name" : 12345 }`,
-		`{ abc: {}}`,
+		`{ abc: { }}`, `{ "ab\"c": {}, def: 12345}`,
+	}
+	var s scanner
+	scan := func(str string) bool {
+		s.reset()
+		for _, c := range []byte(str) {
+			res := s.step(c)
+			if res == scanError {
+				return false
+			}
+		}
+		return true
+	}
+	for _, str := range goods {
+		if scan(str) == false {
+			t.Errorf("scan valid data %q error: %v", str, s.err)
+		}
+	}
+}
+
+func TestSNBT_list(t *testing.T) {
+	goods := []string{
+		`[]`, `[a, 'b', "c", d]`, // List of string
+		`[{}, {}, {"a\"b":520}]`, // List of Compound
+		`[B,C,D]`, `[L, "abc"]`,  // List of string (like array)
+		`[B; 01B, 02B, 3B, 10B, 127B]`, // Array
 	}
 	var s scanner
 	scan := func(str string) bool {
