@@ -397,6 +397,7 @@ func (s *scanner) stateEndValue(c byte) int {
 	}
 	return s.error(c, "")
 }
+
 func (s *scanner) error(c byte, context string) int {
 	s.step = s.stateError
 	s.err = errors.New(context)

@@ -1,9 +1,5 @@
 package nbt
 
-import (
-	"fmt"
-)
-
 type decodeState struct {
 	data   []byte
 	off    int // next read offset in data
@@ -16,28 +12,27 @@ const phasePanicMsg = "SNBT decoder out of sync - data changing underfoot?"
 func (e *Encoder) WriteSNBT(snbt string) error {
 	d := decodeState{data: []byte(snbt)}
 	d.scan.reset()
+	return writeValue(e, &d, "")
+}
+
+func writeValue(e *Encoder, d *decodeState, tagName string) error {
 	d.scanWhile(scanSkipSpace)
 	switch d.opcode {
 	default:
 		panic(phasePanicMsg)
-
 	case scanBeginLiteral:
-		return writeLiteral(e, &d)
+		return writeLiteral(e, d, tagName)
 	case scanBeginCompound:
-		panic("not implemented")
-
+		return writeCompound(e, d, tagName)
 	case scanBeginList:
 		panic("not implemented")
 	}
-	return nil
 }
 
-func writeLiteral(e *Encoder, d *decodeState) error {
+func writeLiteral(e *Encoder, d *decodeState, tagName string) error {
 	start := d.readIndex()
-	d.scanNext()
 	d.scanWhile(scanContinue)
 	literal := d.data[start:d.readIndex()]
-	fmt.Printf("%d %d [%d]- %q\n", start, d.off, d.opcode, literal)
 
 	switch literal[0] {
 	case '"', '\'': // TAG_String
@@ -52,8 +47,42 @@ func writeLiteral(e *Encoder, d *decodeState) error {
 	return nil
 }
 
-func writeCompound(e *Encoder, d *decodeState) error {
-	e.writeTag(TagCompound, "")
+func writeCompound(e *Encoder, d *decodeState, tagName string) error {
+	e.writeTag(TagCompound, tagName)
+	for {
+		d.scanWhile(scanSkipSpace)
+		if d.opcode == scanEndValue {
+			break
+		}
+		if d.opcode != scanBeginLiteral {
+			panic(phasePanicMsg)
+		}
+		// read tag name
+		start := d.readIndex()
+		d.scanWhile(scanContinue)
+		tagName := string(d.data[start:d.readIndex()])
+		// read value
+		if d.opcode == scanSkipSpace {
+			d.scanWhile(scanSkipSpace)
+		}
+		if d.opcode != scanCompoundTagName {
+			panic(phasePanicMsg)
+		}
+		d.scanWhile(scanSkipSpace)
+		writeLiteral(e, d, tagName)
+
+		// Next token must be , or }.
+		if d.opcode == scanSkipSpace {
+			d.scanWhile(scanSkipSpace)
+		}
+		if d.opcode == scanEndValue {
+			break
+		}
+		if d.opcode != scanCompoundValue {
+			panic(phasePanicMsg)
+		}
+	}
+	e.w.Write([]byte{TagEnd})
 	return nil
 }
 
