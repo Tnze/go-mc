@@ -105,8 +105,7 @@ func writeCompoundPayload(e *Encoder, d *decodeState) error {
 func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 	d.scanWhile(scanSkipSpace)
 	if d.opcode == scanEndValue { // ']', empty TAG_List
-		e.writeTag(TagList, tagName)
-		e.writeInt32(0)
+		e.writeListHeader(TagEnd, tagName, 0)
 		return nil
 	}
 
@@ -150,8 +149,8 @@ func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 			if d.opcode != scanListValue {
 				panic(phasePanicMsg)
 			}
-			start = d.readIndex()
 			d.scanNext()
+			start = d.readIndex()
 			d.scanWhile(scanContinue)
 			literal = d.data[start:d.readIndex()]
 		}
@@ -159,6 +158,27 @@ func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 		e.w.Write(buf.Bytes())
 	case scanBeginList: // TAG_List<TAG_List>
 	case scanBeginCompound: // TAG_List<TAG_Compound>
+		for {
+			d.scanWhile(scanSkipSpace)
+			if d.opcode != scanBeginCompound {
+				return errors.New("different TagType in List")
+			}
+			writeCompoundPayload(e2, d)
+			count++
+			// read ',' or ']'
+			if d.opcode == scanSkipSpace {
+				d.scanWhile(scanSkipSpace)
+			}
+			d.scanNext()
+			if d.opcode == scanEndValue {
+				break
+			}
+			if d.opcode != scanListValue {
+				panic(phasePanicMsg)
+			}
+		}
+		e.writeListHeader(TagCompound, tagName, count)
+		e.w.Write(buf.Bytes())
 	}
 	return nil
 }
