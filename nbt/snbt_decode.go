@@ -121,7 +121,49 @@ func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 		d.scanWhile(scanContinue)
 		literal := d.data[start:d.readIndex()]
 		if d.opcode == scanListType { // TAG_X_Array
-			//listType := literal[0]
+			var elemType byte
+			switch literal[0] {
+			case 'B':
+				e.writeTag(TagByteArray, tagName)
+				elemType = TagByte
+			case 'I':
+				e.writeTag(TagIntArray, tagName)
+				elemType = TagInt
+			case 'L':
+				e.writeTag(TagLongArray, tagName)
+				elemType = TagLong
+			}
+			for {
+				d.scanNext()
+				if d.opcode == scanSkipSpace {
+					d.scanWhile(scanSkipSpace)
+				}
+				if d.opcode == scanEndValue { // ]
+					break
+				}
+				if d.opcode != scanBeginLiteral {
+					return errors.New("not literal in Array")
+				}
+				start := d.readIndex()
+
+				d.scanWhile(scanContinue)
+				literal := d.data[start:d.readIndex()]
+				tagType, litVal := parseLiteral(literal)
+				if tagType != elemType {
+					return errors.New("unexpected element type in TAG_Array")
+				}
+				switch elemType {
+				case TagByte:
+					e2.w.Write([]byte{byte(litVal.(int8))})
+				case TagInt:
+					e2.writeInt32(litVal.(int32))
+				case TagLong:
+					e2.writeInt64(litVal.(int64))
+				}
+				count++
+			}
+			e.writeInt32(int32(count))
+			e.w.Write(buf.Bytes())
 			break
 		}
 		if d.opcode != scanListValue { // TAG_List<TAG_String>
@@ -157,6 +199,8 @@ func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 		e.writeListHeader(tagType, tagName, count)
 		e.w.Write(buf.Bytes())
 	case scanBeginList: // TAG_List<TAG_List>
+		e.writeListHeader(TagList, tagName, count)
+		e.w.Write(buf.Bytes())
 	case scanBeginCompound: // TAG_List<TAG_Compound>
 		for {
 			if d.opcode == scanSkipSpace {

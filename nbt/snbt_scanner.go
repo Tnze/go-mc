@@ -249,10 +249,17 @@ func (s *scanner) stateListOrArray(c byte) int {
 
 func (s *scanner) stateListOrArrayT(c byte) int {
 	if c == ';' {
-		s.step = s.stateBeginValue
+		s.step = s.stateArrayT
 		return scanListType
 	}
 	return s.stateInUnquotedString(c)
+}
+
+func (s *scanner) stateArrayT(c byte) int {
+	if c == ']' { // empty array
+		return scanEndValue
+	}
+	return s.stateBeginValue(c)
 }
 
 func (s *scanner) stateNeg(c byte) int {

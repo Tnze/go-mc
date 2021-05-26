@@ -67,6 +67,7 @@ func TestSNBT_list(t *testing.T) {
 		`[{}, {}, {"a\"b":520}]`, // List of Compound
 		`[B,C,D]`, `[L, "abc"]`,  // List of string (like array)
 		`[B; 01B, 02B, 3B, 10B, 127B]`, // Array
+		`[I;]`,                         // Empty array
 	}
 	var s scanner
 	scan := func(str string) bool {
