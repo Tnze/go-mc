@@ -159,23 +159,30 @@ func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 	case scanBeginList: // TAG_List<TAG_List>
 	case scanBeginCompound: // TAG_List<TAG_Compound>
 		for {
-			d.scanWhile(scanSkipSpace)
+			if d.opcode == scanSkipSpace {
+				d.scanWhile(scanSkipSpace)
+			}
 			if d.opcode != scanBeginCompound {
 				return errors.New("different TagType in List")
 			}
 			writeCompoundPayload(e2, d)
 			count++
-			// read ',' or ']'
 			if d.opcode == scanSkipSpace {
 				d.scanWhile(scanSkipSpace)
 			}
+			// read ',' or ']'
 			d.scanNext()
+			if d.opcode == scanSkipSpace {
+				d.scanWhile(scanSkipSpace)
+			}
 			if d.opcode == scanEndValue {
 				break
 			}
 			if d.opcode != scanListValue {
 				panic(phasePanicMsg)
 			}
+			// read '{'
+			d.scanNext()
 		}
 		e.writeListHeader(TagCompound, tagName, count)
 		e.w.Write(buf.Bytes())

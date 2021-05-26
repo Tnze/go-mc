@@ -9,7 +9,7 @@ func TestSNBT_checkScanCode(t *testing.T) {
 	//t.SkipNow()
 	var s scanner
 	s.reset()
-	for _, c := range []byte(`[I;1,2,3]`) {
+	for _, c := range []byte(`[{},{a:1b},{}]`) {
 		t.Logf("[%c] - %d", c, s.step(c))
 	}
 	t.Logf("[%c] - %d", ' ', s.eof())

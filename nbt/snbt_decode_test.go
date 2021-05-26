@@ -38,7 +38,7 @@ func TestEncoder_WriteSNBT(t *testing.T) {
 	for i := range testCases {
 		buf.Reset()
 		if err := e.WriteSNBT(testCases[i].snbt); err != nil {
-			t.Error(err)
+			t.Errorf("Convert SNBT %q error: %v", testCases[i].snbt, err)
 			continue
 		}
 		want := testCases[i].nbt
