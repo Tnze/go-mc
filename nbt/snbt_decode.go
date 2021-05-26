@@ -2,6 +2,7 @@ package nbt
 
 import (
 	"bytes"
+	"errors"
 	"math"
 	"strconv"
 	"strings"
@@ -28,48 +29,43 @@ func writeValue(e *Encoder, d *decodeState, tagName string) error {
 	default:
 		panic(phasePanicMsg)
 	case scanBeginLiteral:
-		return writeLiteral(e, d, tagName)
+		start := d.readIndex()
+		d.scanWhile(scanContinue)
+		literal := d.data[start:d.readIndex()]
+		tagType, litVal := parseLiteral(literal)
+		e.writeTag(tagType, tagName)
+		return writeLiteralPayload(e, litVal)
 	case scanBeginCompound:
-		return writeCompound(e, d, tagName)
+		e.writeTag(TagCompound, tagName)
+		return writeCompoundPayload(e, d)
 	case scanBeginList:
 		return writeListOrArray(e, d, tagName)
 	}
 }
 
-func writeLiteral(e *Encoder, d *decodeState, tagName string) error {
-	start := d.readIndex()
-	d.scanWhile(scanContinue)
-	literal := d.data[start:d.readIndex()]
-	switch v := parseLiteral(literal); v.(type) {
+func writeLiteralPayload(e *Encoder, v interface{}) error {
+	switch v.(type) {
 	case string:
 		str := v.(string)
-		e.writeTag(TagString, tagName)
 		e.writeInt16(int16(len(str)))
 		e.w.Write([]byte(str))
 	case int8:
-		e.writeTag(TagByte, tagName)
 		e.w.Write([]byte{byte(v.(int8))})
 	case int16:
-		e.writeTag(TagShort, tagName)
 		e.writeInt16(v.(int16))
 	case int32:
-		e.writeTag(TagInt, tagName)
 		e.writeInt32(v.(int32))
 	case int64:
-		e.writeTag(TagLong, tagName)
 		e.writeInt64(v.(int64))
 	case float32:
-		e.writeTag(TagFloat, tagName)
 		e.writeInt32(int32(math.Float32bits(v.(float32))))
 	case float64:
-		e.writeTag(TagDouble, tagName)
 		e.writeInt64(int64(math.Float64bits(v.(float64))))
 	}
 	return nil
 }
 
-func writeCompound(e *Encoder, d *decodeState, tagName string) error {
-	e.writeTag(TagCompound, tagName)
+func writeCompoundPayload(e *Encoder, d *decodeState) error {
 	for {
 		d.scanWhile(scanSkipSpace)
 		if d.opcode == scanEndValue {
@@ -114,6 +110,11 @@ func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 		return nil
 	}
 
+	// We don't know the length of the List,
+	// so we read them into a buffer and count.
+	var buf bytes.Buffer
+	var count int
+	e2 := NewEncoder(&buf)
 	start := d.readIndex()
 
 	switch d.opcode {
@@ -127,27 +128,36 @@ func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
 		if d.opcode != scanListValue { // TAG_List<TAG_String>
 			panic(phasePanicMsg)
 		}
-		// TODO
-		parseLiteral(literal)
-		fallthrough
-	case scanBeginList: // TAG_List<TAG_List>
-		// We don't know the length of the List,
-		// so we read them into a buffer and count.
-		var buf bytes.Buffer
-		e2 := NewEncoder(&buf)
-		var count int
+		var tagType byte
 		for {
-			d.scanWhile(scanSkipSpace)
+			t, v := parseLiteral(literal)
+			if tagType == 0 {
+				tagType = t
+			}
+			if t != tagType {
+				return errors.New("different TagType in List")
+			}
+			writeLiteralPayload(e2, v)
+			count++
+
+			// read ',' or ']'
+			if d.opcode == scanSkipSpace {
+				d.scanWhile(scanSkipSpace)
+			}
 			if d.opcode == scanEndValue {
 				break
 			}
-			if d.opcode == scanListValue {
-				// TODO
-				e2.writeInt32(0)
+			if d.opcode != scanListValue {
+				panic(phasePanicMsg)
 			}
+			start = d.readIndex()
+			d.scanNext()
+			d.scanWhile(scanContinue)
+			literal = d.data[start:d.readIndex()]
 		}
-		e.writeListHeader(TagList, tagName, count)
+		e.writeListHeader(tagType, tagName, count)
 		e.w.Write(buf.Bytes())
+	case scanBeginList: // TAG_List<TAG_List>
 	case scanBeginCompound: // TAG_List<TAG_Compound>
 	}
 	return nil
@@ -190,7 +200,7 @@ func (d *decodeState) scanWhile(op int) {
 // parseLiteral parse an SNBT literal, might be
 // TAG_String, TAG_Int, TAG_Float, ... etc.
 // so returned value is one of string, int32, float32 ...
-func parseLiteral(literal []byte) interface{} {
+func parseLiteral(literal []byte) (byte, interface{}) {
 	switch literal[0] {
 	case '"', '\'': // Quoted String
 		var sb strings.Builder
@@ -199,7 +209,7 @@ func parseLiteral(literal []byte) interface{} {
 			c := literal[i]
 			switch c {
 			case literal[0]:
-				return sb.String()
+				return TagString, sb.String()
 			case '\\':
 				i++
 				c = literal[i]
@@ -243,17 +253,17 @@ func parseLiteral(literal []byte) interface{} {
 			}
 			switch numberType {
 			case 'B', 'b':
-				return int8(num)
+				return TagByte, int8(num)
 			case 'S', 's':
-				return int16(num)
+				return TagShort, int16(num)
 			default:
-				return int32(num)
+				return TagInt, int32(num)
 			case 'L', 'l':
-				return num
+				return TagLong, num
 			case 'F', 'f':
-				return float32(num)
+				return TagFloat, float32(num)
 			case 'D', 'd':
-				return float64(num)
+				return TagDouble, float64(num)
 			}
 		} else if number {
 			num, err := strconv.ParseFloat(string(literal[:strlen-1]), 64)
@@ -262,14 +272,14 @@ func parseLiteral(literal []byte) interface{} {
 			}
 			switch numberType {
 			case 'F', 'f':
-				return float32(num)
+				return TagFloat, float32(num)
 			case 'D', 'd':
 				fallthrough
 			default:
-				return num
+				return TagDouble, num
 			}
 		} else if unqstr {
-			return string(literal)
+			return TagString, string(literal)
 		}
 	}
 	panic(phasePanicMsg)
