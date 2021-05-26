@@ -1,6 +1,7 @@
 package nbt
 
 import (
+	"bytes"
 	"math"
 	"strconv"
 	"strings"
@@ -31,7 +32,7 @@ func writeValue(e *Encoder, d *decodeState, tagName string) error {
 	case scanBeginCompound:
 		return writeCompound(e, d, tagName)
 	case scanBeginList:
-		panic("not implemented")
+		return writeListOrArray(e, d, tagName)
 	}
 }
 
@@ -102,6 +103,53 @@ func writeCompound(e *Encoder, d *decodeState, tagName string) error {
 		}
 	}
 	e.w.Write([]byte{TagEnd})
+	return nil
+}
+
+func writeListOrArray(e *Encoder, d *decodeState, tagName string) error {
+	d.scanWhile(scanSkipSpace)
+	if d.opcode == scanEndValue { // ']', empty TAG_List
+		e.writeTag(TagList, tagName)
+		e.writeInt32(0)
+		return nil
+	}
+
+	start := d.readIndex()
+
+	switch d.opcode {
+	case scanBeginLiteral:
+		d.scanWhile(scanContinue)
+		literal := d.data[start:d.readIndex()]
+		if d.opcode == scanListType { // TAG_X_Array
+			//listType := literal[0]
+			break
+		}
+		if d.opcode != scanListValue { // TAG_List<TAG_String>
+			panic(phasePanicMsg)
+		}
+		// TODO
+		parseLiteral(literal)
+		fallthrough
+	case scanBeginList: // TAG_List<TAG_List>
+		// We don't know the length of the List,
+		// so we read them into a buffer and count.
+		var buf bytes.Buffer
+		e2 := NewEncoder(&buf)
+		var count int
+		for {
+			d.scanWhile(scanSkipSpace)
+			if d.opcode == scanEndValue {
+				break
+			}
+			if d.opcode == scanListValue {
+				// TODO
+				e2.writeInt32(0)
+			}
+		}
+		e.writeListHeader(TagList, tagName, count)
+		e.w.Write(buf.Bytes())
+	case scanBeginCompound: // TAG_List<TAG_Compound>
+	}
 	return nil
 }
 

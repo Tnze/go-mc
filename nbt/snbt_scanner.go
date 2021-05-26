@@ -239,7 +239,7 @@ func (s *scanner) stateListOrArray(c byte) int {
 	switch c {
 	case 'B', 'I', 'L':
 		s.step = s.stateListOrArrayT
-		return scanContinue
+		return scanBeginLiteral
 	case ']':
 		return s.stateEndValue(c)
 	default:
