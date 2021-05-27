@@ -9,7 +9,7 @@ func TestSNBT_checkScanCode(t *testing.T) {
 	//t.SkipNow()
 	var s scanner
 	s.reset()
-	for _, c := range []byte(`[{},{a:1b},{}]`) {
+	for _, c := range []byte(`{ ghi: [B; 2B, 3B], klm: []}`) {
 		t.Logf("[%c] - %d", c, s.step(c))
 	}
 	t.Logf("[%c] - %d", ' ', s.eof())
@@ -41,13 +41,14 @@ func TestSNBT_number(t *testing.T) {
 }
 
 //go:embed bigTest_test.snbt
-var bigTest string
+var bigTestSNBT string
 
 func TestSNBT_compound(t *testing.T) {
 	goods := []string{
 		`{}`, `{name:3.14f}`, `{ "name" : 12345 }`,
 		`{ abc: { }}`, `{ "a b\"c": {}, def: 12345}`,
-		bigTest,
+		`{ ghi: [], klm: 1}`,
+		bigTestSNBT,
 	}
 	var s scanner
 	for _, str := range goods {
@@ -67,7 +68,7 @@ func TestSNBT_list(t *testing.T) {
 		`[{}, {}, {"a\"b":520}]`, // List of Compound
 		`[B,C,D]`, `[L, "abc"]`,  // List of string (like array)
 		`[B; 01B, 02B, 3B, 10B, 127B]`, // Array
-		`[I;]`,                         // Empty array
+		`[I;]`, `[B;   ]`,              // Empty array
 	}
 	var s scanner
 	scan := func(str string) bool {

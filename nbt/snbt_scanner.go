@@ -10,10 +10,10 @@ const (
 	scanBeginLiteral           // end implied by next result != scanContinue
 	scanBeginCompound          // begin TAG_Compound (after left-brace )
 	scanBeginList              // begin TAG_List (after left-brack)
-	scanListValue              // just finished read list value
+	scanListValue              // just finished read list value (after comma)
 	scanListType               // just finished read list type (after "B;" or "L;")
 	scanCompoundTagName        // just finished read tag name (before colon)
-	scanCompoundValue          // just finished read value (before comma or right-brace )
+	scanCompoundValue          // just finished read value (after comma)
 	scanSkipSpace              // space byte; can skip; known to be last "continue" result
 	scanEndValue
 
@@ -197,7 +197,7 @@ func (s *scanner) stateInSingleQuotedString(c byte) int {
 
 func (s *scanner) stateInSingleQuotedStringEsc(c byte) int {
 	switch c {
-	case 'b', 'f', 'n', 'r', 't', '\\', '/', '\'':
+	case '\\', '\'':
 		s.step = s.stateInSingleQuotedString
 		return scanContinue
 	}
@@ -256,6 +256,9 @@ func (s *scanner) stateListOrArrayT(c byte) int {
 }
 
 func (s *scanner) stateArrayT(c byte) int {
+	if isSpace(c) {
+		return scanSkipSpace
+	}
 	if c == ']' { // empty array
 		return scanEndValue
 	}
