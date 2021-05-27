@@ -2,7 +2,6 @@ package nbt
 
 import (
 	"errors"
-	"sync"
 )
 
 const (
@@ -45,28 +44,6 @@ type scanner struct {
 func (s *scanner) reset() {
 	s.step = s.stateBeginValue
 	s.parseState = s.parseState[0:0]
-}
-
-var scannerPool = sync.Pool{
-	New: func() interface{} {
-		return &scanner{}
-	},
-}
-
-func newScanner() *scanner {
-	scan := scannerPool.Get().(*scanner)
-	// scan.reset by design doesn't set bytes to zero
-	//scan.bytes = 0
-	scan.reset()
-	return scan
-}
-
-func freeScanner(scan *scanner) {
-	// Avoid hanging on to too much memory in extreme cases.
-	if len(scan.parseState) > 1024 {
-		scan.parseState = nil
-	}
-	scannerPool.Put(scan)
 }
 
 // pushParseState pushes a new parse state p onto the parse stack.
@@ -282,10 +259,6 @@ func (s *scanner) stateNum0(c byte) int {
 		s.step = s.stateNum1
 		return scanContinue
 	}
-	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
-		return scanContinue
-	}
 	return s.stateEndNumValue(c)
 }
 
@@ -296,10 +269,6 @@ func (s *scanner) stateNum1(c byte) int {
 	}
 	if c == '.' {
 		s.step = s.stateNumDot
-		return scanContinue
-	}
-	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
 		return scanContinue
 	}
 	return s.stateEndNumValue(c)
@@ -326,10 +295,6 @@ func (s *scanner) stateNumDot0(c byte) int {
 		s.step = s.stateNumDot0
 		return scanContinue
 	}
-	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
-		return scanContinue
-	}
 	return s.stateEndNumDotValue(c)
 }
 
@@ -346,6 +311,10 @@ func (s *scanner) stateEndNumValue(c byte) int {
 		return scanContinue
 	case 'f', 'F', 'd', 'D':
 		return s.stateEndNumDotValue(c)
+	}
+	if isAllowedInUnquotedString(c) {
+		s.step = s.stateInUnquotedString
+		return scanContinue
 	}
 	return s.stateEndValue(c)
 }
