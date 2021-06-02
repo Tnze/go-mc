@@ -41,13 +41,14 @@ func TestSNBT_number(t *testing.T) {
 }
 
 //go:embed bigTest_test.snbt
-var bigTest string
+var bigTestSNBT string
 
 func TestSNBT_compound(t *testing.T) {
 	goods := []string{
 		`{}`, `{name:3.14f}`, `{ "name" : 12345 }`,
 		`{ abc: { }}`, `{ "a b\"c": {}, def: 12345}`,
-		bigTest,
+		`{ ghi: [], klm: 1}`,
+		bigTestSNBT,
 	}
 	var s scanner
 	for _, str := range goods {
@@ -67,7 +68,7 @@ func TestSNBT_list(t *testing.T) {
 		`[{}, {}, {"a\"b":520}]`, // List of Compound
 		`[B,C,D]`, `[L, "abc"]`,  // List of string (like array)
 		`[B; 01B, 02B, 3B, 10B, 127B]`, // Array
-		`[I;]`,                         // Empty array
+		`[I;]`, `[B;   ]`,              // Empty array
 	}
 	var s scanner
 	scan := func(str string) bool {
@@ -91,10 +92,10 @@ func BenchmarkSNBT_bigTest(b *testing.B) {
 	var s scanner
 	for i := 0; i < b.N; i++ {
 		s.reset()
-		for _, c := range []byte(bigTest) {
+		for _, c := range []byte(bigTestSNBT) {
 			res := s.step(&s, c)
 			if res == scanError {
-				b.Errorf("scan valid data %q error: %v at [%d]", bigTest[:i], s.err, i)
+				b.Errorf("scan valid data %q error: %v at [%d]", bigTestSNBT[:i], s.err, i)
 				break
 			}
 		}

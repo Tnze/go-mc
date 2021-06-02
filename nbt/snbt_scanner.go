@@ -9,10 +9,10 @@ const (
 	scanBeginLiteral           // end implied by next result != scanContinue
 	scanBeginCompound          // begin TAG_Compound (after left-brace )
 	scanBeginList              // begin TAG_List (after left-brack)
-	scanListValue              // just finished read list value
+	scanListValue              // just finished read list value (after comma)
 	scanListType               // just finished read list type (after "B;" or "L;")
 	scanCompoundTagName        // just finished read tag name (before colon)
-	scanCompoundValue          // just finished read value (before comma or right-brace )
+	scanCompoundValue          // just finished read value (after comma)
 	scanSkipSpace              // space byte; can skip; known to be last "continue" result
 	scanEndValue
 
@@ -176,7 +176,7 @@ func stateInSingleQuotedString(s *scanner, c byte) int {
 
 func stateInSingleQuotedStringEsc(s *scanner, c byte) int {
 	switch c {
-	case 'b', 'f', 'n', 'r', 't', '\\', '/', '\'':
+	case '\\', '\'':
 		s.step = stateInSingleQuotedString
 		return scanContinue
 	}
@@ -235,6 +235,9 @@ func stateListOrArrayT(s *scanner, c byte) int {
 }
 
 func stateArrayT(s *scanner, c byte) int {
+	if isSpace(c) {
+		return scanSkipSpace
+	}
 	if c == ']' { // empty array
 		return scanEndValue
 	}
@@ -258,10 +261,6 @@ func stateNum0(s *scanner, c byte) int {
 		s.step = stateNum1
 		return scanContinue
 	}
-	if isAllowedInUnquotedString(c) {
-		s.step = stateInUnquotedString
-		return scanContinue
-	}
 	return stateEndNumValue(s, c)
 }
 
@@ -272,10 +271,6 @@ func stateNum1(s *scanner, c byte) int {
 	}
 	if c == '.' {
 		s.step = stateNumDot
-		return scanContinue
-	}
-	if isAllowedInUnquotedString(c) {
-		s.step = stateInUnquotedString
 		return scanContinue
 	}
 	return stateEndNumValue(s, c)
@@ -302,10 +297,6 @@ func stateNumDot0(s *scanner, c byte) int {
 		s.step = stateNumDot0
 		return scanContinue
 	}
-	if isAllowedInUnquotedString(c) {
-		s.step = stateInUnquotedString
-		return scanContinue
-	}
 	return stateEndNumDotValue(s, c)
 }
 
@@ -322,6 +313,10 @@ func stateEndNumValue(s *scanner, c byte) int {
 		return scanContinue
 	case 'f', 'F', 'd', 'D':
 		return stateEndNumDotValue(s, c)
+	}
+	if isAllowedInUnquotedString(c) {
+		s.step = stateInUnquotedString
+		return scanContinue
 	}
 	return stateEndValue(s, c)
 }

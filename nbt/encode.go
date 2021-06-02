@@ -41,7 +41,7 @@ func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error
 func (e *Encoder) writeHeader(val reflect.Value, tagType byte, tagName string) (err error) {
 	if tagType == TagList {
 		eleType := getTagType(val.Type().Elem())
-		err = e.writeListHeader(eleType, tagName, val.Len())
+		err = e.writeListHeader(eleType, tagName, val.Len(), true)
 	} else {
 		err = e.writeTag(tagType, tagName)
 	}
@@ -224,9 +224,11 @@ func (e *Encoder) writeTag(tagType byte, tagName string) error {
 	return err
 }
 
-func (e *Encoder) writeListHeader(elementType byte, tagName string, n int) (err error) {
-	if err = e.writeTag(TagList, tagName); err != nil {
-		return
+func (e *Encoder) writeListHeader(elementType byte, tagName string, n int, writeTag bool) (err error) {
+	if writeTag {
+		if err = e.writeTag(TagList, tagName); err != nil {
+			return
+		}
 	}
 	if _, err = e.w.Write([]byte{elementType}); err != nil {
 		return
