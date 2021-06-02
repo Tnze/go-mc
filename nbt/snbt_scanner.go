@@ -2,7 +2,6 @@ package nbt
 
 import (
 	"errors"
-	"sync"
 )
 
 const (
@@ -34,7 +33,7 @@ const (
 const maxNestingDepth = 10000
 
 type scanner struct {
-	step       func(c byte) int
+	step       func(s *scanner, c byte) int
 	parseState []int
 	err        error
 	endTop     bool
@@ -43,30 +42,10 @@ type scanner struct {
 // reset prepares the scanner for use.
 // It must be called before calling s.step.
 func (s *scanner) reset() {
-	s.step = s.stateBeginValue
+	s.step = stateBeginValue
 	s.parseState = s.parseState[0:0]
-}
-
-var scannerPool = sync.Pool{
-	New: func() interface{} {
-		return &scanner{}
-	},
-}
-
-func newScanner() *scanner {
-	scan := scannerPool.Get().(*scanner)
-	// scan.reset by design doesn't set bytes to zero
-	//scan.bytes = 0
-	scan.reset()
-	return scan
-}
-
-func freeScanner(scan *scanner) {
-	// Avoid hanging on to too much memory in extreme cases.
-	if len(scan.parseState) > 1024 {
-		scan.parseState = nil
-	}
-	scannerPool.Put(scan)
+	s.err = nil
+	s.endTop = false
 }
 
 // pushParseState pushes a new parse state p onto the parse stack.
@@ -85,10 +64,10 @@ func (s *scanner) popParseState() {
 	n := len(s.parseState) - 1
 	s.parseState = s.parseState[:n]
 	if n == 0 {
-		s.step = s.stateEndTop
+		s.step = stateEndTop
 		s.endTop = true
 	} else {
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 	}
 }
 
@@ -101,7 +80,7 @@ func (s *scanner) eof() int {
 	if s.endTop {
 		return scanEnd
 	}
-	s.step(' ')
+	s.step(s, ' ')
 	if s.endTop {
 		return scanEnd
 	}
@@ -114,7 +93,7 @@ func (s *scanner) eof() int {
 // stateEndTop is the state after finishing the top-level value,
 // such as after reading `{}` or `[1,2,3]`.
 // Only space characters should be seen now.
-func (s *scanner) stateEndTop(c byte) int {
+func stateEndTop(s *scanner, c byte) int {
 	if !isSpace(c) {
 		// Complain about non-space byte on next call.
 		s.error(c, "after top-level value")
@@ -122,195 +101,195 @@ func (s *scanner) stateEndTop(c byte) int {
 	return scanEnd
 }
 
-func (s *scanner) stateBeginValue(c byte) int {
+func stateBeginValue(s *scanner, c byte) int {
 	if isSpace(c) {
-		s.step = s.stateBeginValue
+		s.step = stateBeginValue
 		return scanSkipSpace
 	}
 	switch c {
 	case '{': // beginning of TAG_Compound
-		s.step = s.stateCompoundOrEmpty
+		s.step = stateCompoundOrEmpty
 		return s.pushParseState(c, parseCompoundName, scanBeginCompound)
 	case '[': // beginning of TAG_List
-		s.step = s.stateListOrArray
+		s.step = stateListOrArray
 		return s.pushParseState(c, parseListValue, scanBeginList)
 	case '"', '\'': // beginning of TAG_String
-		return s.stateBeginString(c)
+		return stateBeginString(s, c)
 	case '-': // beginning of negative number
-		s.step = s.stateNeg
+		s.step = stateNeg
 		return scanBeginLiteral
 	default:
 		if isNumber(c) {
-			s.stateNum0(c)
+			stateNum0(s, c)
 			return scanBeginLiteral
 		}
 		if isAllowedInUnquotedString(c) {
-			return s.stateBeginString(c)
+			return stateBeginString(s, c)
 		}
 	}
 	return s.error(c, "looking for beginning of value")
 }
 
-func (s *scanner) stateCompoundOrEmpty(c byte) int {
+func stateCompoundOrEmpty(s *scanner, c byte) int {
 	if isSpace(c) {
 		return scanSkipSpace
 	}
 	if c == '}' {
 		n := len(s.parseState)
 		s.parseState[n-1] = parseCompoundValue
-		return s.stateEndValue(c)
+		return stateEndValue(s, c)
 	}
-	return s.stateBeginString(c)
+	return stateBeginString(s, c)
 }
 
-func (s *scanner) stateBeginString(c byte) int {
+func stateBeginString(s *scanner, c byte) int {
 	if isSpace(c) {
 		return scanSkipSpace
 	}
 	switch c {
 	case '\'':
-		s.step = s.stateInSingleQuotedString
+		s.step = stateInSingleQuotedString
 		return scanBeginLiteral
 	case '"':
-		s.step = s.stateInDoubleQuotedString
+		s.step = stateInDoubleQuotedString
 		return scanBeginLiteral
 	default:
 		if isAllowedInUnquotedString(c) {
-			s.step = s.stateInUnquotedString
+			s.step = stateInUnquotedString
 			return scanBeginLiteral
 		}
 	}
 	return s.error(c, "looking for beginning of string")
 }
 
-func (s *scanner) stateInSingleQuotedString(c byte) int {
+func stateInSingleQuotedString(s *scanner, c byte) int {
 	if c == '\\' {
-		s.step = s.stateInSingleQuotedStringEsc
+		s.step = stateInSingleQuotedStringEsc
 		return scanContinue
 	}
 	if c == '\'' {
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 		return scanContinue
 	}
 	return scanContinue
 }
 
-func (s *scanner) stateInSingleQuotedStringEsc(c byte) int {
+func stateInSingleQuotedStringEsc(s *scanner, c byte) int {
 	switch c {
 	case 'b', 'f', 'n', 'r', 't', '\\', '/', '\'':
-		s.step = s.stateInSingleQuotedString
+		s.step = stateInSingleQuotedString
 		return scanContinue
 	}
 	return s.error(c, "in string escape code")
 }
 
-func (s *scanner) stateInDoubleQuotedString(c byte) int {
+func stateInDoubleQuotedString(s *scanner, c byte) int {
 	if c == '\\' {
-		s.step = s.stateInDqStringEsc
+		s.step = stateInDqStringEsc
 		return scanContinue
 	}
 	if c == '"' {
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 		return scanContinue
 	}
 	return scanContinue
 }
 
-func (s *scanner) stateInDqStringEsc(c byte) int {
+func stateInDqStringEsc(s *scanner, c byte) int {
 	switch c {
 	case 'b', 'f', 'n', 'r', 't', '\\', '/', '"':
-		s.step = s.stateInDoubleQuotedString
+		s.step = stateInDoubleQuotedString
 		return scanContinue
 	}
 	return s.error(c, "in string escape code")
 }
 
-func (s *scanner) stateInUnquotedString(c byte) int {
+func stateInUnquotedString(s *scanner, c byte) int {
 	if isAllowedInUnquotedString(c) {
 		return scanContinue
 	}
-	return s.stateEndValue(c)
+	return stateEndValue(s, c)
 }
 
-func (s *scanner) stateListOrArray(c byte) int {
+func stateListOrArray(s *scanner, c byte) int {
 	if isSpace(c) {
 		return scanSkipSpace
 	}
 	switch c {
 	case 'B', 'I', 'L':
-		s.step = s.stateListOrArrayT
+		s.step = stateListOrArrayT
 		return scanBeginLiteral
 	case ']':
-		return s.stateEndValue(c)
+		return stateEndValue(s, c)
 	default:
-		return s.stateBeginValue(c)
+		return stateBeginValue(s, c)
 	}
 }
 
-func (s *scanner) stateListOrArrayT(c byte) int {
+func stateListOrArrayT(s *scanner, c byte) int {
 	if c == ';' {
-		s.step = s.stateArrayT
+		s.step = stateArrayT
 		return scanListType
 	}
-	return s.stateInUnquotedString(c)
+	return stateInUnquotedString(s, c)
 }
 
-func (s *scanner) stateArrayT(c byte) int {
+func stateArrayT(s *scanner, c byte) int {
 	if c == ']' { // empty array
 		return scanEndValue
 	}
-	return s.stateBeginValue(c)
+	return stateBeginValue(s, c)
 }
 
-func (s *scanner) stateNeg(c byte) int {
+func stateNeg(s *scanner, c byte) int {
 	if isNumber(c) {
-		s.step = s.stateNum0
+		s.step = stateNum0
 		return scanBeginLiteral
 	}
 	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
+		s.step = stateInUnquotedString
 		return scanBeginLiteral
 	}
 	return s.error(c, "not a number after '-'")
 }
 
-func (s *scanner) stateNum0(c byte) int {
+func stateNum0(s *scanner, c byte) int {
 	if isNumber(c) {
-		s.step = s.stateNum1
+		s.step = stateNum1
 		return scanContinue
 	}
 	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
+		s.step = stateInUnquotedString
 		return scanContinue
 	}
-	return s.stateEndNumValue(c)
+	return stateEndNumValue(s, c)
 }
 
-func (s *scanner) stateNum1(c byte) int {
+func stateNum1(s *scanner, c byte) int {
 	if isNumber(c) {
-		s.step = s.stateNum1
+		s.step = stateNum1
 		return scanContinue
 	}
 	if c == '.' {
-		s.step = s.stateNumDot
+		s.step = stateNumDot
 		return scanContinue
 	}
 	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
+		s.step = stateInUnquotedString
 		return scanContinue
 	}
-	return s.stateEndNumValue(c)
+	return stateEndNumValue(s, c)
 }
 
 // stateDot is the state after reading the integer and decimal point in a number,
 // such as after reading `1.`.
-func (s *scanner) stateNumDot(c byte) int {
+func stateNumDot(s *scanner, c byte) int {
 	if isNumber(c) {
-		s.step = s.stateNumDot0
+		s.step = stateNumDot0
 		return scanContinue
 	}
 	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
+		s.step = stateInUnquotedString
 		return scanContinue
 	}
 	return s.error(c, "after decimal point in numeric literal")
@@ -318,54 +297,54 @@ func (s *scanner) stateNumDot(c byte) int {
 
 // stateNumDot0 is the state after reading the integer, decimal point, and subsequent
 // digits of a number, such as after reading `3.14`.
-func (s *scanner) stateNumDot0(c byte) int {
+func stateNumDot0(s *scanner, c byte) int {
 	if isNumber(c) {
-		s.step = s.stateNumDot0
+		s.step = stateNumDot0
 		return scanContinue
 	}
 	if isAllowedInUnquotedString(c) {
-		s.step = s.stateInUnquotedString
+		s.step = stateInUnquotedString
 		return scanContinue
 	}
-	return s.stateEndNumDotValue(c)
+	return stateEndNumDotValue(s, c)
 }
 
-func (s *scanner) stateEndNumValue(c byte) int {
+func stateEndNumValue(s *scanner, c byte) int {
 	switch c {
 	case 'b', 'B': // TAG_Byte
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 		return scanContinue
 	case 's', 'S': // TAG_Short
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 		return scanContinue
 	case 'l', 'L': // TAG_Long
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 		return scanContinue
 	case 'f', 'F', 'd', 'D':
-		return s.stateEndNumDotValue(c)
+		return stateEndNumDotValue(s, c)
 	}
-	return s.stateEndValue(c)
+	return stateEndValue(s, c)
 }
 
-func (s *scanner) stateEndNumDotValue(c byte) int {
+func stateEndNumDotValue(s *scanner, c byte) int {
 	switch c {
 	case 'f', 'F': // TAG_Float
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 		return scanContinue
 	case 'd', 'D': // TAG_Double
-		s.step = s.stateEndValue
+		s.step = stateEndValue
 		return scanContinue
 	}
-	return s.stateEndValue(c)
+	return stateEndValue(s, c)
 }
 
-func (s *scanner) stateEndValue(c byte) int {
+func stateEndValue(s *scanner, c byte) int {
 	n := len(s.parseState)
 	if n == 0 {
 		// Completed top-level before the current byte.
-		s.step = s.stateEndTop
+		s.step = stateEndTop
 		s.endTop = true
-		return s.stateEndTop(c)
+		return stateEndTop(s, c)
 	}
 	if isSpace(c) {
 		return scanSkipSpace
@@ -376,7 +355,7 @@ func (s *scanner) stateEndValue(c byte) int {
 	case parseCompoundName:
 		if c == ':' {
 			s.parseState[n-1] = parseCompoundValue
-			s.step = s.stateBeginValue
+			s.step = stateBeginValue
 			return scanCompoundTagName
 		}
 		return s.error(c, "after compound tag name")
@@ -384,7 +363,7 @@ func (s *scanner) stateEndValue(c byte) int {
 		switch c {
 		case ',':
 			s.parseState[n-1] = parseCompoundName
-			s.step = s.stateBeginString
+			s.step = stateBeginString
 			return scanCompoundValue
 		case '}':
 			s.popParseState()
@@ -394,7 +373,7 @@ func (s *scanner) stateEndValue(c byte) int {
 	case parseListValue:
 		switch c {
 		case ',':
-			s.step = s.stateBeginValue
+			s.step = stateBeginValue
 			return scanListValue
 		case ']':
 			s.popParseState()
@@ -406,14 +385,14 @@ func (s *scanner) stateEndValue(c byte) int {
 }
 
 func (s *scanner) error(c byte, context string) int {
-	s.step = s.stateError
+	s.step = stateError
 	s.err = errors.New(context)
 	return scanError
 }
 
 // stateError is the state after reaching a syntax error,
 // such as after reading `[1}` or `5.1.2`.
-func (s *scanner) stateError(c byte) int {
+func stateError(s *scanner, c byte) int {
 	return scanError
 }
 

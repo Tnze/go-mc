@@ -242,7 +242,7 @@ func (d *decodeState) readIndex() int {
 // scanNext processes the byte at d.data[d.off].
 func (d *decodeState) scanNext() {
 	if d.off < len(d.data) {
-		d.opcode = d.scan.step(d.data[d.off])
+		d.opcode = d.scan.step(&d.scan, d.data[d.off])
 		d.off++
 	} else {
 		//d.opcode = d.scan.eof()
@@ -255,7 +255,7 @@ func (d *decodeState) scanNext() {
 func (d *decodeState) scanWhile(op int) {
 	s, data, i := &d.scan, d.data, d.off
 	for i < len(data) {
-		newOp := s.step(data[i])
+		newOp := s.step(s, data[i])
 		i++
 		if newOp != op {
 			d.opcode = newOp

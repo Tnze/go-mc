@@ -9,8 +9,8 @@ func TestSNBT_checkScanCode(t *testing.T) {
 	//t.SkipNow()
 	var s scanner
 	s.reset()
-	for _, c := range []byte(`[{},{a:1b},{}]`) {
-		t.Logf("[%c] - %d", c, s.step(c))
+	for _, c := range []byte(`[I;123,345]`) {
+		t.Logf("[%c] - %d", c, s.step(&s, c))
 	}
 	t.Logf("[%c] - %d", ' ', s.eof())
 }
@@ -26,7 +26,7 @@ func TestSNBT_number(t *testing.T) {
 	scan := func(str string) bool {
 		s.reset()
 		for _, c := range []byte(str) {
-			res := s.step(c)
+			res := s.step(&s, c)
 			if res == scanError {
 				return false
 			}
@@ -53,7 +53,7 @@ func TestSNBT_compound(t *testing.T) {
 	for _, str := range goods {
 		s.reset()
 		for i, c := range []byte(str) {
-			res := s.step(c)
+			res := s.step(&s, c)
 			if res == scanError {
 				t.Errorf("scan valid data %q error: %v at [%d]", str[:i], s.err, i)
 				break
@@ -73,7 +73,7 @@ func TestSNBT_list(t *testing.T) {
 	scan := func(str string) bool {
 		s.reset()
 		for _, c := range []byte(str) {
-			res := s.step(c)
+			res := s.step(&s, c)
 			if res == scanError {
 				return false
 			}
@@ -83,6 +83,20 @@ func TestSNBT_list(t *testing.T) {
 	for _, str := range goods {
 		if scan(str) == false {
 			t.Errorf("scan valid data %q error: %v", str, s.err)
+		}
+	}
+}
+
+func BenchmarkSNBT_bigTest(b *testing.B) {
+	var s scanner
+	for i := 0; i < b.N; i++ {
+		s.reset()
+		for _, c := range []byte(bigTest) {
+			res := s.step(&s, c)
+			if res == scanError {
+				b.Errorf("scan valid data %q error: %v at [%d]", bigTest[:i], s.err, i)
+				break
+			}
 		}
 	}
 }
