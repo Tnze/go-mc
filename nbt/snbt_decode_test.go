@@ -71,3 +71,15 @@ func TestEncoder_WriteSNBT_bigTest(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func BenchmarkEncoder_WriteSNBT_bigTest(b *testing.B) {
+	var buf bytes.Buffer
+	e := NewEncoder(&buf)
+	for i := 0; i < b.N; i++ {
+		err := e.WriteSNBT(bigTestSNBT)
+		if err != nil {
+			b.Fatal(err)
+		}
+		buf.Reset()
+	}
+}
