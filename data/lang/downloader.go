@@ -32,7 +32,7 @@ func main() {
 	// $latest = $manifest.latest.release
 	// $version = {$manifest.versions[where .id == $latest ].url}
 	// $versionURL = $version.assetIndex.url
-	versionURL := "https://launchermeta.mojang.com/v1/packages/3a5d110a6ab102c7083bae4296d2de4b8fcf92eb/1.16.json"
+	versionURL := "https://launchermeta.mojang.com/v1/packages/15809afbdc4489abd52a3d6c3fda0124f8f3404b/1.17.json"
 	log.Print("start generating lang packages")
 
 	resp, err := http.Get(versionURL)
