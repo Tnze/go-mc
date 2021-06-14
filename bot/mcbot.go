@@ -142,7 +142,28 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 			c.Conn.SetThreshold(int(threshold))
 
 		case packetid.LoginPluginRequest: //Login Plugin Request
-			// TODO: Handle login plugin request
+			var (
+				msgid   pk.VarInt
+				channel pk.Identifier
+				data    pk.ByteArray
+			)
+			if err := p.Scan(&msgid, &channel, &data); err != nil {
+				return LoginErr{"Login Plugin", err}
+			}
+			if handler, ok := c.LoginPlugin[string(channel)]; ok {
+				respdata, err := handler([]byte(data))
+				if err != nil {
+					return LoginErr{"Login Plugin", err}
+				}
+				if err := c.Conn.WritePacket(pk.Marshal(packetid.LoginPluginResponse, msgid, pk.Boolean(true), pk.ByteArray(respdata))); err != nil {
+					return LoginErr{"login Plugin", err}
+				}
+			} else {
+				if err := c.Conn.WritePacket(pk.Marshal(packetid.LoginPluginResponse, msgid, pk.Boolean(false))); err != nil {
+					return LoginErr{"login Plugin", err}
+				}
+			}
+			return nil
 		}
 	}
 }

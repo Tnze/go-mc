@@ -13,8 +13,8 @@ type Client struct {
 	Name string
 	UUID uuid.UUID
 
-	Events Events
-	//TODO: LoginEvents Events
+	Events      Events
+	LoginPlugin map[string]func(data []byte) ([]byte, error)
 }
 
 func (c *Client) Close() error {
