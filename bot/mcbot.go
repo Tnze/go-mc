@@ -163,7 +163,6 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 					return LoginErr{"login Plugin", err}
 				}
 			}
-			return nil
 		}
 	}
 }
