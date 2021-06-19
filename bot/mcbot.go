@@ -145,7 +145,7 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 			var (
 				msgid   pk.VarInt
 				channel pk.Identifier
-				data    pk.ByteArray
+				data    pk.PluginMessageData
 			)
 			if err := p.Scan(&msgid, &channel, &data); err != nil {
 				return LoginErr{"Login Plugin", err}

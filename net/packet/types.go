@@ -70,6 +70,9 @@ type (
 
 	//ByteArray is []byte with prefix VarInt as length
 	ByteArray []byte
+
+	//PluginMessageData is only used in LoginPlugin,and it will read all left bytes
+	PluginMessageData []byte
 )
 
 const MaxVarIntLen = 5
@@ -489,4 +492,16 @@ func (u UUID) WriteTo(w io.Writer) (n int64, err error) {
 func (u *UUID) ReadFrom(r io.Reader) (n int64, err error) {
 	nn, err := io.ReadFull(r, (*u)[:])
 	return int64(nn), err
+}
+
+// Encode a PluginsMessageData
+func (p *PluginMessageData) WriteTo(w io.Writer) (n int64, err error) {
+	nn, err := w.Write(*p)
+	return int64(nn), err
+}
+
+// Decode a PluginsMessageData
+func (p *PluginMessageData) ReadFrom(r io.Reader) (n int64, err error) {
+	*p, err = io.ReadAll(r)
+	return int64(len(*p)), err
 }
