@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	infoURL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.16.2/entities.json"
+	infoURL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.17/entities.json"
 )
 
 type Entity struct {

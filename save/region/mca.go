@@ -125,6 +125,10 @@ func (r *Region) ReadSector(x, y int) (data []byte, err error) {
 		return
 	}
 
+	if length < 0 || length > 1024*1024 {
+		err = errors.New("data too large")
+		return
+	}
 	data = make([]byte, length)
 	_, err = io.ReadFull(r.f, data)
 

@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	infoURL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.16.2/blocks.json"
+	infoURL = "https://raw.githubusercontent.com/PrismarineJS/minecraft-data/master/data/pc/1.17/blocks.json"
 )
 
 type Block struct {
