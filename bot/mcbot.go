@@ -150,18 +150,21 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 			if err := p.Scan(&msgid, &channel, &data); err != nil {
 				return LoginErr{"Login Plugin", err}
 			}
-			if handler, ok := c.LoginPlugin[string(channel)]; ok {
-				respdata, err := handler([]byte(data))
+
+			handler, ok := c.LoginPlugin[string(channel)]
+			if ok {
+				data, err = handler(data)
 				if err != nil {
 					return LoginErr{"Login Plugin", err}
 				}
-				if err := c.Conn.WritePacket(pk.Marshal(packetid.LoginPluginResponse, msgid, pk.Boolean(true), pk.ByteArray(respdata))); err != nil {
-					return LoginErr{"login Plugin", err}
-				}
-			} else {
-				if err := c.Conn.WritePacket(pk.Marshal(packetid.LoginPluginResponse, msgid, pk.Boolean(false))); err != nil {
-					return LoginErr{"login Plugin", err}
-				}
+			}
+
+			if err := c.Conn.WritePacket(pk.Marshal(
+				packetid.LoginPluginResponse,
+				msgid, pk.Boolean(ok),
+				pk.Opt{Has: ok, Field: data},
+			)); err != nil {
+				return LoginErr{"login Plugin", err}
 			}
 		}
 	}
