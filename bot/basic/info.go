@@ -86,6 +86,7 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		pk.Boolean(p.Settings.ChatColors),
 		pk.UnsignedByte(p.Settings.DisplayedSkinParts),
 		pk.VarInt(p.Settings.MainHand),
+		pk.Boolean(p.Settings.DisableTextFiltering),
 	))
 	if err != nil {
 		return Error{err}

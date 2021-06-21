@@ -23,12 +23,13 @@ func (p Player) handleKeepAlivePacket(packet pk.Packet) error {
 
 func (p *Player) handlePlayerPositionAndLook(packet pk.Packet) error {
 	var (
-		X, Y, Z    pk.Double
-		Yaw, Pitch pk.Float
-		Flags      pk.Byte
-		TeleportID pk.VarInt
+		X, Y, Z         pk.Double
+		Yaw, Pitch      pk.Float
+		Flags           pk.Byte
+		TeleportID      pk.VarInt
+		DismountVehicle pk.Boolean
 	)
-	if err := packet.Scan(&X, &Y, &Z, &Yaw, &Pitch, &Flags, &TeleportID); err != nil {
+	if err := packet.Scan(&X, &Y, &Z, &Yaw, &Pitch, &Flags, &TeleportID, &DismountVehicle); err != nil {
 		return Error{err}
 	}
 

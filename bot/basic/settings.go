@@ -9,6 +9,10 @@ type Settings struct {
 	DisplayedSkinParts uint8  //皮肤显示
 	MainHand           int    //主手
 
+	// Disables filtering of text on signs and written book titles.
+	// Currently always true in vanilla client (i.e. the filtering is disabled)
+	DisableTextFiltering bool
+
 	Brand string // The brand string presented to the server.
 }
 
