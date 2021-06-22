@@ -2,7 +2,6 @@ package nbt
 
 import (
 	"bytes"
-	"errors"
 	"math"
 	"strconv"
 	"strings"
@@ -10,7 +9,7 @@ import (
 
 type decodeState struct {
 	data   []byte
-	off    int // next read offset in data
+	off    int // next read Offset in data
 	opcode int // last read result
 	scan   scanner
 }
@@ -26,18 +25,25 @@ func (e *Encoder) WriteSNBT(snbt string) error {
 func writeValue(e *Encoder, d *decodeState, tagName string) error {
 	d.scanWhile(scanSkipSpace)
 	switch d.opcode {
+	case scanError:
+		return d.error(d.scan.errContext)
 	default:
 		panic(phasePanicMsg)
+
 	case scanBeginLiteral:
 		start := d.readIndex()
-		d.scanWhile(scanContinue)
+		if d.scanWhile(scanContinue); d.opcode == scanError {
+			return d.error(d.scan.errContext)
+		}
 		literal := d.data[start:d.readIndex()]
 		tagType, litVal := parseLiteral(literal)
 		e.writeTag(tagType, tagName)
 		return writeLiteralPayload(e, litVal)
+
 	case scanBeginCompound:
 		e.writeTag(TagCompound, tagName)
 		return writeCompoundPayload(e, d)
+
 	case scanBeginList:
 		_, err := writeListOrArray(e, d, true, tagName)
 		return err
@@ -73,12 +79,17 @@ func writeCompoundPayload(e *Encoder, d *decodeState) error {
 		if d.opcode == scanEndValue {
 			break
 		}
+		if d.opcode == scanError {
+			return d.error(d.scan.errContext)
+		}
 		if d.opcode != scanBeginLiteral {
 			panic(phasePanicMsg)
 		}
 		// read tag name
 		start := d.readIndex()
-		d.scanWhile(scanContinue)
+		if d.scanWhile(scanContinue); d.opcode == scanError {
+			return d.error(d.scan.errContext)
+		}
 		var tagName string
 		if tt, v := parseLiteral(d.data[start:d.readIndex()]); tt == TagString {
 			tagName = v.(string)
@@ -89,6 +100,9 @@ func writeCompoundPayload(e *Encoder, d *decodeState) error {
 		if d.opcode == scanSkipSpace {
 			d.scanWhile(scanSkipSpace)
 		}
+		if d.opcode == scanError {
+			return d.error(d.scan.errContext)
+		}
 		if d.opcode != scanCompoundTagName {
 			panic(phasePanicMsg)
 		}
@@ -97,6 +111,9 @@ func writeCompoundPayload(e *Encoder, d *decodeState) error {
 		// Next token must be , or }.
 		if d.opcode == scanSkipSpace {
 			d.scanWhile(scanSkipSpace)
+		}
+		if d.opcode == scanError {
+			return d.error(d.scan.errContext)
 		}
 		if d.opcode == scanEndValue {
 			break
@@ -126,10 +143,15 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 
 	switch d.opcode {
 	case scanBeginLiteral:
-		d.scanWhile(scanContinue)
+		if d.scanWhile(scanContinue); d.opcode == scanError {
+			return TagList, d.error(d.scan.errContext)
+		}
 		literal := d.data[start:d.readIndex()]
 		if d.opcode == scanSkipSpace {
 			d.scanWhile(scanSkipSpace)
+		}
+		if d.opcode == scanError {
+			return tagType, d.error(d.scan.errContext)
 		}
 		if d.opcode == scanListType { // TAG_X_Array
 			var elemType byte
@@ -144,7 +166,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 				tagType = TagLongArray
 				elemType = TagLong
 			default:
-				return TagList, errors.New("unknown Array type")
+				return TagList, d.error("unknown Array type")
 			}
 			if writeTag {
 				e.writeTag(tagType, tagName)
@@ -163,15 +185,17 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 					d.scanWhile(scanSkipSpace)
 				}
 				if d.opcode != scanBeginLiteral {
-					return tagType, errors.New("not literal in Array")
+					return tagType, d.error("not literal in Array")
 				}
 				start := d.readIndex()
 
-				d.scanWhile(scanContinue)
+				if d.scanWhile(scanContinue); d.opcode == scanError {
+					return tagType, d.error(d.scan.errContext)
+				}
 				literal := d.data[start:d.readIndex()]
 				tagType, litVal := parseLiteral(literal)
 				if tagType != elemType {
-					return tagType, errors.New("unexpected element type in TAG_Array")
+					return tagType, d.error("unexpected element type in TAG_Array")
 				}
 				switch elemType {
 				case TagByte:
@@ -185,6 +209,9 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 
 				if d.opcode == scanSkipSpace {
 					d.scanWhile(scanSkipSpace)
+				}
+				if d.opcode == scanError {
+					return tagType, d.error(d.scan.errContext)
 				}
 				if d.opcode == scanEndValue { // ]
 					break
@@ -208,7 +235,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 				tagType = t
 			}
 			if t != tagType {
-				return TagList, errors.New("different TagType in List")
+				return TagList, d.error("different TagType in List")
 			}
 			writeLiteralPayload(e2, v)
 			count++
@@ -216,6 +243,9 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			// read ',' or ']'
 			if d.opcode == scanSkipSpace {
 				d.scanWhile(scanSkipSpace)
+			}
+			if d.opcode == scanError {
+				return tagType, d.error(d.scan.errContext)
 			}
 			if d.opcode == scanEndValue {
 				break
@@ -225,7 +255,9 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			}
 			d.scanWhile(scanSkipSpace)
 			start = d.readIndex()
-			d.scanWhile(scanContinue)
+			if d.scanWhile(scanContinue); d.opcode == scanError {
+				return tagType, d.error(d.scan.errContext)
+			}
 			literal = d.data[start:d.readIndex()]
 		}
 		e.writeListHeader(tagType, tagName, count, writeTag)
@@ -237,7 +269,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 				d.scanWhile(scanSkipSpace)
 			}
 			if d.opcode != scanBeginList {
-				return TagList, errors.New("different TagType in List")
+				return TagList, d.error("different TagType in List")
 			}
 			elemType, err = writeListOrArray(e2, d, false, "")
 			if err != nil {
@@ -246,6 +278,9 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			count++
 			if d.opcode == scanSkipSpace {
 				d.scanWhile(scanSkipSpace)
+			}
+			if d.opcode == scanError {
+				return tagType, d.error(d.scan.errContext)
 			}
 			// ',' or ']'
 			if d.opcode == scanEndValue {
@@ -265,7 +300,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 				d.scanWhile(scanSkipSpace)
 			}
 			if d.opcode != scanBeginCompound {
-				return TagList, errors.New("different TagType in List")
+				return TagList, d.error("different TagType in List")
 			}
 			writeCompoundPayload(e2, d)
 			count++
@@ -275,6 +310,9 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			// read ',' or ']'
 			if d.opcode == scanSkipSpace {
 				d.scanWhile(scanSkipSpace)
+			}
+			if d.opcode == scanError {
+				return tagType, d.error(d.scan.errContext)
 			}
 			if d.opcode == scanEndValue {
 				break
@@ -414,6 +452,10 @@ func parseLiteral(literal []byte) (byte, interface{}) {
 	panic(phasePanicMsg)
 }
 
+func (d *decodeState) error(msg string) *SyntaxError {
+	return &SyntaxError{Message: msg, Offset: d.off}
+}
+
 func isIntegerType(c byte) bool {
 	return isFloatType(c) ||
 		c == 'B' || c == 'b' ||
@@ -424,3 +466,10 @@ func isIntegerType(c byte) bool {
 func isFloatType(c byte) bool {
 	return c == 'F' || c == 'f' || c == 'D' || c == 'd'
 }
+
+type SyntaxError struct {
+	Message string
+	Offset  int
+}
+
+func (e *SyntaxError) Error() string { return e.Message }

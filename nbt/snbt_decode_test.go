@@ -2,6 +2,7 @@ package nbt
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 )
 
@@ -81,5 +82,30 @@ func BenchmarkEncoder_WriteSNBT_bigTest(b *testing.B) {
 			b.Fatal(err)
 		}
 		buf.Reset()
+	}
+}
+
+func Test_WriteSNBT_nestingList(t *testing.T) {
+	var buf bytes.Buffer
+	e := NewEncoder(&buf)
+
+	// Our maximum supported nesting depth is 10000.
+	// The nesting depth of 10001 is 10000
+	err := e.WriteSNBT(strings.Repeat("[", 10001) + strings.Repeat("]", 10001))
+	if err != nil {
+		t.Error(err)
+	}
+
+	// Following code should return error instant of panic.
+	buf.Reset()
+	err = e.WriteSNBT(strings.Repeat("[", 10002) + strings.Repeat("]", 10002))
+	if err == nil {
+		t.Error("Exceeded the maximum depth of support, but no error was reported")
+	}
+	// Panic test
+	buf.Reset()
+	err = e.WriteSNBT(strings.Repeat("[", 20000) + strings.Repeat("]", 20000))
+	if err == nil {
+		t.Error("Exceeded the maximum depth of support, but no error was reported")
 	}
 }

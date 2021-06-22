@@ -1,8 +1,6 @@
 package nbt
 
-import (
-	"errors"
-)
+import "strconv"
 
 const (
 	scanContinue        = iota // uninteresting byte
@@ -35,7 +33,7 @@ const maxNestingDepth = 10000
 type scanner struct {
 	step       func(s *scanner, c byte) int
 	parseState []int
-	err        error
+	errContext string
 	endTop     bool
 }
 
@@ -44,7 +42,7 @@ type scanner struct {
 func (s *scanner) reset() {
 	s.step = stateBeginValue
 	s.parseState = s.parseState[0:0]
-	s.err = nil
+	s.errContext = ""
 	s.endTop = false
 }
 
@@ -74,7 +72,7 @@ func (s *scanner) popParseState() {
 // eof tells the scanner that the end of input has been reached.
 // It returns a scan status just as s.step does.
 func (s *scanner) eof() int {
-	if s.err != nil {
+	if s.errContext != "" {
 		return scanError
 	}
 	if s.endTop {
@@ -84,8 +82,8 @@ func (s *scanner) eof() int {
 	if s.endTop {
 		return scanEnd
 	}
-	if s.err == nil {
-		s.err = errors.New("unexpected end of JSON input")
+	if s.errContext == "" {
+		s.errContext = "unexpected end of JSON input"
 	}
 	return scanError
 }
@@ -381,13 +379,13 @@ func stateEndValue(s *scanner, c byte) int {
 
 func (s *scanner) error(c byte, context string) int {
 	s.step = stateError
-	s.err = errors.New(context)
+	s.errContext = "invalid character " + quoteChar(c) + " " + context
 	return scanError
 }
 
 // stateError is the state after reaching a syntax error,
 // such as after reading `[1}` or `5.1.2`.
-func stateError(s *scanner, c byte) int {
+func stateError(*scanner, byte) int {
 	return scanError
 }
 
@@ -405,4 +403,19 @@ func isAllowedInUnquotedString(c byte) bool {
 		c >= '0' && c <= '9' ||
 		c >= 'A' && c <= 'Z' ||
 		c >= 'a' && c <= 'z'
+}
+
+// quoteChar formats c as a quoted character literal
+func quoteChar(c byte) string {
+	// special cases - different from quoted strings
+	if c == '\'' {
+		return `'\''`
+	}
+	if c == '"' {
+		return `'"'`
+	}
+
+	// use quoted string with different quotation marks
+	s := strconv.Quote(string(c))
+	return "'" + s[1:len(s)-1] + "'"
 }
