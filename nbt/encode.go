@@ -1,6 +1,7 @@
 package nbt
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -10,8 +11,10 @@ import (
 	"strings"
 )
 
-func Marshal(w io.Writer, v interface{}, optionalTagName ...string) error {
-	return NewEncoder(w).Encode(v, optionalTagName...)
+func Marshal(v interface{}, optionalTagName ...string) ([]byte, error) {
+	var buf bytes.Buffer
+	err := NewEncoder(&buf).Encode(v, optionalTagName...)
+	return buf.Bytes(), err
 }
 
 type Encoder struct {

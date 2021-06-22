@@ -17,11 +17,10 @@ func TestMarshal_IntArray(t *testing.T) {
 		0xff, 0xff, 0xff, 0xf6,
 		0x00, 0x00, 0x00, 0x03,
 	}
-	var buf bytes.Buffer
-	if err := Marshal(&buf, v); err != nil {
+	if data, err := Marshal(v); err != nil {
 		t.Error(err)
-	} else if !bytes.Equal(buf.Bytes(), out) {
-		t.Errorf("output binary not right: get % 02x, want % 02x ", buf.Bytes(), out)
+	} else if !bytes.Equal(data, out) {
+		t.Errorf("output binary not right: get % 02x, want % 02x ", data, out)
 	}
 
 	// Test marshal in a struct
@@ -35,11 +34,10 @@ func TestMarshal_IntArray(t *testing.T) {
 		0x00, 0x00, 0x00, 0x03, // 3
 		TagEnd,
 	}
-	buf.Reset()
-	if err := Marshal(&buf, v2); err != nil {
+	if data, err := Marshal(v2); err != nil {
 		t.Error(err)
-	} else if !bytes.Equal(buf.Bytes(), out) {
-		t.Errorf("output binary not right: get % 02x, want % 02x ", buf.Bytes(), out)
+	} else if !bytes.Equal(data, out) {
+		t.Errorf("output binary not right: get % 02x, want % 02x ", data, out)
 	}
 }
 
@@ -51,11 +49,10 @@ func TestMarshal_FloatArray(t *testing.T) {
 		0xc2, 0xc8, 0x00, 0x00, // -100
 		0x7f, 0xc0, 0x00, 0x00, // NaN
 	}
-	var buf bytes.Buffer
-	if err := Marshal(&buf, v); err != nil {
+	if data, err := Marshal(v); err != nil {
 		t.Error(err)
-	} else if !bytes.Equal(buf.Bytes(), out) {
-		t.Errorf("output binary not right: get % 02x, want % 02x ", buf.Bytes(), out)
+	} else if !bytes.Equal(data, out) {
+		t.Errorf("output binary not right: get % 02x, want % 02x ", data, out)
 	}
 }
 
@@ -64,11 +61,10 @@ func TestMarshal_String(t *testing.T) {
 	out := []byte{TagString, 0x00, 0x00, 0, 4,
 		'T', 'e', 's', 't'}
 
-	var buf bytes.Buffer
-	if err := Marshal(&buf, v); err != nil {
+	if data, err := Marshal(v); err != nil {
 		t.Error(err)
-	} else if !bytes.Equal(buf.Bytes(), out) {
-		t.Errorf("output binary not right: got % 02x, want % 02x ", buf.Bytes(), out)
+	} else if !bytes.Equal(data, out) {
+		t.Errorf("output binary not right: got % 02x, want % 02x ", data, out)
 	}
 }
 
@@ -103,12 +99,11 @@ func TestMarshal_InterfaceArray(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := &bytes.Buffer{}
-			err := Marshal(w, tt.args)
+			data, err := Marshal(tt.args)
 			if err != nil {
 				t.Error(err)
-			} else if !bytes.Equal(w.Bytes(), tt.want) {
-				t.Errorf("Marshal([]interface{}) got = % 02x, want % 02x", w.Bytes(), tt.want)
+			} else if !bytes.Equal(data, tt.want) {
+				t.Errorf("Marshal([]interface{}) got = % 02x, want % 02x", data, tt.want)
 				return
 			}
 		})
@@ -158,12 +153,11 @@ func TestMarshal_StructArray(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			w := &bytes.Buffer{}
-			err := Marshal(w, tt.args)
+			data, err := Marshal(tt.args)
 			if err != nil {
 				t.Error(err)
-			} else if !bytes.Equal(w.Bytes(), tt.want) {
-				t.Errorf("Marshal([]struct{}) got = % 02x, want % 02x", w.Bytes(), tt.want)
+			} else if !bytes.Equal(data, tt.want) {
+				t.Errorf("Marshal([]struct{}) got = % 02x, want % 02x", data, tt.want)
 				return
 			}
 		})
@@ -171,8 +165,7 @@ func TestMarshal_StructArray(t *testing.T) {
 }
 
 func TestMarshal_bigTest(t *testing.T) {
-	var b bytes.Buffer
-	err := Marshal(&b, MakeBigTestStruct(), "Level")
+	data, err := Marshal(MakeBigTestStruct(), "Level")
 	if err != nil {
 		t.Error(err)
 	}
@@ -183,8 +176,8 @@ func TestMarshal_bigTest(t *testing.T) {
 		t.Error(err)
 	}
 
-	if !bytes.Equal(b.Bytes(), want) {
-		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", b.Bytes(), want)
+	if !bytes.Equal(data, want) {
+		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", data, want)
 	}
 }
 
@@ -194,8 +187,8 @@ func TestMarshal_map(t *testing.T) {
 		"Xi_Xi_Mi": {0, 0, 4, 7, 2},
 	}
 
-	var buf bytes.Buffer
-	if err := Marshal(&buf, v); err != nil {
+	b, err := Marshal(v)
+	if err != nil {
 		t.Fatal(err)
 	}
 
@@ -204,7 +197,7 @@ func TestMarshal_map(t *testing.T) {
 		XXM  []int32 `nbt:"Xi_Xi_Mi"`
 	}
 
-	if err := NewDecoder(&buf).Decode(&data); err != nil {
+	if err := NewDecoder(bytes.NewReader(b)).Decode(&data); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(data.Tnze, v["Tnze"]) {
