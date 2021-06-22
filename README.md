@@ -12,7 +12,7 @@ There's some library in Go support you to create your Minecraft client or server
 
 - [x] Chat Message (Support Json or old `§`)
 - [x] NBT (Based on reflection)
-- [ ] SNBT -> NBT
+- [x] SNBT -> NBT
 - [x] Yggdrasil
 - [x] Realms Server
 - [x] RCON protocol (Server & Client)
