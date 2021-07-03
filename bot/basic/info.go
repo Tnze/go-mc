@@ -4,6 +4,7 @@ import (
 	"unsafe"
 
 	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -47,8 +48,8 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		(*pk.Byte)(&p.PrevGamemode),
 		&WorldCount,
 		pk.Ary{Len: &WorldCount, Ary: &WorldNames},
-		pk.NBT(new(interface{})),
-		pk.NBT(new(interface{})),
+		pk.NBT(new(nbt.RawMessage)),
+		pk.NBT(new(nbt.RawMessage)),
 		(*pk.Identifier)(&p.WorldName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.VarInt)(&p.MaxPlayers),

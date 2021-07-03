@@ -1,7 +1,5 @@
 // Daze could join an offline-mode server as client.
 // Just standing there and do nothing. Automatically reborn after five seconds of death.
-//
-// BUG(Tnze): Kick by Disconnect: Time Out
 package main
 
 import (
@@ -14,6 +12,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
+	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/zh-cn"
 )
@@ -33,6 +32,7 @@ func main() {
 		Disconnect: onDisconnect,
 		Death:      onDeath,
 	}.Attach(client)
+	_ = screen.NewManager(client)
 
 	//Login
 	err := client.JoinServer(*address)

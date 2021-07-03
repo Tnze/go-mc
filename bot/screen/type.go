@@ -1,5 +1,4 @@
-// Package inv maps window types to inventory slot information.
-package inv
+package screen
 
 type Info struct {
 	Name       string

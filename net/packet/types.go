@@ -441,20 +441,23 @@ type nbtField struct {
 	FieldName string
 }
 
-// Encode a nbtField
 func (n nbtField) WriteTo(w io.Writer) (int64, error) {
 	var buf bytes.Buffer
-	if err := nbt.NewEncoder(&buf).Encode(n.V, n.FieldName); err != nil {
+	if n.V == nil {
+		buf.WriteByte(nbt.TagEnd)
+	} else if err := nbt.NewEncoder(&buf).Encode(n.V, n.FieldName); err != nil {
 		return 0, err
 	}
 	return buf.WriteTo(w)
 }
 
-// Decode a nbtField
 func (n nbtField) ReadFrom(r io.Reader) (int64, error) {
 	// LimitReader is used to count reader length
 	lr := &io.LimitedReader{R: r, N: math.MaxInt64}
 	err := nbt.NewDecoder(lr).Decode(n.V)
+	if err != nil && errors.Is(err, nbt.ErrEND) {
+		err = nil
+	}
 	return math.MaxInt64 - lr.N, err
 }
 

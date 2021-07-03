@@ -6,6 +6,7 @@ import (
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -18,6 +19,7 @@ func NewManager(c *bot.Client) *Manager {
 	m.Screens[0] = &Inventory{}
 	c.Events.AddListener(
 		bot.PacketHandler{Priority: 64, ID: packetid.OpenWindow, F: m.onOpenScreen},
+		bot.PacketHandler{Priority: 64, ID: packetid.WindowItems, F: m.onSetContentPacket},
 	)
 	return m
 }
@@ -60,7 +62,7 @@ type slot struct {
 	present pk.Boolean
 	id      pk.VarInt
 	count   pk.Byte
-	nbt     interface{}
+	nbt     nbt.RawMessage
 }
 
 func (s *slot) ReadFrom(r io.Reader) (n int64, err error) {
@@ -74,7 +76,7 @@ func (s *slot) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 type Container interface {
-	SetSlot(i int, id int32, count byte, NBT interface{})
+	SetSlot(i int, id int32, count byte, NBT nbt.RawMessage)
 }
 
 type Error struct {
