@@ -18,7 +18,6 @@ func (d *Decoder) Decode(v interface{}) error {
 	if val.Kind() != reflect.Ptr {
 		return errors.New("nbt: non-pointer passed to Unmarshal")
 	}
-
 	//start read NBT
 	tagType, tagName, err := d.readTag()
 	if err != nil {
@@ -29,7 +28,9 @@ func (d *Decoder) Decode(v interface{}) error {
 		return fmt.Errorf("nbt: unknown Tag, maybe need %s", c)
 	}
 
-	err = d.unmarshal(val.Elem(), tagType, tagName)
+	// We decode val not val.Elem because the Unmarshaler interface
+	// test must be applied at the top level of the value.
+	err = d.unmarshal(val, tagType, tagName)
 	if err != nil {
 		return fmt.Errorf("nbt: fail to decode tag %q: %w", tagName, err)
 	}
@@ -55,6 +56,8 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 			return i.Unmarshal(tagType, tagName, d.r)
 		}
 	}
+	// TODO: use function like json.indirect() to handle pointer better
+	val = val.Elem()
 
 	switch tagType {
 	default:
@@ -355,6 +358,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 	return nil
 }
 
+// rawRead read and discard a value
 func (d *Decoder) rawRead(tagType byte) error {
 	var buf [8]byte
 	switch tagType {
