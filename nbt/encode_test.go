@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestMarshal_IntArray(t *testing.T) {
+func TestEncoder_Encode_intArray(t *testing.T) {
 	// Test marshal pure Int array
 	v := []int32{0, -10, 3}
 	out := []byte{TagIntArray, 0x00, 0x00, 0, 0, 0, 3,
@@ -41,7 +41,7 @@ func TestMarshal_IntArray(t *testing.T) {
 	}
 }
 
-func TestMarshal_FloatArray(t *testing.T) {
+func TestEncoder_Encode_floatArray(t *testing.T) {
 	// Test marshal pure Int array
 	v := []float32{0.3, -100, float32(math.NaN())}
 	out := []byte{TagList, 0x00, 0x00, TagFloat, 0, 0, 0, 3,
@@ -56,7 +56,7 @@ func TestMarshal_FloatArray(t *testing.T) {
 	}
 }
 
-func TestMarshal_String(t *testing.T) {
+func TestEncoder_Encode_string(t *testing.T) {
 	v := "Test"
 	out := []byte{TagString, 0x00, 0x00, 0, 4,
 		'T', 'e', 's', 't'}
@@ -68,7 +68,7 @@ func TestMarshal_String(t *testing.T) {
 	}
 }
 
-func TestMarshal_InterfaceArray(t *testing.T) {
+func TestEncoder_Encode_interfaceArray(t *testing.T) {
 	type Struct1 struct {
 		Val int32
 	}
@@ -110,7 +110,7 @@ func TestMarshal_InterfaceArray(t *testing.T) {
 	}
 }
 
-func TestMarshal_StructArray(t *testing.T) {
+func TestEncoder_Encode_structArray(t *testing.T) {
 	type Struct1 struct {
 		Val int32
 	}
@@ -164,9 +164,9 @@ func TestMarshal_StructArray(t *testing.T) {
 	}
 }
 
-func TestMarshal_bigTest(t *testing.T) {
-	data, err := Marshal(MakeBigTestStruct(), "Level")
-	if err != nil {
+func TestEncoder_Encode_bigTest(t *testing.T) {
+	var buf bytes.Buffer
+	if err := NewEncoder(&buf).Encode(MakeBigTestStruct(), "Level"); err != nil {
 		t.Error(err)
 	}
 
@@ -176,12 +176,12 @@ func TestMarshal_bigTest(t *testing.T) {
 		t.Error(err)
 	}
 
-	if !bytes.Equal(data, want) {
-		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", data, want)
+	if !bytes.Equal(buf.Bytes(), want) {
+		t.Errorf("got:\n[% 2x]\nwant:\n[% 2x]", buf.Bytes(), want)
 	}
 }
 
-func TestMarshal_map(t *testing.T) {
+func TestEncoder_Encode_map(t *testing.T) {
 	v := map[string][]int32{
 		"Tnze":     {1, 2, 3, 4, 5},
 		"Xi_Xi_Mi": {0, 0, 4, 7, 2},
@@ -197,7 +197,7 @@ func TestMarshal_map(t *testing.T) {
 		XXM  []int32 `nbt:"Xi_Xi_Mi"`
 	}
 
-	if err := NewDecoder(bytes.NewReader(b)).Decode(&data); err != nil {
+	if _, err := NewDecoder(bytes.NewReader(b)).Decode(&data); err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(data.Tnze, v["Tnze"]) {
@@ -205,5 +205,28 @@ func TestMarshal_map(t *testing.T) {
 	}
 	if !reflect.DeepEqual(data.XXM, v["Xi_Xi_Mi"]) {
 		t.Fatalf("Marshal map error: got: %#v, want %#v", data.XXM, v["Xi_Xi_Mi"])
+	}
+}
+
+func TestEncoder_Encode_rawMessage(t *testing.T) {
+	data := []byte{
+		TagCompound, 0, 2, 'a', 'b',
+		TagInt, 0, 3, 'K', 'e', 'y', 0, 0, 0, 12,
+		TagString, 0, 5, 'V', 'a', 'l', 'u', 'e', 0, 4, 'T', 'n', 'z', 'e',
+		TagEnd,
+	}
+	var container struct {
+		Key   int32
+		Value RawMessage
+	}
+	container.Key = 12
+	container.Value.Type = TagString
+	container.Value.Data = []byte{0, 4, 'T', 'n', 'z', 'e'}
+
+	var buf bytes.Buffer
+	if err := NewEncoder(&buf).Encode(container, "ab"); err != nil {
+		t.Fatalf("Encode error: %v", err)
+	} else if !bytes.Equal(data, buf.Bytes()) {
+		t.Fatalf("Encode error: want %v, get: %v", data, buf.Bytes())
 	}
 }

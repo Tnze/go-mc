@@ -66,6 +66,6 @@ func (c *Column) Load(data []byte) (err error) {
 		return err
 	}
 
-	err = nbt.NewDecoder(r).Decode(c)
+	_, err = nbt.NewDecoder(r).Decode(c)
 	return
 }

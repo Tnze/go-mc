@@ -79,7 +79,7 @@ type Item struct {
 }
 
 func ReadPlayerData(r io.Reader) (data PlayerData, err error) {
-	err = nbt.NewDecoder(r).Decode(&data)
+	_, err = nbt.NewDecoder(r).Decode(&data)
 	//parse UUID from two int64s
 	binary.BigEndian.PutUint64(data.UUID[:], uint64(data.UUIDMost))
 	binary.BigEndian.PutUint64(data.UUID[8:], uint64(data.UUIDLeast))

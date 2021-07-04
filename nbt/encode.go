@@ -11,9 +11,9 @@ import (
 	"strings"
 )
 
-func Marshal(v interface{}, optionalTagName ...string) ([]byte, error) {
+func Marshal(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
-	err := NewEncoder(&buf).Encode(v, optionalTagName...)
+	err := NewEncoder(&buf).Encode(v, "")
 	return buf.Bytes(), err
 }
 
@@ -25,25 +25,31 @@ func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
 }
 
-func (e *Encoder) Encode(v interface{}, optionalTagName ...string) error {
+func (e *Encoder) Encode(v interface{}, tagName string) error {
 	val := reflect.ValueOf(v)
-	var tagName string
-	if len(optionalTagName) > 0 {
-		tagName = optionalTagName[0]
-	}
-	return e.marshal(val, getTagType(val.Type()), tagName)
+	return e.marshal(val, getTagType(val), tagName)
 }
 
 func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error {
 	if err := e.writeHeader(val, tagType, tagName); err != nil {
 		return err
 	}
+	if val.CanInterface() {
+		if encoder, ok := val.Interface().(NBTEncoder); ok {
+			return encoder.Encode(e.w)
+		}
+	}
 	return e.writeValue(val, tagType)
 }
 
 func (e *Encoder) writeHeader(val reflect.Value, tagType byte, tagName string) (err error) {
 	if tagType == TagList {
-		eleType := getTagType(val.Type().Elem())
+		var eleType byte
+		if val.Len() > 0 {
+			eleType = getTagType(val.Index(0))
+		} else {
+			eleType = getTagTypeByType(val.Type().Elem())
+		}
 		err = e.writeListHeader(eleType, tagName, val.Len(), true)
 	} else {
 		err = e.writeTag(tagType, tagName)
@@ -96,7 +102,7 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 	case TagList:
 		for i := 0; i < val.Len(); i++ {
 			arrVal := val.Index(i)
-			err := e.writeValue(arrVal, getTagType(arrVal.Type()))
+			err := e.writeValue(arrVal, getTagType(arrVal))
 			if err != nil {
 				return err
 			}
@@ -119,12 +125,13 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 			n := val.NumField()
 			for i := 0; i < n; i++ {
 				f := val.Type().Field(i)
+				v := val.Field(i)
 				tag := f.Tag.Get("nbt")
 				if (f.PkgPath != "" && !f.Anonymous) || tag == "-" {
 					continue // Private field
 				}
 
-				tagProps := parseTag(f, tag)
+				tagProps := parseTag(f, v, tag)
 				if err := e.marshal(val.Field(i), tagProps.Type, tagProps.Name); err != nil {
 					return err
 				}
@@ -139,7 +146,7 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 					tagName = r.Key().String()
 				}
 				tagValue := r.Value()
-				tagType := getTagType(tagValue.Type())
+				tagType := getTagType(tagValue)
 				if tagType == TagNone {
 					return errors.New("unsupported value " + tagValue.String())
 				}
@@ -156,7 +163,36 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 	return nil
 }
 
-func getTagType(vk reflect.Type) byte {
+func getTagType(v reflect.Value) byte {
+	if v.CanInterface() {
+		if encoder, ok := v.Interface().(NBTEncoder); ok {
+			return encoder.TagType()
+		}
+	}
+	switch v.Kind() {
+	case reflect.Array, reflect.Slice:
+		var elemType byte
+		if v.Len() > 0 {
+			elemType = getTagType(v.Index(0))
+		} else {
+			elemType = getTagTypeByType(v.Type().Elem())
+		}
+		switch elemType {
+		case TagByte: // Special types for these values
+			return TagByteArray
+		case TagInt:
+			return TagIntArray
+		case TagLong:
+			return TagLongArray
+		default:
+			return TagList
+		}
+	default:
+		return getTagTypeByType(v.Type())
+	}
+}
+
+func getTagTypeByType(vk reflect.Type) byte {
 	switch vk.Kind() {
 	case reflect.Uint8:
 		return TagByte
@@ -174,17 +210,6 @@ func getTagType(vk reflect.Type) byte {
 		return TagString
 	case reflect.Struct, reflect.Interface, reflect.Map:
 		return TagCompound
-	case reflect.Array, reflect.Slice:
-		switch vk.Elem().Kind() {
-		case reflect.Uint8: // Special types for these values
-			return TagByteArray
-		case reflect.Int32:
-			return TagIntArray
-		case reflect.Int64:
-			return TagLongArray
-		default:
-			return TagList
-		}
 	default:
 		return TagNone
 	}
@@ -195,7 +220,7 @@ type tagProps struct {
 	Type byte
 }
 
-func parseTag(f reflect.StructField, tagName string) tagProps {
+func parseTag(f reflect.StructField, v reflect.Value, tagName string) tagProps {
 	result := tagProps{}
 	result.Name = tagName
 	if result.Name == "" {
@@ -203,7 +228,7 @@ func parseTag(f reflect.StructField, tagName string) tagProps {
 	}
 
 	nbtType := f.Tag.Get("nbt_type")
-	result.Type = getTagType(f.Type)
+	result.Type = getTagType(v)
 	if strings.Contains(nbtType, "list") {
 		if IsArrayTag(result.Type) {
 			result.Type = TagList // for expanding the array to a standard list

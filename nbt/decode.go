@@ -10,31 +10,32 @@ import (
 )
 
 func Unmarshal(data []byte, v interface{}) error {
-	return NewDecoder(bytes.NewReader(data)).Decode(v)
+	_, err := NewDecoder(bytes.NewReader(data)).Decode(v)
+	return err
 }
 
-func (d *Decoder) Decode(v interface{}) error {
+func (d *Decoder) Decode(v interface{}) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr {
-		return errors.New("nbt: non-pointer passed to Unmarshal")
+		return "", errors.New("nbt: non-pointer passed to Decode")
 	}
 	//start read NBT
 	tagType, tagName, err := d.readTag()
 	if err != nil {
-		return fmt.Errorf("nbt: %w", err)
+		return tagName, fmt.Errorf("nbt: %w", err)
 	}
 
 	if c := d.checkCompressed(tagType); c != "" {
-		return fmt.Errorf("nbt: unknown Tag, maybe need %s", c)
+		return tagName, fmt.Errorf("nbt: unknown Tag, maybe need %s", c)
 	}
 
-	// We decode val not val.Elem because the Unmarshaler interface
+	// We decode val not val.Elem because the NBTDecoder interface
 	// test must be applied at the top level of the value.
 	err = d.unmarshal(val, tagType, tagName)
 	if err != nil {
-		return fmt.Errorf("nbt: fail to decode tag %q: %w", tagName, err)
+		return tagName, fmt.Errorf("nbt: fail to decode tag %q: %w", tagName, err)
 	}
-	return nil
+	return tagName, nil
 }
 
 // check the first byte and return if it use compress
@@ -53,7 +54,7 @@ var ErrEND = errors.New("unexpected TAG_End")
 func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) error {
 	u, val := indirect(val, tagType == TagEnd)
 	if u != nil {
-		return u.Unmarshal(tagType, tagName, d.r)
+		return u.Decode(tagType, d.r)
 	}
 
 	switch tagType {
@@ -357,12 +358,12 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 
 // indirect walks down v allocating pointers as needed,
 // until it gets to a non-pointer.
-// If it encounters an Unmarshaler, indirect stops and returns that.
+// If it encounters an NBTDecoder, indirect stops and returns that.
 // If decodingNull is true, indirect stops at the first settable pointer so it
 // can be set to nil.
 //
 // This function is copied and modified from encoding/json
-func indirect(v reflect.Value, decodingNull bool) (Unmarshaler, reflect.Value) {
+func indirect(v reflect.Value, decodingNull bool) (NBTDecoder, reflect.Value) {
 	v0 := v
 	haveAddr := false
 
@@ -404,7 +405,7 @@ func indirect(v reflect.Value, decodingNull bool) (Unmarshaler, reflect.Value) {
 			v.Set(reflect.New(v.Type().Elem()))
 		}
 		if v.Type().NumMethod() > 0 && v.CanInterface() {
-			if u, ok := v.Interface().(Unmarshaler); ok {
+			if u, ok := v.Interface().(NBTDecoder); ok {
 				return u, reflect.Value{}
 			}
 		}

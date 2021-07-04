@@ -65,6 +65,6 @@ type Level struct {
 }
 
 func ReadLevel(r io.Reader) (data Level, err error) {
-	err = nbt.NewDecoder(r).Decode(&data)
+	_, err = nbt.NewDecoder(r).Decode(&data)
 	return
 }

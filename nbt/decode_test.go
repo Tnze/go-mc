@@ -182,14 +182,14 @@ func MakeBigTestStruct() BigTestStruct {
 	return want
 }
 
-func TestUnmarshal_bigTest(t *testing.T) {
+func TestDecoder_Decode_bigTest(t *testing.T) {
 	//test parse
 	var value BigTestStruct
 	r, err := gzip.NewReader(bytes.NewReader(bigTestData[:]))
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := NewDecoder(r).Decode(&value); err != nil {
+	if _, err := NewDecoder(r).Decode(&value); err != nil {
 		t.Fatal(err)
 	}
 
@@ -204,7 +204,7 @@ func TestUnmarshal_bigTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := NewDecoder(r).Decode(&empty); err != nil {
+	if _, err := NewDecoder(r).Decode(&empty); err != nil {
 		t.Fatal(err)
 	}
 
@@ -213,20 +213,20 @@ func TestUnmarshal_bigTest(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := NewDecoder(r).Decode(&inf); err != nil {
+	if _, err := NewDecoder(r).Decode(&inf); err != nil {
 		t.Fatal(err)
 	}
 	// t.Log(inf)
 }
 
-func BenchmarkUnmarshal_bigTest(b *testing.B) {
+func BenchmarkDecoder_Decode_bigTest(b *testing.B) {
 	var value BigTestStruct
 	for i := 0; i < b.N; i++ {
 		r, err := gzip.NewReader(bytes.NewReader(bigTestData[:]))
 		if err != nil {
 			b.Fatal(err)
 		}
-		if err := NewDecoder(r).Decode(&value); err != nil {
+		if _, err := NewDecoder(r).Decode(&value); err != nil {
 			b.Fatal(err)
 		}
 	}
@@ -256,7 +256,7 @@ func TestDecoder_overRead(t *testing.T) {
 	r := bytes.NewReader(enc)
 	// Count read bytes by using io.LimitReader
 	rr := io.LimitReader(r, math.MaxInt64).(*io.LimitedReader)
-	if err := NewDecoder(rr).Decode(&value); err != nil {
+	if _, err := NewDecoder(rr).Decode(&value); err != nil {
 		t.Fatal(err)
 	}
 
@@ -266,7 +266,7 @@ func TestDecoder_overRead(t *testing.T) {
 	}
 }
 
-func TestUnmarshal_IntArray(t *testing.T) {
+func TestDecoder_Decode_IntArray(t *testing.T) {
 	data := []byte{
 		TagIntArray, 0, 0,
 		0, 0, 0, 3,
@@ -300,7 +300,7 @@ func TestUnmarshal_IntArray(t *testing.T) {
 	// t.Log(value, value2)
 }
 
-func TestUnmarshal_LongArray(t *testing.T) {
+func TestDecoder_Decode_LongArray(t *testing.T) {
 	data := []byte{
 		TagLongArray, 0, 0,
 		0, 0, 0, 3,
@@ -332,7 +332,7 @@ func TestUnmarshal_LongArray(t *testing.T) {
 	// t.Log(infValue)
 }
 
-func TestUnmarshal_ByteArray(t *testing.T) {
+func TestDecoder_Decode_ByteArray(t *testing.T) {
 	data := []byte{
 		TagByteArray, 0, 0,
 		0, 0, 0, 7,
@@ -363,7 +363,7 @@ func TestUnmarshal_ByteArray(t *testing.T) {
 	// t.Log(infValue)
 }
 
-func TestUnmarshal_ErrorString(t *testing.T) {
+func TestDecoder_Decode_ErrorString(t *testing.T) {
 	var data = []byte{
 		0x08, 0x00, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0xFF, 0xFE,
 		0x42, 0x61, 0x6e, 0x61, 0x6e, 0x72, 0x61, 0x6d, 0x61,
@@ -378,4 +378,33 @@ func TestUnmarshal_ErrorString(t *testing.T) {
 	}
 	t.Log(err)
 
+}
+
+func TestDecoder_Decode_rawMessage(t *testing.T) {
+	data := []byte{
+		TagCompound, 0, 2, 'a', 'b',
+		TagInt, 0, 3, 'K', 'e', 'y', 0, 0, 0, 12,
+		TagString, 0, 5, 'V', 'a', 'l', 'u', 'e', 0, 4, 'T', 'n', 'z', 'e',
+		TagEnd,
+	}
+	var container struct {
+		Key   int32
+		Value RawMessage
+	}
+
+	if tag, err := NewDecoder(bytes.NewReader(data)).Decode(&container); err != nil {
+		t.Fatal(tag)
+	} else {
+		if tag != "ab" {
+			t.Fatalf("Decode tag name error: want %s, get: %s", "ab", tag)
+		}
+		if container.Key != 12 {
+			t.Fatalf("Decode Key error: want %v, get: %v", 12, container.Key)
+		}
+		if !bytes.Equal(container.Value.Data, []byte{
+			0, 4, 'T', 'n', 'z', 'e',
+		}) {
+			t.Fatalf("Decode Key error: get: %v", container.Value)
+		}
+	}
 }

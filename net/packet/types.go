@@ -454,7 +454,7 @@ func (n nbtField) WriteTo(w io.Writer) (int64, error) {
 func (n nbtField) ReadFrom(r io.Reader) (int64, error) {
 	// LimitReader is used to count reader length
 	lr := &io.LimitedReader{R: r, N: math.MaxInt64}
-	err := nbt.NewDecoder(lr).Decode(n.V)
+	_, err := nbt.NewDecoder(lr).Decode(n.V)
 	if err != nil && errors.Is(err, nbt.ErrEND) {
 		err = nil
 	}
