@@ -20,6 +20,7 @@ import (
 var address = flag.String("address", "127.0.0.1", "The server address")
 var client *bot.Client
 var player *basic.Player
+var screenManager *screen.Manager
 
 func main() {
 	flag.Parse()
@@ -32,7 +33,11 @@ func main() {
 		Disconnect: onDisconnect,
 		Death:      onDeath,
 	}.Attach(client)
-	_ = screen.NewManager(client)
+	screenManager = screen.NewManager(client, screen.EventsListener{
+		Open:    nil,
+		SetSlot: onScreenSlotChange,
+		Close:   nil,
+	})
 
 	//Login
 	err := client.JoinServer(*address)
@@ -81,6 +86,18 @@ func onGameStart() error {
 
 func onChatMsg(c chat.Message, _ byte, _ uuid.UUID) error {
 	log.Println("Chat:", c.ClearString()) // output chat message without any format code (like color or bold)
+	return nil
+}
+
+func onScreenSlotChange(id, index int) error {
+	if id == -2 {
+		log.Printf("Slot change: inventory: %v", screenManager.Inventory.Slots[index])
+	} else if id == -1 && index == -1 {
+		log.Printf("Slot change: cursor: %v", screenManager.Cursor)
+	} else {
+		container := screenManager.Screens[id]
+		log.Printf("Slot change: Screen[%d].Slot[%d]: %T", id, index, container)
+	}
 	return nil
 }
 

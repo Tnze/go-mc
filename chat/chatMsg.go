@@ -11,15 +11,15 @@ package chat
 import (
 	"encoding/json"
 	"fmt"
-	en_us "github.com/Tnze/go-mc/data/lang/en-us"
 	"io"
 	"regexp"
 	"strings"
 
+	en_us "github.com/Tnze/go-mc/data/lang/en-us"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-//Message is a message sent by other
+// Message is a message sent by other
 type Message jsonChat
 
 type jsonChat struct {
@@ -50,7 +50,7 @@ func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
 	return
 }
 
-//Decode for a ChatMsg packet
+// ReadFrom decode Message in a ChatMsg packet
 func (m *Message) ReadFrom(r io.Reader) (int64, error) {
 	var Len pk.VarInt
 	if n, err := Len.ReadFrom(r); err != nil {
@@ -61,7 +61,7 @@ func (m *Message) ReadFrom(r io.Reader) (int64, error) {
 	return int64(Len) - lr.N, err
 }
 
-//Encode for a ChatMsg packet
+// WriteTo encode Message into a ChatMsg packet
 func (m Message) WriteTo(w io.Writer) (int64, error) {
 	code, err := json.Marshal(m)
 	if err != nil {
@@ -174,7 +174,7 @@ func (m Message) ClearString() string {
 
 	if m.Extra != nil {
 		for i := range m.Extra {
-			msg.WriteString(Message(m.Extra[i]).ClearString())
+			msg.WriteString(m.Extra[i].ClearString())
 		}
 	}
 	return msg.String()
@@ -225,7 +225,7 @@ func (m Message) String() string {
 
 	if m.Extra != nil {
 		for i := range m.Extra {
-			msg.WriteString(Message(m.Extra[i]).String())
+			msg.WriteString(m.Extra[i].String())
 		}
 	}
 

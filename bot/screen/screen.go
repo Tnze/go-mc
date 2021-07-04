@@ -1,6 +1,7 @@
 package screen
 
 import (
+	"errors"
 	"io"
 
 	"github.com/Tnze/go-mc/bot"
@@ -11,15 +12,23 @@ import (
 )
 
 type Manager struct {
-	Screens map[byte]Container
+	Screens   map[int]Container
+	Inventory Inventory
+	Cursor    Slot
+	events    EventsListener
 }
 
-func NewManager(c *bot.Client) *Manager {
-	m := &Manager{Screens: make(map[byte]Container)}
-	m.Screens[0] = &Inventory{}
+func NewManager(c *bot.Client, e EventsListener) *Manager {
+	m := &Manager{
+		Screens: make(map[int]Container),
+		events:  e,
+	}
+	m.Screens[0] = &m.Inventory
 	c.Events.AddListener(
-		bot.PacketHandler{Priority: 64, ID: packetid.OpenWindow, F: m.onOpenScreen},
-		bot.PacketHandler{Priority: 64, ID: packetid.WindowItems, F: m.onSetContentPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.OpenWindow, F: m.onOpenScreen},
+		bot.PacketHandler{Priority: 0, ID: packetid.WindowItems, F: m.onSetContentPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.CloseWindowClientbound, F: m.onCloseScreen},
+		bot.PacketHandler{Priority: 0, ID: packetid.SetSlot, F: m.onSetSlot},
 	)
 	return m
 }
@@ -33,7 +42,14 @@ func (m *Manager) onOpenScreen(p pk.Packet) error {
 	if err := p.Scan(&ContainerID, &Type, &Title); err != nil {
 		return Error{err}
 	}
+	//if c, ok := m.Screens[byte(ContainerID)]; ok {
 	// TODO: Create the specified container
+	//}
+	if m.events.Open != nil {
+		if err := m.events.Open(int(ContainerID)); err != nil {
+			return Error{err}
+		}
+	}
 	return nil
 }
 
@@ -41,7 +57,7 @@ func (m *Manager) onSetContentPacket(p pk.Packet) error {
 	var (
 		ContainerID pk.UnsignedByte
 		Count       pk.Short
-		SlotData    []slot
+		SlotData    []Slot
 	)
 	if err := p.Scan(
 		&ContainerID,
@@ -51,32 +67,93 @@ func (m *Manager) onSetContentPacket(p pk.Packet) error {
 		}); err != nil {
 		return Error{err}
 	}
-	container := m.Screens[byte(ContainerID)]
+	// copy the slot data to container
+	container, ok := m.Screens[int(ContainerID)]
+	if !ok {
+		return Error{errors.New("setting content of non-exist container")}
+	}
 	for i, v := range SlotData {
-		container.SetSlot(i, int32(v.id), byte(v.count), v.nbt)
+		err := container.onSetSlot(i, v)
+		if err != nil {
+			return Error{err}
+		}
+		if m.events.SetSlot != nil {
+			if err := m.events.SetSlot(int(ContainerID), i); err != nil {
+				return Error{err}
+			}
+		}
 	}
 	return nil
 }
 
-type slot struct {
-	present pk.Boolean
-	id      pk.VarInt
-	count   pk.Byte
-	nbt     nbt.RawMessage
+func (m *Manager) onCloseScreen(p pk.Packet) error {
+	var ContainerID pk.UnsignedByte
+	if err := p.Scan(&ContainerID); err != nil {
+		return Error{err}
+	}
+	if c, ok := m.Screens[int(ContainerID)]; ok {
+		delete(m.Screens, int(ContainerID))
+		if err := c.onClose(); err != nil {
+			return Error{err}
+		}
+		if m.events.Close != nil {
+			if err := m.events.Close(int(ContainerID)); err != nil {
+				return Error{err}
+			}
+		}
+	}
+	return nil
 }
 
-func (s *slot) ReadFrom(r io.Reader) (n int64, err error) {
+func (m *Manager) onSetSlot(p pk.Packet) (err error) {
+	var (
+		ContainerID pk.Byte
+		SlotID      pk.Short
+		ItemStack   Slot
+	)
+	if err := p.Scan(&ContainerID, &SlotID, &ItemStack); err != nil {
+		return Error{err}
+	}
+
+	if ContainerID == -1 && SlotID == -1 {
+		m.Cursor = ItemStack
+	} else if ContainerID == -2 {
+		err = m.Inventory.onSetSlot(int(SlotID), ItemStack)
+	} else if c, ok := m.Screens[int(ContainerID)]; ok {
+		err = c.onSetSlot(int(SlotID), ItemStack)
+	}
+
+	if m.events.Close != nil {
+		if err := m.events.Close(int(ContainerID)); err != nil {
+			return Error{err}
+		}
+	}
+	if err != nil {
+		return Error{err}
+	}
+	return nil
+}
+
+type Slot struct {
+	ID    pk.VarInt
+	Count pk.Byte
+	NBT   nbt.RawMessage
+}
+
+func (s *Slot) ReadFrom(r io.Reader) (n int64, err error) {
+	var present pk.Boolean
 	return pk.Tuple{
-		&s.present, pk.Opt{Has: &s.present,
+		&present, pk.Opt{Has: &present,
 			Field: pk.Tuple{
-				&s.id, &s.count, pk.NBT(&s.nbt),
+				&s.ID, &s.Count, pk.NBT(&s.NBT),
 			},
 		},
 	}.ReadFrom(r)
 }
 
 type Container interface {
-	SetSlot(i int, id int32, count byte, NBT nbt.RawMessage)
+	onSetSlot(i int, s Slot) error
+	onClose() error
 }
 
 type Error struct {
