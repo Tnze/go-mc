@@ -109,3 +109,22 @@ func Test_WriteSNBT_nestingList(t *testing.T) {
 		t.Error("Exceeded the maximum depth of support, but no error was reported")
 	}
 }
+
+func TestStringifiedNBT_TagType(t *testing.T) {
+	for _, v := range []struct {
+		snbt string
+		Type byte
+	}{
+		{`123B`, TagByte},
+		{`123`, TagInt},
+		{`[]`, TagList},
+		{`[B;]`, TagByteArray},
+		{`[I;]`, TagIntArray},
+		{`[L;]`, TagLongArray},
+		{`{abc:123B}`, TagCompound},
+	} {
+		if T := StringifiedNBT(v.snbt).TagType(); T != v.Type {
+			t.Errorf("Parse SNBT TagType error: %s is %d, not %d", v.snbt, v.Type, T)
+		}
+	}
+}
