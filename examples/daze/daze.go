@@ -14,6 +14,7 @@ import (
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/data/item"
 	_ "github.com/Tnze/go-mc/data/lang/zh-cn"
 )
 
@@ -91,12 +92,22 @@ func onChatMsg(c chat.Message, _ byte, _ uuid.UUID) error {
 
 func onScreenSlotChange(id, index int) error {
 	if id == -2 {
-		log.Printf("Slot change: inventory: %v", screenManager.Inventory.Slots[index])
+		log.Printf("Slot: inventory: %v", screenManager.Inventory.Slots[index])
 	} else if id == -1 && index == -1 {
-		log.Printf("Slot change: cursor: %v", screenManager.Cursor)
+		log.Printf("Slot: cursor: %v", screenManager.Cursor)
 	} else {
-		container := screenManager.Screens[id]
-		log.Printf("Slot change: Screen[%d].Slot[%d]: %T", id, index, container)
+		container, ok := screenManager.Screens[id]
+		if ok {
+			// Currently only inventory container is supported
+			switch container.(type) {
+			case *screen.Inventory:
+				slot := container.(*screen.Inventory).Slots[index]
+				itemInfo := item.ByID[item.ID(slot.ID)]
+				if slot.ID != 0 {
+					log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d", id, index, itemInfo.DisplayName, slot.Count)
+				}
+			}
+		}
 	}
 	return nil
 }
