@@ -104,7 +104,7 @@ func onScreenSlotChange(id, index int) error {
 				slot := container.(*screen.Inventory).Slots[index]
 				itemInfo := item.ByID[item.ID(slot.ID)]
 				if slot.ID != 0 {
-					log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d", id, index, itemInfo.DisplayName, slot.Count)
+					log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d | NBT: %v", id, index, itemInfo.DisplayName, slot.Count, slot.NBT)
 				}
 			}
 		}
