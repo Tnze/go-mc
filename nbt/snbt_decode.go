@@ -19,10 +19,10 @@ const phasePanicMsg = "SNBT decoder out of sync - data changing underfoot?"
 func (e *Encoder) WriteSNBT(snbt string) error {
 	d := decodeState{data: []byte(snbt)}
 	d.scan.reset()
-	return writeValue(e, &d, "")
+	return writeValue(e, &d, true, "")
 }
 
-func writeValue(e *Encoder, d *decodeState, tagName string) error {
+func writeValue(e *Encoder, d *decodeState, writeTag bool, tagName string) error {
 	d.scanWhile(scanSkipSpace)
 	switch d.opcode {
 	case scanError:
@@ -37,19 +37,23 @@ func writeValue(e *Encoder, d *decodeState, tagName string) error {
 		}
 		literal := d.data[start:d.readIndex()]
 		tagType, litVal := parseLiteral(literal)
-		if err := e.writeTag(tagType, tagName); err != nil {
-			return err
+		if writeTag {
+			if err := e.writeTag(tagType, tagName); err != nil {
+				return err
+			}
 		}
 		return writeLiteralPayload(e, litVal)
 
 	case scanBeginCompound:
-		if err := e.writeTag(TagCompound, tagName); err != nil {
-			return err
+		if writeTag {
+			if err := e.writeTag(TagCompound, tagName); err != nil {
+				return err
+			}
 		}
 		return writeCompoundPayload(e, d)
 
 	case scanBeginList:
-		_, err := writeListOrArray(e, d, true, tagName)
+		_, err := writeListOrArray(e, d, writeTag, tagName)
 		return err
 	}
 }
@@ -114,7 +118,7 @@ func writeCompoundPayload(e *Encoder, d *decodeState) error {
 			panic(phasePanicMsg)
 		}
 
-		if err := writeValue(e, d, tagName); err != nil {
+		if err := writeValue(e, d, true, tagName); err != nil {
 			return err
 		}
 

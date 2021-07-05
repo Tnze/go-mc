@@ -380,16 +380,18 @@ func TestDecoder_Decode_ErrorString(t *testing.T) {
 
 }
 
-func TestDecoder_Decode_rawMessage(t *testing.T) {
+func TestRawMessage_Decode(t *testing.T) {
 	data := []byte{
 		TagCompound, 0, 2, 'a', 'b',
 		TagInt, 0, 3, 'K', 'e', 'y', 0, 0, 0, 12,
 		TagString, 0, 5, 'V', 'a', 'l', 'u', 'e', 0, 4, 'T', 'n', 'z', 'e',
+		TagList, 0, 4, 'L', 'i', 's', 't', TagCompound, 0, 0, 0, 2, 0, 0,
 		TagEnd,
 	}
 	var container struct {
 		Key   int32
 		Value RawMessage
+		List  RawMessage
 	}
 
 	if tag, err := NewDecoder(bytes.NewReader(data)).Decode(&container); err != nil {
@@ -406,5 +408,56 @@ func TestDecoder_Decode_rawMessage(t *testing.T) {
 		}) {
 			t.Fatalf("Decode Key error: get: %v", container.Value)
 		}
+		if !bytes.Equal(container.List.Data, []byte{
+			TagCompound, 0, 0, 0, 2,
+			0, 0,
+		}) {
+			t.Fatalf("Decode List error: get: %v", container.List)
+		}
+	}
+}
+
+func TestStringifiedMessage_Decode(t *testing.T) {
+	data := []byte{
+		TagCompound, 0, 2, 'a', 'b',
+		TagInt, 0, 3, 'K', 'e', 'y', 0, 0, 0, 12,
+		TagString, 0, 5, 'V', 'a', 'l', 'u', 'e', 0, 5, 'T', 'n', ' ', 'z', 'e',
+		TagList, 0, 4, 'L', 'i', 's', 't', TagCompound, 0, 0, 0, 2, 0, 0,
+		TagEnd,
+	}
+	var container struct {
+		Key   int32
+		Value StringifiedMessage
+		List  StringifiedMessage
+	}
+
+	if tag, err := NewDecoder(bytes.NewReader(data)).Decode(&container); err != nil {
+		t.Fatal(tag, err)
+	} else {
+		if tag != "ab" {
+			t.Fatalf("Decode tag name error: want %s, get: %s", "ab", tag)
+		}
+		if container.Key != 12 {
+			t.Fatalf("Decode Key error: want %v, get: %v", 12, container.Key)
+		}
+		if container.Value != `"Tn ze"` {
+			t.Fatalf("Decode Key error: get: %v", container.Value)
+		}
+		if container.List != "[{},{}]" {
+			t.Fatalf("Decode List error: get: %v", container.List)
+		}
+	}
+}
+
+func TestStringifiedMessage_Decode_bigTest(t *testing.T) {
+	var snbt StringifiedMessage
+	r, err := gzip.NewReader(bytes.NewReader(bigTestData[:]))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if tag, err := NewDecoder(r).Decode(&snbt); err != nil {
+		t.Fatal(tag, err)
+	} else if string(snbt) != `{longTest:9223372036854775807L,shortTest:32767S,stringTest:"HELLO WORLD THIS IS A TEST STRING ÅÄÖ!",floatTest:0.4982314706F,intTest:2147483647I,"nested compound test":{ham:{name:Hampus,value:0.7500000000F},egg:{name:Eggbert,value:0.5000000000F}},"listTest (long)":[11L,12L,13L,14L,15L],"listTest (compound)":[{name:"Compound tag #0",created-on:1264099775885L},{name:"Compound tag #1",created-on:1264099775885L}],byteTest:127B,"byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))":[B;0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B,0B,62B,34B,16B,8B,10B,22B,44B,76B,18B,70B,32B,4B,86B,78B,80B,92B,14B,46B,88B,40B,2B,74B,56B,48B,50B,62B,84B,16B,58B,10B,72B,44B,26B,18B,20B,32B,54B,86B,28B,80B,42B,14B,96B,88B,90B,2B,24B,56B,98B,50B,12B,84B,66B,58B,60B,72B,94B,26B,68B,20B,82B,54B,36B,28B,30B,42B,64B,96B,38B,90B,52B,24B,6B,98B,0B,12B,34B,66B,8B,60B,22B,94B,76B,68B,70B,82B,4B,36B,78B,30B,92B,64B,46B,38B,40B,52B,74B,6B,48B],doubleTest:0.4931287132D}` {
+		t.Fatalf("decode to SNBT error: get %s", snbt)
 	}
 }

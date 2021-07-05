@@ -208,7 +208,7 @@ func TestEncoder_Encode_map(t *testing.T) {
 	}
 }
 
-func TestEncoder_Encode_rawMessage(t *testing.T) {
+func TestRawMessage_Encode(t *testing.T) {
 	data := []byte{
 		TagCompound, 0, 2, 'a', 'b',
 		TagInt, 0, 3, 'K', 'e', 'y', 0, 0, 0, 12,

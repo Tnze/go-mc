@@ -118,13 +118,34 @@ func TestStringifiedNBT_TagType(t *testing.T) {
 		{`123B`, TagByte},
 		{`123`, TagInt},
 		{`[]`, TagList},
+		{`[{}, {}]`, TagList},
 		{`[B;]`, TagByteArray},
 		{`[I;]`, TagIntArray},
 		{`[L;]`, TagLongArray},
 		{`{abc:123B}`, TagCompound},
 	} {
-		if T := StringifiedNBT(v.snbt).TagType(); T != v.Type {
+		if T := StringifiedMessage(v.snbt).TagType(); T != v.Type {
 			t.Errorf("Parse SNBT TagType error: %s is %d, not %d", v.snbt, v.Type, T)
 		}
+	}
+}
+
+func TestStringifiedMessage_Encode(t *testing.T) {
+	var buff bytes.Buffer
+	for _, v := range []struct {
+		snbt string
+		data []byte
+	}{
+		{`123B`, []byte{123}},
+		{`[B; 1B, 2B, 3B]`, []byte{0, 0, 0, 3, 1, 2, 3}},
+		{`[{},{}]`, []byte{TagCompound, 0, 0, 0, 2, 0, 0}},
+	} {
+		if err := StringifiedMessage(v.snbt).Encode(&buff); err != nil {
+			t.Errorf("Encode SNBT error: %v", err)
+		}
+		if !bytes.Equal(buff.Bytes(), v.data) {
+			t.Errorf("Encode SNBT error: %q should encoded to %d, not %d", v.snbt, v.data, buff.Bytes())
+		}
+		buff.Reset()
 	}
 }

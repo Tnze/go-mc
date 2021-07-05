@@ -1,6 +1,8 @@
 package nbt
 
-import "strconv"
+import (
+	"strconv"
+)
 
 const (
 	scanContinue        = iota // uninteresting byte
