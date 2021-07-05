@@ -123,8 +123,8 @@ func (m *Manager) onSetSlot(p pk.Packet) (err error) {
 		err = c.onSetSlot(int(SlotID), ItemStack)
 	}
 
-	if m.events.Close != nil {
-		if err := m.events.Close(int(ContainerID)); err != nil {
+	if m.events.SetSlot != nil {
+		if err := m.events.SetSlot(int(ContainerID), int(SlotID)); err != nil {
 			return Error{err}
 		}
 	}
