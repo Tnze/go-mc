@@ -2,10 +2,13 @@ package nbt
 
 import (
 	"bytes"
+	"errors"
 	"io"
+	"reflect"
 	"strings"
 )
 
+// RawMessage stores the raw binary data of NBT.
 type RawMessage struct {
 	Type byte
 	Data []byte
@@ -48,4 +51,13 @@ func (m RawMessage) String() string {
 		return "Invalid"
 	}
 	return sb.String()
+}
+
+func (m RawMessage) Unmarshal(v interface{}) error {
+	d := NewDecoder(bytes.NewReader(m.Data))
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.Ptr {
+		return errors.New("nbt: non-pointer passed to Decode")
+	}
+	return d.unmarshal(val, m.Type)
 }

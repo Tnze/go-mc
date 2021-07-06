@@ -11,6 +11,9 @@ import (
 	"strings"
 )
 
+// Marshal is the shortcut of NewEncoder().Encode() with empty tag name.
+// Notices that repeatedly init buffers is low efficiency.
+// Using Encoder and Reset the buffer in each times is recommended in that cases.
 func Marshal(v interface{}) ([]byte, error) {
 	var buf bytes.Buffer
 	err := NewEncoder(&buf).Encode(v, "")
@@ -25,6 +28,10 @@ func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
 }
 
+// Encode encodes v into the writer inside Encoder with the root tag named tagName.
+// In most cases, the root tag typed TagCompound and the tag name is empty string,
+// but any other type is allowed just because there is valid technically. Once if
+// you should pass an string into this, you should get a TagString.
 func (e *Encoder) Encode(v interface{}, tagName string) error {
 	val := reflect.ValueOf(v)
 	return e.marshal(val, getTagType(val), tagName)

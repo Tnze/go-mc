@@ -14,6 +14,14 @@ func Unmarshal(data []byte, v interface{}) error {
 	return err
 }
 
+// Decode method decodes an NBT value from the reader underline the Decoder into v.
+// Internally try to handle all possible v by reflection,
+// but the type of v must matches the NBT value logically.
+// For example, you can decode an NBT value which root tag is TagCompound(0x0a)
+// into a struct or map, but not a string.
+//
+// This method also return tag name of the root tag.
+// In real world, it is often empty, but the API should allows you to get it when ever you want.
 func (d *Decoder) Decode(v interface{}) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr {
@@ -31,7 +39,7 @@ func (d *Decoder) Decode(v interface{}) (string, error) {
 
 	// We decode val not val.Elem because the NBTDecoder interface
 	// test must be applied at the top level of the value.
-	err = d.unmarshal(val, tagType, tagName)
+	err = d.unmarshal(val, tagType)
 	if err != nil {
 		return tagName, fmt.Errorf("nbt: fail to decode tag %q: %w", tagName, err)
 	}
@@ -51,7 +59,7 @@ func (d *Decoder) checkCompressed(head byte) (compress string) {
 // ErrEND error will be returned when reading a NBT with only Tag_End
 var ErrEND = errors.New("unexpected TAG_End")
 
-func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) error {
+func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 	u, val := indirect(val, tagType == TagEnd)
 	if u != nil {
 		return u.Decode(tagType, d.r)
@@ -271,13 +279,13 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 		case reflect.Array:
 			if vl := val.Len(); vl < int(listLen) {
 				return fmt.Errorf(
-					"TagList %s has len %d, but array %v only has len %d",
-					tagName, listLen, val.Type(), vl)
+					"TagList has len %d, but array %v only has len %d",
+					listLen, val.Type(), vl)
 			}
 			buf = val
 		}
 		for i := 0; i < int(listLen); i++ {
-			if err := d.unmarshal(buf.Index(i), listType, ""); err != nil {
+			if err := d.unmarshal(buf.Index(i), listType); err != nil {
 				return err
 			}
 		}
@@ -302,7 +310,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 				}
 				field := tinfo.findIndexByName(tn)
 				if field != -1 {
-					err = d.unmarshal(val.Field(field), tt, tn)
+					err = d.unmarshal(val.Field(field), tt)
 					if err != nil {
 						return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 					}
@@ -328,7 +336,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 					break
 				}
 				v := reflect.New(val.Type().Elem())
-				if err = d.unmarshal(v.Elem(), tt, tn); err != nil {
+				if err = d.unmarshal(v.Elem(), tt); err != nil {
 					return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 				}
 				val.SetMapIndex(reflect.ValueOf(tn), v.Elem())
@@ -344,7 +352,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte, tagName string) err
 					break
 				}
 				var value interface{}
-				if err = d.unmarshal(reflect.ValueOf(&value).Elem(), tt, tn); err != nil {
+				if err = d.unmarshal(reflect.ValueOf(&value).Elem(), tt); err != nil {
 					return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 				}
 				buf[tn] = value
