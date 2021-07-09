@@ -16,12 +16,6 @@ type decodeState struct {
 
 const phasePanicMsg = "SNBT decoder out of sync - data changing underfoot?"
 
-func (e *Encoder) WriteSNBT(snbt string) error {
-	d := decodeState{data: []byte(snbt)}
-	d.scan.reset()
-	return writeValue(e, &d, true, "")
-}
-
 func writeValue(e *Encoder, d *decodeState, writeTag bool, tagName string) error {
 	d.scanWhile(scanSkipSpace)
 	switch d.opcode {
@@ -53,7 +47,12 @@ func writeValue(e *Encoder, d *decodeState, writeTag bool, tagName string) error
 		return writeCompoundPayload(e, d)
 
 	case scanBeginList:
-		_, err := writeListOrArray(e, d, writeTag, tagName)
+		if writeTag {
+			if err := e.writeTag(TagList, tagName); err != nil {
+				return err
+			}
+		}
+		_, err := writeListOrArray(e, d)
 		return err
 	}
 }
@@ -140,10 +139,10 @@ func writeCompoundPayload(e *Encoder, d *decodeState) error {
 	return err
 }
 
-func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string) (tagType byte, err error) {
+func writeListOrArray(e *Encoder, d *decodeState) (tagType byte, err error) {
 	d.scanWhile(scanSkipSpace)
 	if d.opcode == scanEndValue { // ']', empty TAG_List
-		err = e.writeListHeader(TagEnd, tagName, 0, writeTag)
+		err = e.writeListHeader(TagEnd, 0)
 		d.scanNext()
 		return TagList, err
 	}
@@ -181,11 +180,6 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 				elemType = TagLong
 			default:
 				return TagList, d.error("unknown Array type")
-			}
-			if writeTag {
-				if err = e.writeTag(tagType, tagName); err != nil {
-					return
-				}
 			}
 			if d.opcode == scanSkipSpace {
 				d.scanWhile(scanSkipSpace)
@@ -292,7 +286,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			literal = d.data[start:d.readIndex()]
 		}
 
-		if err := e.writeListHeader(tagType, tagName, count, writeTag); err != nil {
+		if err := e.writeListHeader(tagType, count); err != nil {
 			return tagType, err
 		}
 		if _, err := e.w.Write(buf.Bytes()); err != nil {
@@ -307,7 +301,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			if d.opcode != scanBeginList {
 				return TagList, d.error("different TagType in List")
 			}
-			elemType, err = writeListOrArray(e2, d, false, "")
+			elemType, err = writeListOrArray(e2, d)
 			if err != nil {
 				return tagType, err
 			}
@@ -329,7 +323,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			d.scanNext()
 		}
 
-		if err = e.writeListHeader(elemType, tagName, count, writeTag); err != nil {
+		if err = e.writeListHeader(elemType, count); err != nil {
 			return
 		}
 		if _, err = e.w.Write(buf.Bytes()); err != nil {
@@ -368,7 +362,7 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			d.scanNext()
 		}
 
-		if err = e.writeListHeader(TagCompound, tagName, count, writeTag); err != nil {
+		if err = e.writeListHeader(TagCompound, count); err != nil {
 			return
 		}
 

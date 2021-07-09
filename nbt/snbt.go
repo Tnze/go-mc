@@ -10,28 +10,32 @@ import (
 
 type StringifiedMessage string
 
-func (m StringifiedMessage) TagType() (tagType byte) {
+func (m StringifiedMessage) TagType() byte {
 	d := decodeState{data: []byte(m)}
 	d.scan.reset()
 	d.scanWhile(scanSkipSpace)
 	switch d.opcode {
+	default:
+		return TagEnd
+
 	case scanBeginLiteral:
 		start := d.readIndex()
 		if d.scanWhile(scanContinue); d.opcode == scanError {
-			return
+			return TagEnd
 		}
 		literal := d.data[start:d.readIndex()]
-		tagType, _ = parseLiteral(literal)
+		tagType, _ := parseLiteral(literal)
+		return tagType
 
 	case scanBeginCompound:
-		tagType = TagCompound
+		return TagCompound
 
 	case scanBeginList:
 		d.scanWhile(scanSkipSpace)
 		if d.opcode == scanBeginLiteral {
 			start := d.readIndex()
 			if d.scanWhile(scanContinue); d.opcode == scanError {
-				return
+				return TagEnd
 			}
 			literal := d.data[start:d.readIndex()]
 			if d.opcode == scanSkipSpace {
@@ -40,18 +44,16 @@ func (m StringifiedMessage) TagType() (tagType byte) {
 			if d.opcode == scanListType {
 				switch literal[0] {
 				case 'B':
-					tagType = TagByteArray
+					return TagByteArray
 				case 'I':
-					tagType = TagIntArray
+					return TagIntArray
 				case 'L':
-					tagType = TagLongArray
+					return TagLongArray
 				}
 			}
-		} else {
-			tagType = TagList
 		}
+		return TagList
 	}
-	return
 }
 
 func (m StringifiedMessage) Encode(w io.Writer) error {
@@ -227,11 +229,15 @@ func writeEscapeStr(sb *strings.Builder, str string) {
 			sc := strings.Count(str, `'`)
 			if dc > sc {
 				sb.WriteString("'")
-				strings.NewReplacer(`'`, `\'`, `\`, `\\`).WriteString(sb, str)
+				if _, err := strings.NewReplacer(`'`, `\'`, `\`, `\\`).WriteString(sb, str); err != nil {
+					panic(err)
+				}
 				sb.WriteString("'")
 			} else {
 				sb.WriteString(`"`)
-				strings.NewReplacer(`"`, `\"`, `\`, `\\`).WriteString(sb, str)
+				if _, err := strings.NewReplacer(`"`, `\"`, `\`, `\\`).WriteString(sb, str); err != nil {
+					panic(err)
+				}
 				sb.WriteString(`"`)
 			}
 			return

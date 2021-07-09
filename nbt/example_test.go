@@ -79,9 +79,9 @@ func ExampleEncoder_Encode_tagCompound() {
 	//	0a 00 00 08 00 04 6e 61 6d 65 00 04 54 6e 7a 65 00
 }
 
-func ExampleEncoder_WriteSNBT() {
+func ExampleEncoder_writeSNBT() {
 	var buf bytes.Buffer
-	if err := NewEncoder(&buf).WriteSNBT(`{ name: [Tnze, "Xi_Xi_Mi"]}`); err != nil {
+	if err := NewEncoder(&buf).Encode(StringifiedMessage(`{ name: [Tnze, "Xi_Xi_Mi"]}`), ""); err != nil {
 		panic(err)
 	}
 	fmt.Printf("% 02x ", buf.Bytes())

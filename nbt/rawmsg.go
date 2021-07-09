@@ -9,6 +9,9 @@ import (
 )
 
 // RawMessage stores the raw binary data of NBT.
+// This is usable if you wanna store an unknown NBT data and parse it later.
+// Notice that this struct doesn't store the tag name. To convert RawMessage to valid NBT binary value:
+// Encoder.Encode(RawMessage, Name) = []byte{ Type (1 byte) | n (2 byte) | Name (n byte) | Data}.
 type RawMessage struct {
 	Type byte
 	Data []byte
@@ -38,6 +41,8 @@ func (m *RawMessage) Decode(tagType byte, r DecoderReader) error {
 	return nil
 }
 
+// String convert the data into the SNBT(Stringified NBT) format.
+// The output is valid for using in in-game command.
 func (m RawMessage) String() string {
 	if m.Type == TagEnd {
 		return "TagEnd"
@@ -53,6 +58,7 @@ func (m RawMessage) String() string {
 	return sb.String()
 }
 
+// Unmarshal decode the data into v.
 func (m RawMessage) Unmarshal(v interface{}) error {
 	d := NewDecoder(bytes.NewReader(m.Data))
 	val := reflect.ValueOf(v)

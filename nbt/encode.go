@@ -32,13 +32,20 @@ func NewEncoder(w io.Writer) *Encoder {
 // In most cases, the root tag typed TagCompound and the tag name is empty string,
 // but any other type is allowed just because there is valid technically. Once if
 // you should pass an string into this, you should get a TagString.
+//
+// Normally, any slice or array typed Go value will be encoded as TagList,
+// expect `[]int8`, `[]int32`, `[]int64`, `[]uint8`, `[]uint32` and `[]uint64`,
+// which TagByteArray, TagIntArray and TagLongArray.
+// To force encode them as TagList, add a struct field tag.
+// You haven't ability to encode them as TagList as root element at this time,
+// issue or pull-request is welcome.
 func (e *Encoder) Encode(v interface{}, tagName string) error {
 	val := reflect.ValueOf(v)
 	return e.marshal(val, getTagType(val), tagName)
 }
 
 func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error {
-	if err := e.writeHeader(val, tagType, tagName); err != nil {
+	if err := e.writeTag(tagType, tagName); err != nil {
 		return err
 	}
 	if val.CanInterface() {
@@ -47,21 +54,6 @@ func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error
 		}
 	}
 	return e.writeValue(val, tagType)
-}
-
-func (e *Encoder) writeHeader(val reflect.Value, tagType byte, tagName string) (err error) {
-	if tagType == TagList {
-		var eleType byte
-		if val.Len() > 0 {
-			eleType = getTagType(val.Index(0))
-		} else {
-			eleType = getTagTypeByType(val.Type().Elem())
-		}
-		err = e.writeListHeader(eleType, tagName, val.Len(), true)
-	} else {
-		err = e.writeTag(tagType, tagName)
-	}
-	return err
 }
 
 func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
@@ -107,6 +99,16 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 		}
 
 	case TagList:
+		var eleType byte
+		if val.Len() > 0 {
+			eleType = getTagType(val.Index(0))
+		} else {
+			eleType = getTagTypeByType(val.Type().Elem())
+		}
+		if err := e.writeListHeader(eleType, val.Len()); err != nil {
+			return err
+		}
+
 		for i := 0; i < val.Len(); i++ {
 			arrVal := val.Index(i)
 			err := e.writeValue(arrVal, getTagType(arrVal))
@@ -227,10 +229,10 @@ type tagProps struct {
 	Type byte
 }
 
-func parseTag(f reflect.StructField, v reflect.Value, tagName string) tagProps {
-	result := tagProps{}
-	result.Name = tagName
-	if result.Name == "" {
+func parseTag(f reflect.StructField, v reflect.Value, tagName string) (result tagProps) {
+	if tagName != "" {
+		result.Name = tagName
+	} else {
 		result.Name = f.Name
 	}
 
@@ -240,11 +242,11 @@ func parseTag(f reflect.StructField, v reflect.Value, tagName string) tagProps {
 		if IsArrayTag(result.Type) {
 			result.Type = TagList // for expanding the array to a standard list
 		} else {
-			panic("list is only supported for array types (byte, int, long)")
+			panic("list is only supported for array types ([]byte, []int, []long)")
 		}
 	}
 
-	return result
+	return
 }
 
 func (e *Encoder) writeTag(tagType byte, tagName string) error {
@@ -259,12 +261,7 @@ func (e *Encoder) writeTag(tagType byte, tagName string) error {
 	return err
 }
 
-func (e *Encoder) writeListHeader(elementType byte, tagName string, n int, writeTag bool) (err error) {
-	if writeTag {
-		if err = e.writeTag(TagList, tagName); err != nil {
-			return
-		}
-	}
+func (e *Encoder) writeListHeader(elementType byte, n int) (err error) {
 	if _, err = e.w.Write([]byte{elementType}); err != nil {
 		return
 	}

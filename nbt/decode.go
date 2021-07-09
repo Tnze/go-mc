@@ -9,6 +9,8 @@ import (
 	"reflect"
 )
 
+// Unmarshal decode binary NBT data and fill into v
+// This is a shortcut to `NewDecoder(bytes.NewReader(data)).Decode(v)`.
 func Unmarshal(data []byte, v interface{}) error {
 	_, err := NewDecoder(bytes.NewReader(data)).Decode(v)
 	return err
@@ -34,7 +36,7 @@ func (d *Decoder) Decode(v interface{}) (string, error) {
 	}
 
 	if c := d.checkCompressed(tagType); c != "" {
-		return tagName, fmt.Errorf("nbt: unknown Tag, maybe need %s", c)
+		return tagName, fmt.Errorf("nbt: unknown Tag, maybe compressed by %s, uncompress it first", c)
 	}
 
 	// We decode val not val.Elem because the NBTDecoder interface
@@ -46,14 +48,16 @@ func (d *Decoder) Decode(v interface{}) (string, error) {
 	return tagName, nil
 }
 
-// check the first byte and return if it use compress
+// checkCompressed check if the first byte is compress head
 func (d *Decoder) checkCompressed(head byte) (compress string) {
-	if head == 0x1f { //gzip
-		compress = "gzip"
-	} else if head == 0x78 { //zlib
-		compress = "zlib"
+	switch head {
+	case 0x1f:
+		return "gzip"
+	case 0x78:
+		return "zlib"
+	default:
+		return ""
 	}
-	return
 }
 
 // ErrEND error will be returned when reading a NBT with only Tag_End
