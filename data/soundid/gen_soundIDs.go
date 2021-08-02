@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	protocolURL = "https://pokechu22.github.io/Burger/1.17.json"
+	protocolURL = "https://pokechu22.github.io/Burger/1.17.1.json"
 )
 
 type sound struct {
