@@ -1,6 +1,11 @@
 // Package item stores information about items in Minecraft.
 package item
 
+import (
+	"math"
+)
+
+// ID describes the numeric ID of an item.
 type ID uint32
 
 // Item describes information about a type of item.
@@ -12,7 +17,6 @@ type Item struct {
 }
 
 var (
-	Air                             = Item{ID: 0, DisplayName: "Air", Name: "air", StackSize: 64}
 	Stone                           = Item{ID: 1, DisplayName: "Stone", Name: "stone", StackSize: 64}
 	Granite                         = Item{ID: 2, DisplayName: "Granite", Name: "granite", StackSize: 64}
 	PolishedGranite                 = Item{ID: 3, DisplayName: "Polished Granite", Name: "polished_granite", StackSize: 64}
@@ -680,7 +684,7 @@ var (
 	TntMinecart                     = Item{ID: 665, DisplayName: "Minecart with TNT", Name: "tnt_minecart", StackSize: 1}
 	HopperMinecart                  = Item{ID: 666, DisplayName: "Minecart with Hopper", Name: "hopper_minecart", StackSize: 1}
 	CarrotOnAStick                  = Item{ID: 667, DisplayName: "Carrot on a Stick", Name: "carrot_on_a_stick", StackSize: 1}
-	WarpedFungusOnAStick            = Item{ID: 668, DisplayName: "Warped Fungus on a Stick", Name: "warped_fungus_on_a_stick", StackSize: 1}
+	WarpedFungusOnAStick            = Item{ID: 668, DisplayName: "Warped Fungus on a Stick", Name: "warped_fungus_on_a_stick", StackSize: 64}
 	Elytra                          = Item{ID: 669, DisplayName: "Elytra", Name: "elytra", StackSize: 1}
 	OakBoat                         = Item{ID: 670, DisplayName: "Oak Boat", Name: "oak_boat", StackSize: 1}
 	SpruceBoat                      = Item{ID: 671, DisplayName: "Spruce Boat", Name: "spruce_boat", StackSize: 1}
@@ -1027,18 +1031,18 @@ var (
 	IronNugget                      = Item{ID: 1012, DisplayName: "Iron Nugget", Name: "iron_nugget", StackSize: 64}
 	KnowledgeBook                   = Item{ID: 1013, DisplayName: "Knowledge Book", Name: "knowledge_book", StackSize: 1}
 	DebugStick                      = Item{ID: 1014, DisplayName: "Debug Stick", Name: "debug_stick", StackSize: 1}
-	MusicDisc13                     = Item{ID: 1015, DisplayName: "Music Disc", Name: "music_disc_13", StackSize: 1}
-	MusicDiscCat                    = Item{ID: 1016, DisplayName: "Music Disc", Name: "music_disc_cat", StackSize: 1}
-	MusicDiscBlocks                 = Item{ID: 1017, DisplayName: "Music Disc", Name: "music_disc_blocks", StackSize: 1}
-	MusicDiscChirp                  = Item{ID: 1018, DisplayName: "Music Disc", Name: "music_disc_chirp", StackSize: 1}
-	MusicDiscFar                    = Item{ID: 1019, DisplayName: "Music Disc", Name: "music_disc_far", StackSize: 1}
-	MusicDiscMall                   = Item{ID: 1020, DisplayName: "Music Disc", Name: "music_disc_mall", StackSize: 1}
-	MusicDiscMellohi                = Item{ID: 1021, DisplayName: "Music Disc", Name: "music_disc_mellohi", StackSize: 1}
-	MusicDiscStal                   = Item{ID: 1022, DisplayName: "Music Disc", Name: "music_disc_stal", StackSize: 1}
-	MusicDiscStrad                  = Item{ID: 1023, DisplayName: "Music Disc", Name: "music_disc_strad", StackSize: 1}
-	MusicDiscWard                   = Item{ID: 1024, DisplayName: "Music Disc", Name: "music_disc_ward", StackSize: 1}
-	MusicDisc11                     = Item{ID: 1025, DisplayName: "Music Disc", Name: "music_disc_11", StackSize: 1}
-	MusicDiscWait                   = Item{ID: 1026, DisplayName: "Music Disc", Name: "music_disc_wait", StackSize: 1}
+	MusicDisc13                     = Item{ID: 1015, DisplayName: "13 Disc", Name: "music_disc_13", StackSize: 1}
+	MusicDiscCat                    = Item{ID: 1016, DisplayName: "Cat Disc", Name: "music_disc_cat", StackSize: 1}
+	MusicDiscBlocks                 = Item{ID: 1017, DisplayName: "Blocks Disc", Name: "music_disc_blocks", StackSize: 1}
+	MusicDiscChirp                  = Item{ID: 1018, DisplayName: "Chirp Disc", Name: "music_disc_chirp", StackSize: 1}
+	MusicDiscFar                    = Item{ID: 1019, DisplayName: "Far Disc", Name: "music_disc_far", StackSize: 1}
+	MusicDiscMall                   = Item{ID: 1020, DisplayName: "Mall Disc", Name: "music_disc_mall", StackSize: 1}
+	MusicDiscMellohi                = Item{ID: 1021, DisplayName: "Mellohi Disc", Name: "music_disc_mellohi", StackSize: 1}
+	MusicDiscStal                   = Item{ID: 1022, DisplayName: "Stal Disc", Name: "music_disc_stal", StackSize: 1}
+	MusicDiscStrad                  = Item{ID: 1023, DisplayName: "Strad Disc", Name: "music_disc_strad", StackSize: 1}
+	MusicDiscWard                   = Item{ID: 1024, DisplayName: "Ward Disc", Name: "music_disc_ward", StackSize: 1}
+	MusicDisc11                     = Item{ID: 1025, DisplayName: "11 Disc", Name: "music_disc_11", StackSize: 1}
+	MusicDiscWait                   = Item{ID: 1026, DisplayName: "Wait Disc", Name: "music_disc_wait", StackSize: 1}
 	MusicDiscPigstep                = Item{ID: 1027, DisplayName: "Music Disc", Name: "music_disc_pigstep", StackSize: 1}
 	Trident                         = Item{ID: 1028, DisplayName: "Trident", Name: "trident", StackSize: 1}
 	PhantomMembrane                 = Item{ID: 1029, DisplayName: "Phantom Membrane", Name: "phantom_membrane", StackSize: 64}
@@ -1116,7 +1120,6 @@ var (
 
 // ByID is an index of minecraft items by their ID.
 var ByID = map[ID]*Item{
-	0:    &Air,
 	1:    &Stone,
 	2:    &Granite,
 	3:    &PolishedGranite,
@@ -2220,7 +2223,6 @@ var ByID = map[ID]*Item{
 
 // ByName is an index of minecraft items by their name.
 var ByName = map[string]*Item{
-	"air":                                &Air,
 	"stone":                              &Stone,
 	"granite":                            &Granite,
 	"polished_granite":                   &PolishedGranite,
@@ -3315,6 +3317,7 @@ var ByName = map[string]*Item{
 	"green_candle":                       &GreenCandle,
 	"red_candle":                         &RedCandle,
 	"black_candle":                       &BlackCandle,
+	"small_amethyst_bud":                 &SmallAmethystBud,
 	"medium_amethyst_bud":                &MediumAmethystBud,
 	"large_amethyst_bud":                 &LargeAmethystBud,
 	"amethyst_cluster":                   &AmethystCluster,

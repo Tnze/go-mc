@@ -119,6 +119,8 @@ func makeItemDeclaration(blocks []Item) *ast.DeclStmt {
 	return out
 }
 
+//go:generate go run $GOFILE
+//go:generate go fmt item.go
 func main() {
 	items, err := downloadInfo()
 	if err != nil {
@@ -126,7 +128,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(`// Package item stores information about items in Minecraft.
+	f, err := os.Create("item.go")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+	defer f.Close()
+
+	fmt.Fprintln(f, `// Package item stores information about items in Minecraft.
 package item
 
 import (
@@ -145,23 +154,23 @@ type Item struct {
 }
 
 `)
-	format.Node(os.Stdout, token.NewFileSet(), makeItemDeclaration(items))
+	format.Node(f, token.NewFileSet(), makeItemDeclaration(items))
 
-	fmt.Println()
-	fmt.Println()
-	fmt.Println("// ByID is an index of minecraft items by their ID.")
-	fmt.Println("var ByID = map[ID]*Item{")
+	fmt.Fprintln(f)
+	fmt.Fprintln(f)
+	fmt.Fprintln(f, "// ByID is an index of minecraft items by their ID.")
+	fmt.Fprintln(f, "var ByID = map[ID]*Item{")
 	for _, i := range items {
-		fmt.Printf("  %d: &%s,\n", i.ID, strcase.ToCamel(i.Name))
+		fmt.Fprintf(f, "  %d: &%s,\n", i.ID, strcase.ToCamel(i.Name))
 	}
-	fmt.Println("}")
-	fmt.Println()
+	fmt.Fprintln(f, "}")
+	fmt.Fprintln(f)
 
-	fmt.Println("// ByName is an index of minecraft items by their name.")
-	fmt.Println("var ByName = map[string]*Item{")
+	fmt.Fprintln(f, "// ByName is an index of minecraft items by their name.")
+	fmt.Fprintln(f, "var ByName = map[string]*Item{")
 	for _, i := range items {
-		fmt.Printf("  %q: &%s,\n", i.Name, strcase.ToCamel(i.Name))
+		fmt.Fprintf(f, "  %q: &%s,\n", i.Name, strcase.ToCamel(i.Name))
 	}
-	fmt.Println("}")
-	fmt.Println()
+	fmt.Fprintln(f, "}")
+	fmt.Fprintln(f)
 }
