@@ -1,5 +1,6 @@
-// gen_entity.go generates entity information.
+//+build ignore
 
+// gen_entity.go generates entity information.
 package main
 
 import (
@@ -106,7 +107,7 @@ func makeEntityDeclaration(entities []Entity) *ast.DeclStmt {
 }
 
 //go:generate go run $GOFILE
-//go:generate go fmt ../entity.go
+//go:generate go fmt entity.go
 func main() {
 	entities, err := downloadInfo()
 	if err != nil {
@@ -114,7 +115,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	f, err := os.Create("../entity.go")
+	f, err := os.Create("entity.go")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

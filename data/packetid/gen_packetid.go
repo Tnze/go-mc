@@ -1,4 +1,6 @@
-// gen_packetIDs.go generates the enumeration of packet IDs used on the wire.
+//+build ignore
+
+//gen_packetid.go generates the enumeration of packet IDs used on the wire.
 package main
 
 import (
@@ -161,7 +163,7 @@ func downloadInfo() (*protocolIDs, error) {
 }
 
 //go:generate go run $GOFILE
-//go:generate go fmt ../packetid.go
+//go:generate go fmt packetid.go
 func main() {
 	pIDs, err := downloadInfo()
 	if err != nil {
@@ -169,7 +171,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	f, err := os.Create("../packetid.go")
+	f, err := os.Create("packetid.go")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

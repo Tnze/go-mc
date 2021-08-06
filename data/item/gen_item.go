@@ -1,7 +1,6 @@
-// gen_blocks.go generates block information.
-
 //+build ignore
 
+// gen_item.go generates item information.
 package main
 
 import (

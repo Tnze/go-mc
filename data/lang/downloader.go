@@ -1,8 +1,11 @@
-// This program can automatic download language.json file and convert into .go
+//+build ignore
+
+// This program can automatically download language.json file and convert into .go
 package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -27,12 +30,11 @@ func main() {
 		readLang("en_us", f)
 		return
 	}
-	// Pseudo code for get versionURL:
-	// $manifest = {https://launchermeta.mojang.com/mc/game/version_manifest.json}
-	// $latest = $manifest.latest.release
-	// $version = {$manifest.versions[where .id == $latest ].url}
-	// $versionURL = $version.assetIndex.url
-	versionURL := "https://launchermeta.mojang.com/v1/packages/e5af543d9b3ce1c063a97842c38e50e29f961f00/1.17.json"
+
+	versionURL, err := assetIndexURL()
+	if err != nil {
+		log.Fatal(err)
+	}
 	log.Print("start generating lang packages")
 
 	resp, err := http.Get(versionURL)
@@ -154,4 +156,60 @@ func trans(m map[string]string) {
 			})
 		}
 	}
+}
+
+func assetIndexURL() (string, error) {
+	// Pseudo code for get versionURL:
+	// $manifest = {https://launchermeta.mojang.com/mc/game/version_manifest.json}
+	// $latest = $manifest.latest.release
+	// $versionURL = {$manifest.versions[where .id == $latest ].url}
+	// $assetIndexURL = $version.assetIndex.url
+	var manifest struct {
+		Latest struct {
+			Release string `json:"release"`
+		} `json:"latest"`
+		Versions []struct{
+			ID string `json:"id"`
+			URL string `json:"url"`
+		} `json:"versions"`
+	}
+
+	manifestRes, err := http.Get("https://launchermeta.mojang.com/mc/game/version_manifest.json")
+	if err != nil {
+		return "", fmt.Errorf("could not reach version manifest: %w", err)
+	}
+	defer manifestRes.Body.Close()
+
+	if err := json.NewDecoder(manifestRes.Body).Decode(&manifest); err != nil {
+		return "", fmt.Errorf("could not decode manifest JSON: %w", err)
+	}
+
+	var versionURL string
+	for _, v := range manifest.Versions {
+		if strings.EqualFold(manifest.Latest.Release, v.ID) {
+			versionURL = v.URL
+			break
+		}
+	}
+	if versionURL == "" {
+		return "", errors.New("could not determine versionURL")
+	}
+
+	var version struct{
+		AssetIndex struct{
+			URL string `json:"url"`
+		} `json:"assetIndex"`
+	}
+
+	versionRes, err := http.Get(versionURL)
+	if err != nil {
+		return "", fmt.Errorf("could not reach versionURL: %w", err)
+	}
+	defer versionRes.Body.Close()
+
+	if err := json.NewDecoder(versionRes.Body).Decode(&version); err != nil {
+		return "", fmt.Errorf("could not decode version JSON: %w", err)
+	}
+
+	return version.AssetIndex.URL, nil
 }
