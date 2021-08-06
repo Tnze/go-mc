@@ -1,4 +1,4 @@
-//+build ignore
+//+build generate
 
 // gen_soundid.go generates the enumeration of sound IDs.
 package main
@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	URL = "https://pokechu22.github.io/Burger/1.17.1.json"
+	protocolURL = "https://pokechu22.github.io/Burger/1.17.1.json"
 )
 
 type sound struct {
@@ -61,7 +61,7 @@ func main() {
 }
 
 func downloadSoundInfo() ([]sound, error) {
-	resp, err := http.Get(URL)
+	resp, err := http.Get(protocolURL)
 	if err != nil {
 		return nil, err
 	}

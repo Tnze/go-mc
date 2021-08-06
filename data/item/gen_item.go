@@ -1,4 +1,4 @@
-//+build ignore
+//+build generate
 
 // gen_item.go generates item information.
 package main

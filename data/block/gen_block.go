@@ -1,4 +1,4 @@
-//+build ignore
+//+build generate
 
 // gen_blocks.go generates block information.
 package main
@@ -139,7 +139,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	f, err := os.Create("entity.go")
+	f, err := os.Create("block.go")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -182,18 +182,18 @@ type Block struct {
 }
 
 `)
-	format.Node(os.Stdout, token.NewFileSet(), makeBlockDeclaration(blocks))
+	format.Node(f, token.NewFileSet(), makeBlockDeclaration(blocks))
 
-	fmt.Fprintln()
-	fmt.Fprintln()
+	fmt.Fprintln(f)
+	fmt.Fprintln(f)
 	fmt.Fprintln(f, "// ByID is an index of minecraft blocks by their ID.")
 	fmt.Fprintln(f, "var ByID = map[ID]*Block{")
 	for _, b := range blocks {
-		fmt.Fprintf(f,"  %d: &%s,\n", b.ID, strcase.ToCamel(b.Name))
+		fmt.Fprintf(f, "  %d: &%s,\n", b.ID, strcase.ToCamel(b.Name))
 	}
 	fmt.Fprintln(f, "}")
 
-	fmt.Fprintln()
+	fmt.Fprintln(f)
 	fmt.Fprintln(f, "// StateID maps all possible state IDs to a corresponding block ID.")
 	fmt.Fprintln(f, "var StateID = map[uint32]ID{")
 	for _, b := range blocks {
@@ -205,5 +205,5 @@ type Block struct {
 			}
 		}
 	}
-	fmt.Fprintln("}")
+	fmt.Fprintln(f, "}")
 }
