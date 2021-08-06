@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	"github.com/google/uuid"
 )
@@ -29,10 +30,12 @@ func (c *Client) Close() error {
 // For online-mode, you need login your Mojang account
 // and load your Name, UUID and AccessToken to client.
 func NewClient() *Client {
-	return &Client{
+	c := &Client{
 		Auth:   Auth{Name: "Steve"},
 		Events: Events{handlers: make(map[int32]*handlerHeap)},
 	}
+	c.Events.AddListener(PacketHandler{Priority: 0, ID: packetid.KeepAliveClientbound, F: c.handleKeepAlivePacket})
+	return c
 }
 
 //Position is a 3D vector.

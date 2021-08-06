@@ -19,7 +19,6 @@ func NewPlayer(c *bot.Client, settings Settings) *Player {
 	b := &Player{c: c, Settings: settings}
 	c.Events.AddListener(
 		bot.PacketHandler{Priority: 0, ID: packetid.Login, F: b.handleJoinGamePacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.KeepAliveClientbound, F: b.handleKeepAlivePacket},
 		bot.PacketHandler{Priority: 0, ID: packetid.PositionClientbound, F: b.handlePlayerPositionAndLook},
 	)
 	return b
