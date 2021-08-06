@@ -138,10 +138,6 @@ func main() {
 	fmt.Fprintln(f, `// Package item stores information about items in Minecraft.
 package item
 
-import (
-	"math"
-)
-
 // ID describes the numeric ID of an item.
 type ID uint32
 
