@@ -247,7 +247,7 @@ func writeListOrArray(e *Encoder, d *decodeState) (tagType byte, err error) {
 			}
 			break
 		}
-		if d.opcode != scanListValue { // TAG_List<TAG_String>
+		if d.opcode != scanListValue && d.opcode != scanEndValue { // TAG_List<TAG_String>
 			panic(phasePanicMsg)
 		}
 		var tagType byte

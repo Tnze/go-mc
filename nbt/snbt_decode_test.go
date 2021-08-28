@@ -48,6 +48,9 @@ var testCases = []testCase{
 	{`{d:[]}`, TagCompound, []byte{10, 0, 0, 9, 0, 1, 'd', 0, 0, 0, 0, 0, 0}},
 	{`{e:[]}`, TagCompound, []byte{10, 0, 0, 9, 0, 1, 'e', 0, 0, 0, 0, 0, 0}},
 	{`{f:[], g:[]}`, TagCompound, []byte{10, 0, 0, 9, 0, 1, 'f', 0, 0, 0, 0, 0, 9, 0, 1, 'g', 0, 0, 0, 0, 0, 0}},
+
+	// issue#121
+	{`{a:[b],c:0B}`, TagCompound, []byte{10, 0, 0, 9, 0, 1, 'a', 8, 0, 0, 0, 1, 0, 1, 'b', 1, 0, 1, 'c', 0, 0}},
 }
 
 func TestStringifiedMessage_TagType(t *testing.T) {
