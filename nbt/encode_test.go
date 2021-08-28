@@ -230,3 +230,26 @@ func TestRawMessage_Encode(t *testing.T) {
 		t.Fatalf("Encode error: want %v, get: %v", data, buf.Bytes())
 	}
 }
+
+func TestEncoder_Encode_interface(t *testing.T) {
+	data := map[string]interface{}{
+		"Key":   int32(12),
+		"Value": "Tnze",
+	}
+	var buf bytes.Buffer
+	if err := NewEncoder(&buf).Encode(data, "ab"); err != nil {
+		t.Fatalf("Encode error: %v", err)
+	}
+
+	var container struct {
+		Key   int32
+		Value string
+	}
+	if _, err := NewDecoder(&buf).Decode(&container); err != nil {
+		t.Fatalf("Decode error: %v", err)
+	}
+
+	if container.Key != 12 || container.Value != "Tnze" {
+		t.Fatalf("want: (%v, %v), but got (%v, %v)", 12, "Tnze", container.Key, container.Value)
+	}
+}
