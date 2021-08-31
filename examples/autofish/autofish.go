@@ -68,19 +68,19 @@ func onGameStart() error {
 }
 
 var soundListener = bot.PacketHandler{
-	ID:       packetid.NamedSoundEffect,
+	ID:       packetid.SoundEffect,
 	Priority: 0,
 	F: func(p pk.Packet) error {
 		var (
-			SoundName     pk.Identifier
+			SoundID       pk.VarInt
 			SoundCategory pk.VarInt
 			X, Y, Z       pk.Int
 			Volume, Pitch pk.Float
 		)
-		if err := p.Scan(&SoundName, &SoundCategory, &X, &Y, &Z, &Volume, &Pitch); err != nil {
+		if err := p.Scan(&SoundID, &SoundCategory, &X, &Y, &Z, &Volume, &Pitch); err != nil {
 			return err
 		}
-		return onSound(string(SoundName), int(SoundCategory), float64(X)/8, float64(Y)/8, float64(Z)/8, float32(Volume), float32(Pitch))
+		return onSound(int(SoundID), int(SoundCategory), float64(X)/8, float64(Y)/8, float64(Z)/8, float32(Volume), float32(Pitch))
 	},
 }
 
@@ -92,8 +92,8 @@ func UseItem(hand int32) error {
 }
 
 //goland:noinspection SpellCheckingInspection
-func onSound(name string, category int, x, y, z float64, volume, pitch float32) error {
-	if name == "entity.fishing_bobber.splash" {
+func onSound(id int, category int, x, y, z float64, volume, pitch float32) error {
+	if id == 369 {
 		if err := UseItem(0); err != nil { //retrieve
 			return err
 		}
