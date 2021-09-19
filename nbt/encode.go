@@ -84,9 +84,20 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 			return err
 		} else {
 			for i := 0; i < n; i++ {
-				v := val.Index(i).Int()
-
+				elem := val.Index(i)
+				for elem.Kind() == reflect.Interface {
+					elem = elem.Elem()
+				}
 				var err error
+				var v int64
+				switch elem.Kind() {
+				case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+					v = elem.Int()
+				case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+					v = int64(elem.Uint())
+				default:
+					return errors.New("value typed " + elem.Type().String() + "is not allowed in Tag 0x" + strconv.FormatUint(uint64(tagType), 16))
+				}
 				if tagType == TagIntArray {
 					err = e.writeInt32(int32(v))
 				} else if tagType == TagLongArray {
