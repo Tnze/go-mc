@@ -43,12 +43,16 @@ func TestSNBT_number(t *testing.T) {
 //go:embed bigTest_test.snbt
 var bigTestSNBT string
 
+//go:embed 1-dimension_codec.snbt
+var dimensionCodecSNBT string
+
 func TestSNBT_compound(t *testing.T) {
 	goods := []string{
 		`{}`, `{name:3.14f}`, `{ "name" : 12345 }`,
 		`{ abc: { }}`, `{ "a b\"c": {}, def: 12345}`,
 		`{ ghi: [], klm: 1}`,
 		bigTestSNBT,
+		dimensionCodecSNBT,
 	}
 	var s scanner
 	for _, str := range goods {
