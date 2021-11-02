@@ -115,9 +115,6 @@ func stateBeginValue(s *scanner, c byte) int {
 		return s.pushParseState(c, parseListValue, scanBeginList)
 	case '"', '\'': // beginning of TAG_String
 		return stateBeginString(s, c)
-	//case '-': // beginning of negative number
-	//s.step = stateNeg
-	//return scanBeginLiteral
 	default:
 		if isNumber(c) {
 			stateNum0(s, c)
