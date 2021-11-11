@@ -62,7 +62,7 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 		array = array.Elem()
 	}
 	if !array.CanAddr() {
-		panic(errors.New("the contents of the array are not addressable"))
+		panic(errors.New("the contents of the Ary are not addressable"))
 	}
 	if array.Cap() < length {
 		array.Set(reflect.MakeSlice(array.Type(), length, length))
