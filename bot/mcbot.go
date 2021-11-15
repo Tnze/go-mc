@@ -51,7 +51,7 @@ func parseAddress(r *net.Resolver, addr string) (string, error) {
 	}
 
 	_, srvs, err := r.LookupSRV(context.TODO(), "minecraft", "tcp", host)
-	if err != nil && len(srvs) > 0 {
+	if err == nil && len(srvs) > 0 {
 		host, port = srvs[0].Target, srvs[0].Port
 	}
 
