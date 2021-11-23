@@ -11,6 +11,9 @@ import (
 
 const MaxRCONPackageSize = 4096
 
+// DialRCON connect to a RCON server and return the connection after login.
+// We promise the returned RCONClientConn is an RCONConn, so you can convert
+// them by type assertions if you need call the ReadPacket() or WritePacket() methods.
 func DialRCON(addr string, password string) (client RCONClientConn, err error) {
 	c := &RCONConn{ReqID: rand.Int31()}
 	client = c
@@ -180,6 +183,7 @@ type RCONClientConn interface {
 	Close() error
 }
 
+// RCONServerConn is the connection in the server side.
 type RCONServerConn interface {
 	AcceptLogin(password string) error
 	AcceptCmd() (cmd string, err error)
@@ -187,6 +191,7 @@ type RCONServerConn interface {
 	Close() error
 }
 
+// ListenRCON announces on the local network address, accepting RCON clients.
 func ListenRCON(addr string) (*RCONListener, error) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -198,6 +203,9 @@ func ListenRCON(addr string) (*RCONListener, error) {
 
 type RCONListener struct{ net.Listener }
 
+// Accept RCON connection for client.
+// We promise the returned RCONServerConn is an RCONConn, so you can convert
+// them by type assertions if you need call the ReadPacket() or WritePacket() methods.
 func (r *RCONListener) Accept() (RCONServerConn, error) {
 	conn, err := r.Listener.Accept()
 	if err != nil {
