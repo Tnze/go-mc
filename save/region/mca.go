@@ -10,7 +10,7 @@ import (
 
 // Region contain 32*32 chunks in one .mca file
 type Region struct {
-	f          *os.File
+	f          io.ReadWriteSeeker
 	offsets    [32][32]int32
 	timestamps [32][32]int32
 
@@ -27,21 +27,30 @@ func In(cx, cy int) (int, int) {
 	return cx & 31, cy & 31
 }
 
-// Open open a .mca file and read the head.
+// Open a .mca file and read the head.
 // Close the Region after used.
 func Open(name string) (r *Region, err error) {
-	r = new(Region)
-	r.sectors = make(map[int32]bool)
-
-	r.f, err = os.OpenFile(name, os.O_RDWR, 0666)
+	f, err := os.OpenFile(name, os.O_RDWR, 0666)
 	if err != nil {
 		return nil, err
+	}
+	r, err = Load(f)
+	if err != nil {
+		_ = f.Close()
+	}
+	return
+}
+
+// Load works like Open but read from an io.ReadWriteSeeker.
+func Load(f io.ReadWriteSeeker) (r *Region, err error) {
+	r = &Region{
+		f:       f,
+		sectors: make(map[int32]bool),
 	}
 
 	// read the offsets
 	err = binary.Read(r.f, binary.BigEndian, &r.offsets)
 	if err != nil {
-		_ = r.f.Close()
 		return nil, err
 	}
 	r.sectors[0] = true
@@ -49,7 +58,6 @@ func Open(name string) (r *Region, err error) {
 	// read the timestamps
 	err = binary.Read(r.f, binary.BigEndian, &r.timestamps)
 	if err != nil {
-		_ = r.f.Close()
 		return nil, err
 	}
 	r.sectors[1] = true
@@ -78,18 +86,18 @@ func Create(name string) (r *Region, err error) {
 		return nil, err
 	}
 
-	// read the offsets
+	// write the offsets
 	err = binary.Write(r.f, binary.BigEndian, &r.offsets)
 	if err != nil {
-		_ = r.f.Close()
+		_ = r.Close()
 		return nil, err
 	}
 	r.sectors[0] = true
 
-	// read the timestamps
+	// write the timestamps
 	err = binary.Write(r.f, binary.BigEndian, &r.timestamps)
 	if err != nil {
-		_ = r.f.Close()
+		_ = r.Close()
 		return nil, err
 	}
 	r.sectors[1] = true
@@ -97,9 +105,15 @@ func Create(name string) (r *Region, err error) {
 	return r, nil
 }
 
-// Close close the region file
+// Close the region file if possible.
+// The responsibility for Close the file with who Open it.
+// If you made the Region with Load(),
+// this method close the file only if your io.ReadWriteSeeker implement io.Close
 func (r *Region) Close() error {
-	return r.f.Close()
+	if closer, ok := r.f.(io.Closer); ok {
+		return closer.Close()
+	}
+	return nil
 }
 
 func sectorLoc(offset int32) (sec, num int32) {
@@ -211,16 +225,27 @@ func (r *Region) setHead(x, y int, offset, timestamp uint32) (err error) {
 	var buf [4]byte
 
 	binary.BigEndian.PutUint32(buf[:], offset)
-	_, err = r.f.WriteAt(buf[:], 4*(int64(x)*32+int64(y)))
+	_, err = r.writeAt(buf[:], 4*(int64(x)*32+int64(y)))
 	if err != nil {
 		return
 	}
 
 	binary.BigEndian.PutUint32(buf[:], timestamp)
-	_, err = r.f.WriteAt(buf[:], 4096+4*(int64(x)*32+int64(y)))
+	_, err = r.writeAt(buf[:], 4096+4*(int64(x)*32+int64(y)))
 	if err != nil {
 		return
 	}
 
 	return
+}
+
+func (r *Region) writeAt(p []byte, off int64) (n int, err error) {
+	if f, ok := r.f.(io.WriterAt); ok {
+		return f.WriteAt(p, off)
+	}
+	_, err = r.f.Seek(off, 0)
+	if err != nil {
+		return 0, err
+	}
+	return r.f.Write(p)
 }
