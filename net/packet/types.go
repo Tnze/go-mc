@@ -17,7 +17,7 @@ type Field interface {
 	FieldDecoder
 }
 
-// A FieldEncoder can be encode as minecraft protocol used.
+// A FieldEncoder can be encoded as minecraft protocol used.
 type FieldEncoder io.WriterTo
 
 // A FieldDecoder can Decode from minecraft protocol
@@ -73,12 +73,14 @@ type (
 
 	//PluginMessageData is only used in LoginPlugin,and it will read all left bytes
 	PluginMessageData []byte
+
+	//BitSet represents Java's BitSet, a list of bits.
+	BitSet []int64
 )
 
 const MaxVarIntLen = 5
 const MaxVarLongLen = 10
 
-//Encode a Boolean
 func (b Boolean) WriteTo(w io.Writer) (int64, error) {
 	var v byte
 	if b {
@@ -90,7 +92,6 @@ func (b Boolean) WriteTo(w io.Writer) (int64, error) {
 	return int64(nn), err
 }
 
-//Decode a Boolean
 func (b *Boolean) ReadFrom(r io.Reader) (n int64, err error) {
 	v, err := readByte(r)
 	if err != nil {
@@ -101,7 +102,6 @@ func (b *Boolean) ReadFrom(r io.Reader) (n int64, err error) {
 	return 1, nil
 }
 
-// Encode a String
 func (s String) WriteTo(w io.Writer) (int64, error) {
 	byteStr := []byte(s)
 	n1, err := VarInt(len(byteStr)).WriteTo(w)
@@ -112,7 +112,6 @@ func (s String) WriteTo(w io.Writer) (int64, error) {
 	return n1 + int64(n2), err
 }
 
-//Decode a String
 func (s *String) ReadFrom(r io.Reader) (n int64, err error) {
 	var l VarInt //String length
 
@@ -142,13 +141,11 @@ func readByte(r io.Reader) (byte, error) {
 	return v[0], err
 }
 
-//Encode a Byte
 func (b Byte) WriteTo(w io.Writer) (n int64, err error) {
 	nn, err := w.Write([]byte{byte(b)})
 	return int64(nn), err
 }
 
-//Decode a Byte
 func (b *Byte) ReadFrom(r io.Reader) (n int64, err error) {
 	v, err := readByte(r)
 	if err != nil {
@@ -158,13 +155,11 @@ func (b *Byte) ReadFrom(r io.Reader) (n int64, err error) {
 	return 1, nil
 }
 
-//Encode a UnsignedByte
 func (u UnsignedByte) WriteTo(w io.Writer) (n int64, err error) {
 	nn, err := w.Write([]byte{byte(u)})
 	return int64(nn), err
 }
 
-//Decode a UnsignedByte
 func (u *UnsignedByte) ReadFrom(r io.Reader) (n int64, err error) {
 	v, err := readByte(r)
 	if err != nil {
@@ -174,14 +169,12 @@ func (u *UnsignedByte) ReadFrom(r io.Reader) (n int64, err error) {
 	return 1, nil
 }
 
-// Encode a Signed Short
 func (s Short) WriteTo(w io.Writer) (int64, error) {
 	n := uint16(s)
 	nn, err := w.Write([]byte{byte(n >> 8), byte(n)})
 	return int64(nn), err
 }
 
-//Decode a Short
 func (s *Short) ReadFrom(r io.Reader) (n int64, err error) {
 	var bs [2]byte
 	if nn, err := io.ReadFull(r, bs[:]); err != nil {
@@ -194,14 +187,12 @@ func (s *Short) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-// Encode a Unsigned Short
 func (us UnsignedShort) WriteTo(w io.Writer) (int64, error) {
 	n := uint16(us)
 	nn, err := w.Write([]byte{byte(n >> 8), byte(n)})
 	return int64(nn), err
 }
 
-//Decode a UnsignedShort
 func (us *UnsignedShort) ReadFrom(r io.Reader) (n int64, err error) {
 	var bs [2]byte
 	if nn, err := io.ReadFull(r, bs[:]); err != nil {
@@ -214,14 +205,12 @@ func (us *UnsignedShort) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-// Encode a Int
 func (i Int) WriteTo(w io.Writer) (int64, error) {
 	n := uint32(i)
 	nn, err := w.Write([]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
 	return int64(nn), err
 }
 
-//Decode a Int
 func (i *Int) ReadFrom(r io.Reader) (n int64, err error) {
 	var bs [4]byte
 	if nn, err := io.ReadFull(r, bs[:]); err != nil {
@@ -234,7 +223,6 @@ func (i *Int) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-// Encode a Long
 func (l Long) WriteTo(w io.Writer) (int64, error) {
 	n := uint64(l)
 	nn, err := w.Write([]byte{
@@ -244,7 +232,6 @@ func (l Long) WriteTo(w io.Writer) (int64, error) {
 	return int64(nn), err
 }
 
-//Decode a Long
 func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
 	var bs [8]byte
 	if nn, err := io.ReadFull(r, bs[:]); err != nil {
@@ -258,7 +245,6 @@ func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-//Encode a VarInt
 func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
 	var vi = make([]byte, 0, MaxVarIntLen)
 	num := uint32(v)
@@ -277,7 +263,6 @@ func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
 	return int64(nn), err
 }
 
-//Decode a VarInt
 func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 	var V uint32
 	for sec := byte(0x80); sec&0x80 != 0; n++ {
@@ -297,7 +282,6 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-//Encode a VarLong
 func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
 	var vi = make([]byte, 0, MaxVarLongLen)
 	num := uint64(v)
@@ -316,7 +300,6 @@ func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
 	return int64(nn), err
 }
 
-//Decode a VarLong
 func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 	var V uint64
 	for sec := byte(0x80); sec&0x80 != 0; n++ {
@@ -335,7 +318,6 @@ func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-//Encode a Position
 func (p Position) WriteTo(w io.Writer) (n int64, err error) {
 	var b [8]byte
 	position := uint64(p.X&0x3FFFFFF)<<38 | uint64((p.Z&0x3FFFFFF)<<12) | uint64(p.Y&0xFFF)
@@ -347,7 +329,6 @@ func (p Position) WriteTo(w io.Writer) (n int64, err error) {
 	return int64(nn), err
 }
 
-// Decode a Position
 func (p *Position) ReadFrom(r io.Reader) (n int64, err error) {
 	var v Long
 	nn, err := v.ReadFrom(r)
@@ -393,12 +374,10 @@ func (a *Angle) ReadFrom(r io.Reader) (int64, error) {
 	return (*Byte)(a).ReadFrom(r)
 }
 
-//Encode a Float
 func (f Float) WriteTo(w io.Writer) (n int64, err error) {
 	return Int(math.Float32bits(float32(f))).WriteTo(w)
 }
 
-// Decode a Float
 func (f *Float) ReadFrom(r io.Reader) (n int64, err error) {
 	var v Int
 
@@ -411,12 +390,10 @@ func (f *Float) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-//Encode a Double
 func (d Double) WriteTo(w io.Writer) (n int64, err error) {
 	return Long(math.Float64bits(float64(d))).WriteTo(w)
 }
 
-// Decode a Double
 func (d *Double) ReadFrom(r io.Reader) (n int64, err error) {
 	var v Long
 	n, err = v.ReadFrom(r)
@@ -461,7 +438,6 @@ func (n nbtField) ReadFrom(r io.Reader) (int64, error) {
 	return math.MaxInt64 - lr.N, err
 }
 
-// Encode a ByteArray
 func (b ByteArray) WriteTo(w io.Writer) (n int64, err error) {
 	n1, err := VarInt(len(b)).WriteTo(w)
 	if err != nil {
@@ -471,7 +447,6 @@ func (b ByteArray) WriteTo(w io.Writer) (n int64, err error) {
 	return n1 + int64(n2), err
 }
 
-// Decode a ByteArray
 func (b *ByteArray) ReadFrom(r io.Reader) (n int64, err error) {
 	var Len VarInt
 	n1, err := Len.ReadFrom(r)
@@ -485,26 +460,70 @@ func (b *ByteArray) ReadFrom(r io.Reader) (n int64, err error) {
 	return n1 + n2, err
 }
 
-// Encode a UUID
 func (u UUID) WriteTo(w io.Writer) (n int64, err error) {
 	nn, err := w.Write(u[:])
 	return int64(nn), err
 }
 
-// Decode a UUID
 func (u *UUID) ReadFrom(r io.Reader) (n int64, err error) {
 	nn, err := io.ReadFull(r, (*u)[:])
 	return int64(nn), err
 }
 
-// Encode a PluginsMessageData
 func (p *PluginMessageData) WriteTo(w io.Writer) (n int64, err error) {
 	nn, err := w.Write(*p)
 	return int64(nn), err
 }
 
-// Decode a PluginsMessageData
 func (p *PluginMessageData) ReadFrom(r io.Reader) (n int64, err error) {
 	*p, err = io.ReadAll(r)
 	return int64(len(*p)), err
+}
+
+func (b BitSet) WriteTo(w io.Writer) (n int64, err error) {
+	n, err = VarInt(len(b)).WriteTo(w)
+	if err != nil {
+		return
+	}
+	for i := range b {
+		n2, err := Long(b[i]).WriteTo(w)
+		if err != nil {
+			return n + n2, err
+		}
+		n += n2
+	}
+	return
+}
+
+func (b *BitSet) ReadFrom(r io.Reader) (n int64, err error) {
+	var Len VarInt
+	n, err = Len.ReadFrom(r)
+	if err != nil {
+		return
+	}
+	if int(Len) > cap(*b) {
+		*b = make([]int64, Len)
+	} else {
+		*b = (*b)[:Len]
+	}
+	for i := 0; i < int(Len); i++ {
+		n2, err := ((*Long)(&(*b)[i])).ReadFrom(r)
+		if err != nil {
+			return n + n2, err
+		}
+		n += n2
+	}
+	return
+}
+
+func (b BitSet) Get(index int) bool {
+	return (b[index/64] & (1 << (index % 64))) != 0
+}
+
+func (b BitSet) Set(index int, value bool) {
+	if value {
+		b[index/64] |= 1 << (index % 64)
+	} else {
+		b[index/64] &= ^(1 << (index % 64))
+	}
 }
