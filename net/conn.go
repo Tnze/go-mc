@@ -2,7 +2,6 @@
 package net
 
 import (
-	"bufio"
 	"crypto/cipher"
 	"io"
 	"net"
@@ -27,9 +26,10 @@ func ListenMC(addr string) (*Listener, error) {
 func (l Listener) Accept() (Conn, error) {
 	conn, err := l.Listener.Accept()
 	return Conn{
-		Socket: conn,
-		Reader: bufio.NewReader(conn),
-		Writer: conn,
+		Socket:    conn,
+		Reader:    conn,
+		Writer:    conn,
+		threshold: -1,
 	}, err
 }
 
@@ -46,9 +46,10 @@ type Conn struct {
 func DialMC(addr string) (*Conn, error) {
 	conn, err := net.Dial("tcp", addr)
 	return &Conn{
-		Socket: conn,
-		Reader: conn,
-		Writer: conn,
+		Socket:    conn,
+		Reader:    conn,
+		Writer:    conn,
+		threshold: -1,
 	}, err
 }
 
@@ -56,9 +57,10 @@ func DialMC(addr string) (*Conn, error) {
 func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 	conn, err := net.DialTimeout("tcp", addr, timeout)
 	return &Conn{
-		Socket: conn,
-		Reader: conn,
-		Writer: conn,
+		Socket:    conn,
+		Reader:    conn,
+		Writer:    conn,
+		threshold: -1,
 	}, err
 }
 
@@ -66,13 +68,14 @@ func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 // Helps you modify the connection process (eg. using DialContext).
 func WrapConn(conn net.Conn) *Conn {
 	return &Conn{
-		Socket: conn,
-		Reader: conn,
-		Writer: conn,
+		Socket:    conn,
+		Reader:    conn,
+		Writer:    conn,
+		threshold: -1,
 	}
 }
 
-//Close close the connection
+//Close the connection
 func (c *Conn) Close() error { return c.Socket.Close() }
 
 // ReadPacket read a Packet from Conn.
@@ -80,7 +83,7 @@ func (c *Conn) ReadPacket(p *pk.Packet) error {
 	return p.UnPack(c.Reader, c.threshold)
 }
 
-//WritePacket write a Packet to Conn.
+// WritePacket write a Packet to Conn.
 func (c *Conn) WritePacket(p pk.Packet) error {
 	return p.Pack(c.Writer, c.threshold)
 }
@@ -99,8 +102,8 @@ func (c *Conn) SetCipher(ecoStream, decoStream cipher.Stream) {
 }
 
 // SetThreshold set threshold to Conn.
-// The data packet with length longer then threshold
-// will be compress when sending.
+// The data packet with length equal or longer then threshold
+// will be compressed when sending.
 func (c *Conn) SetThreshold(t int) {
 	c.threshold = t
 }

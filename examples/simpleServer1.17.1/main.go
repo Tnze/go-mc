@@ -148,7 +148,7 @@ func handshake(conn net.Conn) (protocol, intention int32, err error) {
 // loginSuccess send LoginSuccess packet to client
 func loginSuccess(conn net.Conn, name string, uuid uuid.UUID) error {
 	return conn.WritePacket(pk.Marshal(0x02,
-		pk.UUID(uuid), //uuid as string with hyphens
+		pk.UUID(uuid),
 		pk.String(name),
 	))
 }

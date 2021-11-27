@@ -36,42 +36,75 @@ func (p Packet) Scan(fields ...FieldDecoder) error {
 
 // Pack 打包一个数据包
 func (p *Packet) Pack(w io.Writer, threshold int) error {
-	var content bytes.Buffer
-	if _, err := VarInt(p.ID).WriteTo(&content); err != nil {
-		panic(err)
-	}
-	if _, err := content.Write(p.Data); err != nil {
-		panic(err)
-	}
-	if threshold > 0 { //是否启用了压缩
-		rawLen := content.Len()
-		uncompressedLen := VarInt(rawLen)
-		if rawLen > threshold { //是否需要压缩
-			compress(&content)
-		} else {
-			uncompressedLen = 0
-		}
-
-		uncompressedLenLen, _ := uncompressedLen.WriteTo(io.Discard)
-		if _, err := VarInt(uncompressedLenLen + int64(rawLen)).WriteTo(w); err != nil {
-			return err
-		}
-
-		if _, err := uncompressedLen.WriteTo(w); err != nil {
-			return err
-		}
-		if _, err := content.WriteTo(w); err != nil {
-			return err
-		}
+	if threshold >= 0 {
+		return p.withCompression(w)
 	} else {
-		if _, err := VarInt(content.Len()).WriteTo(w); err != nil {
-			return err
-		}
-		if _, err := content.WriteTo(w); err != nil {
-			return err
-		}
+		return p.withoutCompression(w)
+	}
+}
+
+func (p *Packet) withoutCompression(w io.Writer) error {
+	var buf [5]byte
+	buffer := bytes.NewBuffer(buf[:0])
+	n, err := VarInt(p.ID).WriteTo(buffer)
+	if err != nil {
+		panic(err)
+	}
+	// Length
+	_, err = VarInt(int(n) + len(p.Data)).WriteTo(w)
+	if err != nil {
+		return err
+	}
+	// Packet ID
+	_, err = buffer.WriteTo(w)
+	if err != nil {
+		return err
+	}
+	// Data
+	_, err = w.Write(p.Data)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *Packet) withCompression(w io.Writer) error {
+	var buff bytes.Buffer
+	zw := zlib.NewWriter(&buff)
+	n1, err := VarInt(p.ID).WriteTo(zw)
+	if err != nil {
+		return err
+	}
+	n2, err := zw.Write(p.Data)
+	if err != nil {
+		return err
+	}
+	err = zw.Close()
+	if err != nil {
+		return err
 	}
 
+	var dataLength bytes.Buffer
+	n3, err := VarInt(int(n1) + n2).WriteTo(&dataLength)
+	if err != nil {
+		return err
+	}
+
+	// Packet Length
+	_, err = VarInt(int(n3) + buff.Len()).WriteTo(w)
+	if err != nil {
+		return err
+	}
+	// Data Length
+	_, err = dataLength.WriteTo(w)
+	if err != nil {
+		return err
+	}
+	// PacketID + Data
+	_, err = buff.WriteTo(w)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -91,7 +124,7 @@ func (p *Packet) UnPack(r io.Reader, threshold int) error {
 	buffer := bytes.NewBuffer(buf)
 
 	//解压数据
-	if threshold > 0 {
+	if threshold >= 0 {
 		if err := unCompress(buffer); err != nil {
 			return err
 		}
@@ -116,7 +149,9 @@ func unCompress(data *bytes.Buffer) error {
 	}
 
 	var uncompressedData []byte
-	if sizeUncompressed != 0 { // != 0 means compressed, let's decompress
+	if sizeUncompressed == 0 {
+		uncompressedData = data.Bytes()[1:]
+	} else { // != 0 means compressed, let's decompress
 		uncompressedData = make([]byte, sizeUncompressed)
 		r, err := zlib.NewReader(reader)
 		if err != nil {
@@ -127,23 +162,7 @@ func unCompress(data *bytes.Buffer) error {
 		if err != nil {
 			return fmt.Errorf("decompress fail: %v", err)
 		}
-	} else {
-		uncompressedData = data.Bytes()[1:]
 	}
 	*data = *bytes.NewBuffer(uncompressedData)
 	return nil
-}
-
-// compress 压缩数据
-func compress(data *bytes.Buffer) {
-	var b bytes.Buffer
-	w := zlib.NewWriter(&b)
-	if _, err := data.WriteTo(w); err != nil {
-		panic(err)
-	}
-	if err := w.Close(); err != nil {
-		panic(err)
-	}
-	*data = b
-	return
 }
