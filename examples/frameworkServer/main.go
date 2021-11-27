@@ -33,7 +33,7 @@ func main() {
 	ms.MojangLoginHandler.Threshold = 256
 
 	ms.Settings.Name = "MyServer"
-	ms.Settings.MaxPlayer = 20
+	ms.Settings.MaxPlayer = 1
 	ms.Settings.MOTD = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
 
 	s := server.Server{
@@ -87,6 +87,16 @@ func (m *MyServer) Description() chat.Message {
 func (m *MyServer) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
 	// Add player into PlayerList
 	m.PlayerListLock.Lock()
+	if m.PlayerList.Len() >= m.Settings.MaxPlayer {
+		err := conn.WritePacket(pk.Marshal(packetid.KickDisconnect,
+			chat.TranslateMsg("multiplayer.disconnect.server_full"),
+		))
+		if err != nil {
+			log.Printf("Write packet fail: %v", err)
+		}
+		m.PlayerListLock.Unlock()
+		return
+	}
 	elem := m.PlayerList.PushBack(server.PlayerSample{
 		Name: name,
 		ID:   id,
