@@ -56,15 +56,20 @@ func (m *Manager) onOpenScreen(p pk.Packet) error {
 func (m *Manager) onSetContentPacket(p pk.Packet) error {
 	var (
 		ContainerID pk.UnsignedByte
-		Count       pk.Short
+		StateID     pk.VarInt
+		Count       pk.VarInt
 		SlotData    []Slot
+		CarriedItem Slot
 	)
 	if err := p.Scan(
 		&ContainerID,
+		&StateID,
 		&Count, pk.Ary{
 			Len: &Count,
 			Ary: &SlotData,
-		}); err != nil {
+		},
+		&CarriedItem,
+	); err != nil {
 		return Error{err}
 	}
 	// copy the slot data to container
