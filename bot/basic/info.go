@@ -20,6 +20,7 @@ type WorldInfo struct {
 	HashedSeed          int64    // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
 	MaxPlayers          int32    // Was once used by the client to draw the player list, but now is ignored.
 	ViewDistance        int32    // Render distance (2-32).
+	SimulationDistance  int32    // The distance that the client will process specific things, such as entities.
 	ReducedDebugInfo    bool     // If true, a Notchian client shows reduced information on the debug screen. For servers in development, this should almost always be false.
 	EnableRespawnScreen bool     // Set to false when the doImmediateRespawn gamerule is true.
 	IsDebug             bool     // True if the world is a debug mode world; debug mode worlds cannot be modified and have predefined blocks.
@@ -54,6 +55,7 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.VarInt)(&p.MaxPlayers),
 		(*pk.VarInt)(&p.ViewDistance),
+		(*pk.VarInt)(&p.SimulationDistance),
 		(*pk.Boolean)(&p.ReducedDebugInfo),
 		(*pk.Boolean)(&p.EnableRespawnScreen),
 		(*pk.Boolean)(&p.IsDebug),

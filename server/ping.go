@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
@@ -32,14 +33,14 @@ func (s *Server) acceptListPing(conn *net.Conn) {
 		}
 
 		switch p.ID {
-		case 0x00: //List
+		case packetid.ServerInfo: //List
 			var resp []byte
 			resp, err = s.listResp()
 			if err != nil {
 				break
 			}
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(resp)))
-		case 0x01: //Ping
+		case packetid.PingClientbound: //Ping
 			err = conn.WritePacket(p)
 		}
 		if err != nil {

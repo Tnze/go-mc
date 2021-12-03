@@ -150,6 +150,7 @@ func (m *MyServer) joinGame(conn *net.Conn) error {
 		pk.Long(0),                                         // Hashed Seed
 		pk.VarInt(m.Settings.MaxPlayer),                    // Max Players
 		pk.VarInt(15),                                      // View Distance
+		pk.VarInt(15),                                      // Simulation Distance
 		pk.Boolean(false),                                  // Reduced Debug Info
 		pk.Boolean(true),                                   // Enable respawn screen
 		pk.Boolean(false),                                  // Is Debug
