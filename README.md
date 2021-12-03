@@ -4,27 +4,27 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/Tnze/go-mc.svg)](https://pkg.go.dev/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
+[![Discord](https://img.shields.io/discord/915805561138860063?label=Discord)](https://discord.gg/A4qh8BT8Ue)
 
 Require Go version: 1.16
 
 There's some library in Go support you to create your Minecraft client or server.  
 这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器。
 
-- [x] Chat Message (Support Json or old `§`)
-- [x] NBT (Based on reflection)
-- [x] SNBT -> NBT
-- [x] Yggdrasil
-- [x] Realms Server
-- [x] RCON protocol (Server & Client)
-- [x] Saves decoding & encoding
-- [x] Minecraft network protocol
-- [x] Robot framework
+- [x] 👍 Minecraft network protocol
+- [x] 👍 Dual role RCON protocol (Server & Client)
+- [x] 👍 Robot framework
+- [ ] 🚧 Server framework
+- [x] 👍 Chat Message (Support both Json and old `§` format)
+- [x] 👍 NBT (Based on reflection)
+- [x] 👍 SNBT ⇋ NBT
+- [x] 👌 Saves decoding & encoding
+- [x] 👌 Yggdrasil (Mojang login)
+- [x] ⌛ Realms Server
 
-> 由于仍在开发中，部分API在未来版本中可能会变动
+> We don't promise that API is 100% backward compatible.
 
-> `1.13.2` version is at [gomcbot](https://github.com/Tnze/gomcbot).
-
-## Getting start
+## Getting start 
 
 After you install golang:  
 To get the latest version: `go get github.com/Tnze/go-mc@master`  
