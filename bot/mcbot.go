@@ -16,8 +16,8 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-// ProtocolVersion , the protocol version number of minecraft net protocol
-const ProtocolVersion = 756
+// ProtocolVersion is the protocol version number of minecraft net protocol
+const ProtocolVersion = 757
 const DefaultPort = 25565
 
 // JoinServer connect a Minecraft server for playing the game.
@@ -31,7 +31,7 @@ func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
 	return c.join(d, addr)
 }
 
-// parseAddress will lookup SRV records for the address
+// parseAddress will look up SRV records for the address
 func parseAddress(r *net.Resolver, addr string) (string, error) {
 	var port uint16
 	var addrErr *net.AddrError

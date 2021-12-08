@@ -1,4 +1,5 @@
-//+build generate
+//go:build generate
+// +build generate
 
 //gen_packetid.go generates the enumeration of packet IDs used on the wire.
 package main

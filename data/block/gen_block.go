@@ -1,4 +1,5 @@
-//+build generate
+//go:build generate
+// +build generate
 
 // gen_blocks.go generates block information.
 package main

@@ -2,7 +2,7 @@ package server
 
 import "github.com/Tnze/go-mc/net"
 
-const ProtocolVersion = 756
+const ProtocolVersion = 757
 
 type Server struct {
 	ListPingHandler
