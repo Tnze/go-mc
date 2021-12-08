@@ -57,11 +57,11 @@ a [Handshake Packet](https://wiki.vg/Protocol#Handshake). You can create this pa
 
 ```go
 p := pk.Marshal(
-0x00, // Handshake packet ID
-pk.VarInt(ProtocolVersion), // Protocol version
-pk.String("localhost"),  // Server's address
-pk.UnsignedShort(25565), // Server's port
-pk.Byte(1), // 1 for status ping, 2 for login
+    0x00, // Handshake packet ID
+    pk.VarInt(ProtocolVersion), // Protocol version
+    pk.String("localhost"),  // Server's address
+    pk.UnsignedShort(25565), // Server's port
+    pk.Byte(1), // 1 for status ping, 2 for login
 )
 ```
 
