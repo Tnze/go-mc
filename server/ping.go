@@ -16,7 +16,7 @@ type ListPingHandler interface {
 	MaxPlayer() int
 	OnlinePlayer() int
 	PlayerSamples() []PlayerSample
-	Description() chat.Message
+	Description() *chat.Message
 }
 
 type PlayerSample struct {
@@ -60,8 +60,8 @@ func (s *Server) listResp() ([]byte, error) {
 			Online int            `json:"online"`
 			Sample []PlayerSample `json:"sample"`
 		} `json:"players"`
-		Description chat.Message `json:"description"`
-		FavIcon     string       `json:"favicon,omitempty"`
+		Description *chat.Message `json:"description"`
+		FavIcon     string        `json:"favicon,omitempty"`
 	}
 
 	list.Version.Name = s.ListPingHandler.Name()
