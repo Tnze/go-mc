@@ -1,8 +1,6 @@
 package nbt
 
-import (
-	"strconv"
-)
+import "strconv"
 
 const (
 	scanContinue        = iota // uninteresting byte
@@ -50,7 +48,7 @@ func (s *scanner) reset() {
 
 // pushParseState pushes a new parse state p onto the parse stack.
 // an error state is returned if maxNestingDepth was exceeded, otherwise successState is returned.
-func (s *scanner) pushParseState(c byte, newParseState int, successState int) int {
+func (s *scanner) pushParseState(newParseState int, successState int) int {
 	s.parseState = append(s.parseState, newParseState)
 	if len(s.parseState) <= maxNestingDepth {
 		return successState
@@ -109,10 +107,10 @@ func stateBeginValue(s *scanner, c byte) int {
 	switch c {
 	case '{': // beginning of TAG_Compound
 		s.step = stateCompoundOrEmpty
-		return s.pushParseState(c, parseCompoundName, scanBeginCompound)
+		return s.pushParseState(parseCompoundName, scanBeginCompound)
 	case '[': // beginning of TAG_List
 		s.step = stateListOrArray
-		return s.pushParseState(c, parseListValue, scanBeginList)
+		return s.pushParseState(parseListValue, scanBeginList)
 	case '"', '\'': // beginning of TAG_String
 		return stateBeginString(s, c)
 	default:
@@ -239,18 +237,6 @@ func stateArrayT(s *scanner, c byte) int {
 		return scanEndValue
 	}
 	return stateBeginValue(s, c)
-}
-
-func stateNeg(s *scanner, c byte) int {
-	if isNumber(c) {
-		s.step = stateNum0
-		return scanBeginLiteral
-	}
-	if isAllowedInUnquotedString(c) {
-		s.step = stateInUnquotedString
-		return scanBeginLiteral
-	}
-	return s.error(c, "not a number after '-'")
 }
 
 func stateNum0(s *scanner, c byte) int {
