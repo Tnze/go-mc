@@ -111,7 +111,7 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 
 		//Handle Packet
 		switch p.ID {
-		case packetid.Disconnect: //Disconnect
+		case packetid.LoginDisconnect: //LoginDisconnect
 			var reason chat.Message
 			err = p.Scan(&reason)
 			if err != nil {
@@ -119,12 +119,12 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 			}
 			return LoginErr{"disconnect", DisconnectErr(reason)}
 
-		case packetid.EncryptionBeginClientbound: //Encryption Request
+		case packetid.LoginEncryptionRequest: //Encryption Request
 			if err := handleEncryptionRequest(c, p); err != nil {
 				return LoginErr{"encryption", err}
 			}
 
-		case packetid.Success: //Login Success
+		case packetid.LoginSuccess: //Login Success
 			err := p.Scan(
 				(*pk.UUID)(&c.UUID),
 				(*pk.String)(&c.Name),
@@ -134,7 +134,7 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 			}
 			return nil
 
-		case packetid.Compress: //Set Compression
+		case packetid.SetCompression: //Set Compression
 			var threshold pk.VarInt
 			if err := p.Scan(&threshold); err != nil {
 				return LoginErr{"compression", err}

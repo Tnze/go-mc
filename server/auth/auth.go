@@ -89,7 +89,7 @@ func encryptionRequest(conn *net.Conn, publicKey []byte) ([]byte, error) {
 		return nil, err
 	}
 	err = conn.WritePacket(pk.Marshal(
-		packetid.EncryptionBeginClientbound,
+		packetid.LoginEncryptionRequest,
 		pk.String(""),
 		pk.ByteArray(publicKey),
 		pk.ByteArray(verifyToken[:]),
@@ -103,7 +103,7 @@ func encryptionResponse(conn *net.Conn) ([]byte, []byte, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	if p.ID != packetid.EncryptionBeginServerbound {
+	if p.ID != packetid.LoginEncryptionResponse {
 		return nil, nil, fmt.Errorf("0x%02X is not Encryption Response", p.ID)
 	}
 

@@ -68,7 +68,7 @@ func onGameStart() error {
 }
 
 var soundListener = bot.PacketHandler{
-	ID:       packetid.SoundEffect,
+	ID:       packetid.ClientboundSound,
 	Priority: 0,
 	F: func(p pk.Packet) error {
 		var (
@@ -86,7 +86,7 @@ var soundListener = bot.PacketHandler{
 
 func UseItem(hand int32) error {
 	return c.Conn.WritePacket(pk.Marshal(
-		packetid.UseItem,
+		packetid.ServerboundUseItem,
 		pk.VarInt(hand),
 	))
 }

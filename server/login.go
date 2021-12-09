@@ -55,7 +55,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	//set compression
 	if d.Threshold >= 0 {
 		err = conn.WritePacket(pk.Marshal(
-			packetid.Compress, pk.VarInt(d.Threshold),
+			packetid.SetCompression, pk.VarInt(d.Threshold),
 		))
 		if err != nil {
 			return
@@ -64,7 +64,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	}
 
 	// send login success
-	err = conn.WritePacket(pk.Marshal(packetid.Success,
+	err = conn.WritePacket(pk.Marshal(packetid.LoginSuccess,
 		pk.UUID(id),
 		pk.String(name),
 	))

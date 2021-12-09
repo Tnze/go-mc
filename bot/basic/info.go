@@ -73,7 +73,7 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 	p.WorldNames = *(*[]string)(unsafe.Pointer(&WorldNames))
 
 	err = p.c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
-		packetid.CustomPayloadServerbound,
+		packetid.ServerboundCustomPayload,
 		pk.Identifier("minecraft:brand"),
 		pk.String(p.Settings.Brand),
 	))
@@ -82,7 +82,7 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 	}
 
 	err = p.c.Conn.WritePacket(pk.Marshal(
-		packetid.Settings, // Client settings
+		packetid.ServerboundClientInformation, // Client settings
 		pk.String(p.Settings.Locale),
 		pk.Byte(p.Settings.ViewDistance),
 		pk.VarInt(p.Settings.ChatMode),

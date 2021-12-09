@@ -45,7 +45,7 @@ func (m *MyServer) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn 
 		ID:   id,
 	})
 	if remove == nil {
-		err := conn.WritePacket(pk.Marshal(packetid.KickDisconnect,
+		err := conn.WritePacket(pk.Marshal(packetid.ClientboundDisconnect,
 			chat.TranslateMsg("multiplayer.disconnect.server_full"),
 		))
 		if err != nil {
@@ -83,7 +83,7 @@ var dimensionCodecSNBT string
 var dimensionSNBT string
 
 func (m *MyServer) joinGame(conn *net.Conn) error {
-	return conn.WritePacket(pk.Marshal(packetid.Login,
+	return conn.WritePacket(pk.Marshal(packetid.ClientboundLogin,
 		pk.Int(0),          // EntityID
 		pk.Boolean(false),  // Is hardcore
 		pk.UnsignedByte(1), // Gamemode
@@ -105,8 +105,7 @@ func (m *MyServer) joinGame(conn *net.Conn) error {
 }
 
 func (m *MyServer) playerPositionAndLook(conn *net.Conn) error {
-	return conn.WritePacket(pk.Marshal(packetid.PositionClientbound,
-		// https://wiki.vg/index.php?title=Protocol&oldid=16067#Player_Position_And_Look_.28clientbound.29
+	return conn.WritePacket(pk.Marshal(packetid.ClientboundPlayerPosition,
 		pk.Double(0), pk.Double(0), pk.Double(0), // XYZ
 		pk.Float(0), pk.Float(0), // Yaw Pitch
 		pk.Byte(0),        // flag

@@ -77,7 +77,7 @@ func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
 	//LIST
 	//请求服务器状态
 	err = conn.WritePacket(pk.Marshal(
-		packetid.PingStart,
+		packetid.StatusRequest,
 	))
 	if err != nil {
 		return nil, 0, fmt.Errorf("bot: send list packect fail: %v", err)
@@ -97,7 +97,7 @@ func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
 	//PING
 	startTime := time.Now()
 	err = conn.WritePacket(pk.Marshal(
-		packetid.PingServerbound,
+		packetid.StatusPing,
 		pk.Long(startTime.Unix()),
 	))
 	if err != nil {
