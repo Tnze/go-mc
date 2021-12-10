@@ -97,7 +97,7 @@ func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
 	//PING
 	startTime := time.Now()
 	err = conn.WritePacket(pk.Marshal(
-		packetid.StatusPing,
+		packetid.StatusPingRequest,
 		pk.Long(startTime.Unix()),
 	))
 	if err != nil {

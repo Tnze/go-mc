@@ -19,13 +19,13 @@ const (
 // Status Clientbound
 const (
 	StatusResponse = iota
-	StatusPong
+	StatusPongResponse
 )
 
-// Game Serverbound
+// Status Serverbound
 const (
 	StatusRequest = iota
-	StatusPing
+	StatusPingRequest
 )
 
 // Game Clientbound
@@ -64,16 +64,16 @@ const (
 	ClientboundHorseScreenOpen
 	ClientboundInitializeBorder
 	ClientboundKeepAlive
-	ClientboundLevelChunk
+	ClientboundLevelChunkWithLight
 	ClientboundLevelEvent
 	ClientboundLevelParticles
 	ClientboundLightUpdate
 	ClientboundLogin
 	ClientboundMapItemData
 	ClientboundMerchantOffers
-	ClientboundEntityPosition
-	ClientboundEntityPositionAndRotation
-	ClientboundEntityRotation
+	ClientboundMoveEntityPos
+	ClientboundMoveEntityPosRot
+	ClientboundMoveEntityRot
 	ClientboundMoveVehicle
 	ClientboundOpenBook
 	ClientboundOpenScreen
@@ -117,7 +117,7 @@ const (
 	ClientboundSetPassengers
 	ClientboundSetPlayerTeam
 	ClientboundSetScore
-	ClientboundUpdateSimulationDistance
+	ClientboundSetSimulationDistance
 	ClientboundSetSubtitleText
 	ClientboundSetTime
 	ClientboundSetTitleText
@@ -139,6 +139,7 @@ const (
 // Game Serverbound
 const (
 	ServerboundAcceptTeleportation = iota
+	ServerboundBlockEntityTagQuery
 	ServerboundChangeDifficulty
 	ServerboundChat
 	ServerboundClientCommand
@@ -149,10 +150,15 @@ const (
 	ServerboundContainerClose
 	ServerboundCustomPayload
 	ServerboundEditBook
+	ServerboundEntityTagQuery
 	ServerboundInteract
 	ServerboundJigsawGenerate
 	ServerboundKeepAlive
 	ServerboundLockDifficulty
+	ServerboundMovePlayerPos
+	ServerboundMovePlayerPosRot
+	ServerboundMovePlayerRot
+	ServerboundMovePlayerStatusOnly
 	ServerboundMoveVehicle
 	ServerboundPaddleBoat
 	ServerboundPickItem

@@ -40,7 +40,7 @@ func (s *Server) acceptListPing(conn *net.Conn) {
 				break
 			}
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(resp)))
-		case packetid.StatusPong: //Ping
+		case packetid.StatusPongResponse: //Ping
 			err = conn.WritePacket(p)
 		}
 		if err != nil {
