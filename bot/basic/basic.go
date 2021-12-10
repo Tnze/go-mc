@@ -18,9 +18,9 @@ type Player struct {
 func NewPlayer(c *bot.Client, settings Settings) *Player {
 	b := &Player{c: c, Settings: settings}
 	c.Events.AddListener(
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundLogin, F: b.handleJoinGamePacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundLogin, F: b.handleLoginPacket},
 		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundKeepAlive, F: b.handleKeepAlivePacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundPlayerPosition, F: b.handlePlayerPositionAndLook},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundPlayerPosition, F: b.handlePlayerPosition},
 	)
 	return b
 }

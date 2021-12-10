@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -25,6 +26,7 @@ var screenManager *screen.Manager
 
 func main() {
 	flag.Parse()
+	log.SetOutput(colorable.NewColorableStdout())
 	client = bot.NewClient()
 	client.Auth.Name = "Daze"
 	player = basic.NewPlayer(client, basic.DefaultSettings)
@@ -86,7 +88,7 @@ func onGameStart() error {
 }
 
 func onChatMsg(c chat.Message, _ byte, _ uuid.UUID) error {
-	log.Println("Chat:", c.ClearString()) // output chat message without any format code (like color or bold)
+	log.Println("Chat:", c) // output chat message without any format code (like color or bold)
 	return nil
 }
 
@@ -98,14 +100,12 @@ func onScreenSlotChange(id, index int) error {
 	} else {
 		container, ok := screenManager.Screens[id]
 		if ok {
-			// Currently only inventory container is supported
+			// Currently, only inventory container is supported
 			switch container.(type) {
 			case *screen.Inventory:
 				slot := container.(*screen.Inventory).Slots[index]
 				itemInfo := item.ByID[item.ID(slot.ID)]
-				if slot.ID != 0 {
-					log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d | NBT: %v", id, index, itemInfo.DisplayName, slot.Count, slot.NBT)
-				}
+				log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d | NBT: %v", id, index, itemInfo, slot.Count, slot.NBT)
 			}
 		}
 	}

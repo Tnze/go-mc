@@ -12,14 +12,19 @@ import (
 )
 
 type Manager struct {
+	c *bot.Client
+
 	Screens   map[int]Container
 	Inventory Inventory
 	Cursor    Slot
 	events    EventsListener
+	// The last received State ID from server
+	stateID int32
 }
 
 func NewManager(c *bot.Client, e EventsListener) *Manager {
 	m := &Manager{
+		c:       c,
 		Screens: make(map[int]Container),
 		events:  e,
 	}
@@ -32,6 +37,18 @@ func NewManager(c *bot.Client, e EventsListener) *Manager {
 	)
 	return m
 }
+
+//func (m *Manager) ContainerClick(id int, slot int16, button byte, mode int32) error {
+//	return m.c.Conn.WritePacket(pk.Marshal(
+//		packetid.ServerboundContainerClick,
+//		pk.UnsignedByte(id),
+//		pk.VarInt(m.stateID),
+//		pk.Short(slot),
+//		pk.Byte(button),
+//		pk.VarInt(mode),
+//		pk.VarInt()
+//	))
+//}
 
 func (m *Manager) onOpenScreen(p pk.Packet) error {
 	var (
@@ -72,6 +89,7 @@ func (m *Manager) onSetContentPacket(p pk.Packet) error {
 	); err != nil {
 		return Error{err}
 	}
+	m.stateID = int32(StateID)
 	// copy the slot data to container
 	container, ok := m.Screens[int(ContainerID)]
 	if !ok {
@@ -113,19 +131,21 @@ func (m *Manager) onCloseScreen(p pk.Packet) error {
 func (m *Manager) onSetSlot(p pk.Packet) (err error) {
 	var (
 		ContainerID pk.Byte
+		StateID     pk.VarInt
 		SlotID      pk.Short
-		ItemStack   Slot
+		SlotData    Slot
 	)
-	if err := p.Scan(&ContainerID, &SlotID, &ItemStack); err != nil {
+	if err := p.Scan(&ContainerID, &StateID, &SlotID, &SlotData); err != nil {
 		return Error{err}
 	}
 
+	m.stateID = int32(StateID)
 	if ContainerID == -1 && SlotID == -1 {
-		m.Cursor = ItemStack
+		m.Cursor = SlotData
 	} else if ContainerID == -2 {
-		err = m.Inventory.onSetSlot(int(SlotID), ItemStack)
+		err = m.Inventory.onSetSlot(int(SlotID), SlotData)
 	} else if c, ok := m.Screens[int(ContainerID)]; ok {
-		err = c.onSetSlot(int(SlotID), ItemStack)
+		err = c.onSetSlot(int(SlotID), SlotData)
 	}
 
 	if m.events.SetSlot != nil {

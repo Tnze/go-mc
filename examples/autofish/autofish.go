@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/Tnze/go-mc/bot/basic"
-	"github.com/Tnze/go-mc/data/packetid"
-	pk "github.com/Tnze/go-mc/net/packet"
 	"log"
 	"time"
 
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
+	"github.com/Tnze/go-mc/data/packetid"
+	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/mattn/go-colorable"
 )
 

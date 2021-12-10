@@ -21,7 +21,7 @@ func (p Player) handleKeepAlivePacket(packet pk.Packet) error {
 	return nil
 }
 
-func (p *Player) handlePlayerPositionAndLook(packet pk.Packet) error {
+func (p *Player) handlePlayerPosition(packet pk.Packet) error {
 	var (
 		X, Y, Z         pk.Double
 		Yaw, Pitch      pk.Float
@@ -48,7 +48,6 @@ func (p *Player) handlePlayerPositionAndLook(packet pk.Packet) error {
 			packetid.ServerboundMoveVehicle,
 			X, Y-1.62, Z,
 			Yaw, Pitch,
-			pk.Boolean(true),
 		))
 		if err != nil {
 			return Error{err}

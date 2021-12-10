@@ -28,7 +28,7 @@ func PingAndList(addr string) ([]byte, time.Duration, error) {
 	return pingAndList(addr, conn)
 }
 
-// PingAndListTimeout PingAndLIstTimeout is the version of PingAndList with max request time.
+// PingAndListTimeout is the version of PingAndList with max request time.
 func PingAndListTimeout(addr string, timeout time.Duration) ([]byte, time.Duration, error) {
 	deadLine := time.Now().Add(timeout)
 

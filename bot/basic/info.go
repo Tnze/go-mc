@@ -39,7 +39,7 @@ type ServInfo struct {
 	Brand string
 }
 
-func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
+func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	var WorldCount pk.VarInt
 	var WorldNames = make([]pk.Identifier, 0)
 	err := packet.Scan(
@@ -89,7 +89,8 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		pk.Boolean(p.Settings.ChatColors),
 		pk.UnsignedByte(p.Settings.DisplayedSkinParts),
 		pk.VarInt(p.Settings.MainHand),
-		pk.Boolean(p.Settings.DisableTextFiltering),
+		pk.Boolean(p.Settings.EnableTextFiltering),
+		pk.Boolean(p.Settings.AllowListing),
 	))
 	if err != nil {
 		return Error{err}

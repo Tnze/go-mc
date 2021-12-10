@@ -9,17 +9,17 @@ type Settings struct {
 	DisplayedSkinParts uint8  //皮肤显示
 	MainHand           int    //主手
 
-	// Disables filtering of text on signs and written book titles.
-	// Currently always true in vanilla client (i.e. the filtering is disabled)
-	DisableTextFiltering bool
+	// Enables filtering of text on signs and written book titles.
+	// Currently, always false (i.e. the filtering is disabled)
+	EnableTextFiltering bool
+	AllowListing        bool
 
-	Brand string // The brand string presented to the server.
+	// The brand string presented to the server.
+	Brand string
 }
 
-/*
-	Used by Settings.DisplayedSkinParts.
-	For each bits set if shows match part.
-*/
+// Used by Settings.DisplayedSkinParts.
+// For each bit set if shows match part.
 const (
 	_ = 1 << iota
 	Jacket
