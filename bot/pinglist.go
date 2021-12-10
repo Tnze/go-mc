@@ -51,8 +51,12 @@ func PingAndListTimeout(addr string, timeout time.Duration) ([]byte, time.Durati
 }
 
 func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
+	addrSrv, err := parseAddress(nil, addr)
+	if err != nil {
+		return nil, 0, LoginErr{"resolved address", err}
+	}
 	// Split Host and Port
-	host, portStr, err := net.SplitHostPort(addr)
+	host, portStr, err := net.SplitHostPort(addrSrv)
 	if err != nil {
 		return nil, 0, LoginErr{"split address", err}
 	}
