@@ -71,6 +71,9 @@ const (
 	ClientboundLogin
 	ClientboundMapItemData
 	ClientboundMerchantOffers
+	ClientboundEntityPosition
+	ClientboundEntityPositionAndRotation
+	ClientboundEntityRotation
 	ClientboundMoveVehicle
 	ClientboundOpenBook
 	ClientboundOpenScreen
@@ -114,6 +117,7 @@ const (
 	ClientboundSetPassengers
 	ClientboundSetPlayerTeam
 	ClientboundSetScore
+	ClientboundUpdateSimulationDistance
 	ClientboundSetSubtitleText
 	ClientboundSetTime
 	ClientboundSetTitleText
