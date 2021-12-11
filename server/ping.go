@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
@@ -15,7 +16,7 @@ type ListPingHandler interface {
 	MaxPlayer() int
 	OnlinePlayer() int
 	PlayerSamples() []PlayerSample
-	Description() chat.Message
+	Description() *chat.Message
 }
 
 type PlayerSample struct {
@@ -32,14 +33,14 @@ func (s *Server) acceptListPing(conn *net.Conn) {
 		}
 
 		switch p.ID {
-		case 0x00: //List
+		case packetid.StatusResponse: //List
 			var resp []byte
 			resp, err = s.listResp()
 			if err != nil {
 				break
 			}
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(resp)))
-		case 0x01: //Ping
+		case packetid.StatusPongResponse: //Ping
 			err = conn.WritePacket(p)
 		}
 		if err != nil {
@@ -59,8 +60,8 @@ func (s *Server) listResp() ([]byte, error) {
 			Online int            `json:"online"`
 			Sample []PlayerSample `json:"sample"`
 		} `json:"players"`
-		Description chat.Message `json:"description"`
-		FavIcon     string       `json:"favicon,omitempty"`
+		Description *chat.Message `json:"description"`
+		FavIcon     string        `json:"favicon,omitempty"`
 	}
 
 	list.Version.Name = s.ListPingHandler.Name()

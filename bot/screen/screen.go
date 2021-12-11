@@ -12,25 +12,64 @@ import (
 )
 
 type Manager struct {
+	c *bot.Client
+
 	Screens   map[int]Container
 	Inventory Inventory
 	Cursor    Slot
 	events    EventsListener
+	// The last received State ID from server
+	stateID int32
 }
 
 func NewManager(c *bot.Client, e EventsListener) *Manager {
 	m := &Manager{
+		c:       c,
 		Screens: make(map[int]Container),
 		events:  e,
 	}
 	m.Screens[0] = &m.Inventory
 	c.Events.AddListener(
-		bot.PacketHandler{Priority: 0, ID: packetid.OpenWindow, F: m.onOpenScreen},
-		bot.PacketHandler{Priority: 0, ID: packetid.WindowItems, F: m.onSetContentPacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.CloseWindowClientbound, F: m.onCloseScreen},
-		bot.PacketHandler{Priority: 0, ID: packetid.SetSlot, F: m.onSetSlot},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundOpenScreen, F: m.onOpenScreen},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundContainerSetContent, F: m.onSetContentPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundContainerClose, F: m.onCloseScreen},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundContainerSetSlot, F: m.onSetSlot},
 	)
 	return m
+}
+
+type ChangedSlots map[int]*Slot
+
+func (m *Manager) ContainerClick(id int, slot int16, button byte, mode int32, slots ChangedSlots, carried *Slot) error {
+	return m.c.Conn.WritePacket(pk.Marshal(
+		packetid.ServerboundContainerClick,
+		pk.UnsignedByte(id),
+		pk.VarInt(m.stateID),
+		pk.Short(slot),
+		pk.Byte(button),
+		pk.VarInt(mode),
+		slots,
+		carried,
+	))
+}
+
+func (c ChangedSlots) WriteTo(w io.Writer) (n int64, err error) {
+	n, err = pk.VarInt(len(c)).WriteTo(w)
+	if err != nil {
+		return
+	}
+	for i, v := range c {
+		n1, err := pk.Short(i).WriteTo(w)
+		if err != nil {
+			return n + n1, err
+		}
+		n2, err := v.WriteTo(w)
+		if err != nil {
+			return n + n1 + n2, err
+		}
+		n += n1 + n2
+	}
+	return
 }
 
 func (m *Manager) onOpenScreen(p pk.Packet) error {
@@ -72,6 +111,7 @@ func (m *Manager) onSetContentPacket(p pk.Packet) error {
 	); err != nil {
 		return Error{err}
 	}
+	m.stateID = int32(StateID)
 	// copy the slot data to container
 	container, ok := m.Screens[int(ContainerID)]
 	if !ok {
@@ -113,19 +153,21 @@ func (m *Manager) onCloseScreen(p pk.Packet) error {
 func (m *Manager) onSetSlot(p pk.Packet) (err error) {
 	var (
 		ContainerID pk.Byte
+		StateID     pk.VarInt
 		SlotID      pk.Short
-		ItemStack   Slot
+		SlotData    Slot
 	)
-	if err := p.Scan(&ContainerID, &SlotID, &ItemStack); err != nil {
+	if err := p.Scan(&ContainerID, &StateID, &SlotID, &SlotData); err != nil {
 		return Error{err}
 	}
 
+	m.stateID = int32(StateID)
 	if ContainerID == -1 && SlotID == -1 {
-		m.Cursor = ItemStack
+		m.Cursor = SlotData
 	} else if ContainerID == -2 {
-		err = m.Inventory.onSetSlot(int(SlotID), ItemStack)
+		err = m.Inventory.onSetSlot(int(SlotID), SlotData)
 	} else if c, ok := m.Screens[int(ContainerID)]; ok {
-		err = c.onSetSlot(int(SlotID), ItemStack)
+		err = c.onSetSlot(int(SlotID), SlotData)
 	}
 
 	if m.events.SetSlot != nil {
@@ -145,10 +187,23 @@ type Slot struct {
 	NBT   nbt.RawMessage
 }
 
+func (s *Slot) WriteTo(w io.Writer) (n int64, err error) {
+	var present pk.Boolean = s != nil
+	return pk.Tuple{
+		present, pk.Opt{
+			Has: present,
+			Field: pk.Tuple{
+				&s.ID, &s.Count, pk.NBT(&s.NBT),
+			},
+		},
+	}.WriteTo(w)
+}
+
 func (s *Slot) ReadFrom(r io.Reader) (n int64, err error) {
 	var present pk.Boolean
 	return pk.Tuple{
-		&present, pk.Opt{Has: &present,
+		&present, pk.Opt{
+			Has: &present,
 			Field: pk.Tuple{
 				&s.ID, &s.Count, pk.NBT(&s.NBT),
 			},

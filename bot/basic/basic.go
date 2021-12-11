@@ -18,9 +18,9 @@ type Player struct {
 func NewPlayer(c *bot.Client, settings Settings) *Player {
 	b := &Player{c: c, Settings: settings}
 	c.Events.AddListener(
-		bot.PacketHandler{Priority: 0, ID: packetid.Login, F: b.handleJoinGamePacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.KeepAliveClientbound, F: b.handleKeepAlivePacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.PositionClientbound, F: b.handlePlayerPositionAndLook},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundLogin, F: b.handleLoginPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundKeepAlive, F: b.handleKeepAlivePacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundPlayerPosition, F: b.handlePlayerPosition},
 	)
 	return b
 }
@@ -29,7 +29,7 @@ func (p *Player) Respawn() error {
 	const PerformRespawn = 0
 
 	err := p.c.Conn.WritePacket(pk.Marshal(
-		packetid.ClientCommand,
+		packetid.ServerboundClientCommand,
 		pk.VarInt(PerformRespawn),
 	))
 	if err != nil {

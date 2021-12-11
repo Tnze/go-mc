@@ -20,6 +20,7 @@ type WorldInfo struct {
 	HashedSeed          int64    // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
 	MaxPlayers          int32    // Was once used by the client to draw the player list, but now is ignored.
 	ViewDistance        int32    // Render distance (2-32).
+	SimulationDistance  int32    // The distance that the client will process specific things, such as entities.
 	ReducedDebugInfo    bool     // If true, a Notchian client shows reduced information on the debug screen. For servers in development, this should almost always be false.
 	EnableRespawnScreen bool     // Set to false when the doImmediateRespawn gamerule is true.
 	IsDebug             bool     // True if the world is a debug mode world; debug mode worlds cannot be modified and have predefined blocks.
@@ -38,7 +39,7 @@ type ServInfo struct {
 	Brand string
 }
 
-func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
+func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	var WorldCount pk.VarInt
 	var WorldNames = make([]pk.Identifier, 0)
 	err := packet.Scan(
@@ -54,6 +55,7 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.VarInt)(&p.MaxPlayers),
 		(*pk.VarInt)(&p.ViewDistance),
+		(*pk.VarInt)(&p.SimulationDistance),
 		(*pk.Boolean)(&p.ReducedDebugInfo),
 		(*pk.Boolean)(&p.EnableRespawnScreen),
 		(*pk.Boolean)(&p.IsDebug),
@@ -71,7 +73,7 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 	p.WorldNames = *(*[]string)(unsafe.Pointer(&WorldNames))
 
 	err = p.c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
-		packetid.CustomPayloadServerbound,
+		packetid.ServerboundCustomPayload,
 		pk.Identifier("minecraft:brand"),
 		pk.String(p.Settings.Brand),
 	))
@@ -80,14 +82,15 @@ func (p *Player) handleJoinGamePacket(packet pk.Packet) error {
 	}
 
 	err = p.c.Conn.WritePacket(pk.Marshal(
-		packetid.Settings, // Client settings
+		packetid.ServerboundClientInformation, // Client settings
 		pk.String(p.Settings.Locale),
 		pk.Byte(p.Settings.ViewDistance),
 		pk.VarInt(p.Settings.ChatMode),
 		pk.Boolean(p.Settings.ChatColors),
 		pk.UnsignedByte(p.Settings.DisplayedSkinParts),
 		pk.VarInt(p.Settings.MainHand),
-		pk.Boolean(p.Settings.DisableTextFiltering),
+		pk.Boolean(p.Settings.EnableTextFiltering),
+		pk.Boolean(p.Settings.AllowListing),
 	))
 	if err != nil {
 		return Error{err}

@@ -12,7 +12,7 @@ func (p Player) handleKeepAlivePacket(packet pk.Packet) error {
 	}
 	// Response
 	err := p.c.Conn.WritePacket(pk.Packet{
-		ID:   packetid.KeepAliveServerbound,
+		ID:   packetid.ServerboundKeepAlive,
 		Data: packet.Data,
 	})
 	if err != nil {
@@ -21,7 +21,7 @@ func (p Player) handleKeepAlivePacket(packet pk.Packet) error {
 	return nil
 }
 
-func (p *Player) handlePlayerPositionAndLook(packet pk.Packet) error {
+func (p *Player) handlePlayerPosition(packet pk.Packet) error {
 	var (
 		X, Y, Z         pk.Double
 		Yaw, Pitch      pk.Float
@@ -35,7 +35,7 @@ func (p *Player) handlePlayerPositionAndLook(packet pk.Packet) error {
 
 	// Teleport Confirm
 	err := p.c.Conn.WritePacket(pk.Marshal(
-		packetid.TeleportConfirm,
+		packetid.ServerboundAcceptTeleportation,
 		TeleportID,
 	))
 	if err != nil {
@@ -45,10 +45,9 @@ func (p *Player) handlePlayerPositionAndLook(packet pk.Packet) error {
 	if !p.isSpawn {
 		// PlayerPositionAndRotation to confirm the spawn position
 		err = p.c.Conn.WritePacket(pk.Marshal(
-			packetid.PositionLook,
+			packetid.ServerboundMoveVehicle,
 			X, Y-1.62, Z,
 			Yaw, Pitch,
-			pk.Boolean(true),
 		))
 		if err != nil {
 			return Error{err}

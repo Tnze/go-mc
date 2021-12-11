@@ -1,6 +1,6 @@
 # Go-MC
 
-![Version](https://img.shields.io/badge/Minecraft-1.17.1-blue.svg)
+![Version](https://img.shields.io/badge/Minecraft-1.18-blue.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Tnze/go-mc.svg)](https://pkg.go.dev/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
@@ -57,11 +57,11 @@ a [Handshake Packet](https://wiki.vg/Protocol#Handshake). You can create this pa
 
 ```go
 p := pk.Marshal(
-0x00, // Handshake packet ID
-pk.VarInt(ProtocolVersion), // Protocol version
-pk.String("localhost"),  // Server's address
-pk.UnsignedShort(25565), // Server's port
-pk.Byte(1), // 1 for status ping, 2 for login
+    0x00, // Handshake packet ID
+    pk.VarInt(ProtocolVersion), // Protocol version
+    pk.String("localhost"),  // Server's address
+    pk.UnsignedShort(25565), // Server's port
+    pk.Byte(1), // 1 for status ping, 2 for login
 )
 ```
 

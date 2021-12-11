@@ -1,4 +1,5 @@
-//+build generate
+//go:build generate
+// +build generate
 
 // gen_soundid.go generates the enumeration of sound IDs.
 package main

@@ -279,7 +279,7 @@ func parseTag(f reflect.StructField, v reflect.Value, tagName string) (result ta
 	}
 
 	nbtType := f.Tag.Get("nbt_type")
-	result.Type, v = getTagType(v)
+	result.Type, _ = getTagType(v)
 	if strings.Contains(nbtType, "list") {
 		if IsArrayTag(result.Type) {
 			result.Type = TagList // for expanding the array to a standard list

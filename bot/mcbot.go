@@ -16,8 +16,8 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-// ProtocolVersion , the protocol version number of minecraft net protocol
-const ProtocolVersion = 756
+// ProtocolVersion is the protocol version number of minecraft net protocol
+const ProtocolVersion = 757
 const DefaultPort = 25565
 
 // JoinServer connect a Minecraft server for playing the game.
@@ -31,7 +31,7 @@ func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
 	return c.join(d, addr)
 }
 
-// parseAddress will lookup SRV records for the address
+// parseAddress will look up SRV records for the address
 func parseAddress(r *net.Resolver, addr string) (string, error) {
 	var port uint16
 	var addrErr *net.AddrError
@@ -111,7 +111,7 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 
 		//Handle Packet
 		switch p.ID {
-		case packetid.Disconnect: //Disconnect
+		case packetid.LoginDisconnect: //LoginDisconnect
 			var reason chat.Message
 			err = p.Scan(&reason)
 			if err != nil {
@@ -119,12 +119,12 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 			}
 			return LoginErr{"disconnect", DisconnectErr(reason)}
 
-		case packetid.EncryptionBeginClientbound: //Encryption Request
+		case packetid.LoginEncryptionRequest: //Encryption Request
 			if err := handleEncryptionRequest(c, p); err != nil {
 				return LoginErr{"encryption", err}
 			}
 
-		case packetid.Success: //Login Success
+		case packetid.LoginSuccess: //Login Success
 			err := p.Scan(
 				(*pk.UUID)(&c.UUID),
 				(*pk.String)(&c.Name),
@@ -134,7 +134,7 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 			}
 			return nil
 
-		case packetid.Compress: //Set Compression
+		case packetid.SetCompression: //Set Compression
 			var threshold pk.VarInt
 			if err := p.Scan(&threshold); err != nil {
 				return LoginErr{"compression", err}

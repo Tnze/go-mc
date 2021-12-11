@@ -28,7 +28,7 @@ func PingAndList(addr string) ([]byte, time.Duration, error) {
 	return pingAndList(addr, conn)
 }
 
-// PingAndListTimeout PingAndLIstTimeout is the version of PingAndList with max request time.
+// PingAndListTimeout is the version of PingAndList with max request time.
 func PingAndListTimeout(addr string, timeout time.Duration) ([]byte, time.Duration, error) {
 	deadLine := time.Now().Add(timeout)
 
@@ -51,8 +51,12 @@ func PingAndListTimeout(addr string, timeout time.Duration) ([]byte, time.Durati
 }
 
 func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
+	addrSrv, err := parseAddress(nil, addr)
+	if err != nil {
+		return nil, 0, LoginErr{"resolved address", err}
+	}
 	// Split Host and Port
-	host, portStr, err := net.SplitHostPort(addr)
+	host, portStr, err := net.SplitHostPort(addrSrv)
 	if err != nil {
 		return nil, 0, LoginErr{"split address", err}
 	}
@@ -77,7 +81,7 @@ func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
 	//LIST
 	//请求服务器状态
 	err = conn.WritePacket(pk.Marshal(
-		packetid.PingStart,
+		packetid.StatusRequest,
 	))
 	if err != nil {
 		return nil, 0, fmt.Errorf("bot: send list packect fail: %v", err)
@@ -97,7 +101,7 @@ func pingAndList(addr string, conn *mcnet.Conn) ([]byte, time.Duration, error) {
 	//PING
 	startTime := time.Now()
 	err = conn.WritePacket(pk.Marshal(
-		packetid.PingServerbound,
+		packetid.StatusPingRequest,
 		pk.Long(startTime.Unix()),
 	))
 	if err != nil {

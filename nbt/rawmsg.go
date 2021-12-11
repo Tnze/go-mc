@@ -43,9 +43,12 @@ func (m *RawMessage) Decode(tagType byte, r DecoderReader) error {
 
 // String convert the data into the SNBT(Stringified NBT) format.
 // The output is valid for using in in-game command.
+// Expect two exceptions:
+// - Empty string "" if there is only an TagEnd in the NBT (aka: []byte{0}).
+// - "<Invalid: $Err>" if the content is not valid NBT data.
 func (m RawMessage) String() string {
 	if m.Type == TagEnd {
-		return "TagEnd"
+		return ""
 	}
 	var snbt StringifiedMessage
 	var sb strings.Builder
@@ -53,7 +56,7 @@ func (m RawMessage) String() string {
 	d := NewDecoder(r)
 	err := snbt.encode(d, &sb, m.Type)
 	if err != nil {
-		return "Invalid"
+		return "<Invalid: " + err.Error() + ">"
 	}
 	return sb.String()
 }
