@@ -15,5 +15,6 @@
 *.out
 
 examples/test/test.go
+data/packetid/generate.go
 .idea/
 .vscode/

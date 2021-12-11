@@ -38,17 +38,39 @@ func NewManager(c *bot.Client, e EventsListener) *Manager {
 	return m
 }
 
-//func (m *Manager) ContainerClick(id int, slot int16, button byte, mode int32) error {
-//	return m.c.Conn.WritePacket(pk.Marshal(
-//		packetid.ServerboundContainerClick,
-//		pk.UnsignedByte(id),
-//		pk.VarInt(m.stateID),
-//		pk.Short(slot),
-//		pk.Byte(button),
-//		pk.VarInt(mode),
-//		pk.VarInt()
-//	))
-//}
+type ChangedSlots map[int]*Slot
+
+func (m *Manager) ContainerClick(id int, slot int16, button byte, mode int32, slots ChangedSlots, carried *Slot) error {
+	return m.c.Conn.WritePacket(pk.Marshal(
+		packetid.ServerboundContainerClick,
+		pk.UnsignedByte(id),
+		pk.VarInt(m.stateID),
+		pk.Short(slot),
+		pk.Byte(button),
+		pk.VarInt(mode),
+		slots,
+		carried,
+	))
+}
+
+func (c ChangedSlots) WriteTo(w io.Writer) (n int64, err error) {
+	n, err = pk.VarInt(len(c)).WriteTo(w)
+	if err != nil {
+		return
+	}
+	for i, v := range c {
+		n1, err := pk.Short(i).WriteTo(w)
+		if err != nil {
+			return n + n1, err
+		}
+		n2, err := v.WriteTo(w)
+		if err != nil {
+			return n + n1 + n2, err
+		}
+		n += n1 + n2
+	}
+	return
+}
 
 func (m *Manager) onOpenScreen(p pk.Packet) error {
 	var (
@@ -165,10 +187,23 @@ type Slot struct {
 	NBT   nbt.RawMessage
 }
 
+func (s *Slot) WriteTo(w io.Writer) (n int64, err error) {
+	var present pk.Boolean = s != nil
+	return pk.Tuple{
+		present, pk.Opt{
+			Has: present,
+			Field: pk.Tuple{
+				&s.ID, &s.Count, pk.NBT(&s.NBT),
+			},
+		},
+	}.WriteTo(w)
+}
+
 func (s *Slot) ReadFrom(r io.Reader) (n int64, err error) {
 	var present pk.Boolean
 	return pk.Tuple{
-		&present, pk.Opt{Has: &present,
+		&present, pk.Opt{
+			Has: &present,
 			Field: pk.Tuple{
 				&s.ID, &s.Count, pk.NBT(&s.NBT),
 			},
