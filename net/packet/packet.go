@@ -121,6 +121,7 @@ func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 
 		dataLength := bufPool.Get().(*bytes.Buffer)
 		defer bufPool.Put(dataLength)
+		dataLength.Reset()
 		n3, err := VarInt(int(n1) + n2).WriteTo(dataLength)
 		if err != nil {
 			return err

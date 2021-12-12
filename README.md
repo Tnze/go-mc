@@ -35,7 +35,7 @@ First, you might have a try of the simple examples. It's a good start.
 ### Run Examples
 
 - Run `go run github.com/Tnze/go-mc/cmd/mcping localhost` to ping and list the localhost mc server.
-- Run `go run github.com/Tnze/go-mc/cmd/daze` to join the local server at *localhost:25565* as Steve on the offline mode.
+- Run `go run github.com/Tnze/go-mc/cmd/daze` to join the local server at *localhost:25565* as player named Daze on the offline mode.
 
 ### Basic Usage
 

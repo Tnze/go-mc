@@ -121,6 +121,6 @@ func (d DisconnectErr) Error() string {
 }
 
 func onDisconnect(reason chat.Message) error {
-	// return a error value so that we can stop main loop
+	// return an error value so that we can stop main loop
 	return DisconnectErr{Reason: reason}
 }
