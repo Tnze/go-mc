@@ -4,13 +4,15 @@
 //
 // A server is roughly divided into two parts:
 //
-//	+----------------------------------------------+
-//	|           Go-MC Server Framework             |
-//	+-----------------------+----------------------+
-//	|         Gate          |       GamePlay       |
-//	+--------------+--------+--------+-------------+
-//	| LoginHandler | ListPingHandler | Coming Soon |
-//	+--------------+-----------------+-------------+
+//	+-----------------------------------------------------------------+
+//	|                     Go-MC Server Framework                      |
+//	+--------------------------------------+--------------------------+
+//	|               Gate                   |         GamePlay         |
+//	+--------------------+-----------------+                          |
+// 	|    LoginHandler    | ListPingHandler |                          |
+// 	+--------------------+--------+--------+-----------+--------------+
+// 	| MojangLoginHandler |  Info  |     PlayerList     |  Others....  |
+//	+--------------------+--------+--------------------+--------------+
 //
 // Gate, which is used to respond to the client login request, provide login verification,
 // respond to the List Ping Request and providing the online players' information.

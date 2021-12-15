@@ -2,7 +2,10 @@ package main
 
 import (
 	_ "embed"
+	"image"
+	_ "image/png"
 	"log"
+	"os"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -14,19 +17,27 @@ import (
 )
 
 type MyServer struct {
-	*server.PlayerList
+	playerList *server.PlayerList
 }
 
+const ServerName = "MyServer"
 const MaxPlayer = 20
+const IconPath = "./server-icon.png"
+
+var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
 
 func main() {
-	motd := &chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
+	playerList := server.NewPlayerList(MaxPlayer)
+	serverInfo, err := server.NewPingInfo(playerList, ServerName, server.ProtocolVersion, motd, readIcon())
+	if err != nil {
+		log.Fatalf("Set server info error: %v", err)
+	}
 	ms := MyServer{
-		PlayerList: server.NewPlayerList("MyServer", server.ProtocolVersion, MaxPlayer, motd),
+		playerList: playerList,
 	}
 
 	s := server.Server{
-		ListPingHandler: ms.PlayerList,
+		ListPingHandler: serverInfo,
 		LoginHandler: &server.MojangLoginHandler{
 			OnlineMode: true,
 			Threshold:  256,
@@ -40,7 +51,7 @@ func main() {
 
 func (m *MyServer) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
 	// Add player into PlayerList
-	remove := m.TryInsert(server.PlayerSample{
+	remove := m.playerList.TryInsert(server.PlayerSample{
 		Name: name,
 		ID:   id,
 	})
@@ -74,6 +85,23 @@ func (m *MyServer) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn 
 
 		log.Printf("Read packet: %#X", p.ID)
 	}
+}
+
+func readIcon() image.Image {
+	f, err := os.Open(IconPath)
+	// if the file doesn't exist, return nil
+	if os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		log.Fatalf("Open icon file error: %v", err)
+	}
+	defer f.Close()
+
+	icon, _, err := image.Decode(f)
+	if err != nil {
+		log.Fatalf("Decode image error: %v", err)
+	}
+	return icon
 }
 
 //go:embed DimensionCodec.snbt

@@ -3,31 +3,23 @@ package server
 import (
 	"container/list"
 	"sync"
-
-	"github.com/Tnze/go-mc/chat"
 )
 
-// PlayerList is an implement of ListPingHandler based on linked-list.
+// PlayerList is a player list based on linked-list.
 // This struct should not be copied after used.
 type PlayerList struct {
-	name        string
-	protocol    int
-	maxPlayer   int
-	description *chat.Message
-	players     *list.List
+	maxPlayer int
+	players   *list.List
 	// Only the linked-list is protected by this Mutex.
 	// Because others field never change after created.
 	playersLock sync.Mutex
 }
 
 // NewPlayerList create a PlayerList which implement ListPingHandler.
-func NewPlayerList(name string, protocol, maxPlayers int, motd *chat.Message) *PlayerList {
+func NewPlayerList(maxPlayers int) *PlayerList {
 	return &PlayerList{
-		name:        name,
-		protocol:    protocol,
-		maxPlayer:   maxPlayers,
-		description: motd,
-		players:     list.New(),
+		maxPlayer: maxPlayers,
+		players:   list.New(),
 	}
 }
 
@@ -48,14 +40,6 @@ func (p *PlayerList) TryInsert(player PlayerSample) (remove func()) {
 		p.players.Remove(elem)
 		p.playersLock.Unlock()
 	}
-}
-
-func (p *PlayerList) Name() string {
-	return p.name
-}
-
-func (p *PlayerList) Protocol() int {
-	return p.protocol
 }
 
 func (p *PlayerList) MaxPlayer() int {
@@ -83,8 +67,4 @@ func (p *PlayerList) PlayerSamples() (sample []PlayerSample) {
 		v = v.Next()
 	}
 	return
-}
-
-func (p *PlayerList) Description() *chat.Message {
-	return p.description
 }
