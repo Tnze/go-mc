@@ -2,16 +2,16 @@
 // You can build the server you want by combining the various functional modules provided here.
 // An example can be found in examples/frameworkServer.
 //
-// A server is roughly divided into two parts:
+// A server is roughly divided into two parts: Gate and GamePlay
 //
 //	+-----------------------------------------------------------------+
 //	|                     Go-MC Server Framework                      |
 //	+--------------------------------------+--------------------------+
 //	|               Gate                   |         GamePlay         |
 //	+--------------------+-----------------+                          |
-// 	|    LoginHandler    | ListPingHandler |                          |
-// 	+--------------------+--------+--------+-----------+--------------+
-// 	| MojangLoginHandler |  Info  |     PlayerList     |  Others....  |
+//	|    LoginHandler    | ListPingHandler |                          |
+//	+--------------------+--------+--------+-----------+--------------+
+//	| MojangLoginHandler |  Info  |     PlayerList     |  Others....  |
 //	+--------------------+--------+--------------------+--------------+
 //
 // Gate, which is used to respond to the client login request, provide login verification,
@@ -26,6 +26,7 @@ package server
 
 import "github.com/Tnze/go-mc/net"
 
+const ProtocolName = "1.18.1"
 const ProtocolVersion = 757
 
 type Server struct {

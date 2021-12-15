@@ -59,7 +59,7 @@ func Encrypt(conn *net.Conn, name string) (*Resp, error) {
 		return nil, err
 	}
 
-	//confirm the verify token
+	//confirm to verify token
 	if !bytes.Equal(VT1, VT2) {
 		return nil, errors.New("verify token not match")
 	}

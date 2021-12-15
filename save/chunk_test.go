@@ -27,7 +27,7 @@ func TestColumn(t *testing.T) {
 }
 
 func BenchmarkColumn_Load(b *testing.B) {
-	// Test how many time we load a chunk
+	// Test how many times we load a chunk
 	var c Column
 	r, err := region.Open("testdata/region/r.-1.-1.mca")
 	if err != nil {

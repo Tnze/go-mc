@@ -14,14 +14,24 @@ import (
 	"strings"
 )
 
+// ListPingHandler collect server running status info
+// which is used to handle client ping and list progress.
 type ListPingHandler interface {
+	// Name of the server version
 	Name() string
+	// Protocol number
 	Protocol() int
 	MaxPlayer() int
 	OnlinePlayer() int
+	// PlayerSamples is a short list of some player in the server
 	PlayerSamples() []PlayerSample
 
 	Description() *chat.Message
+	// FavIcon should be a PNG image that is Base64 encoded
+	// (without newlines: \n, new lines no longer work since 1.13)
+	// and prepended with "data:image/png;base64,".
+	//
+	// This method can return empty string if no icon is set.
 	FavIcon() string
 }
 

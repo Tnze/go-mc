@@ -13,8 +13,8 @@ type BlockState interface {
 type palette interface {
 	id(v BlockState) int
 	value(i int) BlockState
-	io.ReaderFrom
-	io.WriterTo
+	pk.FieldEncoder
+	pk.FieldDecoder
 	read(r nbt.DecoderReader) (int, error)
 }
 

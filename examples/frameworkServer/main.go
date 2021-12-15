@@ -20,7 +20,6 @@ type MyServer struct {
 	playerList *server.PlayerList
 }
 
-const ServerName = "MyServer"
 const MaxPlayer = 20
 const IconPath = "./server-icon.png"
 
@@ -28,7 +27,7 @@ var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text
 
 func main() {
 	playerList := server.NewPlayerList(MaxPlayer)
-	serverInfo, err := server.NewPingInfo(playerList, ServerName, server.ProtocolVersion, motd, readIcon())
+	serverInfo, err := server.NewPingInfo(playerList, server.ProtocolName, server.ProtocolVersion, motd, readIcon())
 	if err != nil {
 		log.Fatalf("Set server info error: %v", err)
 	}
