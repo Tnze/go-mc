@@ -1,11 +1,13 @@
 // Package chat implements Minecraft's chat message encoding system.
 //
-// The type Message is the Minecraft chat message. Can be encode as JSON
+// The type Message is the Minecraft chat message. Can be encoded as JSON
 // or net/packet.Field .
 //
 // It's very recommended that use SetLanguage before using Message.String or Message.ClearString,
 // or the `github.com/Tnze/go-mc/data/en-us` will be used.
 // Note: The package of data/lang/... will SetLanguage on theirs init() so you don't need to call by your self.
+//
+// Some of these docs is copied from https://wiki.vg/Chat.
 package chat
 
 import (
@@ -20,32 +22,44 @@ import (
 )
 
 // Message is a message sent by other
-type Message jsonChat
-
-type jsonChat struct {
+type Message struct {
 	Text string `json:"text,omitempty"`
 
-	Bold          bool   `json:"bold,omitempty"`          //粗体
-	Italic        bool   `json:"italic,omitempty"`        //斜体
-	UnderLined    bool   `json:"underlined,omitempty"`    //下划线
-	StrikeThrough bool   `json:"strikethrough,omitempty"` //删除线
-	Obfuscated    bool   `json:"obfuscated,omitempty"`    //随机
-	Color         string `json:"color,omitempty"`
+	Bold          bool `json:"bold,omitempty"`          //粗体
+	Italic        bool `json:"italic,omitempty"`        //斜体
+	UnderLined    bool `json:"underlined,omitempty"`    //下划线
+	StrikeThrough bool `json:"strikethrough,omitempty"` //删除线
+	Obfuscated    bool `json:"obfuscated,omitempty"`    //随机
+	// Font of the message, could be one of minecraft:uniform, minecraft:alt or minecraft:default
+	// This option is only valid on 1.16+, otherwise the property is ignored.
+	Font  string `json:"font,omitempty"`  //字体
+	Color string `json:"color,omitempty"` //颜色
+
+	// Insertion contains text to insert. Only used for messages in chat.
+	// When shift is held, clicking the component inserts the given text
+	// into the chat box at the cursor (potentially replacing selected text).
+	Insertion  string      `json:"insertion,omitempty"`
+	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
+	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
 
 	Translate string            `json:"translate,omitempty"`
-	With      []json.RawMessage `json:"with,omitempty"` // How can go handle an JSON array with Object and String?
+	With      []json.RawMessage `json:"with,omitempty"`
 	Extra     []Message         `json:"extra,omitempty"`
 }
 
+type jsonMsg Message
+
 //UnmarshalJSON decode json to Message
-func (m *Message) UnmarshalJSON(jsonMsg []byte) (err error) {
-	if len(jsonMsg) == 0 {
+func (m *Message) UnmarshalJSON(raw []byte) (err error) {
+	if len(raw) == 0 {
 		return io.EOF
 	}
-	if jsonMsg[0] == '"' {
-		err = json.Unmarshal(jsonMsg, &m.Text) //Unmarshal as jsonString
+	// The right way to distinguish JSON String and Object
+	// is to look up the first character.
+	if raw[0] == '"' {
+		err = json.Unmarshal(raw, &m.Text) // Unmarshal as jsonString
 	} else {
-		err = json.Unmarshal(jsonMsg, (*jsonChat)(m)) //Unmarshal as jsonChat
+		err = json.Unmarshal(raw, (*jsonMsg)(m)) // Unmarshal as jsonMsg
 	}
 	return
 }
@@ -142,7 +156,7 @@ var colors = map[string]string{
 }
 
 // translateMap is the translation table.
-// By default it's en-us.
+// By default, it's en-us.
 var translateMap = en_us.Map
 
 // SetLanguage set the translate map to this map.
@@ -182,7 +196,7 @@ func (m Message) ClearString() string {
 
 // String return the message string with escape sequence for ansi color.
 // To convert Translated Message to string, you must set
-// On windows, you may want print this string using github.com/matte/go-colorable.
+// On Windows, you may want print this string using github.com/matte/go-colorable.
 func (m Message) String() string {
 	var msg, format strings.Builder
 	if m.Bold {
