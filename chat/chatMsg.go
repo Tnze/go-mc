@@ -23,7 +23,7 @@ import (
 type Message jsonChat
 
 type jsonChat struct {
-	Text string `json:"text,omitempty"`
+	Text string `json:"text"`
 
 	Bold          bool   `json:"bold,omitempty"`          //粗体
 	Italic        bool   `json:"italic,omitempty"`        //斜体
