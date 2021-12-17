@@ -3,10 +3,9 @@ package packet
 import (
 	"bytes"
 	"errors"
+	"github.com/google/uuid"
 	"io"
 	"math"
-
-	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/nbt"
 )

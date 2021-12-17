@@ -2,6 +2,8 @@ package save
 
 import (
 	"fmt"
+	pk "github.com/Tnze/go-mc/net/packet"
+	"io"
 	"math"
 )
 
@@ -127,4 +129,42 @@ func (b *BitStorage) Longs() []uint64 {
 		return []uint64{}
 	}
 	return b.data
+}
+
+func (b *BitStorage) ReadFrom(r io.Reader) (int64, error) {
+	var Len pk.VarInt
+	n, err := Len.ReadFrom(r)
+	if err != nil {
+		return n, err
+	}
+	if cap(b.data) >= int(Len) {
+		b.data = b.data[:Len]
+	} else {
+		b.data = make([]uint64, Len)
+	}
+	var v pk.Long
+	for i := range b.data {
+		nn, err := v.ReadFrom(r)
+		n += nn
+		if err != nil {
+			return n, err
+		}
+		b.data[i] = uint64(v)
+	}
+	return n, nil
+}
+
+func (b *BitStorage) WriteTo(w io.Writer) (int64, error) {
+	n, err := pk.VarInt(len(b.data)).WriteTo(w)
+	if err != nil {
+		return n, err
+	}
+	for _, v := range b.data {
+		nn, err := pk.Long(v).WriteTo(w)
+		n += nn
+		if err != nil {
+			return n, err
+		}
+	}
+	return n, nil
 }

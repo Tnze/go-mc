@@ -20,10 +20,10 @@ type LoginHandler interface {
 }
 
 // LoginChecker is the interface to check if a player is allowed to log in the server.
-// The checking could be anything, server player number, blacklist or whitelist.
+// The checking could be anything, server player number, protocol version, blacklist or whitelist.
 // If a player is not allowed to, the reason should be returned and will be sent to client by "LoginDisconnect" packet.
 type LoginChecker interface {
-	CheckPlayer(name string, id uuid.UUID) (ok bool, reason chat.Message)
+	CheckPlayer(name string, id uuid.UUID, protocol int32) (ok bool, reason chat.Message)
 }
 
 // MojangLoginHandler is a standard LoginHandler that implement both online and offline login progress.
@@ -92,7 +92,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 
 	// check if player can join (whitelist, blacklist, server full or something else)
 	if d.LoginChecker != nil {
-		if ok, result := d.CheckPlayer(name, id); !ok {
+		if ok, result := d.CheckPlayer(name, id, protocol); !ok {
 			// player is not allowed to join the server
 			err = conn.WritePacket(pk.Marshal(
 				packetid.LoginDisconnect,

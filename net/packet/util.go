@@ -78,6 +78,20 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 	return n, err
 }
 
+// Array return an Ary but handled the previous Length field
+//
+// Warning: unstable API, may change in later version
+func Array(array interface{}) Field {
+	length := VarInt(reflect.ValueOf(array).Len())
+	return Tuple{
+		&length,
+		Ary{
+			Len: &length,
+			Ary: array,
+		},
+	}
+}
+
 type Opt struct {
 	Has   interface{} // Pointer of bool, or `func() bool`
 	Field interface{} // FieldEncoder, FieldDecoder or both (Field)
