@@ -42,5 +42,5 @@ func ExampleNewBitStorage_heightmaps() {
 	type HeightMaps struct {
 		MotionBlocking []uint64 `nbt:"MOTION_BLOCKING"`
 	}
-	_ = pk.NBT(HeightMaps{bs.Longs()})
+	_ = pk.NBT(HeightMaps{bs.Raw()})
 }

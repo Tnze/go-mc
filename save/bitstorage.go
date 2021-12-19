@@ -123,8 +123,8 @@ func (b *BitStorage) Len() int {
 	return b.length
 }
 
-// Longs return the underling array of uint64 for encoding/decoding.
-func (b *BitStorage) Longs() []uint64 {
+// Raw return the underling array of uint64 for encoding/decoding.
+func (b *BitStorage) Raw() []uint64 {
 	if b == nil {
 		return []uint64{}
 	}

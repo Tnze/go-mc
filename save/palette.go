@@ -2,6 +2,7 @@ package save
 
 import (
 	"io"
+	"strconv"
 
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -10,7 +11,8 @@ type BlockState interface {
 }
 
 type PaletteContainer struct {
-	maps blockMaps
+	maps   blockMaps
+	config func(p *PaletteContainer, bits byte)
 	palette
 	BitStorage
 }
@@ -21,20 +23,7 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	switch bits {
-	case 0:
-		// TODO: SingleValuePalette
-	case 1, 2, 3, 4:
-		p.palette = &linearPalette{
-			onResize: nil,
-			maps:     p.maps,
-			bits:     4,
-		}
-	case 5, 6, 7, 8:
-		// TODO: HashMapPalette
-	default:
-		// TODO: GlobalPalette
-	}
+	p.config(p, byte(bits))
 
 	nn, err := p.palette.ReadFrom(r)
 	n += nn
@@ -48,6 +37,46 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 		return n, err
 	}
 	return n, nil
+}
+
+func createStatesPalette(p *PaletteContainer, bits byte) {
+	switch bits {
+	case 0:
+		p.palette = &singleValuePalette{
+			onResize: nil,
+			maps:     p.maps,
+			v:        nil,
+		}
+	case 1, 2, 3, 4:
+		p.palette = &linearPalette{
+			onResize: nil,
+			maps:     p.maps,
+			bits:     4,
+		}
+	case 5, 6, 7, 8:
+		// TODO: HashMapPalette
+	default:
+		// TODO: GlobalPalette
+	}
+}
+
+func createBiomesPalette(p *PaletteContainer, bits byte) {
+	switch bits {
+	case 0:
+		p.palette = &singleValuePalette{
+			onResize: nil,
+			maps:     p.maps,
+			v:        nil,
+		}
+	case 1, 2, 3:
+		p.palette = &linearPalette{
+			onResize: nil,
+			maps:     p.maps,
+			bits:     4,
+		}
+	default:
+		// TODO: GlobalPalette
+	}
 }
 
 func (p *PaletteContainer) WriteTo(w io.Writer) (n int64, err error) {
@@ -68,6 +97,45 @@ type palette interface {
 type blockMaps interface {
 	getID(state BlockState) (id int)
 	getValue(id int) (state BlockState)
+}
+
+type singleValuePalette struct {
+	onResize func(n int, v BlockState) int
+	maps     blockMaps
+	v        BlockState
+}
+
+func (s *singleValuePalette) id(v BlockState) int {
+	if s.v == nil {
+		s.v = v
+		return 0
+	}
+	if s.v == v {
+		return 0
+	}
+	// We have 2 values now. At least 1 bit is required.
+	return s.onResize(1, v)
+}
+
+func (s *singleValuePalette) value(i int) BlockState {
+	if s.v != nil && i == 0 {
+		return s.v
+	}
+	panic("singleValuePalette: " + strconv.Itoa(i) + " out of bounds")
+}
+
+func (s *singleValuePalette) ReadFrom(r io.Reader) (n int64, err error) {
+	var i pk.VarInt
+	n, err = i.ReadFrom(r)
+	if err != nil {
+		return
+	}
+	s.v = s.maps.getValue(int(i))
+	return
+}
+
+func (s *singleValuePalette) WriteTo(w io.Writer) (n int64, err error) {
+	return pk.VarInt(s.maps.getID(s.v)).WriteTo(w)
 }
 
 type linearPalette struct {

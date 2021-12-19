@@ -37,7 +37,7 @@ func (c *chunkData) WriteTo(w io.Writer) (int64, error) {
 		// Heightmaps
 		pk.NBT(struct {
 			MotionBlocking []uint64 `nbt:"MOTION_BLOCKING"`
-		}{c.HeightMaps.Longs()}),
+		}{c.HeightMaps.Raw()}),
 		pk.ByteArray(c.Data()), // TODO: Chunk Data
 		pk.VarInt(0),           // TODO: Block Entity
 	}.WriteTo(w)
