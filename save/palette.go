@@ -55,8 +55,15 @@ func createStatesPalette(p *PaletteContainer, bits byte) {
 		}
 	case 5, 6, 7, 8:
 		// TODO: HashMapPalette
+		p.palette = &linearPalette{
+			onResize: nil,
+			maps:     p.maps,
+			bits:     4,
+		}
 	default:
-		// TODO: GlobalPalette
+		p.palette = &globalPalette{
+			maps: p.maps,
+		}
 	}
 }
 
@@ -75,7 +82,9 @@ func createBiomesPalette(p *PaletteContainer, bits byte) {
 			bits:     4,
 		}
 	default:
-		// TODO: GlobalPalette
+		p.palette = &globalPalette{
+			maps: p.maps,
+		}
 	}
 }
 
@@ -195,8 +204,22 @@ func (l *linearPalette) WriteTo(w io.Writer) (n int64, err error) {
 	return
 }
 
-type hashMapPalette struct {
-	maps   blockMaps
-	values map[int]BlockState
-	bits   int
+type globalPalette struct {
+	maps blockMaps
+}
+
+func (g *globalPalette) id(v BlockState) int {
+	return g.maps.getID(v)
+}
+
+func (g *globalPalette) value(i int) BlockState {
+	return g.value(i)
+}
+
+func (g *globalPalette) ReadFrom(_ io.Reader) (int64, error) {
+	return 0, nil
+}
+
+func (g *globalPalette) WriteTo(_ io.Writer) (int64, error) {
+	return 0, nil
 }
