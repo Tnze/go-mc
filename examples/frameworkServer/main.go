@@ -32,7 +32,7 @@ func main() {
 	s := server.Server{
 		ListPingHandler: serverInfo,
 		LoginHandler: &server.MojangLoginHandler{
-			OnlineMode: true,
+			OnlineMode: false,
 			Threshold:  256,
 		},
 		GamePlay: &server.Game{

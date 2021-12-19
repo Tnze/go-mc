@@ -121,8 +121,8 @@ func sectorLoc(offset int32) (sec, num int32) {
 }
 
 // ReadSector find and read the Chunk data from region
-func (r *Region) ReadSector(x, y int) (data []byte, err error) {
-	offset, _ := sectorLoc(r.offsets[x][y])
+func (r *Region) ReadSector(x, z int) (data []byte, err error) {
+	offset, _ := sectorLoc(r.offsets[x][z])
 
 	if offset == 0 {
 		return nil, errors.New("sector not exist")

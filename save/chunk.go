@@ -11,42 +11,36 @@ import (
 
 // Column is 16* chunk
 type Column struct {
-	DataVersion int
-	Level       struct {
-		Heightmaps map[string][]int64
-		Structures struct {
-			References map[string][]int64
-			Starts     map[string]struct {
-				ID string `nbt:"id"`
-			}
-		}
-		// Entities
-		// LiquidTicks
-		// PostProcessing
-		Sections []Chunk
-		// TileEntities
-		// TileTicks
-		InhabitedTime int64
-		IsLightOn     byte `nbt:"isLightOn"`
-		LastUpdate    int64
-		Status        string
-		PosX          int32 `nbt:"xPos"`
-		PosZ          int32 `nbt:"zPos"`
-		Biomes        []int32
+	DataVersion   int32
+	XPos          int32          `nbt:"xPos"`
+	YPos          int32          `nbt:"yPos"`
+	ZPos          int32          `nbt:"zPos"`
+	BlockEntities nbt.RawMessage `nbt:"block_entities"`
+	Structures    nbt.RawMessage `nbt:"structures"`
+	Heightmaps    struct {
+		MotionBlocking         []int64 `nbt:"MOTION_BLOCKING"`
+		MotionBlockingNoLeaves []int64 `nbt:"MOTION_BLOCKING_NO_LEAVES"`
+		OceanFloor             []int64 `nbt:"OCEAN_FLOOR"`
+		WorldSurface           []int64 `nbt:"WORLD_SURFACE"`
 	}
+	Sections []struct {
+		Y           byte
+		BlockStates struct {
+			Palette []BlockState `nbt:"palette"`
+			Data    []int64      `nbt:"data"`
+		} `nbt:"block_states"`
+		Biomes struct {
+			Palette []string `nbt:"palette"`
+			Data    []int64  `nbt:"data"`
+		} `nbt:"biomes"`
+		SkyLight   []byte
+		BlockLight []byte
+	} `nbt:"sections"`
 }
 
-type Chunk struct {
-	Palette     []Block
-	Y           byte
-	BlockLight  []byte
-	BlockStates []int64
-	SkyLight    []byte
-}
-
-type Block struct {
+type BlockState struct {
 	Name       string
-	Properties map[string]interface{}
+	Properties nbt.RawMessage
 }
 
 // Load read column data from []byte

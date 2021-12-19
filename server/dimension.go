@@ -152,7 +152,7 @@ func (s *SimpleDim) LoadChunk(pos ChunkPos, c *Chunk) {
 func (s *SimpleDim) Info() DimInfo {
 	return DimInfo{
 		Name:       "minecraft:overworld",
-		HashedSeed: 0,
+		HashedSeed: 1234567,
 	}
 }
 
