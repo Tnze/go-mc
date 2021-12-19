@@ -26,7 +26,7 @@ type BitStorage struct {
 //
 // The "bits" is the number of bits per value, which can be calculated by math/bits.Len()
 // The "length" is the number of values.
-// The "data" is optional for initializing. Panic if data != nil && len(data) != BitStorageSize(bits, length).
+// The "data" is optional for initializing. Panic if data != nil && len(data) != calcBitStorageSize(bits, length).
 func NewBitStorage(bits, length int, data []uint64) (b *BitStorage) {
 	if bits == 0 {
 		return nil
@@ -38,7 +38,7 @@ func NewBitStorage(bits, length int, data []uint64) (b *BitStorage) {
 		length:        length,
 		valuesPerLong: 64 / bits,
 	}
-	dataLen := BitStorageSize(bits, length)
+	dataLen := calcBitStorageSize(bits, length)
 	if data != nil {
 		if len(data) != dataLen {
 			panic(newBitStorageErr{ArrlLen: len(data), WantLen: dataLen})
@@ -50,8 +50,8 @@ func NewBitStorage(bits, length int, data []uint64) (b *BitStorage) {
 	return
 }
 
-// BitStorageSize calculate how many uint64 is needed for given bits and length.
-func BitStorageSize(bits, length int) (size int) {
+// calcBitStorageSize calculate how many uint64 is needed for given bits and length.
+func calcBitStorageSize(bits, length int) (size int) {
 	if bits == 0 {
 		return 0
 	}

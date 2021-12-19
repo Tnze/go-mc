@@ -2,6 +2,7 @@ package server
 
 import (
 	_ "embed"
+	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/nbt"
 	"sync/atomic"
 
@@ -23,6 +24,7 @@ type GamePlay interface {
 type Game struct {
 	eid int32
 	Dim Dimension
+	*PlayerList
 }
 
 //go:embed DimensionCodec.snbt
@@ -32,6 +34,18 @@ var dimensionCodecSNBT string
 var dimensionSNBT string
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
+	remove := g.PlayerList.TryInsert(PlayerSample{
+		Name: name,
+		ID:   id,
+	})
+	if remove == nil {
+		_ = conn.WritePacket(pk.Marshal(
+			packetid.ClientboundDisconnect,
+			chat.TranslateMsg("multiplayer.disconnect.server_full"),
+		))
+		return
+	}
+	defer remove()
 	p := &Player{
 		Conn:     conn,
 		EntityID: g.newEID(),
@@ -61,6 +75,21 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		return
 	}
 	g.Dim.PlayerJoin(p)
+	defer g.Dim.PlayerQuit(p)
+
+	var packet pk.Packet
+	for {
+		err := p.ReadPacket(&packet)
+		if err != nil {
+			return
+		}
+		for _, ph := range p.handlers[packet.ID] {
+			err = ph(p, Packet757(packet))
+		}
+		if err != nil {
+			return
+		}
+	}
 }
 
 func (g *Game) newEID() int32 {

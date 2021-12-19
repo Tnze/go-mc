@@ -11,10 +11,67 @@ type BlockState interface {
 }
 
 type PaletteContainer struct {
-	maps   blockMaps
-	config func(p *PaletteContainer, bits byte)
-	palette
-	BitStorage
+	bits    int
+	maps    IdMaps
+	config  func(maps IdMaps, bits int) palette
+	palette palette
+	data    *BitStorage
+}
+
+func NewStatesPaletteContainer(maps IdMaps, length int) *PaletteContainer {
+	return &PaletteContainer{
+		bits:    0,
+		maps:    maps,
+		config:  createStatesPalette,
+		palette: createStatesPalette(maps, 0),
+		data:    NewBitStorage(0, length, nil),
+	}
+}
+
+func NewBiomesPaletteContainer(maps IdMaps, length int) *PaletteContainer {
+	return &PaletteContainer{
+		bits:    0,
+		maps:    maps,
+		config:  createBiomesPalette,
+		palette: createBiomesPalette(maps, 0),
+		data:    NewBitStorage(0, length, nil),
+	}
+}
+
+func (p *PaletteContainer) Get(i int) BlockState {
+	return p.palette.value(p.data.Get(i))
+}
+
+func (p *PaletteContainer) Set(i int, v BlockState) {
+	if vv, ok := p.palette.id(v); ok {
+		p.data.Set(i, vv)
+	} else {
+		// resize
+		oldLen := p.data.Len()
+		newPalette := PaletteContainer{
+			bits:    vv,
+			maps:    p.maps,
+			config:  p.config,
+			palette: p.config(p.maps, vv),
+			data:    NewBitStorage(vv, oldLen+1, nil),
+		}
+		// copy
+		for i := 0; i < oldLen; i++ {
+			raw := p.palette.value(i)
+			if vv, ok := newPalette.palette.id(raw); !ok {
+				panic("not reachable")
+			} else {
+				newPalette.data.Set(i, vv)
+			}
+		}
+
+		if vv, ok := newPalette.palette.id(v); !ok {
+			panic("not reachable")
+		} else {
+			newPalette.data.Set(oldLen, vv)
+		}
+		*p = newPalette
+	}
 }
 
 func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
@@ -23,7 +80,7 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	p.config(p, byte(bits))
+	p.palette = p.config(p.maps, int(bits))
 
 	nn, err := p.palette.ReadFrom(r)
 	n += nn
@@ -31,7 +88,7 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 		return n, err
 	}
 
-	nn, err = p.BitStorage.ReadFrom(r)
+	nn, err = p.data.ReadFrom(r)
 	n += nn
 	if err != nil {
 		return n, err
@@ -39,51 +96,46 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	return n, nil
 }
 
-func createStatesPalette(p *PaletteContainer, bits byte) {
+func createStatesPalette(maps IdMaps, bits int) palette {
 	switch bits {
 	case 0:
-		p.palette = &singleValuePalette{
-			onResize: nil,
-			maps:     p.maps,
-			v:        nil,
+		return &singleValuePalette{
+			maps: maps,
+			v:    nil,
 		}
 	case 1, 2, 3, 4:
-		p.palette = &linearPalette{
-			onResize: nil,
-			maps:     p.maps,
-			bits:     4,
+		return &linearPalette{
+			maps: maps,
+			bits: 4,
 		}
 	case 5, 6, 7, 8:
 		// TODO: HashMapPalette
-		p.palette = &linearPalette{
-			onResize: nil,
-			maps:     p.maps,
-			bits:     4,
+		return &linearPalette{
+			maps: maps,
+			bits: bits,
 		}
 	default:
-		p.palette = &globalPalette{
-			maps: p.maps,
+		return &globalPalette{
+			maps: maps,
 		}
 	}
 }
 
-func createBiomesPalette(p *PaletteContainer, bits byte) {
+func createBiomesPalette(maps IdMaps, bits int) palette {
 	switch bits {
 	case 0:
-		p.palette = &singleValuePalette{
-			onResize: nil,
-			maps:     p.maps,
-			v:        nil,
+		return &singleValuePalette{
+			maps: maps,
+			v:    nil,
 		}
 	case 1, 2, 3:
-		p.palette = &linearPalette{
-			onResize: nil,
-			maps:     p.maps,
-			bits:     4,
+		return &linearPalette{
+			maps: maps,
+			bits: bits,
 		}
 	default:
-		p.palette = &globalPalette{
-			maps: p.maps,
+		return &globalPalette{
+			maps: maps,
 		}
 	}
 }
@@ -92,38 +144,37 @@ func (p *PaletteContainer) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
 		pk.UnsignedByte(p.bits),
 		p.palette,
-		p.BitStorage,
+		p.data,
 	}.WriteTo(w)
 }
 
 type palette interface {
 	pk.FieldEncoder
 	pk.FieldDecoder
-	id(v BlockState) int
+	id(v BlockState) (int, bool)
 	value(i int) BlockState
 }
 
-type blockMaps interface {
+type IdMaps interface {
 	getID(state BlockState) (id int)
 	getValue(id int) (state BlockState)
 }
 
 type singleValuePalette struct {
-	onResize func(n int, v BlockState) int
-	maps     blockMaps
-	v        BlockState
+	maps IdMaps
+	v    BlockState
 }
 
-func (s *singleValuePalette) id(v BlockState) int {
+func (s *singleValuePalette) id(v BlockState) (int, bool) {
 	if s.v == nil {
 		s.v = v
-		return 0
+		return 0, true
 	}
 	if s.v == v {
-		return 0
+		return 0, true
 	}
 	// We have 2 values now. At least 1 bit is required.
-	return s.onResize(1, v)
+	return 1, false
 }
 
 func (s *singleValuePalette) value(i int) BlockState {
@@ -148,23 +199,22 @@ func (s *singleValuePalette) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 type linearPalette struct {
-	onResize func(n int, v BlockState) int
-	maps     blockMaps
-	values   []BlockState
-	bits     int
+	maps   IdMaps
+	values []BlockState
+	bits   int
 }
 
-func (l *linearPalette) id(v BlockState) int {
+func (l *linearPalette) id(v BlockState) (int, bool) {
 	for i, t := range l.values {
 		if t == v {
-			return i
+			return i, true
 		}
 	}
 	if cap(l.values)-len(l.values) > 0 {
 		l.values = append(l.values, v)
-		return len(l.values) - 1
+		return len(l.values) - 1, true
 	}
-	return l.onResize(l.bits+1, v)
+	return l.bits + 1, false
 }
 
 func (l *linearPalette) value(i int) BlockState {
@@ -205,11 +255,11 @@ func (l *linearPalette) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 type globalPalette struct {
-	maps blockMaps
+	maps IdMaps
 }
 
-func (g *globalPalette) id(v BlockState) int {
-	return g.maps.getID(v)
+func (g *globalPalette) id(v BlockState) (int, bool) {
+	return g.maps.getID(v), true
 }
 
 func (g *globalPalette) value(i int) BlockState {
