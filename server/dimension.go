@@ -2,12 +2,13 @@ package server
 
 import (
 	"bytes"
-	"github.com/Tnze/go-mc/data/packetid"
-	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/save"
 	"io"
 	"math/bits"
 	"sync"
+
+	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/level"
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type Dimension interface {
@@ -24,14 +25,28 @@ type DimInfo struct {
 type ChunkPos struct{ X, Z int }
 type Chunk struct {
 	sync.Mutex
-	sections   []Section
-	HeightMaps *save.BitStorage
+	Sections   []Section
+	HeightMaps *level.BitStorage
 }
 
 type Section struct {
 	blockCount int16
-	States     *save.PaletteContainer
-	Biomes     *save.PaletteContainer
+	States     *level.PaletteContainer
+	Biomes     *level.PaletteContainer
+}
+
+func (s *Section) GetBlock(i int) int {
+	return s.States.Get(i)
+}
+func (s *Section) SetBlock(i int, v int) {
+	// TODO: Handle cave air and void air
+	if s.States.Get(i) != 0 {
+		s.blockCount--
+	}
+	if v != 0 {
+		s.blockCount++
+	}
+	s.States.Set(i, v)
 }
 
 func (s *Section) WriteTo(w io.Writer) (int64, error) {
@@ -55,13 +70,13 @@ func EmptyChunk(secs int) *Chunk {
 	for i := range sections {
 		sections[i] = Section{
 			blockCount: 0,
-			States:     save.NewStatesPaletteContainer(nil, 16*16*16),
-			Biomes:     save.NewBiomesPaletteContainer(nil, 4*4*4),
+			States:     level.NewStatesPaletteContainer(16*16*16, 0),
+			Biomes:     level.NewBiomesPaletteContainer(4*4*4, 0),
 		}
 	}
 	return &Chunk{
-		sections:   sections,
-		HeightMaps: save.NewBitStorage(bits.Len(uint(secs)*16), 16*16, nil),
+		Sections:   sections,
+		HeightMaps: level.NewBitStorage(bits.Len(uint(secs)*16), 16*16, nil),
 	}
 }
 
@@ -82,7 +97,7 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 
 func (c *Chunk) Data() ([]byte, error) {
 	var buff bytes.Buffer
-	for _, section := range c.sections {
+	for _, section := range c.Sections {
 		_, err := section.WriteTo(&buff)
 		if err != nil {
 			return nil, err

@@ -1,4 +1,4 @@
-package save
+package level
 
 import (
 	"fmt"
@@ -29,7 +29,13 @@ type BitStorage struct {
 // The "data" is optional for initializing. Panic if data != nil && len(data) != calcBitStorageSize(bits, length).
 func NewBitStorage(bits, length int, data []uint64) (b *BitStorage) {
 	if bits == 0 {
-		return nil
+		return &BitStorage{
+			data:          nil,
+			mask:          0,
+			bits:          0,
+			length:        length,
+			valuesPerLong: 0,
+		}
 	}
 
 	b = &BitStorage{
@@ -76,13 +82,15 @@ func (b *BitStorage) calcIndex(n int) (c, o int) {
 
 // Swap sets v into [i], and return the previous [i] value.
 func (b *BitStorage) Swap(i, v int) (old int) {
-	if b == nil || i < 0 || i > b.length-1 {
-		panic(indexOutOfBounds)
+	if b.valuesPerLong == 0 {
+		return 0
 	}
 	if v < 0 || uint64(v) > b.mask {
 		panic(valueOutOfBounds)
 	}
-
+	if i < 0 || i > b.length-1 {
+		panic(indexOutOfBounds)
+	}
 	c, offset := b.calcIndex(i)
 	l := b.data[c]
 	old = int(l >> offset & b.mask)
@@ -92,11 +100,14 @@ func (b *BitStorage) Swap(i, v int) (old int) {
 
 // Set sets v into [i].
 func (b *BitStorage) Set(i, v int) {
-	if b == nil || i < 0 || i > b.length-1 {
-		panic(indexOutOfBounds)
+	if b.valuesPerLong == 0 {
+		return
 	}
 	if v < 0 || uint64(v) > b.mask {
 		panic(valueOutOfBounds)
+	}
+	if i < 0 || i > b.length-1 {
+		panic(indexOutOfBounds)
 	}
 
 	c, offset := b.calcIndex(i)
@@ -106,7 +117,10 @@ func (b *BitStorage) Set(i, v int) {
 
 // Get gets [i] value.
 func (b *BitStorage) Get(i int) int {
-	if b == nil || i < 0 || i > b.length-1 {
+	if b.valuesPerLong == 0 {
+		return 0
+	}
+	if i < 0 || i > b.length-1 {
 		panic(indexOutOfBounds)
 	}
 
@@ -117,9 +131,6 @@ func (b *BitStorage) Get(i int) int {
 
 // Len is the number of stored values.
 func (b *BitStorage) Len() int {
-	if b == nil {
-		return 0
-	}
 	return b.length
 }
 
@@ -155,6 +166,9 @@ func (b *BitStorage) ReadFrom(r io.Reader) (int64, error) {
 }
 
 func (b *BitStorage) WriteTo(w io.Writer) (int64, error) {
+	if b == nil {
+		return pk.VarInt(0).WriteTo(w)
+	}
 	n, err := pk.VarInt(len(b.data)).WriteTo(w)
 	if err != nil {
 		return n, err

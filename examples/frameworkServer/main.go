@@ -2,13 +2,12 @@ package main
 
 import (
 	_ "embed"
+	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/server"
 	"image"
 	_ "image/png"
 	"log"
 	"os"
-
-	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/server"
 )
 
 const MaxPlayer = 20
@@ -23,7 +22,13 @@ func main() {
 		log.Fatalf("Set server info error: %v", err)
 	}
 	defaultDimension := server.NewSimpleDim(16)
-	defaultDimension.LoadChunk(server.ChunkPos{X: 0, Z: 0}, server.EmptyChunk(16))
+	chunk00 := server.EmptyChunk(16)
+	for s := 0; s < 16; s++ {
+		for i := 0; i < 16*16; i++ {
+			chunk00.Sections[s].SetBlock(i, 1)
+		}
+	}
+	defaultDimension.LoadChunk(server.ChunkPos{X: 0, Z: 0}, chunk00)
 	s := server.Server{
 		ListPingHandler: serverInfo,
 		LoginHandler: &server.MojangLoginHandler{

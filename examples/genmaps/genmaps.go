@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/Tnze/go-mc/level"
 	"image"
 	"image/color"
 	"image/draw"
@@ -189,7 +190,7 @@ func drawSection(s *save.Chunk, img *image.RGBA) {
 
 	// decode status
 	data := *(*[]uint64)(unsafe.Pointer(&s.BlockStates)) // convert []int64 into []uint64
-	bs := save.NewBitStorage(bpb, 4096, data)
+	bs := level.NewBitStorage(bpb, 4096, data)
 	for y := 0; y < 16; y++ {
 		layerImg := image.NewRGBA(image.Rect(0, 0, 16, 16))
 		for i := 16*16 - 1; i >= 0; i-- {
