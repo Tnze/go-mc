@@ -12,7 +12,7 @@ func TestColumn(t *testing.T) {
 	}
 	defer r.Close()
 
-	var c Column
+	var c Chunk
 	data, err := r.ReadSector(0, 0)
 	if err != nil {
 		t.Fatal(err)
@@ -27,7 +27,7 @@ func TestColumn(t *testing.T) {
 
 func BenchmarkColumn_Load(b *testing.B) {
 	// Test how many times we load a chunk
-	var c Column
+	var c Chunk
 	r, err := region.Open("testdata/region/r.-1.-1.mca")
 	if err != nil {
 		b.Fatal(err)

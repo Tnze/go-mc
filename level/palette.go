@@ -2,6 +2,7 @@ package level
 
 import (
 	"io"
+	"math/bits"
 	"strconv"
 
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -22,6 +23,19 @@ func NewStatesPaletteContainer(length int, defaultValue state) *PaletteContainer
 		config:  createStatesPalette,
 		palette: &singleValuePalette{v: defaultValue},
 		data:    NewBitStorage(0, length, nil),
+	}
+}
+
+func NewStatesPaletteContainerWithData(length int, data []uint64, palette []int) *PaletteContainer {
+	n := bits.Len(uint(len(palette)))
+	return &PaletteContainer{
+		bits:   n,
+		config: createStatesPalette,
+		palette: &linearPalette{
+			values: palette,
+			bits:   n,
+		},
+		data: NewBitStorage(n, length, data),
 	}
 }
 

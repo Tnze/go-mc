@@ -23,7 +23,7 @@ type GamePlay interface {
 
 type Game struct {
 	eid int32
-	Dim Dimension
+	Dim Level
 	*PlayerList
 }
 

@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/Tnze/go-mc/level"
 	"image"
 	"image/color"
 	"image/draw"
@@ -11,10 +10,12 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 	"unsafe"
 
 	"github.com/Tnze/go-mc/data/block"
+	"github.com/Tnze/go-mc/level"
 	"github.com/Tnze/go-mc/save"
 	"github.com/Tnze/go-mc/save/region"
 )
@@ -97,7 +98,7 @@ func main() {
 		var wg sync.WaitGroup
 		for i := 0; i < *regionWorkerNum; i++ {
 			go func() {
-				var column save.Column
+				var column save.Chunk
 				for task := range c {
 					if err := column.Load(task.data); err != nil {
 						log.Printf("Decode column (%d.%d) error: %v", task.pos[0], task.pos[1], err)
@@ -155,10 +156,10 @@ func main() {
 	}
 }
 
-func drawColumn(column *save.Column) (img *image.RGBA) {
+func drawColumn(column *save.Chunk) (img *image.RGBA) {
 	img = image.NewRGBA(image.Rect(0, 0, 16, 16))
-	s := column.Level.Sections
-	c := make(chan *save.Chunk)
+	s := column.Sections
+	c := make(chan *save.Section)
 	var wg sync.WaitGroup
 	for i := 0; i < sectionWorkerNum; i++ {
 		go func() {
@@ -179,33 +180,20 @@ func drawColumn(column *save.Column) (img *image.RGBA) {
 	return
 }
 
-func drawSection(s *save.Chunk, img *image.RGBA) {
-	// calculate bits per block
-	bpb := len(s.BlockStates) * 64 / (16 * 16 * 16)
-	// skip empty
-	if len(s.BlockStates) == 0 {
-		return
+func drawSection(s *save.Section, img *image.RGBA) {
+	data := *(*[]uint64)((unsafe.Pointer)(&s.BlockStates.Data))
+	palette := s.BlockStates.Palette
+	rawPalette := make([]int, len(palette))
+	for i, v := range palette {
+		// TODO: Consider the properties of block, not only index the block name
+		rawPalette[i] = int(stateIDs[strings.TrimPrefix(v.Name, "minecraft:")])
 	}
-	// decode section
-
-	// decode status
-	data := *(*[]uint64)(unsafe.Pointer(&s.BlockStates)) // convert []int64 into []uint64
-	bs := level.NewBitStorage(bpb, 4096, data)
+	c := level.NewStatesPaletteContainerWithData(16*16*16, data, rawPalette)
 	for y := 0; y < 16; y++ {
 		layerImg := image.NewRGBA(image.Rect(0, 0, 16, 16))
 		for i := 16*16 - 1; i >= 0; i-- {
 			var bid block.ID
-			switch {
-			case bpb > 9:
-				bid = block.StateID[uint32(bs.Get(y*16*16+i))]
-			case bpb > 4:
-				fallthrough
-			case bpb <= 4:
-				b := s.Palette[bs.Get(y*16*16+i)]
-				if id, ok := idByName[b.Name]; ok {
-					bid = block.StateID[id]
-				}
-			}
+			bid = block.ID(c.Get(i))
 			c := colors[block.ByID[bid].ID]
 			layerImg.Set(i%16, i/16, c)
 		}
@@ -216,4 +204,16 @@ func drawSection(s *save.Chunk, img *image.RGBA) {
 		)
 	}
 	return
+}
+
+// TODO: This map should be moved to data/block.
+var stateIDs map[string]uint32
+
+func init() {
+	for i, v := range block.StateID {
+		name := block.ByID[v].Name
+		if _, ok := stateIDs[name]; !ok {
+			stateIDs[name] = i
+		}
+	}
 }

@@ -10,7 +10,7 @@ import (
 type PlayerData struct {
 	DataVersion int32
 
-	Dimension    int32
+	Dimension    string
 	Pos          [3]float64
 	Motion       [3]float64
 	Rotation     [2]float32
