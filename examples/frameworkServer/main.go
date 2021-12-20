@@ -3,6 +3,9 @@ package main
 import (
 	_ "embed"
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/level"
+	"github.com/Tnze/go-mc/save"
+	"github.com/Tnze/go-mc/save/region"
 	"github.com/Tnze/go-mc/server"
 	"image"
 	_ "image/png"
@@ -21,14 +24,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Set server info error: %v", err)
 	}
-	defaultDimension := server.NewSimpleDim(16)
-	chunk00 := server.EmptyChunk(16)
-	for s := 0; s < 16; s++ {
-		for i := 0; i < 16*16; i++ {
-			chunk00.Sections[s].SetBlock(i, 1)
-		}
-	}
-	defaultDimension.LoadChunk(server.ChunkPos{X: 0, Z: 0}, chunk00)
+	defaultDimension := server.NewSimpleDim(256)
+	chunk00 := level.ChunkFromSave(readChunk00(), 256)
+	defaultDimension.LoadChunk(level.ChunkPos{X: 0, Z: 0}, chunk00)
 	s := server.Server{
 		ListPingHandler: serverInfo,
 		LoginHandler: &server.MojangLoginHandler{
@@ -60,4 +58,23 @@ func readIcon() image.Image {
 		log.Fatalf("Decode image error: %v", err)
 	}
 	return icon
+}
+
+func readChunk00() *save.Chunk {
+	r, err := region.Open("./save/testdata/region/r.0.0.mca")
+	if err != nil {
+		panic(err)
+	}
+	defer r.Close()
+
+	var c save.Chunk
+	data, err := r.ReadSector(0, 0)
+	if err != nil {
+		panic(err)
+	}
+	err = c.Load(data)
+	if err != nil {
+		panic(err)
+	}
+	return &c
 }

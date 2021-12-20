@@ -24,12 +24,12 @@ const (
 package block
 
 import (
-	"math"
+	"math/bits"
 )
 
 // BitsPerBlock indicates how many bits are needed to represent all possible
 // block states. This value is used to determine the size of the global palette.
-var BitsPerBlock = int(math.Ceil(math.Log2(float64(len(StateID)))))
+var BitsPerBlock = bits.Len(uint(len(StateID)))
 
 // ID describes the numeric ID of a block.
 type ID uint32

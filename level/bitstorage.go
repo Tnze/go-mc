@@ -2,9 +2,10 @@ package level
 
 import (
 	"fmt"
-	pk "github.com/Tnze/go-mc/net/packet"
 	"io"
 	"math"
+
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 const indexOutOfBounds = "index out of bounds"

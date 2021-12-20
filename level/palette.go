@@ -12,7 +12,7 @@ type state = int
 
 type PaletteContainer struct {
 	bits    int
-	config  func(bits int) palette
+	config  paletteCfg
 	palette palette
 	data    *BitStorage
 }
@@ -20,31 +20,60 @@ type PaletteContainer struct {
 func NewStatesPaletteContainer(length int, defaultValue state) *PaletteContainer {
 	return &PaletteContainer{
 		bits:    0,
-		config:  createStatesPalette,
+		config:  statesCfg{},
 		palette: &singleValuePalette{v: defaultValue},
 		data:    NewBitStorage(0, length, nil),
 	}
 }
 
-func NewStatesPaletteContainerWithData(length int, data []uint64, palette []int) *PaletteContainer {
-	n := bits.Len(uint(len(palette)))
-	return &PaletteContainer{
-		bits:   n,
-		config: createStatesPalette,
-		palette: &linearPalette{
-			values: palette,
+func NewStatesPaletteContainerWithData(length int, data []uint64, pat []int) *PaletteContainer {
+	var p palette
+	var n int
+	if len(pat) == 1 {
+		p = &singleValuePalette{pat[0]}
+		n = 0
+	} else {
+		n = statesCfg{}.bits(bits.Len(uint(len(pat))))
+		p = &linearPalette{
+			values: pat,
 			bits:   n,
-		},
-		data: NewBitStorage(n, length, data),
+		}
+	}
+	return &PaletteContainer{
+		bits:    n,
+		config:  statesCfg{},
+		palette: p,
+		data:    NewBitStorage(n, length, data),
 	}
 }
 
 func NewBiomesPaletteContainer(length int, defaultValue state) *PaletteContainer {
 	return &PaletteContainer{
 		bits:    0,
-		config:  createBiomesPalette,
+		config:  biomesCfg{},
 		palette: &singleValuePalette{v: defaultValue},
 		data:    NewBitStorage(0, length, nil),
+	}
+}
+
+func NewBiomesPaletteContainerWithData(length int, data []uint64, pat []int) *PaletteContainer {
+	var p palette
+	var n int
+	if len(pat) == 1 {
+		p = &singleValuePalette{pat[0]}
+		n = 0
+	} else {
+		n = biomesCfg{}.bits(bits.Len(uint(len(pat))))
+		p = &linearPalette{
+			values: pat,
+			bits:   n,
+		}
+	}
+	return &PaletteContainer{
+		bits:    n,
+		config:  biomesCfg{},
+		palette: p,
+		data:    NewBitStorage(n, length, data),
 	}
 }
 
@@ -61,7 +90,7 @@ func (p *PaletteContainer) Set(i int, v state) {
 		newPalette := PaletteContainer{
 			bits:    vv,
 			config:  p.config,
-			palette: p.config(vv),
+			palette: p.config.create(vv),
 			data:    NewBitStorage(vv, oldLen+1, nil),
 		}
 		// copy
@@ -89,7 +118,7 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	if err != nil {
 		return
 	}
-	p.palette = p.config(int(bits))
+	p.palette = p.config.create(int(bits))
 
 	nn, err := p.palette.ReadFrom(r)
 	n += nn
@@ -105,7 +134,27 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	return n, nil
 }
 
-func createStatesPalette(bits int) palette {
+type paletteCfg interface {
+	bits(int) int
+	create(bits int) palette
+}
+
+type statesCfg struct{}
+
+func (s statesCfg) bits(bits int) int {
+	switch bits {
+	case 0:
+		return 0
+	case 1, 2, 3, 4:
+		return 4
+	case 5, 6, 7, 8:
+		return bits
+	default:
+		return bits
+	}
+}
+
+func (s statesCfg) create(bits int) palette {
 	switch bits {
 	case 0:
 		return &singleValuePalette{v: -1}
@@ -119,7 +168,19 @@ func createStatesPalette(bits int) palette {
 	}
 }
 
-func createBiomesPalette(bits int) palette {
+type biomesCfg struct{}
+
+func (b biomesCfg) bits(bits int) int {
+	switch bits {
+	case 0:
+		return 0
+	case 1, 2, 3:
+		return bits
+	default:
+		return bits
+	}
+}
+func (b biomesCfg) create(bits int) palette {
 	switch bits {
 	case 0:
 		return &singleValuePalette{v: -1}
