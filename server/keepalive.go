@@ -44,9 +44,9 @@ func NewKeepAlive() (k KeepAlive) {
 
 func (k *KeepAlive) AddPlayer(p *Player) {
 	k.join <- p
-	p.handlers[packetid.ServerboundKeepAlive] = append(
-		p.handlers[packetid.ServerboundKeepAlive],
-		func(packet Packet757) error {
+	p.Add(PacketHandler{
+		ID: packetid.ServerboundKeepAlive,
+		F: func(packet Packet757) error {
 			var KeepAliveID pk.Long
 			if err := pk.Packet(packet).Scan(&KeepAliveID); err != nil {
 				return err
@@ -54,7 +54,7 @@ func (k *KeepAlive) AddPlayer(p *Player) {
 			k.tick <- p
 			return nil
 		},
-	)
+	})
 }
 
 func (k *KeepAlive) RemovePlayer(p *Player) {
@@ -63,105 +63,123 @@ func (k *KeepAlive) RemovePlayer(p *Player) {
 
 func (k *KeepAlive) Run(ctx context.Context) {
 	for {
-	Select:
 		select {
 		case <-ctx.Done():
 			return
-
 		case p := <-k.join:
-			k.pingList.PushBack(keepAliveItem{
-				player:   p,
-				lastTick: time.Now(),
-			})
-
+			k.pushPlayer(p)
 		case p := <-k.quit:
-			// find player in pingList
-			e := k.pingList.Front()
-			for e != nil {
-				if e.Value.(keepAliveItem).player.UUID == p.UUID {
-					isFirst := e.Prev() == nil
-					k.pingList.Remove(e)
-					if isFirst {
-						keepAliveSetTimer(k.pingList, k.listTimer, keepAliveInterval)
-					}
-					break Select
-				}
-				e = e.Next()
-			}
-			// find player in waitList
-			e = k.waitList.Front()
-			for e != nil {
-				if e.Value.(keepAliveItem).player.UUID == p.UUID {
-					isFirst := e.Prev() == nil
-					k.waitList.Remove(e)
-					if isFirst {
-						keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
-					}
-					break Select
-				}
-				e = e.Next()
-			}
-			// player not found
-			panic("keepalive: fail to remove player: " + p.UUID.String() + ": not found")
-
+			k.removePlayer(p)
 		case now := <-k.listTimer.C:
-			if elem := k.pingList.Front(); elem != nil {
-				player := elem.Value.(keepAliveItem).player
-				// Send Clientbound KeepAlive packet.
-				player.WritePacket(Packet757(pk.Marshal(
-					packetid.ClientboundKeepAlive,
-					pk.Long(k.keepAliveID),
-				)))
-				k.keepAliveID++
-				// Clientbound KeepAlive packet is sent, move the player to waiting list.
-				k.pingList.Remove(elem)
-				k.waitList.PushBack(keepAliveItem{
-					player:   player,
-					lastTick: now,
-				})
-			}
-			// Wait for next earliest player
-			keepAliveSetTimer(k.pingList, k.listTimer, keepAliveInterval)
-
+			k.pingPlayer(now)
 		case <-k.waitTimer.C:
-			if elem := k.waitList.Front(); elem != nil {
-				player := elem.Value.(keepAliveItem).player
-				k.waitList.Remove(elem)
-				k.onPlayerExpire(player)
-			}
-			keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
-
+			k.kickPlayer()
 		case p := <-k.tick:
-			elem := k.waitList.Front()
-			for elem != nil {
-				if elem.Value.(keepAliveItem).player.UUID == p.UUID {
-					k.waitList.Remove(elem)
-					goto Success
-				}
-				elem = elem.Next()
-			}
-			panic("keepalive: fail to tick player: " + p.UUID.String() + " not found")
-		Success:
-			isFirst := elem.Prev() == nil
-			k.waitList.Remove(elem)
-			if isFirst {
-				if !k.waitTimer.Stop() {
-					<-k.waitTimer.C
-				}
-				keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
-			}
-			k.pingList.PushBack(keepAliveItem{
-				player:   p,
-				lastTick: time.Now(),
-			})
+			k.tickPlayer(p)
 		}
 	}
+}
+
+func (k KeepAlive) pushPlayer(p *Player) {
+	k.pingList.PushBack(keepAliveItem{
+		player:   p,
+		lastTick: time.Now(),
+	})
+}
+
+//goland:noinspection GoDeferInLoop
+func (k *KeepAlive) removePlayer(p *Player) {
+	// find player in pingList
+	e := k.pingList.Front()
+	for e != nil {
+		if e.Value.(keepAliveItem).player.UUID == p.UUID {
+			if e.Prev() == nil {
+				defer keepAliveSetTimer(k.pingList, k.listTimer, keepAliveInterval)
+			}
+			k.pingList.Remove(e)
+			return
+		}
+		e = e.Next()
+	}
+	// find player in waitList
+	e = k.waitList.Front()
+	for e != nil {
+		if e.Value.(keepAliveItem).player.UUID == p.UUID {
+			if e.Prev() == nil {
+				defer keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
+			}
+			k.waitList.Remove(e)
+			return
+		}
+		e = e.Next()
+	}
+	// player not found
+	panic("keepalive: fail to remove player: " + p.UUID.String() + ": not found")
+}
+
+func (k *KeepAlive) pingPlayer(now time.Time) {
+	if elem := k.pingList.Front(); elem != nil {
+		player := elem.Value.(keepAliveItem).player
+		// Send Clientbound KeepAlive packet.
+		player.WritePacket(Packet757(pk.Marshal(
+			packetid.ClientboundKeepAlive,
+			pk.Long(k.keepAliveID),
+		)))
+		k.keepAliveID++
+		// Clientbound KeepAlive packet is sent, move the player to waiting list.
+		k.pingList.Remove(elem)
+		k.waitList.PushBack(keepAliveItem{
+			player:   player,
+			lastTick: now,
+		})
+	}
+	// Wait for next earliest player
+	keepAliveSetTimer(k.pingList, k.listTimer, keepAliveInterval)
+}
+
+func (k *KeepAlive) tickPlayer(p *Player) {
+	elem := k.waitList.Front()
+	for elem != nil {
+		if elem.Value.(keepAliveItem).player.UUID == p.UUID {
+			k.waitList.Remove(elem)
+			break
+		}
+		elem = elem.Next()
+	}
+
+	if elem == nil {
+		panic("keepalive: fail to tick player: " + p.UUID.String() + " not found")
+	}
+
+	if elem.Prev() == nil {
+		if !k.waitTimer.Stop() {
+			<-k.waitTimer.C
+		}
+		defer keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
+	}
+	k.waitList.Remove(elem)
+	k.pingList.PushBack(keepAliveItem{
+		player:   p,
+		lastTick: time.Now(),
+	})
+}
+
+func (k *KeepAlive) kickPlayer() {
+	if elem := k.waitList.Front(); elem != nil {
+		player := elem.Value.(keepAliveItem).player
+		k.waitList.Remove(elem)
+		k.onPlayerExpire(player)
+	}
+	keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
 }
 
 func keepAliveSetTimer(l *list.List, timer *time.Timer, interval time.Duration) {
 	if first := l.Front(); first != nil {
 		item := first.Value.(keepAliveItem)
 		interval -= time.Since(item.lastTick)
+		if interval < 0 {
+			interval = 0
+		}
 	}
 	timer.Reset(interval)
 	return
