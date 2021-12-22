@@ -2,13 +2,13 @@ package server
 
 import (
 	_ "embed"
-	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/nbt"
 	"sync/atomic"
 
 	"github.com/google/uuid"
 
+	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/nbt"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -34,10 +34,7 @@ var dimensionCodecSNBT string
 var dimensionSNBT string
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
-	remove := g.PlayerList.TryInsert(PlayerSample{
-		Name: name,
-		ID:   id,
-	})
+	remove := g.PlayerList.TryInsert(PlayerSample{Name: name, ID: id})
 	if remove == nil {
 		_ = conn.WritePacket(pk.Marshal(
 			packetid.ClientboundDisconnect,

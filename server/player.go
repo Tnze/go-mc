@@ -3,10 +3,15 @@ package server
 import (
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/google/uuid"
+	"sync"
 )
 
 type Player struct {
 	*net.Conn
+	writeLock sync.Mutex
+
+	uuid.UUID
 	EntityID int32
 	Gamemode byte
 	handlers map[int32][]packetHandlerFunc
@@ -18,6 +23,8 @@ type Packet757 pk.Packet
 
 // WritePacket to player client. The type of parameter will update per version.
 func (p *Player) WritePacket(packet Packet757) error {
+	p.writeLock.Lock()
+	defer p.writeLock.Unlock()
 	return p.Conn.WritePacket(pk.Packet(packet))
 }
 
@@ -26,7 +33,7 @@ type PacketHandler struct {
 	F  packetHandlerFunc
 }
 
-type packetHandlerFunc func(player *Player, packet Packet757) error
+type packetHandlerFunc func(packet Packet757) error
 
 func (p *Player) Add(ph PacketHandler) {
 	if p.handlers == nil {
