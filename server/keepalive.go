@@ -3,6 +3,7 @@ package server
 import (
 	"container/list"
 	"context"
+	"errors"
 	"time"
 
 	"github.com/Tnze/go-mc/data/packetid"
@@ -121,10 +122,14 @@ func (k *KeepAlive) pingPlayer(now time.Time) {
 	if elem := k.pingList.Front(); elem != nil {
 		player := elem.Value.(keepAliveItem).player
 		// Send Clientbound KeepAlive packet.
-		player.WritePacket(Packet757(pk.Marshal(
+		err := player.WritePacket(Packet757(pk.Marshal(
 			packetid.ClientboundKeepAlive,
 			pk.Long(k.keepAliveID),
 		)))
+		if err != nil {
+			player.PutErr(err)
+			return
+		}
 		k.keepAliveID++
 		// Clientbound KeepAlive packet is sent, move the player to waiting list.
 		k.pingList.Remove(elem)
@@ -148,7 +153,8 @@ func (k *KeepAlive) tickPlayer(p *Player) {
 	}
 
 	if elem == nil {
-		panic("keepalive: fail to tick player: " + p.UUID.String() + " not found")
+		p.PutErr(errors.New("keepalive: fail to tick player: " + p.UUID.String() + " not found"))
+		return
 	}
 
 	if elem.Prev() == nil {

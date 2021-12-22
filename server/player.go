@@ -38,8 +38,13 @@ type PacketHandler struct {
 type packetHandlerFunc func(packet Packet757) error
 
 func (p *Player) Add(ph PacketHandler) {
+
 	if p.handlers == nil {
 		p.handlers = make(map[int32][]packetHandlerFunc)
 	}
 	p.handlers[ph.ID] = append(p.handlers[ph.ID], ph.F)
+}
+
+func (p *Player) PutErr(err error) {
+	// TODO: handle errors
 }
