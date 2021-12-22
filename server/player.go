@@ -1,10 +1,12 @@
 package server
 
 import (
+	"sync"
+
+	"github.com/google/uuid"
+
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/google/uuid"
-	"sync"
 )
 
 type Player struct {

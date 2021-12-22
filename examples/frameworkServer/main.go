@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/level"
@@ -27,16 +28,17 @@ func main() {
 	defaultDimension := server.NewSimpleDim(256)
 	chunk00 := level.ChunkFromSave(readChunk00(), 256)
 	defaultDimension.LoadChunk(level.ChunkPos{X: 0, Z: 0}, chunk00)
+
+	game := server.NewGame(defaultDimension, playerList)
+	game.Run(context.Background())
+
 	s := server.Server{
 		ListPingHandler: serverInfo,
 		LoginHandler: &server.MojangLoginHandler{
 			OnlineMode: false,
 			Threshold:  256,
 		},
-		GamePlay: &server.Game{
-			Dim:        defaultDimension,
-			PlayerList: playerList,
-		},
+		GamePlay: game,
 	}
 	if err := s.Listen(":25565"); err != nil {
 		log.Fatalf("Listen error: %v", err)

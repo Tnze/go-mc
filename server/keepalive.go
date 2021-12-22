@@ -1,12 +1,12 @@
 package server
 
 import (
-	"container/heap"
-	"errors"
+	"container/list"
+	"context"
+	"time"
+
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"sync"
-	"time"
 )
 
 // keepAliveInterval represents the interval when the server sends keep alive
@@ -16,151 +16,158 @@ const keepAliveInterval = time.Second * 15
 const keepAliveWaitInterval = time.Second * 30
 
 type KeepAlive struct {
-	list     keepAliveHeap
-	listLock sync.Mutex
+	join chan *Player
+	quit chan *Player
+	tick chan *Player
 
-	waitList  keepAliveHeap
-	waitItem  keepAliveItem
-	waitLock  sync.Mutex
+	pingList  *list.List
+	waitList  *list.List
+	listTimer *time.Timer
 	waitTimer *time.Timer
+	// The Notchian server uses a system-dependent time in milliseconds to generate the keep alive ID value.
+	// We don't do that here for security reason.
+	keepAliveID int64
 
 	onPlayerExpire func(p *Player)
 }
 
 func NewKeepAlive() (k KeepAlive) {
-	heap.Init(&k.list)
-	heap.Init(&k.waitList)
+	k.join = make(chan *Player)
+	k.quit = make(chan *Player)
+	k.tick = make(chan *Player)
+	k.pingList = list.New()
+	k.waitList = list.New()
+	k.listTimer = time.NewTimer(keepAliveInterval)
+	k.waitTimer = time.NewTimer(keepAliveWaitInterval)
 	return
 }
 
 func (k *KeepAlive) AddPlayer(p *Player) {
-	k.listLock.Lock()
-	defer k.listLock.Unlock()
-
-	now := time.Now()
-	heap.Push(&k.list, keepAliveItem{
-		player:   p,
-		lastTick: now,
-	})
+	k.join <- p
+	p.handlers[packetid.ServerboundKeepAlive] = append(
+		p.handlers[packetid.ServerboundKeepAlive],
+		func(packet Packet757) error {
+			var KeepAliveID pk.Long
+			if err := pk.Packet(packet).Scan(&KeepAliveID); err != nil {
+				return err
+			}
+			k.tick <- p
+			return nil
+		},
+	)
 }
 
 func (k *KeepAlive) RemovePlayer(p *Player) {
-	k.listLock.Lock()
-	defer k.listLock.Unlock()
-
-	for i, v := range k.list {
-		if v.player.UUID == p.UUID {
-			heap.Remove(&k.list, i)
-			return
-		}
-	}
-	panic("KeepAlive: Fail to remove player: " + p.UUID.String() + ": not found")
+	k.quit <- p
 }
 
-func (k *KeepAlive) Run() {
-	listTimer := time.NewTimer(keepAliveInterval)
-	k.waitTimer = time.NewTimer(keepAliveWaitInterval)
-	var listItem keepAliveItem
-	// The Notchian server uses a system-dependent time in milliseconds to generate the keep alive ID value.
-	// We don't do that here for security reason.
-	var keepAliveID int64
-
+func (k *KeepAlive) Run(ctx context.Context) {
 	for {
+	Select:
 		select {
-		case now := <-listTimer.C:
-			if listItem.player == nil {
-				listItem = getEarliest(&k.list, &k.listLock, listTimer, keepAliveInterval)
-				break
-			}
+		case <-ctx.Done():
+			return
 
-			// Send Clientbound KeepAlive packet.
-			listItem.player.WritePacket(Packet757(pk.Marshal(
-				packetid.ClientboundKeepAlive,
-				pk.Long(keepAliveID),
-			)))
-			keepAliveID++
-
-			// Clientbound KeepAlive packet is sent, add the player to waiting list.
-			k.waitLock.Lock()
-			heap.Push(&k.waitList, keepAliveItem{
-				player:   listItem.player,
-				lastTick: now,
+		case p := <-k.join:
+			k.pingList.PushBack(keepAliveItem{
+				player:   p,
+				lastTick: time.Now(),
 			})
-			k.waitLock.Unlock()
 
+		case p := <-k.quit:
+			// find player in pingList
+			e := k.pingList.Front()
+			for e != nil {
+				if e.Value.(keepAliveItem).player.UUID == p.UUID {
+					isFirst := e.Prev() == nil
+					k.pingList.Remove(e)
+					if isFirst {
+						keepAliveSetTimer(k.pingList, k.listTimer, keepAliveInterval)
+					}
+					break Select
+				}
+				e = e.Next()
+			}
+			// find player in waitList
+			e = k.waitList.Front()
+			for e != nil {
+				if e.Value.(keepAliveItem).player.UUID == p.UUID {
+					isFirst := e.Prev() == nil
+					k.waitList.Remove(e)
+					if isFirst {
+						keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
+					}
+					break Select
+				}
+				e = e.Next()
+			}
+			// player not found
+			panic("keepalive: fail to remove player: " + p.UUID.String() + ": not found")
+
+		case now := <-k.listTimer.C:
+			if elem := k.pingList.Front(); elem != nil {
+				player := elem.Value.(keepAliveItem).player
+				// Send Clientbound KeepAlive packet.
+				player.WritePacket(Packet757(pk.Marshal(
+					packetid.ClientboundKeepAlive,
+					pk.Long(k.keepAliveID),
+				)))
+				k.keepAliveID++
+				// Clientbound KeepAlive packet is sent, move the player to waiting list.
+				k.pingList.Remove(elem)
+				k.waitList.PushBack(keepAliveItem{
+					player:   player,
+					lastTick: now,
+				})
+			}
 			// Wait for next earliest player
-			listItem = getEarliest(&k.list, &k.listLock, listTimer, keepAliveInterval)
+			keepAliveSetTimer(k.pingList, k.listTimer, keepAliveInterval)
 
 		case <-k.waitTimer.C:
-			if k.waitItem.player == nil {
-				k.waitItem = getEarliest(&k.waitList, &k.waitLock, k.waitTimer, keepAliveWaitInterval)
-				break
+			if elem := k.waitList.Front(); elem != nil {
+				player := elem.Value.(keepAliveItem).player
+				k.waitList.Remove(elem)
+				k.onPlayerExpire(player)
 			}
-			k.onPlayerExpire(k.waitItem.player)
-			k.waitItem = getEarliest(&k.waitList, &k.waitLock, k.waitTimer, keepAliveWaitInterval)
+			keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
+
+		case p := <-k.tick:
+			elem := k.waitList.Front()
+			for elem != nil {
+				if elem.Value.(keepAliveItem).player.UUID == p.UUID {
+					k.waitList.Remove(elem)
+					goto Success
+				}
+				elem = elem.Next()
+			}
+			panic("keepalive: fail to tick player: " + p.UUID.String() + " not found")
+		Success:
+			isFirst := elem.Prev() == nil
+			k.waitList.Remove(elem)
+			if isFirst {
+				if !k.waitTimer.Stop() {
+					<-k.waitTimer.C
+				}
+				keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
+			}
+			k.pingList.PushBack(keepAliveItem{
+				player:   p,
+				lastTick: time.Now(),
+			})
 		}
 	}
 }
 
-func (k *KeepAlive) TickPlayer(player *Player, packet Packet757) error {
-	var KeepAliveID pk.Long
-	if err := pk.Packet(packet).Scan(&KeepAliveID); err != nil {
-		return err
+func keepAliveSetTimer(l *list.List, timer *time.Timer, interval time.Duration) {
+	if first := l.Front(); first != nil {
+		item := first.Value.(keepAliveItem)
+		interval -= time.Since(item.lastTick)
 	}
-	k.waitLock.Lock()
-	defer k.waitLock.Unlock()
-
-	if k.waitItem.player.UUID == player.UUID {
-		if k.waitTimer.Stop() {
-			k.waitItem = getEarliest(&k.waitList, &k.waitLock, k.waitTimer, keepAliveWaitInterval)
-		} else {
-			<-k.waitTimer.C
-			return errors.New("keepalive: player " + player.UUID.String() + " is already expired")
-		}
-	} else {
-		for i, v := range k.waitList {
-			if v.player.UUID == player.UUID {
-				heap.Remove(&k.waitList, i)
-				goto Success
-			}
-		}
-		return errors.New("keepalive: player " + player.UUID.String() + " not found")
-	}
-Success:
-	heap.Push(&k.list, keepAliveItem{
-		player:   player,
-		lastTick: time.Now(),
-	})
-	return nil
-}
-
-func getEarliest(list *keepAliveHeap, listLock *sync.Mutex, timer *time.Timer, interval time.Duration) (item keepAliveItem) {
-	listLock.Lock()
-	defer listLock.Unlock()
-
-	if list.Len() == 0 {
-		timer.Reset(interval)
-	} else {
-		item = heap.Pop(list).(keepAliveItem)
-		timer.Reset(time.Until(item.lastTick.Add(interval)))
-	}
+	timer.Reset(interval)
 	return
 }
 
 type keepAliveItem struct {
 	player   *Player
 	lastTick time.Time
-}
-
-type keepAliveHeap []keepAliveItem
-
-func (k *keepAliveHeap) Len() int           { return len(*k) }
-func (k *keepAliveHeap) Less(i, j int) bool { return (*k)[i].lastTick.Before((*k)[j].lastTick) }
-func (k *keepAliveHeap) Swap(i, j int)      { (*k)[i], (*k)[j] = (*k)[j], (*k)[i] }
-func (k *keepAliveHeap) Push(x interface{}) { *k = append(*k, x.(keepAliveItem)) }
-func (k *keepAliveHeap) Pop() (x interface{}) {
-	i := len(*k) - 1
-	x = (*k)[i]
-	*k = (*k)[:i]
-	return
 }

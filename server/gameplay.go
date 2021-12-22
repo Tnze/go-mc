@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	_ "embed"
 	"sync/atomic"
 
@@ -25,6 +26,7 @@ type Game struct {
 	eid int32
 	Dim Level
 	*PlayerList
+	KeepAlive KeepAlive
 }
 
 //go:embed DimensionCodec.snbt
@@ -32,6 +34,18 @@ var dimensionCodecSNBT string
 
 //go:embed Dimension.snbt
 var dimensionSNBT string
+
+func NewGame(dim Level, playerList *PlayerList) *Game {
+	return &Game{
+		Dim:        dim,
+		PlayerList: playerList,
+		KeepAlive:  NewKeepAlive(),
+	}
+}
+
+func (g *Game) Run(ctx context.Context) {
+	go g.KeepAlive.Run(ctx)
+}
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
 	remove := g.PlayerList.TryInsert(PlayerSample{Name: name, ID: id})
@@ -47,6 +61,7 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		Conn:     conn,
 		EntityID: g.newEID(),
 		Gamemode: 1,
+		handlers: make(map[int32][]packetHandlerFunc),
 	}
 	dimInfo := g.Dim.Info()
 	err := p.WritePacket(Packet757(pk.Marshal(
@@ -74,6 +89,9 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 	g.Dim.PlayerJoin(p)
 	defer g.Dim.PlayerQuit(p)
 
+	g.KeepAlive.AddPlayer(p)
+	defer g.KeepAlive.RemovePlayer(p)
+
 	var packet pk.Packet
 	for {
 		err := p.ReadPacket(&packet)
@@ -81,7 +99,7 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 			return
 		}
 		for _, ph := range p.handlers[packet.ID] {
-			err = ph(p, Packet757(packet))
+			err = ph(Packet757(packet))
 		}
 		if err != nil {
 			return
