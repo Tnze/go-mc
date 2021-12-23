@@ -26,7 +26,8 @@ type Game struct {
 	eid int32
 	Dim Level
 	*PlayerList
-	KeepAlive KeepAlive
+	KeepAlive  KeepAlive
+	GlobalChat GlobalChat
 }
 
 //go:embed DimensionCodec.snbt
@@ -40,11 +41,13 @@ func NewGame(dim Level, playerList *PlayerList) *Game {
 		Dim:        dim,
 		PlayerList: playerList,
 		KeepAlive:  NewKeepAlive(),
+		GlobalChat: NewGlobalChat(),
 	}
 }
 
 func (g *Game) Run(ctx context.Context) {
 	go g.KeepAlive.Run(ctx)
+	go g.GlobalChat.Run(ctx)
 }
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
@@ -59,6 +62,8 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 	defer remove()
 	p := &Player{
 		Conn:     conn,
+		Name:     name,
+		UUID:     id,
 		EntityID: g.newEID(),
 		Gamemode: 1,
 		handlers: make(map[int32][]packetHandlerFunc),
@@ -91,6 +96,9 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 
 	g.KeepAlive.AddPlayer(p)
 	defer g.KeepAlive.RemovePlayer(p)
+
+	g.GlobalChat.AddPlayer(p)
+	defer g.GlobalChat.RemovePlayer(p)
 
 	var packet pk.Packet
 	for {

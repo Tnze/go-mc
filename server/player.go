@@ -13,6 +13,7 @@ type Player struct {
 	*net.Conn
 	writeLock sync.Mutex
 
+	Name string
 	uuid.UUID
 	EntityID int32
 	Gamemode byte
