@@ -32,7 +32,7 @@ type KeepAlive struct {
 	keepAliveID int64
 
 	//onPlayerExpire    func(p *Player)
-	//updatePlayerDelay func(p *Player, delay time.Duration)
+	updatePlayerDelay func(p *Player, delay time.Duration)
 }
 
 func NewKeepAlive() (k *KeepAlive) {
@@ -47,6 +47,14 @@ func NewKeepAlive() (k *KeepAlive) {
 		waitTimer:   time.NewTimer(keepAliveWaitInterval),
 		keepAliveID: 0,
 	}
+}
+
+func (k *KeepAlive) AddPlayerDelayUpdateHandler(f func(p *Player, delay time.Duration)) *KeepAlive {
+	if k.updatePlayerDelay != nil {
+		panic("add player update handler twice")
+	}
+	k.updatePlayerDelay = f
+	return k
 }
 
 // Init implement Component for KeepAlive
@@ -145,9 +153,11 @@ func (k *KeepAlive) tickPlayer(p *Player) {
 		defer keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
 	}
 	// update delay of player
-	//t := k.waitList.Remove(elem).(keepAliveItem).t
+	t := k.waitList.Remove(elem).(keepAliveItem).t
 	now := time.Now()
-	//k.updatePlayerDelay(p, now.Sub(t))
+	if k.updatePlayerDelay != nil {
+		k.updatePlayerDelay(p, now.Sub(t))
+	}
 	// move the player to ping list
 	k.listIndex[p.UUID] = k.pingList.PushBack(
 		keepAliveItem{player: p, t: now},
