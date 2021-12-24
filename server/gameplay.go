@@ -3,11 +3,11 @@ package server
 import (
 	"context"
 	_ "embed"
+	"sync"
 	"sync/atomic"
 
 	"github.com/google/uuid"
 
-	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/nbt"
 	"github.com/Tnze/go-mc/net"
@@ -23,11 +23,16 @@ type GamePlay interface {
 }
 
 type Game struct {
+	Dim        Level
+	components []Component
+
 	eid int32
-	Dim Level
-	*PlayerList
-	KeepAlive  KeepAlive
-	GlobalChat GlobalChat
+}
+
+type Component interface {
+	Run(ctx context.Context)
+	AddPlayer(p *Player)
+	RemovePlayer(p *Player)
 }
 
 //go:embed DimensionCodec.snbt
@@ -36,30 +41,26 @@ var dimensionCodecSNBT string
 //go:embed Dimension.snbt
 var dimensionSNBT string
 
-func NewGame(dim Level, playerList *PlayerList) *Game {
+func NewGame(dim Level, components ...Component) *Game {
 	return &Game{
 		Dim:        dim,
-		PlayerList: playerList,
-		KeepAlive:  NewKeepAlive(),
-		GlobalChat: NewGlobalChat(),
+		components: components,
 	}
 }
 
 func (g *Game) Run(ctx context.Context) {
-	go g.KeepAlive.Run(ctx)
-	go g.GlobalChat.Run(ctx)
+	var wg sync.WaitGroup
+	wg.Add(len(g.components))
+	for _, c := range g.components {
+		go func(c Component) {
+			defer wg.Done()
+			c.Run(ctx)
+		}(c)
+	}
+	wg.Wait()
 }
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
-	remove := g.PlayerList.TryInsert(PlayerSample{Name: name, ID: id})
-	if remove == nil {
-		_ = conn.WritePacket(pk.Marshal(
-			packetid.ClientboundDisconnect,
-			chat.TranslateMsg("multiplayer.disconnect.server_full"),
-		))
-		return
-	}
-	defer remove()
 	p := &Player{
 		Conn:     conn,
 		Name:     name,
@@ -67,6 +68,7 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		EntityID: g.newEID(),
 		Gamemode: 1,
 		handlers: make(map[int32][]packetHandlerFunc),
+		errChan:  make(chan error, 1),
 	}
 	dimInfo := g.Dim.Info()
 	err := p.WritePacket(Packet757(pk.Marshal(
@@ -94,11 +96,14 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 	g.Dim.PlayerJoin(p)
 	defer g.Dim.PlayerQuit(p)
 
-	g.KeepAlive.AddPlayer(p)
-	defer g.KeepAlive.RemovePlayer(p)
-
-	g.GlobalChat.AddPlayer(p)
-	defer g.GlobalChat.RemovePlayer(p)
+	for _, c := range g.components {
+		c.AddPlayer(p)
+		if err := p.GetErr(); err != nil {
+			return
+		}
+		//goland:noinspection GoDeferInLoop
+		defer c.RemovePlayer(p)
+	}
 
 	var packet pk.Packet
 	for {
@@ -108,9 +113,9 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		}
 		for _, ph := range p.handlers[packet.ID] {
 			err = ph(Packet757(packet))
-		}
-		if err != nil {
-			return
+			if err != nil {
+				return
+			}
 		}
 	}
 }

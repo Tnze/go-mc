@@ -23,8 +23,8 @@ type chatItem struct {
 	text string
 }
 
-func NewGlobalChat() GlobalChat {
-	return GlobalChat{
+func NewGlobalChat() *GlobalChat {
+	return &GlobalChat{
 		msg:     make(chan chatItem),
 		join:    make(chan *Player),
 		quit:    make(chan *Player),
@@ -34,7 +34,7 @@ func NewGlobalChat() GlobalChat {
 
 func (g *GlobalChat) AddPlayer(p *Player) {
 	g.join <- p
-	p.Add(PacketHandler{
+	p.AddHandler(PacketHandler{
 		ID: packetid.ServerboundChat,
 		F: func(packet Packet757) error {
 			var msg pk.String
@@ -52,7 +52,7 @@ func (g *GlobalChat) RemovePlayer(p *Player) {
 	g.quit <- p
 }
 
-func (c chatItem) ToMessage() chat.Message {
+func (c chatItem) toMessage() chat.Message {
 	return chat.TranslateMsg(
 		"chat.type.text",
 		chat.Message{
@@ -95,7 +95,7 @@ func (g *GlobalChat) Run(ctx context.Context) {
 		case item := <-g.msg:
 			packet := Packet757(pk.Marshal(
 				packetid.ClientboundChat,
-				item.ToMessage(),
+				item.toMessage(),
 				pk.Byte(0),
 				pk.UUID(item.p.UUID),
 			))

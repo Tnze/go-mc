@@ -1,15 +1,22 @@
 package server
 
 import (
-	"container/list"
+	"context"
+	"errors"
 	"sync"
+
+	"github.com/google/uuid"
+
+	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/data/packetid"
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 // PlayerList is a player list based on linked-list.
 // This struct should not be copied after used.
 type PlayerList struct {
 	maxPlayer int
-	players   *list.List
+	players   map[uuid.UUID]*Player
 	// Only the linked-list is protected by this Mutex.
 	// Because others field never change after created.
 	playersLock sync.Mutex
@@ -19,27 +26,36 @@ type PlayerList struct {
 func NewPlayerList(maxPlayers int) *PlayerList {
 	return &PlayerList{
 		maxPlayer: maxPlayers,
-		players:   list.New(),
+		players:   make(map[uuid.UUID]*Player),
 	}
 }
 
-// TryInsert trying to insert player into PlayerList.
-// Return nil if the server is full (length of list larger than maxPlayers),
-// otherwise return a function which is used to remove the player from PlayerList
-func (p *PlayerList) TryInsert(player PlayerSample) (remove func()) {
+func (p *PlayerList) Run(context.Context) {}
+
+func (p *PlayerList) AddPlayer(player *Player) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
 
-	if p.players.Len() >= p.maxPlayer {
-		return nil
+	if len(p.players) >= p.maxPlayer {
+		err := player.WritePacket(Packet757(pk.Marshal(
+			packetid.ClientboundDisconnect,
+			chat.TranslateMsg("multiplayer.disconnect.server_full"),
+		)))
+		if err != nil {
+			player.PutErr(err)
+		} else {
+			player.PutErr(errors.New("playerlist: server full"))
+		}
+		return
 	}
 
-	elem := p.players.PushBack(player)
-	return func() {
-		p.playersLock.Lock()
-		p.players.Remove(elem)
-		p.playersLock.Unlock()
-	}
+	p.players[player.UUID] = player
+}
+
+func (p *PlayerList) RemovePlayer(player *Player) {
+	p.playersLock.Lock()
+	defer p.playersLock.Unlock()
+	delete(p.players, player.UUID)
 }
 
 func (p *PlayerList) MaxPlayer() int {
@@ -49,22 +65,24 @@ func (p *PlayerList) MaxPlayer() int {
 func (p *PlayerList) OnlinePlayer() int {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
-	return p.players.Len()
+	return len(p.players)
 }
 
 func (p *PlayerList) PlayerSamples() (sample []PlayerSample) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
 	// Up to 10 players can be returned
-	length := p.players.Len()
-	if length > 10 {
-		length = 10
-	}
-	sample = make([]PlayerSample, length)
-	v := p.players.Front()
-	for i := 0; i < length; i++ {
-		sample[i] = v.Value.(PlayerSample)
-		v = v.Next()
+	sample = make([]PlayerSample, len(p.players))
+	var i int
+	for _, v := range p.players {
+		sample[i] = PlayerSample{
+			Name: v.Name,
+			ID:   v.UUID,
+		}
+		i++
+		if i >= len(p.players) {
+			break
+		}
 	}
 	return
 }

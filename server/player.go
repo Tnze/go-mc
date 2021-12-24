@@ -1,6 +1,7 @@
 package server
 
 import (
+	"strconv"
 	"sync"
 
 	"github.com/google/uuid"
@@ -18,6 +19,8 @@ type Player struct {
 	EntityID int32
 	Gamemode byte
 	handlers map[int32][]packetHandlerFunc
+
+	errChan chan error
 }
 
 // Packet757 is a packet in protocol 757.
@@ -28,7 +31,24 @@ type Packet757 pk.Packet
 func (p *Player) WritePacket(packet Packet757) error {
 	p.writeLock.Lock()
 	defer p.writeLock.Unlock()
-	return p.Conn.WritePacket(pk.Packet(packet))
+	err := p.Conn.WritePacket(pk.Packet(packet))
+	if err != nil {
+		return WritePacketError{Err: err, ID: packet.ID}
+	}
+	return nil
+}
+
+type WritePacketError struct {
+	Err error
+	ID  int32
+}
+
+func (s WritePacketError) Error() string {
+	return "server: send packet " + strconv.FormatInt(int64(s.ID), 16) + " error: " + s.Err.Error()
+}
+
+func (s WritePacketError) Unwrap() error {
+	return s.Err
 }
 
 type PacketHandler struct {
@@ -38,8 +58,7 @@ type PacketHandler struct {
 
 type packetHandlerFunc func(packet Packet757) error
 
-func (p *Player) Add(ph PacketHandler) {
-
+func (p *Player) AddHandler(ph PacketHandler) {
 	if p.handlers == nil {
 		p.handlers = make(map[int32][]packetHandlerFunc)
 	}
@@ -47,5 +66,18 @@ func (p *Player) Add(ph PacketHandler) {
 }
 
 func (p *Player) PutErr(err error) {
-	// TODO: handle errors
+	select {
+	case p.errChan <- err:
+	default:
+		// previous error exist, ignore this.
+	}
+}
+
+func (p *Player) GetErr() error {
+	select {
+	case err := <-p.errChan:
+		return err
+	default:
+		return nil
+	}
 }

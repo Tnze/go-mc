@@ -35,21 +35,23 @@ type KeepAlive struct {
 	//updatePlayerDelay func(p *Player, delay time.Duration)
 }
 
-func NewKeepAlive() (k KeepAlive) {
-	k.join = make(chan *Player)
-	k.quit = make(chan *Player)
-	k.tick = make(chan *Player)
-	k.pingList = list.New()
-	k.waitList = list.New()
-	k.listIndex = make(map[uuid.UUID]*list.Element)
-	k.listTimer = time.NewTimer(keepAliveInterval)
-	k.waitTimer = time.NewTimer(keepAliveWaitInterval)
-	return
+func NewKeepAlive() (k *KeepAlive) {
+	return &KeepAlive{
+		join:        make(chan *Player),
+		quit:        make(chan *Player),
+		tick:        make(chan *Player),
+		pingList:    list.New(),
+		waitList:    list.New(),
+		listIndex:   make(map[uuid.UUID]*list.Element),
+		listTimer:   time.NewTimer(keepAliveInterval),
+		waitTimer:   time.NewTimer(keepAliveWaitInterval),
+		keepAliveID: 0,
+	}
 }
 
 func (k *KeepAlive) AddPlayer(p *Player) {
 	k.join <- p
-	p.Add(PacketHandler{
+	p.AddHandler(PacketHandler{
 		ID: packetid.ServerboundKeepAlive,
 		F: func(packet Packet757) error {
 			var KeepAliveID pk.Long
@@ -91,7 +93,6 @@ func (k KeepAlive) pushPlayer(p *Player) {
 	)
 }
 
-//goland:noinspection GoDeferInLoop
 func (k *KeepAlive) removePlayer(p *Player) {
 	elem := k.listIndex[p.UUID]
 	delete(k.listIndex, p.UUID)

@@ -29,8 +29,13 @@ func main() {
 	chunk00 := level.ChunkFromSave(readChunk00(), 256)
 	defaultDimension.LoadChunk(level.ChunkPos{X: 0, Z: 0}, chunk00)
 
-	game := server.NewGame(defaultDimension, playerList)
-	game.Run(context.Background())
+	game := server.NewGame(
+		defaultDimension,
+		playerList,
+		server.NewKeepAlive(),
+		server.NewGlobalChat(),
+	)
+	go game.Run(context.Background())
 
 	s := server.Server{
 		ListPingHandler: serverInfo,
