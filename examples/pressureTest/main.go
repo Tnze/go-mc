@@ -28,6 +28,7 @@ func main() {
 				time.Sleep(time.Second * 3)
 			}
 		}(i)
+		time.Sleep(time.Millisecond)
 	}
 	select {}
 }
@@ -46,7 +47,6 @@ func newIndividual(id int, name string) (i *individual) {
 	i.player = basic.NewPlayer(i.client, basic.DefaultSettings)
 	basic.EventsListener{
 		GameStart:  i.onGameStart,
-		Death:      i.onDeath,
 		Disconnect: onDisconnect,
 	}.Attach(i.client)
 	return
@@ -66,19 +66,6 @@ func (i *individual) run(address string) {
 		panic("HandleGame never return nil")
 	}
 	log.Printf("[%d] Handle game error: %v", i.id, err)
-}
-
-func (i *individual) onDeath() error {
-	log.Printf("[%d]Died and Respawned", i.id)
-	// If we exclude Respawn(...) then the player won't press the "Respawn" button upon death
-	go func() {
-		time.Sleep(time.Second * 5)
-		err := i.player.Respawn()
-		if err != nil {
-			log.Print(err)
-		}
-	}()
-	return nil
 }
 
 func (i *individual) onGameStart() error {

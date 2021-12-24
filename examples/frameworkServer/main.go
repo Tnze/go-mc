@@ -14,7 +14,7 @@ import (
 	"os"
 )
 
-const MaxPlayer = 1024
+const MaxPlayer = 16384
 const IconPath = "./server-icon.png"
 
 var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}

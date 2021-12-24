@@ -131,6 +131,9 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 			if err := ph.F(p, Packet757(packet)); err != nil {
 				return
 			}
+			if err := p.GetErr(); err != nil {
+				return
+			}
 		}
 	}
 }

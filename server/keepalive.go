@@ -156,9 +156,9 @@ func (k *KeepAlive) tickPlayer(p *Player) {
 
 func (k *KeepAlive) kickPlayer() {
 	if elem := k.waitList.Front(); elem != nil {
-		//player := elem.Value.(keepAliveItem).player
+		player := k.waitList.Remove(elem).(keepAliveItem).player
 		k.waitList.Remove(elem)
-		//k.onPlayerExpire(player)
+		player.PutErr(errors.New("keepalive: client did not response"))
 	}
 	keepAliveSetTimer(k.waitList, k.waitTimer, keepAliveWaitInterval)
 }
