@@ -14,7 +14,7 @@ import (
 	"os"
 )
 
-const MaxPlayer = 20
+const MaxPlayer = 1024
 const IconPath = "./server-icon.png"
 
 var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
@@ -40,8 +40,9 @@ func main() {
 	s := server.Server{
 		ListPingHandler: serverInfo,
 		LoginHandler: &server.MojangLoginHandler{
-			OnlineMode: false,
-			Threshold:  256,
+			OnlineMode:   false,
+			Threshold:    256,
+			LoginChecker: playerList,
 		},
 		GamePlay: game,
 	}

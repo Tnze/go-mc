@@ -25,15 +25,24 @@ type GamePlay interface {
 type Game struct {
 	Dim        Level
 	components []Component
+	handlers   map[int32][]*PacketHandler
 
 	eid int32
 }
 
 type Component interface {
+	Init(g *Game)
 	Run(ctx context.Context)
 	AddPlayer(p *Player)
 	RemovePlayer(p *Player)
 }
+
+type PacketHandler struct {
+	ID int32
+	F  packetHandlerFunc
+}
+
+type packetHandlerFunc func(player *Player, packet Packet757) error
 
 //go:embed DimensionCodec.snbt
 var dimensionCodecSNBT string
@@ -42,10 +51,19 @@ var dimensionCodecSNBT string
 var dimensionSNBT string
 
 func NewGame(dim Level, components ...Component) *Game {
-	return &Game{
+	g := &Game{
 		Dim:        dim,
 		components: components,
+		handlers:   make(map[int32][]*PacketHandler),
 	}
+	for _, v := range components {
+		v.Init(g)
+	}
+	return g
+}
+
+func (g *Game) AddHandler(ph *PacketHandler) {
+	g.handlers[ph.ID] = append(g.handlers[ph.ID], ph)
 }
 
 func (g *Game) Run(ctx context.Context) {
@@ -67,7 +85,6 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		UUID:     id,
 		EntityID: g.newEID(),
 		Gamemode: 1,
-		handlers: make(map[int32][]packetHandlerFunc),
 		errChan:  make(chan error, 1),
 	}
 	dimInfo := g.Dim.Info()
@@ -107,13 +124,11 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 
 	var packet pk.Packet
 	for {
-		err := p.ReadPacket(&packet)
-		if err != nil {
+		if err := p.ReadPacket(&packet); err != nil {
 			return
 		}
-		for _, ph := range p.handlers[packet.ID] {
-			err = ph(Packet757(packet))
-			if err != nil {
+		for _, ph := range g.handlers[packet.ID] {
+			if err := ph.F(p, Packet757(packet)); err != nil {
 				return
 			}
 		}

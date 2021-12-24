@@ -30,8 +30,13 @@ func NewPlayerList(maxPlayers int) *PlayerList {
 	}
 }
 
+// Init implement Component for PlayerList
+func (p *PlayerList) Init(*Game) {}
+
+// Run implement Component for PlayerList
 func (p *PlayerList) Run(context.Context) {}
 
+// AddPlayer implement Component for PlayerList
 func (p *PlayerList) AddPlayer(player *Player) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
@@ -52,10 +57,21 @@ func (p *PlayerList) AddPlayer(player *Player) {
 	p.players[player.UUID] = player
 }
 
+// RemovePlayer implement Component for PlayerList
 func (p *PlayerList) RemovePlayer(player *Player) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
 	delete(p.players, player.UUID)
+}
+
+// CheckPlayer implement LoginChecker for PlayerList
+func (p *PlayerList) CheckPlayer(name string, id uuid.UUID, protocol int32) (ok bool, reason chat.Message) {
+	p.playersLock.Lock()
+	defer p.playersLock.Unlock()
+	if len(p.players) >= p.maxPlayer {
+		return false, chat.TranslateMsg("multiplayer.disconnect.server_full")
+	}
+	return true, chat.Message{}
 }
 
 func (p *PlayerList) MaxPlayer() int {
@@ -72,7 +88,11 @@ func (p *PlayerList) PlayerSamples() (sample []PlayerSample) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
 	// Up to 10 players can be returned
-	sample = make([]PlayerSample, len(p.players))
+	length := len(p.players)
+	if length > 10 {
+		length = 10
+	}
+	sample = make([]PlayerSample, length)
 	var i int
 	for _, v := range p.players {
 		sample[i] = PlayerSample{
@@ -80,7 +100,7 @@ func (p *PlayerList) PlayerSamples() (sample []PlayerSample) {
 			ID:   v.UUID,
 		}
 		i++
-		if i >= len(p.players) {
+		if i >= length {
 			break
 		}
 	}

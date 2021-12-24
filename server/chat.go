@@ -32,25 +32,50 @@ func NewGlobalChat() *GlobalChat {
 	}
 }
 
-func (g *GlobalChat) AddPlayer(p *Player) {
-	g.join <- p
-	p.AddHandler(PacketHandler{
+func (g *GlobalChat) Init(game *Game) {
+	game.AddHandler(&PacketHandler{
 		ID: packetid.ServerboundChat,
-		F: func(packet Packet757) error {
+		F: func(player *Player, packet Packet757) error {
 			var msg pk.String
 			if err := pk.Packet(packet).Scan(&msg); err != nil {
 				return err
 			}
 			text, _ := chat.TransCtrlSeq(string(msg), false)
-			g.msg <- chatItem{p: p, text: text}
+			g.msg <- chatItem{p: player, text: text}
 			return nil
 		},
 	})
 }
 
-func (g *GlobalChat) RemovePlayer(p *Player) {
-	g.quit <- p
+func (g *GlobalChat) Run(ctx context.Context) {
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case item := <-g.msg:
+			packet := Packet757(pk.Marshal(
+				packetid.ClientboundChat,
+				item.toMessage(),
+				pk.Byte(0),
+				pk.UUID(item.p.UUID),
+			))
+			for _, p := range g.players {
+				err := p.WritePacket(packet)
+				if err != nil {
+					p.PutErr(err)
+				}
+			}
+		case p := <-g.join:
+			g.players[p.UUID] = p
+		case p := <-g.quit:
+			delete(g.players, p.UUID)
+		}
+	}
 }
+
+func (g *GlobalChat) AddPlayer(player *Player) { g.join <- player }
+
+func (g *GlobalChat) RemovePlayer(p *Player) { g.quit <- p }
 
 func (c chatItem) toMessage() chat.Message {
 	return chat.TranslateMsg(
@@ -85,30 +110,4 @@ func playerToSNBT(p *Player) string {
 	}
 
 	return string(s)
-}
-
-func (g *GlobalChat) Run(ctx context.Context) {
-	for {
-		select {
-		case <-ctx.Done():
-			return
-		case item := <-g.msg:
-			packet := Packet757(pk.Marshal(
-				packetid.ClientboundChat,
-				item.toMessage(),
-				pk.Byte(0),
-				pk.UUID(item.p.UUID),
-			))
-			for _, p := range g.players {
-				err := p.WritePacket(packet)
-				if err != nil {
-					p.PutErr(err)
-				}
-			}
-		case p := <-g.join:
-			g.players[p.UUID] = p
-		case p := <-g.quit:
-			delete(g.players, p.UUID)
-		}
-	}
 }

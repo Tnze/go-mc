@@ -49,25 +49,22 @@ func NewKeepAlive() (k *KeepAlive) {
 	}
 }
 
-func (k *KeepAlive) AddPlayer(p *Player) {
-	k.join <- p
-	p.AddHandler(PacketHandler{
+// Init implement Component for KeepAlive
+func (k *KeepAlive) Init(g *Game) {
+	g.AddHandler(&PacketHandler{
 		ID: packetid.ServerboundKeepAlive,
-		F: func(packet Packet757) error {
+		F: func(player *Player, packet Packet757) error {
 			var KeepAliveID pk.Long
 			if err := pk.Packet(packet).Scan(&KeepAliveID); err != nil {
 				return err
 			}
-			k.tick <- p
+			k.tick <- player
 			return nil
 		},
 	})
 }
 
-func (k *KeepAlive) RemovePlayer(p *Player) {
-	k.quit <- p
-}
-
+// Run implement Component for KeepAlive
 func (k *KeepAlive) Run(ctx context.Context) {
 	for {
 		select {
@@ -86,6 +83,12 @@ func (k *KeepAlive) Run(ctx context.Context) {
 		}
 	}
 }
+
+// AddPlayer implement Component for KeepAlive
+func (k *KeepAlive) AddPlayer(player *Player) { k.join <- player }
+
+// RemovePlayer implement Component for KeepAlive
+func (k *KeepAlive) RemovePlayer(p *Player) { k.quit <- p }
 
 func (k KeepAlive) pushPlayer(p *Player) {
 	k.listIndex[p.UUID] = k.pingList.PushBack(

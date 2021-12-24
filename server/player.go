@@ -18,7 +18,6 @@ type Player struct {
 	uuid.UUID
 	EntityID int32
 	Gamemode byte
-	handlers map[int32][]packetHandlerFunc
 
 	errChan chan error
 }
@@ -49,20 +48,6 @@ func (s WritePacketError) Error() string {
 
 func (s WritePacketError) Unwrap() error {
 	return s.Err
-}
-
-type PacketHandler struct {
-	ID int32
-	F  packetHandlerFunc
-}
-
-type packetHandlerFunc func(packet Packet757) error
-
-func (p *Player) AddHandler(ph PacketHandler) {
-	if p.handlers == nil {
-		p.handlers = make(map[int32][]packetHandlerFunc)
-	}
-	p.handlers[ph.ID] = append(p.handlers[ph.ID], ph.F)
 }
 
 func (p *Player) PutErr(err error) {
