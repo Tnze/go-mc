@@ -127,7 +127,7 @@ func main() {
 					log.Printf("Read sector (%d.%d) error: %v", x, z, err)
 				}
 				wg.Add(1)
-				c <- task{data: data, pos: [2]int{z, x}}
+				c <- task{data: data, pos: [2]int{x, z}}
 			}
 		}
 		close(c)

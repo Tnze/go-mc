@@ -20,11 +20,11 @@ type Region struct {
 }
 
 // In calculate chunk's coordinates relative to region
-func In(cx, cy int) (int, int) {
+func In(cx, cz int) (int, int) {
 	// c & (32-1)
 	// is equal to:
 	// (c %= 32) > 0 ? c : -c; //C language
-	return cx & 31, cy & 31
+	return cx & 31, cz & 31
 }
 
 // Open a .mca file and read the head.
@@ -122,7 +122,7 @@ func sectorLoc(offset int32) (sec, num int32) {
 
 // ReadSector find and read the Chunk data from region
 func (r *Region) ReadSector(x, z int) (data []byte, err error) {
-	offset, _ := sectorLoc(r.offsets[x][z])
+	offset, _ := sectorLoc(r.offsets[z][x])
 
 	if offset == 0 {
 		return nil, errors.New("sector not exist")
@@ -150,9 +150,9 @@ func (r *Region) ReadSector(x, z int) (data []byte, err error) {
 }
 
 // WriteSector write Chunk data into region file
-func (r *Region) WriteSector(x, y int, data []byte) error {
+func (r *Region) WriteSector(x, z int, data []byte) error {
 	need := int32(len(data)+4)/4096 + 1
-	n, now := sectorLoc(r.offsets[x][y])
+	n, now := sectorLoc(r.offsets[z][x])
 
 	// maximum chunk size is 1MB
 	if need >= 256 {
@@ -178,10 +178,10 @@ func (r *Region) WriteSector(x, y int, data []byte) error {
 			r.sectors[n+i] = true
 		}
 
-		r.offsets[x][y] = (n << 8) | (need & 0xFF)
+		r.offsets[z][x] = (n << 8) | (need & 0xFF)
 
 		// update file head
-		err := r.setHead(x, y, uint32(r.offsets[x][y]), uint32(time.Now().Unix()))
+		err := r.setHead(x, z, uint32(r.offsets[z][x]), uint32(time.Now().Unix()))
 		if err != nil {
 			return err
 		}
@@ -207,8 +207,8 @@ func (r *Region) WriteSector(x, y int, data []byte) error {
 }
 
 // ExistSector return if a sector is exist
-func (r *Region) ExistSector(x, y int) bool {
-	return r.offsets[x][y] != 0
+func (r *Region) ExistSector(x, z int) bool {
+	return r.offsets[z][x] != 0
 }
 
 func (r *Region) findSpace(need int32) (n int32) {
@@ -221,17 +221,17 @@ func (r *Region) findSpace(need int32) (n int32) {
 	return
 }
 
-func (r *Region) setHead(x, y int, offset, timestamp uint32) (err error) {
+func (r *Region) setHead(x, z int, offset, timestamp uint32) (err error) {
 	var buf [4]byte
 
 	binary.BigEndian.PutUint32(buf[:], offset)
-	_, err = r.writeAt(buf[:], 4*(int64(x)*32+int64(y)))
+	_, err = r.writeAt(buf[:], 4*(int64(z)*32+int64(x)))
 	if err != nil {
 		return
 	}
 
 	binary.BigEndian.PutUint32(buf[:], timestamp)
-	_, err = r.writeAt(buf[:], 4096+4*(int64(x)*32+int64(y)))
+	_, err = r.writeAt(buf[:], 4096+4*(int64(z)*32+int64(x)))
 	if err != nil {
 		return
 	}
