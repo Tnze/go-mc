@@ -31,7 +31,6 @@ type KeepAlive struct {
 	// We don't do that here for security reason.
 	keepAliveID int64
 
-	//onPlayerExpire    func(p *Player)
 	updatePlayerDelay func(p *Player, delay time.Duration)
 }
 

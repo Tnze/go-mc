@@ -301,7 +301,7 @@ func (g *globalPalette) id(v state) (int, bool) {
 }
 
 func (g *globalPalette) value(i int) state {
-	return g.value(i)
+	return i
 }
 
 func (g *globalPalette) ReadFrom(_ io.Reader) (int64, error) {

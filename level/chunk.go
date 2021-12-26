@@ -231,7 +231,7 @@ func (s *Section) WriteTo(w io.Writer) (int64, error) {
 
 func (s *Section) ReadFrom(r io.Reader) (int64, error) {
 	return pk.Tuple{
-		pk.Short(s.blockCount),
+		(*pk.Short)(&s.blockCount),
 		s.States,
 		s.Biomes,
 	}.ReadFrom(r)
