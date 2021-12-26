@@ -84,7 +84,7 @@ func (m Message) WriteTo(w io.Writer) (int64, error) {
 	return pk.String(code).WriteTo(w)
 }
 
-func (m *Message) Append(extraMsg ...Message) {
+func (m Message) Append(extraMsg ...Message) Message {
 	origLen := len(m.Extra)
 	finalLen := origLen + len(extraMsg)
 	if cap(m.Extra) < len(m.Extra)+len(extraMsg) {
@@ -96,6 +96,7 @@ func (m *Message) Append(extraMsg ...Message) {
 	for _, v := range extraMsg {
 		m.Extra = append(m.Extra, v)
 	}
+	return m
 }
 
 func Text(str string) Message {
