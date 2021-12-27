@@ -28,16 +28,20 @@ func NewStatesPaletteContainer(length int, defaultValue state) *PaletteContainer
 
 func NewStatesPaletteContainerWithData(length int, data []uint64, pat []int) *PaletteContainer {
 	var p palette
-	var n int
-	if len(pat) == 1 {
+	n := bits.Len(uint(len(pat) - 1))
+	switch n {
+	case 0:
 		p = &singleValuePalette{pat[0]}
-		n = 0
-	} else {
-		n = statesCfg{}.bits(bits.Len(uint(len(pat))))
+	case 1, 2, 3, 4:
+		n = 4
+		fallthrough
+	case 5, 6, 7, 8:
 		p = &linearPalette{
 			values: pat,
 			bits:   n,
 		}
+	default:
+		p = &globalPalette{}
 	}
 	return &PaletteContainer{
 		bits:    n,
@@ -58,16 +62,17 @@ func NewBiomesPaletteContainer(length int, defaultValue state) *PaletteContainer
 
 func NewBiomesPaletteContainerWithData(length int, data []uint64, pat []int) *PaletteContainer {
 	var p palette
-	var n int
-	if len(pat) == 1 {
+	n := bits.Len(uint(len(pat) - 1))
+	switch n {
+	case 0:
 		p = &singleValuePalette{pat[0]}
-		n = 0
-	} else {
-		n = biomesCfg{}.bits(bits.Len(uint(len(pat))))
+	case 1, 2, 3:
 		p = &linearPalette{
 			values: pat,
 			bits:   n,
 		}
+	default:
+		p = &globalPalette{}
 	}
 	return &PaletteContainer{
 		bits:    n,

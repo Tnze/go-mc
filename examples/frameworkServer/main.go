@@ -3,31 +3,39 @@ package main
 import (
 	"context"
 	_ "embed"
+	"flag"
+	"fmt"
+	"image"
+	_ "image/png"
+	"log"
+	"os"
+	"path/filepath"
+
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/level"
 	"github.com/Tnze/go-mc/save"
 	"github.com/Tnze/go-mc/save/region"
 	"github.com/Tnze/go-mc/server"
-	"image"
-	_ "image/png"
-	"log"
-	"os"
 )
 
-const MaxPlayer = 16384
-const IconPath = "./server-icon.png"
-
 var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
+var addr = flag.String("Address", ":25565", "Listening address")
+var iconPath = flag.String("ServerIcon", "./server-icon.png", "The path to server icon")
+var maxPlayer = flag.Int("MaxPlayer", 16384, "The maximum number of players")
+var regionPath = flag.String("Regions", "./save/testdata/region/", "The region files")
 
 func main() {
-	playerList := server.NewPlayerList(MaxPlayer)
+	flag.Parse()
+	playerList := server.NewPlayerList(*maxPlayer)
 	serverInfo, err := server.NewPingInfo(playerList, server.ProtocolName, server.ProtocolVersion, motd, readIcon())
 	if err != nil {
 		log.Fatalf("Set server info error: %v", err)
 	}
-	defaultDimension := server.NewSimpleDim(256)
-	chunk00 := level.ChunkFromSave(readChunk00(), 256)
-	defaultDimension.LoadChunk(level.ChunkPos{X: 0, Z: 0}, chunk00)
+
+	defaultDimension, err := loadAllRegions(*regionPath)
+	if err != nil {
+		log.Fatalf("Load chunks fail: %v", err)
+	}
 
 	game := server.NewGame(
 		defaultDimension,
@@ -46,13 +54,13 @@ func main() {
 		},
 		GamePlay: game,
 	}
-	if err := s.Listen(":25565"); err != nil {
+	if err := s.Listen(*addr); err != nil {
 		log.Fatalf("Listen error: %v", err)
 	}
 }
 
 func readIcon() image.Image {
-	f, err := os.Open(IconPath)
+	f, err := os.Open(*iconPath)
 	// if the file doesn't exist, return nil
 	if os.IsNotExist(err) {
 		return nil
@@ -68,21 +76,48 @@ func readIcon() image.Image {
 	return icon
 }
 
-func readChunk00() *save.Chunk {
-	r, err := region.Open("./save/testdata/region/r.0.0.mca")
+func loadAllRegions(dir string) (*server.SimpleDim, error) {
+	mcafiles, err := filepath.Glob(filepath.Join(dir, "r.*.*.mca"))
 	if err != nil {
-		panic(err)
+		return nil, err
+	}
+	dim := server.NewSimpleDim(256)
+	for _, file := range mcafiles {
+		var rx, rz int
+		_, err := fmt.Sscanf(filepath.Base(file), "r.%d.%d.mca", &rx, &rz)
+		if err != nil {
+			return nil, err
+		}
+		err = loadAllChunks(dim, file, rx, rz)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return dim, nil
+}
+
+func loadAllChunks(dim *server.SimpleDim, file string, rx, rz int) error {
+	r, err := region.Open(file)
+	if err != nil {
+		return err
 	}
 	defer r.Close()
-
 	var c save.Chunk
-	data, err := r.ReadSector(0, 0)
-	if err != nil {
-		panic(err)
+	for x := 0; x < 32; x++ {
+		for z := 0; z < 32; z++ {
+			if !r.ExistSector(x, z) {
+				continue
+			}
+			data, err := r.ReadSector(x, z)
+			if err != nil {
+				return err
+			}
+			if err := c.Load(data); err != nil {
+				return err
+			}
+			chunk := level.ChunkFromSave(&c, 256)
+			dim.LoadChunk(level.ChunkPos{X: rx<<5 + x, Z: rz<<5 + z}, chunk)
+		}
 	}
-	err = c.Load(data)
-	if err != nil {
-		panic(err)
-	}
-	return &c
+	return nil
 }

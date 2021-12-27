@@ -120,7 +120,7 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 			}
 		}
 
-		biomesData := *(*[]uint64)((unsafe.Pointer)(&v.BlockStates.Data))
+		biomesData := *(*[]uint64)((unsafe.Pointer)(&v.Biomes.Data))
 		biomesPalette := v.Biomes.Palette
 		biomesRawPalette := make([]int, len(biomesPalette))
 		for i, v := range biomesPalette {
@@ -130,7 +130,7 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 		i := int32(int8(v.Y)) - c.YPos
 		sections[i].blockCount = blockCount
 		sections[i].States = NewStatesPaletteContainerWithData(16*16*16, stateData, stateRawPalette)
-		sections[i].Biomes = NewBiomesPaletteContainerWithData(16*16*16*2, biomesData, biomesRawPalette)
+		sections[i].Biomes = NewBiomesPaletteContainerWithData(4*4*4, biomesData, biomesRawPalette)
 	}
 	for i := range sections {
 		if sections[i].States == nil {
