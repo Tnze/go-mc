@@ -38,5 +38,8 @@ var DefaultSettings = Settings{
 	DisplayedSkinParts: Jacket | LeftSleeve | RightSleeve | LeftPantsLeg | RightPantsLeg | Hat,
 	MainHand:           1,
 
+	EnableTextFiltering: false,
+	AllowListing:        true,
+
 	Brand: "vanilla",
 }
