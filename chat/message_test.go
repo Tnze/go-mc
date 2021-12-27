@@ -119,12 +119,10 @@ func TestMessage_WriteTo(t *testing.T) {
 }
 
 func ExampleMessage_Append() {
-	msg := chat.Message{Text: "1111"}
-	msg.Append(
-		chat.Message{Text: "22222"},
-		chat.Message{Text: "333333"},
-		chat.Message{Text: "4444444"},
-	)
+	msg := chat.Message{Text: "1111"}.
+		Append(chat.Message{Text: "22222"}).
+		Append(chat.Message{Text: "333333"}).
+		Append(chat.Message{Text: "4444444"})
 	fmt.Print(msg)
 	// Output: 1111222223333334444444
 }
