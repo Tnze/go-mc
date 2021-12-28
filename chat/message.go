@@ -21,6 +21,26 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+// Colors
+const (
+	Black       = "black"
+	DarkBlue    = "dark_blue"
+	DarkGreen   = "dark_green"
+	DarkAqua    = "dark_aqua"
+	DarkRed     = "dark_red"
+	DarkPurple  = "dark_purple"
+	Gold        = "gold"
+	Gray        = "gray"
+	DarkGray    = "dark_gray"
+	Blue        = "blue"
+	Green       = "green"
+	Aqua        = "aqua"
+	Red         = "red"
+	LightPurple = "light_purple"
+	Yellow      = "yellow"
+	White       = "white"
+)
+
 // Message is a message sent by other
 type Message struct {
 	Text string `json:"text,omitempty"`
@@ -96,6 +116,11 @@ func (m Message) Append(extraMsg ...Message) Message {
 	for _, v := range extraMsg {
 		m.Extra = append(m.Extra, v)
 	}
+	return m
+}
+
+func (m Message) SetColor(color string) Message {
+	m.Color = color
 	return m
 }
 

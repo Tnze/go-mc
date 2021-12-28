@@ -47,28 +47,49 @@ func (g *GlobalChat) Init(game *Game) {
 	})
 }
 
+const (
+	chatPosChat = iota
+	chatPosSystem
+	chatPosGameInfo
+)
+
 func (g *GlobalChat) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case item := <-g.msg:
-			packet := Packet757(pk.Marshal(
+			g.broadcast(Packet757(pk.Marshal(
 				packetid.ClientboundChat,
 				item.toMessage(),
-				pk.Byte(0),
+				pk.Byte(chatPosChat),
 				pk.UUID(item.p.UUID),
-			))
-			for _, p := range g.players {
-				err := p.WritePacket(packet)
-				if err != nil {
-					p.PutErr(err)
-				}
-			}
+			)))
 		case p := <-g.join:
+			g.broadcast(Packet757(pk.Marshal(
+				packetid.ClientboundChat,
+				chat.TranslateMsg("multiplayer.player.joined", chat.Text(p.Name)).SetColor(chat.Yellow),
+				pk.Byte(chatPosSystem),
+				pk.UUID(uuid.Nil),
+			)))
 			g.players[p.UUID] = p
 		case p := <-g.quit:
+			g.broadcast(Packet757(pk.Marshal(
+				packetid.ClientboundChat,
+				chat.TranslateMsg("multiplayer.player.left", chat.Text(p.Name)).SetColor(chat.Yellow),
+				pk.Byte(chatPosSystem),
+				pk.UUID(uuid.Nil),
+			)))
 			delete(g.players, p.UUID)
+		}
+	}
+}
+
+func (g *GlobalChat) broadcast(packet Packet757) {
+	for _, p := range g.players {
+		err := p.WritePacket(packet)
+		if err != nil {
+			p.PutErr(err)
 		}
 	}
 }
