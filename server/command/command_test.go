@@ -3,37 +3,48 @@ package command
 import "testing"
 
 func TestRoot_Run(t *testing.T) {
-	g := NewGraph().Then(
-		Lite("whitelist").Then(
-			Lite("add").Then(
-				Arg("targets", StringParser(0)).
-					Handle(func(args map[string]interface{}) {
-						t.Logf("whitelist add: %v", args)
-					})),
-			Lite("remove").Then(
-				Arg("targets", StringParser(0)).
-					Handle(func(args map[string]interface{}) {
-						t.Logf("whitelist remove: %v", args)
-					})),
-			Lite("on").Handle(func(args map[string]interface{}) {
+	g := NewGraph()
+	g.AppendLiteral(g.Literal("whitelist").
+		AppendLiteral(g.Literal("add").
+			AppendArgument(g.Argument("targets", StringParser(0)).
+				HandleFunc(func(args []ParsedData) error {
+					t.Logf("whitelist add: %v", args)
+					return nil
+				})).Unhandle()).
+		AppendLiteral(g.Literal("remove").
+			AppendArgument(g.Argument("targets", StringParser(0)).
+				HandleFunc(func(args []ParsedData) error {
+					t.Logf("whitelist remove: %v", args)
+					return nil
+				})).Unhandle()).
+		AppendLiteral(g.Literal("on").
+			HandleFunc(func(args []ParsedData) error {
 				t.Logf("whitelist on: %v", args)
-			}),
-			Lite("off").Handle(func(args map[string]interface{}) {
+				return nil
+			})).
+		AppendLiteral(g.Literal("off").
+			HandleFunc(func(args []ParsedData) error {
 				t.Logf("whitelist off: %v", args)
-			}),
-		),
-	).(*Root)
+				return nil
+			})).
+		Unhandle(),
+	)
 
-	targetA := Arg("targetA", StringParser(0))
-	targetB := Arg("targetB", StringParser(0))
-	targetB.Handle(func(args map[string]interface{}) {
-		t.Logf("tp A <from/to> B parsed: %v", args)
-	})
-	tp := Lite("tp").Then(targetA.Then(
-		Lite("form").Then(targetB),
-		Lite("to").Then(targetB),
-	))
-	g.Then(tp)
+	targetB := g.Argument("targetB", StringParser(0)).
+		HandleFunc(func(args []ParsedData) error {
+			t.Logf("tp A <from/to> B parsed: %v", args)
+			return nil
+		})
+	g.AppendLiteral(g.Literal("tp").AppendArgument(
+		g.Argument("targetA", StringParser(0)).
+			AppendLiteral(g.Literal("from").
+				AppendArgument(targetB).
+				Unhandle()).
+			AppendLiteral(g.Literal("to").
+				AppendArgument(targetB).
+				Unhandle()).
+			Unhandle(),
+	).Unhandle())
 
 	err := g.Run("tp Tnze to Xi_Xi_Mi")
 	if err != nil {
