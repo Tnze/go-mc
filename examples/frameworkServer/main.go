@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"github.com/Tnze/go-mc/server/command"
 	"image"
 	_ "image/png"
 	"log"
@@ -37,11 +38,31 @@ func main() {
 		log.Fatalf("Load chunks fail: %v", err)
 	}
 
+	commands := server.NewCommandGraph()
+	handleFunc := func(args []command.ParsedData) error {
+		log.Printf("Command: args: %v", args)
+		return nil
+	}
+	commands.AppendLiteral(commands.Literal("me").
+		AppendArgument(commands.Argument("action", command.StringParser(2)).
+			HandleFunc(handleFunc)).
+		Unhandle(),
+	).AppendLiteral(commands.Literal("help").
+		AppendArgument(commands.Argument("command", command.StringParser(0)).
+			HandleFunc(handleFunc)).
+		HandleFunc(handleFunc),
+	).AppendLiteral(commands.Literal("list").
+		AppendLiteral(commands.Literal("uuids").
+			HandleFunc(handleFunc)).
+		HandleFunc(handleFunc),
+	)
+
 	game := server.NewGame(
 		defaultDimension,
 		playerList,
 		server.NewKeepAlive(),
 		server.NewGlobalChat(),
+		commands,
 	)
 	go game.Run(context.Background())
 

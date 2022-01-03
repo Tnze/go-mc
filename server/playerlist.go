@@ -42,15 +42,11 @@ func (p *PlayerList) AddPlayer(player *Player) {
 	defer p.playersLock.Unlock()
 
 	if len(p.players) >= p.maxPlayer {
-		err := player.WritePacket(Packet757(pk.Marshal(
+		player.WritePacket(Packet757(pk.Marshal(
 			packetid.ClientboundDisconnect,
 			chat.TranslateMsg("multiplayer.disconnect.server_full"),
 		)))
-		if err != nil {
-			player.PutErr(err)
-		} else {
-			player.PutErr(errors.New("playerlist: server full"))
-		}
+		player.PutErr(errors.New("playerlist: server full"))
 		return
 	}
 

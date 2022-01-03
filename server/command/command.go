@@ -18,8 +18,8 @@ type Graph struct {
 func NewGraph() *Graph {
 	g := new(Graph)
 	root := Node{
-		g:     g,
-		flags: RootNode,
+		g:    g,
+		kind: RootNode,
 	}
 	g.nodes = append(g.nodes, root)
 	return g
@@ -43,7 +43,7 @@ func (g *Graph) Run(cmd string) error {
 			return nil
 		}
 		if next == 0 {
-			panic("root node can't be child")
+			return errors.New("command contains extra text: " + left)
 		}
 
 		cmd = left
@@ -56,19 +56,20 @@ type ParsedData interface{}
 type HandlerFunc func(args []ParsedData) error
 
 type Node struct {
-	g        *Graph
-	index    int
-	flags    byte
-	Name     string
-	Children []int
-	Parser   Parser
-	Run      HandlerFunc
+	g               *Graph
+	index           int32
+	kind            byte
+	Name            string
+	Children        []int32
+	SuggestionsType string
+	Parser          Parser
+	Run             HandlerFunc
 }
 type Literal Node
 type Argument Node
 
-func (n *Node) parse(cmd string) (left string, value ParsedData, next int, err error) {
-	switch n.flags & 0x03 {
+func (n *Node) parse(cmd string) (left string, value ParsedData, next int32, err error) {
+	switch n.kind & 0x03 {
 	case RootNode:
 		left = cmd
 		value = nil
@@ -90,7 +91,7 @@ func (n *Node) parse(cmd string) (left string, value ParsedData, next int, err e
 	// find next
 	if len(n.Children) > 0 {
 		// look up the first child's type
-		switch n.g.nodes[n.Children[0]].flags & 0x03 {
+		switch n.g.nodes[n.Children[0]].kind & 0x03 {
 		case RootNode:
 			panic("root node can't be child")
 		default:

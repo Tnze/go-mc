@@ -1,10 +1,10 @@
 package server
 
 import (
+	"container/list"
+	"github.com/google/uuid"
 	"strconv"
 	"sync"
-
-	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -12,14 +12,14 @@ import (
 
 type Player struct {
 	*net.Conn
-	writeLock sync.Mutex
 
 	Name string
 	uuid.UUID
 	EntityID int32
 	Gamemode byte
 
-	errChan chan error
+	packetQueue *PacketQueue
+	errChan     chan error
 }
 
 // Packet757 is a packet in protocol 757.
@@ -27,14 +27,8 @@ type Player struct {
 type Packet757 pk.Packet
 
 // WritePacket to player client. The type of parameter will update per version.
-func (p *Player) WritePacket(packet Packet757) error {
-	p.writeLock.Lock()
-	defer p.writeLock.Unlock()
-	err := p.Conn.WritePacket(pk.Packet(packet))
-	if err != nil {
-		return WritePacketError{Err: err, ID: packet.ID}
-	}
-	return nil
+func (p *Player) WritePacket(packet Packet757) {
+	p.packetQueue.Push(pk.Packet(packet))
 }
 
 type WritePacketError struct {
@@ -65,4 +59,48 @@ func (p *Player) GetErr() error {
 	default:
 		return nil
 	}
+}
+
+type PacketQueue struct {
+	queue  *list.List
+	closed bool
+	cond   sync.Cond
+}
+
+func NewPacketQueue() (p *PacketQueue) {
+	p = &PacketQueue{
+		queue: list.New(),
+		cond:  sync.Cond{L: new(sync.Mutex)},
+	}
+	return p
+}
+
+func (p *PacketQueue) Push(packet pk.Packet) {
+	p.cond.L.Lock()
+	if !p.closed {
+		p.queue.PushBack(packet)
+	}
+	p.cond.Signal()
+	p.cond.L.Unlock()
+}
+
+func (p *PacketQueue) Pull() (packet pk.Packet, ok bool) {
+	p.cond.L.Lock()
+	defer p.cond.L.Unlock()
+	for p.queue.Front() == nil && !p.closed {
+		p.cond.Wait()
+	}
+	if p.closed {
+		return pk.Packet{}, false
+	}
+	packet = p.queue.Remove(p.queue.Front()).(pk.Packet)
+	ok = true
+	return
+}
+
+func (p *PacketQueue) Close() {
+	p.cond.L.Lock()
+	p.closed = true
+	p.cond.Broadcast()
+	p.cond.L.Unlock()
 }

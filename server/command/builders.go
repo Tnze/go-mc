@@ -6,22 +6,22 @@ func (g *Graph) AppendLiteral(child *Literal) *Graph {
 }
 
 func (g *Graph) Literal(str string) LiteralBuilder {
-	index := len(g.nodes)
+	index := int32(len(g.nodes))
 	g.nodes = append(g.nodes, Node{
 		g:     g,
 		index: index,
-		flags: LiteralNode,
+		kind:  LiteralNode,
 		Name:  str,
 	})
 	return LiteralBuilder{g: g, current: index}
 }
 
 func (g *Graph) Argument(name string, parser Parser) ArgumentBuilder {
-	index := len(g.nodes)
+	index := int32(len(g.nodes))
 	g.nodes = append(g.nodes, Node{
 		g:      g,
 		index:  index,
-		flags:  ArgumentNode,
+		kind:   ArgumentNode,
 		Name:   name,
 		Parser: parser,
 	})
@@ -30,7 +30,7 @@ func (g *Graph) Argument(name string, parser Parser) ArgumentBuilder {
 
 type LiteralBuilder struct {
 	g       *Graph
-	current int
+	current int32
 }
 
 func (n LiteralBuilder) AppendLiteral(node *Literal) LiteralBuilderWithLiteral {
@@ -57,7 +57,7 @@ func (n LiteralBuilder) Unhandle() *Literal {
 
 type ArgumentBuilder struct {
 	g       *Graph
-	current int
+	current int32
 }
 
 func (n ArgumentBuilder) AppendLiteral(node *Literal) ArgumentBuilderWithLiteral {

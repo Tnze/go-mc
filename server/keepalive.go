@@ -121,14 +121,10 @@ func (k *KeepAlive) pingPlayer(now time.Time) {
 	if elem := k.pingList.Front(); elem != nil {
 		p := k.pingList.Remove(elem).(keepAliveItem).player
 		// Send Clientbound KeepAlive packet.
-		err := p.WritePacket(Packet757(pk.Marshal(
+		p.WritePacket(Packet757(pk.Marshal(
 			packetid.ClientboundKeepAlive,
 			pk.Long(k.keepAliveID),
 		)))
-		if err != nil {
-			p.PutErr(err)
-			return
-		}
 		k.keepAliveID++
 		// Clientbound KeepAlive packet is sent, move the player to waiting list.
 		k.listIndex[p.UUID] = k.waitList.PushBack(

@@ -50,13 +50,10 @@ func (s *SimpleDim) PlayerJoin(p *Player) {
 		)
 		column.Unlock()
 
-		err := p.WritePacket(Packet757(packet))
-		if err != nil {
-			return
-		}
+		p.WritePacket(Packet757(packet))
 	}
 
-	err := p.WritePacket(Packet757(pk.Marshal(
+	p.WritePacket(Packet757(pk.Marshal(
 		packetid.ClientboundPlayerPosition,
 		pk.Double(0), pk.Double(143), pk.Double(0),
 		pk.Float(0), pk.Float(0),
@@ -64,9 +61,6 @@ func (s *SimpleDim) PlayerJoin(p *Player) {
 		pk.VarInt(0),
 		pk.Boolean(true),
 	)))
-	if err != nil {
-		return
-	}
 }
 
 func (s *SimpleDim) PlayerQuit(p *Player) {

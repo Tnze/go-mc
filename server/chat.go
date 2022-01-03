@@ -87,10 +87,7 @@ func (g *GlobalChat) Run(ctx context.Context) {
 
 func (g *GlobalChat) broadcast(packet Packet757) {
 	for _, p := range g.players {
-		err := p.WritePacket(packet)
-		if err != nil {
-			p.PutErr(err)
-		}
+		p.WritePacket(packet)
 	}
 }
 

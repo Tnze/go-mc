@@ -82,7 +82,16 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 //
 // Warning: unstable API, may change in later version
 func Array(array interface{}) Field {
-	length := VarInt(reflect.ValueOf(array).Len())
+	var length VarInt
+
+	value := reflect.ValueOf(array)
+	for value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
+
+	if array != nil {
+		length = VarInt(value.Len())
+	}
 	return Tuple{
 		&length,
 		Ary{

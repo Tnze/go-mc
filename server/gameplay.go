@@ -80,15 +80,16 @@ func (g *Game) Run(ctx context.Context) {
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
 	p := &Player{
-		Conn:     conn,
-		Name:     name,
-		UUID:     id,
-		EntityID: g.newEID(),
-		Gamemode: 1,
-		errChan:  make(chan error, 1),
+		Conn:        conn,
+		Name:        name,
+		UUID:        id,
+		EntityID:    g.newEID(),
+		Gamemode:    1,
+		packetQueue: NewPacketQueue(),
+		errChan:     make(chan error, 1),
 	}
 	dimInfo := g.Dim.Info()
-	err := p.WritePacket(Packet757(pk.Marshal(
+	err := p.Conn.WritePacket(pk.Marshal(
 		packetid.ClientboundLogin,
 		pk.Int(p.EntityID),  // Entity ID
 		pk.Boolean(false),   // Is hardcore
@@ -106,10 +107,26 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		pk.Boolean(true),            // Enable respawn screen
 		pk.Boolean(false),           // Is Debug
 		pk.Boolean(true),            // Is Flat
-	)))
+	))
 	if err != nil {
 		return
 	}
+
+	go func() {
+		for {
+			packet, ok := p.packetQueue.Pull()
+			if !ok {
+				break
+			}
+			err := p.Conn.WritePacket(packet)
+			if err != nil {
+				p.PutErr(err)
+				break
+			}
+		}
+	}()
+	defer p.packetQueue.Close()
+
 	g.Dim.PlayerJoin(p)
 	defer g.Dim.PlayerQuit(p)
 
