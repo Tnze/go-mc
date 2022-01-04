@@ -38,8 +38,8 @@ func main() {
 		log.Fatalf("Load chunks fail: %v", err)
 	}
 
-	commands := server.NewCommandGraph()
-	handleFunc := func(args []command.ParsedData) error {
+	commands := command.NewGraph()
+	handleFunc := func(ctx context.Context, args []command.ParsedData) error {
 		log.Printf("Command: args: %v", args)
 		return nil
 	}

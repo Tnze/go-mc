@@ -43,7 +43,7 @@ One of the most useful functions of this lib is that it implements the network c
 allows you to construct, send, receive, and parse network packets. All of them are encapsulated in `go-mc/net`
 and `go-mc/net/packet`.
 
-这个库最核心的便是实现了Minecraft底层的网络通信协议，可以用与构造、发送、接收和解读MC数据包。这是靠 `go-mc/net` 和 `go-mc/net/packet`这两个包实现的。
+这个库最核心的便是实现了Minecraft底层的网络通信协议，可以用于构造、发送、接收和解读MC数据包。这是靠 `go-mc/net` 和 `go-mc/net/packet`这两个包实现的。
 
 ```go
 import "github.com/Tnze/go-mc/net"
