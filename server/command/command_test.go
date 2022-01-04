@@ -1,12 +1,13 @@
 package command
 
 import (
+	"context"
 	"log"
 	"testing"
 )
 
 func TestRoot_Run(t *testing.T) {
-	handleFunc := func(args []ParsedData) error {
+	handleFunc := func(ctx context.Context, args []ParsedData) error {
 		log.Printf("Command: args: %v", args)
 		return nil
 	}
@@ -25,7 +26,7 @@ func TestRoot_Run(t *testing.T) {
 		HandleFunc(handleFunc),
 	)
 
-	err := g.Run("me Tnze Xi_Xi_Mi")
+	err := g.Execute(context.TODO(), "me Tnze Xi_Xi_Mi")
 	if err != nil {
 		t.Fatal(err)
 	}

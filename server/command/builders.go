@@ -5,50 +5,48 @@ func (g *Graph) AppendLiteral(child *Literal) *Graph {
 	return g
 }
 
+// Literal create a new LiteralNode in the Graph.
 func (g *Graph) Literal(str string) LiteralBuilder {
 	index := int32(len(g.nodes))
-	g.nodes = append(g.nodes, Node{
+	g.nodes = append(g.nodes, &Node{
 		g:     g,
 		index: index,
 		kind:  LiteralNode,
 		Name:  str,
 	})
-	return LiteralBuilder{g: g, current: index}
+	return LiteralBuilder{current: g.nodes[index]}
 }
 
+// Argument create a new ArgumentNode in the Graph.
 func (g *Graph) Argument(name string, parser Parser) ArgumentBuilder {
 	index := int32(len(g.nodes))
-	g.nodes = append(g.nodes, Node{
+	g.nodes = append(g.nodes, &Node{
 		g:      g,
 		index:  index,
 		kind:   ArgumentNode,
 		Name:   name,
 		Parser: parser,
 	})
-	return ArgumentBuilder{g: g, current: index}
+	return ArgumentBuilder{current: g.nodes[index]}
 }
 
 type LiteralBuilder struct {
-	g       *Graph
-	current int32
+	current *Node
 }
 
 func (n LiteralBuilder) AppendLiteral(node *Literal) LiteralBuilderWithLiteral {
-	current := &n.g.nodes[n.current]
-	current.Children = append(current.Children, node.index)
+	n.current.Children = append(n.current.Children, node.index)
 	return LiteralBuilderWithLiteral{n: n}
 }
 
 func (n LiteralBuilder) AppendArgument(node *Argument) LiteralBuilderWithArgument {
-	current := &n.g.nodes[n.current]
-	current.Children = append(current.Children, node.index)
+	n.current.Children = append(n.current.Children, node.index)
 	return LiteralBuilderWithArgument{n: n}
 }
 
 func (n LiteralBuilder) HandleFunc(f HandlerFunc) *Literal {
-	current := &n.g.nodes[n.current]
-	current.Run = f
-	return (*Literal)(current)
+	n.current.Run = f
+	return (*Literal)(n.current)
 }
 
 func (n LiteralBuilder) Unhandle() *Literal {
@@ -56,26 +54,22 @@ func (n LiteralBuilder) Unhandle() *Literal {
 }
 
 type ArgumentBuilder struct {
-	g       *Graph
-	current int32
+	current *Node
 }
 
 func (n ArgumentBuilder) AppendLiteral(node *Literal) ArgumentBuilderWithLiteral {
-	current := &n.g.nodes[n.current]
-	current.Children = append(current.Children, node.index)
+	n.current.Children = append(n.current.Children, node.index)
 	return ArgumentBuilderWithLiteral{n: n}
 }
 
 func (n ArgumentBuilder) AppendArgument(node *Argument) ArgumentBuilderWithArgument {
-	current := &n.g.nodes[n.current]
-	current.Children = append(current.Children, node.index)
+	n.current.Children = append(n.current.Children, node.index)
 	return ArgumentBuilderWithArgument{n: n}
 }
 
 func (n ArgumentBuilder) HandleFunc(f HandlerFunc) *Argument {
-	current := &n.g.nodes[n.current]
-	current.Run = f
-	return (*Argument)(current)
+	n.current.Run = f
+	return (*Argument)(n.current)
 }
 
 func (n ArgumentBuilder) Unhandle() *Argument {
@@ -103,11 +97,11 @@ type LiteralBuilderWithArgument struct {
 }
 
 func (n LiteralBuilderWithArgument) HandleFunc(f HandlerFunc) *Literal {
-	return (*Literal)((*Argument)(n.n.HandleFunc(f)))
+	return n.n.HandleFunc(f)
 }
 
 func (n LiteralBuilderWithArgument) Unhandle() *Literal {
-	return (*Literal)((*Argument)(n.n.Unhandle()))
+	return n.n.Unhandle()
 }
 
 type ArgumentBuilderWithLiteral struct {
