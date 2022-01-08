@@ -5,11 +5,17 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"fmt"
-	"github.com/Tnze/go-mc/bot"
 	"io"
 	"net/http"
 	"strings"
 )
+
+// Auth includes an account
+type Auth struct {
+	Name string
+	UUID string
+	AsTk string
+}
 
 // AuthDigest computes a special SHA-1 digest required for Minecraft web
 // authentication on Premium servers (online-mode=true).
@@ -58,7 +64,7 @@ type request struct {
 	ServerID        string `json:"serverId"`
 }
 
-func LoginAuth(auth bot.Auth, shareSecret []byte, er EncryptionRequest) error {
+func LoginAuth(auth Auth, shareSecret []byte, er EncryptionRequest) error {
 	digest := AuthDigest(er.ServerID, shareSecret, er.PublicKey)
 	return joinServer(auth.AsTk, auth.UUID, digest)
 }
