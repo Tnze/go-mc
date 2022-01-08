@@ -6,7 +6,11 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-// Auth includes a account
+// Auth includes an account
+//
+// This struct has been moved to the `bot/login` package. This API is only used to solve historical problems and may be removed in future versions.
+//
+// Deprecated: Use login.Auth instead
 type Auth struct {
 	Name string
 	UUID string

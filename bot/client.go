@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/bot/login"
 	"github.com/Tnze/go-mc/net"
 	"github.com/google/uuid"
 )
@@ -8,7 +9,7 @@ import (
 // Client is used to access Minecraft server
 type Client struct {
 	Conn *net.Conn
-	Auth Auth
+	Auth login.Auth
 
 	Name string
 	UUID uuid.UUID
@@ -30,7 +31,7 @@ func (c *Client) Close() error {
 // and load your Name, UUID and AccessToken to client.
 func NewClient() *Client {
 	return &Client{
-		Auth:   Auth{Name: "Steve"},
+		Auth:   login.Auth{Name: "Steve"},
 		Events: Events{handlers: make(map[int32]*handlerHeap)},
 	}
 }
