@@ -23,7 +23,7 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	err := login.LoginAuth(c.Auth, key, er) //向Mojang验证
+	err := loginAuth(c.Auth, key, er) //向Mojang验证
 	if err != nil {
 		return fmt.Errorf("login fail: %v", err)
 	}
@@ -43,4 +43,9 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 	// 设置连接加密
 	c.Conn.SetCipher(encryptStream, decryptStream)
 	return nil
+}
+
+func loginAuth(auth Auth, shareSecret []byte, er login.EncryptionRequest) error {
+	digest := login.AuthDigest(er.ServerID, shareSecret, er.PublicKey)
+	return login.JoinServer(auth.AsTk, auth.UUID, digest)
 }

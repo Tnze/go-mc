@@ -5,7 +5,6 @@ import (
 	"crypto/sha1"
 	"encoding/json"
 	"fmt"
-	"github.com/Tnze/go-mc/bot"
 	"io"
 	"net/http"
 	"strings"
@@ -58,12 +57,8 @@ type request struct {
 	ServerID        string `json:"serverId"`
 }
 
-func LoginAuth(auth bot.Auth, shareSecret []byte, er EncryptionRequest) error {
-	digest := AuthDigest(er.ServerID, shareSecret, er.PublicKey)
-	return joinServer(auth.AsTk, auth.UUID, digest)
-}
-
-func joinServer(asTk, uuid, serverId string) error {
+// JoinServer notifies Mojang's yggdrasil server that the player has joined an online game.
+func JoinServer(asTk, uuid, serverId string) error {
 	requestContent, err := json.Marshal(
 		request{
 			AccessToken:     asTk,
