@@ -107,15 +107,15 @@ func (m Message) WriteTo(w io.Writer) (int64, error) {
 func (m Message) Append(extraMsg ...Message) Message {
 	origLen := len(m.Extra)
 	finalLen := origLen + len(extraMsg)
+	var extra []Message
 	if cap(m.Extra) < len(m.Extra)+len(extraMsg) {
-		// pre expansion
-		extra := make([]Message, finalLen)
+		extra = make([]Message, finalLen)
 		copy(extra, m.Extra)
-		m.Extra = extra
+	} else {
+		extra = m.Extra[:finalLen]
 	}
-	for _, v := range extraMsg {
-		m.Extra = append(m.Extra, v)
-	}
+	copy(extra[origLen:], extraMsg)
+	m.Extra = extra
 	return m
 }
 
