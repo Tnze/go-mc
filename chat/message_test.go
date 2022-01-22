@@ -123,10 +123,15 @@ func ExampleMessage_Append() {
 		Append(chat.Message{Text: "22222"}).
 		Append(chat.Message{Text: "333333"}).
 		Append(chat.Message{Text: "4444444"})
-	fmt.Println(msg)
-	fmt.Println("debug: extra length:", len(msg.Extra))
+	fmt.Print(msg)
 	// Output: 1111222223333334444444
-	// debug: extra length: 3
+}
+
+func TestMessage_Append_issue148(t *testing.T) {
+	msg := chat.Text("hello").Append(chat.Text("world"))
+	if len(msg.Extra) != 1 {
+		t.Fatalf("Length of msg.Extra should be 1: %#v", msg)
+	}
 }
 
 func ExampleTranslateMsg() {
