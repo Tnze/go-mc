@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/mattn/go-colorable"
+	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -26,7 +26,7 @@ var screenManager *screen.Manager
 
 func main() {
 	flag.Parse()
-	log.SetOutput(colorable.NewColorableStdout())
+	//log.SetOutput(colorable.NewColorableStdout())
 	client = bot.NewClient()
 	client.Auth.Name = "Daze"
 	player = basic.NewPlayer(client, basic.DefaultSettings)

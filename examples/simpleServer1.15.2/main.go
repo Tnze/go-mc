@@ -2,11 +2,13 @@
 package main
 
 import (
+	"log"
+
+	"github.com/google/uuid"
+
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/offline"
-	"github.com/google/uuid"
-	"log"
 )
 
 const ProtocolVersion = 578

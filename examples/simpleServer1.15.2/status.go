@@ -2,11 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"log"
+
+	"github.com/google/uuid"
+
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/google/uuid"
-	"log"
 )
 
 func acceptListPing(conn net.Conn) {

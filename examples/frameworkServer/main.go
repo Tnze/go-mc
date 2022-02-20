@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
-	"github.com/Tnze/go-mc/server/command"
 	"image"
 	_ "image/png"
 	"log"
@@ -17,6 +16,7 @@ import (
 	"github.com/Tnze/go-mc/save"
 	"github.com/Tnze/go-mc/save/region"
 	"github.com/Tnze/go-mc/server"
+	"github.com/Tnze/go-mc/server/command"
 )
 
 var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}

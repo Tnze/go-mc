@@ -185,7 +185,7 @@ var colors = map[string]string{
 // By default, it's en-us.
 var translateMap = en_us.Map
 
-// SetLanguage set the translate map to this map.
+// SetLanguage set the default language used by String() and ClearString().
 func SetLanguage(trans map[string]string) {
 	translateMap = trans
 }
@@ -205,11 +205,7 @@ func (m Message) ClearString() string {
 			args[i] = arg.ClearString()
 		}
 
-		if translateMap != nil {
-			_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
-		} else {
-			_, _ = fmt.Fprint(&msg, m.Translate, m.With)
-		}
+		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
 	}
 
 	if m.Extra != nil {
@@ -256,11 +252,7 @@ func (m Message) String() string {
 			args[i] = arg
 		}
 
-		if translateMap != nil {
-			_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
-		} else {
-			_, _ = fmt.Fprint(&msg, m.Translate, m.With)
-		}
+		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
 	}
 
 	if m.Extra != nil {

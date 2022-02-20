@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -12,7 +13,6 @@ import (
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/mattn/go-colorable"
 )
 
 const timeout = 45
@@ -25,7 +25,7 @@ var (
 )
 
 func main() {
-	log.SetOutput(colorable.NewColorableStdout())
+	//log.SetOutput(colorable.NewColorableStdout()) // optional for colorable output
 	c = bot.NewClient()
 	p = basic.NewPlayer(c, basic.DefaultSettings)
 

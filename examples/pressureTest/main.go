@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/mattn/go-colorable"
+	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -18,7 +18,7 @@ var number = flag.Int("number", 1023, "The number of clients")
 
 func main() {
 	flag.Parse()
-	log.SetOutput(colorable.NewColorableStdout())
+	//log.SetOutput(colorable.NewColorableStdout())
 
 	for i := 0; i < *number; i++ {
 		go func(i int) {

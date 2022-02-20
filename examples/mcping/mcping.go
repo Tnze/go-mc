@@ -2,10 +2,14 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"strings"
+	"text/template"
+	"time"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
@@ -26,12 +30,34 @@ type status struct {
 		Name     string
 		Protocol int
 	}
-	//favicon ignored
+	Favicon Icon
+	Delay   time.Duration
+}
+
+// Icon should be a PNG image that is Base64 encoded
+// (without newlines: \n, new lines no longer work since 1.13)
+// and prepended with "data:image/png;base64,".
+type Icon string
+
+var IconFormatErr = errors.New("data format error")
+var IconAbsentErr = errors.New("icon not present")
+
+// ToPNG decode base64-icon, return a PNG image
+// Take care of there is no safety check, image may contain malicious code.
+func (i Icon) ToPNG() ([]byte, error) {
+	const prefix = "data:image/png;base64,"
+	if i == "" {
+		return nil, IconAbsentErr
+	}
+	if !strings.HasPrefix(string(i), prefix) {
+		return nil, IconFormatErr
+	}
+	return base64.StdEncoding.DecodeString(strings.TrimPrefix(string(i), prefix))
 }
 
 func main() {
 	addr := getAddr()
-	fmt.Printf("MCPING (%s):\n", addr)
+	fmt.Printf("MCPING (%s):", addr)
 	resp, delay, err := bot.PingAndList(addr)
 	if err != nil {
 		fmt.Printf("ping and list server fail: %v", err)
@@ -44,9 +70,9 @@ func main() {
 		fmt.Print("unmarshal resp fail:", err)
 		os.Exit(1)
 	}
+	s.Delay = delay
 
-	fmt.Print(s)
-	fmt.Println("Delay:", delay)
+	fmt.Print(&s)
 }
 
 func getAddr() string {
@@ -59,14 +85,20 @@ func getAddr() string {
 	return os.Args[1]
 }
 
-func (s status) String() string {
+var outTemp = template.Must(template.New("output").Parse(`
+	Version: [{{ .Version.Protocol }}] {{ .Version.Name }}
+	Description: 
+{{ .Description }}
+	Delay: {{ .Delay }}
+	Players: {{ .Players.Online }}/{{ .Players.Max }}{{ range .Players.Sample }}
+	- [{{ .Name }}] {{ .ID }}{{ end }}
+`))
+
+func (s *status) String() string {
 	var sb strings.Builder
-	fmt.Fprintln(&sb, "Server:", s.Version.Name)
-	fmt.Fprintln(&sb, "Protocol:", s.Version.Protocol)
-	fmt.Fprintln(&sb, "Description:", s.Description)
-	fmt.Fprintf(&sb, "Players: %d/%d\n", s.Players.Online, s.Players.Max)
-	for _, v := range s.Players.Sample {
-		fmt.Fprintf(&sb, "- [%s] %v\n", v.Name, v.ID)
+	err := outTemp.Execute(&sb, s)
+	if err != nil {
+		panic(err)
 	}
 	return sb.String()
 }
