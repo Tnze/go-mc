@@ -4,17 +4,24 @@ package main
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
+	"flag"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	"image/png"
 	"os"
 	"strings"
 	"text/template"
 	"time"
 
+	"github.com/google/uuid"
+
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
-	"github.com/google/uuid"
 )
+
+var protocol = flag.Int("p", 578, "The protocol version number sent during ping")
+var favicon = flag.String("f", "", "If specified, the server's icon will be save to")
 
 type status struct {
 	Description chat.Message
@@ -39,50 +46,15 @@ type status struct {
 // and prepended with "data:image/png;base64,".
 type Icon string
 
-var IconFormatErr = errors.New("data format error")
-var IconAbsentErr = errors.New("icon not present")
-
-// ToPNG decode base64-icon, return a PNG image
-// Take care of there is no safety check, image may contain malicious code.
-func (i Icon) ToPNG() ([]byte, error) {
+func (i Icon) ToImage() (icon image.Image, err error) {
 	const prefix = "data:image/png;base64,"
-	if i == "" {
-		return nil, IconAbsentErr
-	}
 	if !strings.HasPrefix(string(i), prefix) {
-		return nil, IconFormatErr
+		return nil, fmt.Errorf("server icon should prepended with %q", prefix)
 	}
-	return base64.StdEncoding.DecodeString(strings.TrimPrefix(string(i), prefix))
-}
-
-func main() {
-	addr := getAddr()
-	fmt.Printf("MCPING (%s):", addr)
-	resp, delay, err := bot.PingAndList(addr)
-	if err != nil {
-		fmt.Printf("ping and list server fail: %v", err)
-		os.Exit(1)
-	}
-
-	var s status
-	err = json.Unmarshal(resp, &s)
-	if err != nil {
-		fmt.Print("unmarshal resp fail:", err)
-		os.Exit(1)
-	}
-	s.Delay = delay
-
-	fmt.Print(&s)
-}
-
-func getAddr() string {
-	const usage = "Usage: mcping <hostname>[:port]"
-	if len(os.Args) < 2 {
-		fmt.Println("no host name.", usage)
-		os.Exit(1)
-	}
-
-	return os.Args[1]
+	base64png := strings.TrimPrefix(string(i), prefix)
+	r := base64.NewDecoder(base64.StdEncoding, strings.NewReader(base64png))
+	icon, err = png.Decode(r)
+	return
 }
 
 var outTemp = template.Must(template.New("output").Parse(`
@@ -101,4 +73,37 @@ func (s *status) String() string {
 		panic(err)
 	}
 	return sb.String()
+}
+
+func usage() {
+	_, _ = fmt.Fprintf(flag.CommandLine.Output(), "Usage:\n%s [-f] [-p] <address>[:port]\n", os.Args[0])
+	flag.PrintDefaults()
+}
+
+func main() {
+	flag.Parse()
+	flag.Usage = usage
+	addr := flag.Arg(0)
+	if addr == "" {
+		fmt.Println("")
+		flag.Usage()
+		os.Exit(2)
+	}
+
+	fmt.Printf("MCPING (%s):", addr)
+	resp, delay, err := bot.PingAndList(addr)
+	if err != nil {
+		fmt.Printf("Ping and list server fail: %v", err)
+		os.Exit(1)
+	}
+
+	var s status
+	err = json.Unmarshal(resp, &s)
+	if err != nil {
+		fmt.Print("Parse json response fail:", err)
+		os.Exit(1)
+	}
+	s.Delay = delay
+
+	fmt.Print(&s)
 }

@@ -6,7 +6,6 @@ package bot
 
 import (
 	"context"
-	"errors"
 	"net"
 	"strconv"
 
@@ -18,55 +17,24 @@ import (
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
 const ProtocolVersion = 757
-const DefaultPort = 25565
+const DefaultPort = mcnet.DefaultPort
 
 // JoinServer connect a Minecraft server for playing the game.
 // Using roughly the same way to parse address as minecraft.
 func (c *Client) JoinServer(addr string) (err error) {
-	return c.join(&net.Dialer{}, addr)
+	return c.join(context.Background(), &mcnet.DefaultDialer, addr)
 }
 
 // JoinServerWithDialer is similar to JoinServer but using a Dialer.
 func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
-	return c.join(d, addr)
+	return c.join(context.Background(), &mcnet.Dialer{Dialer: d}, addr)
 }
 
-// parseAddress will look up SRV records for the address
-func parseAddress(r *net.Resolver, addr string) (string, error) {
-	var port uint16
-	var addrErr *net.AddrError
-	host, portStr, err := net.SplitHostPort(addr)
-	if err != nil {
-		if errors.As(err, &addrErr) {
-			host, port = addr, DefaultPort
-		} else {
-			return "", err
-		}
-	} else {
-		if portInt, err := strconv.ParseUint(portStr, 10, 16); err != nil {
-			port = DefaultPort
-		} else {
-			port = uint16(portInt)
-		}
-	}
-
-	_, srvs, err := r.LookupSRV(context.TODO(), "minecraft", "tcp", host)
-	if err == nil && len(srvs) > 0 {
-		host, port = srvs[0].Target, srvs[0].Port
-	}
-
-	return net.JoinHostPort(host, strconv.FormatUint(uint64(port), 10)), nil
-}
-
-func (c *Client) join(d *net.Dialer, addr string) error {
+func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	const Handshake = 0x00
-	addrSrv, err := parseAddress(d.Resolver, addr)
-	if err != nil {
-		return LoginErr{"resolved address", err}
-	}
 
 	// Split Host and Port
-	host, portStr, err := net.SplitHostPort(addrSrv)
+	host, portStr, err := net.SplitHostPort(addr)
 	if err != nil {
 		return LoginErr{"split address", err}
 	}
@@ -76,7 +44,7 @@ func (c *Client) join(d *net.Dialer, addr string) error {
 	}
 
 	// Dial connection
-	c.Conn, err = mcnet.DialMC(addrSrv)
+	c.Conn, err = d.DialMCContext(ctx, addr)
 	if err != nil {
 		return LoginErr{"connect server", err}
 	}
