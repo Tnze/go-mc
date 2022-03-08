@@ -57,7 +57,7 @@ func listResp() string {
 	list.Players.Max = MaxPlayer
 	list.Players.Online = 123
 	list.Players.Sample = []player{} // must init. can't be nil
-	list.Description = chat.Message{Text: "Powered by go-mc", Color: "blue"}
+	list.Description = chat.Message{MessageText: &chat.MessageText{Text: "Powered by go-mc"}, Color: "blue"}
 
 	data, err := json.Marshal(list)
 	if err != nil {

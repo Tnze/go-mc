@@ -2,6 +2,7 @@ package chat_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -105,7 +106,7 @@ func TestMessage_ClearString(t *testing.T) {
 func TestMessage_WriteTo(t *testing.T) {
 	chat.SetLanguage(en_us.Map)
 	var codeMsg bytes.Buffer
-	_, _ = chat.Message{Translate: "multiplayer.disconnect.server_full"}.WriteTo(&codeMsg)
+	_, _ = chat.TranslateMsg("multiplayer.disconnect.server_full").WriteTo(&codeMsg)
 
 	var msg pk.String // Decode as a String
 	if _, err := msg.ReadFrom(&codeMsg); err != nil {
@@ -118,11 +119,90 @@ func TestMessage_WriteTo(t *testing.T) {
 	}
 }
 
+func TestMessage_MarshalJSON(t *testing.T) {
+	messages := []chat.Message{
+		chat.Text("Hello World!"),
+		chat.TranslateMsg("example.key"),
+		chat.TranslateMsg("example.key", chat.Text("another message"), chat.TranslateMsg("another.key")),
+		{MessageText: &chat.MessageText{Text: "123"}, Extra: []chat.Message{chat.TranslateMsg("example.key", chat.Text("another message"))}},
+		{Extra: []chat.Message{chat.Text("123")}},
+	}
+
+	jsons := []string{
+		`{"text":"Hello World!"}`,
+		`{"translate":"example.key"}`,
+		`{"translate":"example.key","with":[{"text":"another message"},{"translate":"another.key"}]}`,
+		`{"text":"123","extra":[{"translate":"example.key","with":[{"text":"another message"}]}]}`,
+		`{"text":"","extra":[{"text":"123"}]}`,
+	}
+
+	for i, m := range messages {
+		result, err := json.Marshal(m)
+		if err != nil {
+			t.Errorf("marshal Message fail: %v", err)
+			return
+		}
+
+		wantMsg := jsons[i]
+		if string(result) != wantMsg {
+			t.Error("Message JSON marshal error: get", string(result), ", want", wantMsg)
+		}
+	}
+}
+
+func TestMessage_UnmarshalJSON(t *testing.T) {
+	jsons := []string{
+		`{"text":"Hello World!"}`,
+		`{"translate":"example.key"}`,
+		`{"translate":"example.key","with":[{"text":"another message"},{"translate":"another.key"}]}`,
+		`{"text":"123","extra":[{"translate":"example.key","with":[{"text":"another message"}]}]}`,
+		`{"text":"","extra":[{"text":"123"}]}`,
+	}
+
+	type test func(message chat.Message) bool
+	tests := []test{
+		func(message chat.Message) bool {
+			return message.MessageTranslation == nil && message.Text == "Hello World!" && message.GetText() == "Hello World!"
+		},
+		func(message chat.Message) bool {
+			return message.MessageText == nil && message.GetText() == "" && message.Translate == "example.key"
+		},
+		func(message chat.Message) bool {
+			return message.MessageText == nil && message.Translate == "example.key" && len(message.With) == 2 &&
+				bytes.Equal(message.With[0], []byte(`{"text":"another message"}`)) &&
+				bytes.Equal(message.With[1], []byte(`{"translate":"another.key"}`))
+		},
+		func(message chat.Message) bool {
+			extra := message.Extra[0]
+			return message.MessageTranslation == nil && message.GetText() == "123" && len(message.Extra) == 1 &&
+				extra.MessageText == nil && len(extra.With) == 1 &&
+				bytes.Equal(extra.With[0], []byte(`{"text":"another message"}`))
+		},
+		func(message chat.Message) bool {
+			return message.MessageTranslation == nil && message.Text == "" && message.GetText() == "" &&
+				len(message.Extra) == 1 && message.Extra[0].GetText() == "123"
+		},
+	}
+
+	for i, j := range jsons {
+		var msg chat.Message
+		err := json.Unmarshal([]byte(j), &msg)
+		if err != nil {
+			t.Errorf("unmarshal Message fail: %v", err)
+			return
+		}
+
+		if !tests[i](msg) {
+			t.Errorf("test for json `%s` failed, got %#v", j, msg)
+		}
+	}
+}
+
 func ExampleMessage_Append() {
-	msg := chat.Message{Text: "1111"}.
-		Append(chat.Message{Text: "22222"}).
-		Append(chat.Message{Text: "333333"}).
-		Append(chat.Message{Text: "4444444"})
+	msg := chat.Text("1111").
+		Append(chat.Text("22222").
+			Append(chat.Text("333333")).
+			Append(chat.Text("4444444")))
 	fmt.Print(msg)
 	// Output: 1111222223333334444444
 }

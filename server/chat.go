@@ -99,9 +99,9 @@ func (c chatItem) toMessage() chat.Message {
 	return chat.TranslateMsg(
 		"chat.type.text",
 		chat.Message{
-			Text:       c.p.Name,
-			ClickEvent: chat.SuggestCommand("/msg " + c.p.Name),
-			HoverEvent: chat.ShowEntity(playerToSNBT(c.p)),
+			MessageText: &chat.MessageText{Text: c.p.Name},
+			ClickEvent:  chat.SuggestCommand("/msg " + c.p.Name),
+			HoverEvent:  chat.ShowEntity(playerToSNBT(c.p)),
 		},
 		chat.Text(c.text),
 	)

@@ -19,7 +19,11 @@ import (
 	"github.com/Tnze/go-mc/server/command"
 )
 
-var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
+var motd = chat.Message{
+	MessageText: &chat.MessageText{Text: "A Minecraft Server "},
+	Extra:       []chat.Message{{MessageText: &chat.MessageText{Text: "Powered by go-mc"}, Color: "yellow"}},
+}
+
 var addr = flag.String("Address", ":25565", "Listening address")
 var iconPath = flag.String("ServerIcon", "./server-icon.png", "The path to server icon")
 var maxPlayer = flag.Int("MaxPlayer", 16384, "The maximum number of players")

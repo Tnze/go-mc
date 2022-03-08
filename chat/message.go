@@ -41,9 +41,10 @@ const (
 	White       = "white"
 )
 
-// Message is a message sent by other
+// Message represents all fields that every chat component has
 type Message struct {
-	Text string `json:"text"`
+	*MessageText
+	*MessageTranslation
 
 	Bold          bool `json:"bold,omitempty"`          //粗体
 	Italic        bool `json:"italic,omitempty"`        //斜体
@@ -62,14 +63,51 @@ type Message struct {
 	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
 	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
 
-	Translate string            `json:"translate,omitempty"`
+	Extra []Message `json:"extra,omitempty"`
+}
+
+// MessageText contains only text
+type MessageText struct {
+	Text string `json:"text"`
+}
+
+// MessageTranslation translates text into the current language of Minecraft client
+type MessageTranslation struct {
+	Translate string            `json:"translate"`
 	With      []json.RawMessage `json:"with,omitempty"`
-	Extra     []Message         `json:"extra,omitempty"`
 }
 
 type jsonMsg Message
 
-//UnmarshalJSON decode json to Message
+// IsText returns true if message represents simple text, so you can read Text field
+func (m *Message) IsText() bool {
+	return m.MessageText != nil
+}
+
+// IsTranslation returns true if message represents translation, so you can read Translate field
+func (m *Message) IsTranslation() bool {
+	return m.MessageTranslation != nil
+}
+
+// GetText returns the text contained in current component, or empty string if it contains only translation
+func (m *Message) GetText() string {
+	if m.IsText() {
+		return m.Text
+	}
+
+	return ""
+}
+
+// MarshalJSON encode Message to json
+func (m Message) MarshalJSON() ([]byte, error) {
+	if m.MessageTranslation == nil && m.MessageText == nil {
+		m.MessageText = &MessageText{}
+	}
+
+	return json.Marshal((jsonMsg)(m))
+}
+
+// UnmarshalJSON decode json to Message
 func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 	if len(raw) == 0 {
 		return io.EOF
@@ -77,9 +115,24 @@ func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 	// The right way to distinguish JSON String and Object
 	// is to look up the first character.
 	if raw[0] == '"' {
+		m.MessageText = &MessageText{}
 		err = json.Unmarshal(raw, &m.Text) // Unmarshal as jsonString
 	} else {
-		err = json.Unmarshal(raw, (*jsonMsg)(m)) // Unmarshal as jsonMsg
+		var msg map[string]interface{}
+		err = json.Unmarshal(raw, &msg) // Temporarily unmarshal as map
+		if err != nil {
+			return
+		}
+
+		if _, ok := msg["text"]; ok {
+			// Message is a text component
+			m.MessageText = &MessageText{}
+		} else if _, ok := msg["translate"]; ok {
+			// Message is a translation component
+			m.MessageTranslation = &MessageTranslation{}
+		}
+
+		err = json.Unmarshal(raw, (*jsonMsg)(m))
 	}
 	return
 }
@@ -125,12 +178,14 @@ func (m Message) SetColor(color string) Message {
 }
 
 func Text(str string) Message {
-	return Message{Text: str}
+	return Message{MessageText: &MessageText{Text: str}}
 }
 
 func TranslateMsg(key string, with ...Message) (m Message) {
-	m.Translate = key
-	m.With = make([]json.RawMessage, len(with))
+	m.MessageTranslation = &MessageTranslation{
+		Translate: key,
+		With:      make([]json.RawMessage, len(with)),
+	}
 	for i, v := range with {
 		m.With[i], _ = json.Marshal(v)
 	}
@@ -193,11 +248,11 @@ func SetLanguage(trans map[string]string) {
 // ClearString return the message String without escape sequence for ansi color.
 func (m Message) ClearString() string {
 	var msg strings.Builder
-	text, _ := TransCtrlSeq(m.Text, false)
+	text, _ := TransCtrlSeq(m.GetText(), false)
 	msg.WriteString(text)
 
 	//handle translate
-	if m.Translate != "" {
+	if m.MessageTranslation != nil {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
@@ -240,11 +295,11 @@ func (m Message) String() string {
 		msg.WriteString("\033[" + format.String()[:format.Len()-1] + "m")
 	}
 
-	text, ok := TransCtrlSeq(m.Text, true)
+	text, ok := TransCtrlSeq(m.GetText(), true)
 	msg.WriteString(text)
 
 	//handle translate
-	if m.Translate != "" {
+	if m.MessageTranslation != nil {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
 			var arg Message
