@@ -41,7 +41,9 @@ const (
 	White       = "white"
 )
 
-// Message represents all fields that every chat component has
+// Message represents a Minecraft chat component which format is described at https://wiki.vg/Chat. You can
+// use chat.Text and chat.TranslateMsg to get an instance of Message. Message can be a string component or a
+// translation, use IsText and IsTranslation methods to determine a type of your message instance.
 type Message struct {
 	*MessageText
 	*MessageTranslation
