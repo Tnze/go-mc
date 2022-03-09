@@ -2,7 +2,9 @@ package chat_test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/Tnze/go-mc/chat"
@@ -131,6 +133,31 @@ func TestMessage_Append_issue148(t *testing.T) {
 	msg := chat.Text("hello").Append(chat.Text("world"))
 	if len(msg.Extra) != 1 {
 		t.Fatalf("Length of msg.Extra should be 1: %#v", msg)
+	}
+}
+
+func TestMessage_MarshalJSON_issue151(t *testing.T) {
+	// The "text" field should be omitted when "translate" exist.
+	// And NOT omitted when "extra" so.
+	// That is, we should correctly generate these chat messages:
+	// {"text":"","extra":["str1", "str2"]} and
+	// {"translate":"translation.test.escape","with":["str1","str2"]}
+	mustJson := func(msg *chat.Message) string {
+		data, err := json.Marshal(msg)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return string(data)
+	}
+	// "" + "Hello, world!"
+	msg1 := chat.Text("").Append(chat.TranslateMsg("translation.test.none"))
+	if msg := mustJson(&msg1); !strings.Contains(msg, "text") {
+		t.Fatalf("%s doesn't contain %s", msg, "text")
+	}
+	//
+	msg2 := chat.TranslateMsg("translation.test.none")
+	if msg := mustJson(&msg2); strings.Contains(msg, "text") {
+		t.Fatalf("%s contains %s", msg, "text")
 	}
 }
 

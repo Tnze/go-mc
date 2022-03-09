@@ -43,7 +43,7 @@ const (
 
 // Message is a message sent by other
 type Message struct {
-	Text string `json:"text,omitempty"`
+	Text string `json:"text"`
 
 	Bold          bool `json:"bold,omitempty"`          //粗体
 	Italic        bool `json:"italic,omitempty"`        //斜体
@@ -67,7 +67,37 @@ type Message struct {
 	Extra     []Message         `json:"extra,omitempty"`
 }
 
+// Same as Message, but "Text" is omitempty
+type translateMsg struct {
+	Text string `json:"text,omitempty"`
+
+	Bold          bool `json:"bold,omitempty"`
+	Italic        bool `json:"italic,omitempty"`
+	UnderLined    bool `json:"underlined,omitempty"`
+	StrikeThrough bool `json:"strikethrough,omitempty"`
+	Obfuscated    bool `json:"obfuscated,omitempty"`
+
+	Font  string `json:"font,omitempty"`
+	Color string `json:"color,omitempty"`
+
+	Insertion  string      `json:"insertion,omitempty"`
+	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
+	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
+
+	Translate string            `json:"translate"`
+	With      []json.RawMessage `json:"with,omitempty"`
+	Extra     []Message         `json:"extra,omitempty"`
+}
+
 type jsonMsg Message
+
+func (m Message) MarshalJSON() ([]byte, error) {
+	if m.Translate != "" {
+		return json.Marshal(translateMsg(m))
+	} else {
+		return json.Marshal(jsonMsg(m))
+	}
+}
 
 //UnmarshalJSON decode json to Message
 func (m *Message) UnmarshalJSON(raw []byte) (err error) {
