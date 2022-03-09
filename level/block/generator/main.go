@@ -1,9 +1,9 @@
 package main
 
 import (
+	_ "embed"
 	"log"
 	"os"
-	"reflect"
 	"strings"
 	"text/template"
 	"unicode"
@@ -11,16 +11,8 @@ import (
 	"github.com/Tnze/go-mc/nbt"
 )
 
-const tempSource = `package block
-
-type {{.Name | ToGoTypeName}} struct { {{range $key, $elem := .Properties}}
-	{{$key | UpperTheFirst}}	{{$elem | GetType}} {{ end }}
-}
-
-func ({{.Name | ToGoTypeName}}) ID() string {
-	return {{.Name | printf "%q"}}
-}
-`
+//go:embed blocks.go.tmpl
+var tempSource string
 
 var temp = template.Must(template.
 	New("block_template").
@@ -28,27 +20,26 @@ var temp = template.Must(template.
 		"UpperTheFirst": UpperTheFirst,
 		"ToGoTypeName":  ToGoTypeName,
 		"GetType":       GetType,
+		"Generator":     func() string { return "generator/main.go" },
 	}).
 	Parse(tempSource))
 
 type State struct {
-	Name       string
-	Properties map[string]interface{}
+	Name string
+	Meta map[string]string
 }
 
 func main() {
 	var states []State
 	readBlockStates(&states)
 
-	// generate go sources for each blocks
-	for _, state := range states {
-		genSourceFile(state)
-	}
+	// generate go source file
+	genSourceFile(states)
 }
 
 func readBlockStates(states *[]State) {
 	// open block_states data file
-	f, err := os.Open("testdata/block_states.nbt")
+	f, err := os.Open("testdata/blocks.nbt")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -60,9 +51,8 @@ func readBlockStates(states *[]State) {
 	}
 }
 
-func genSourceFile(state State) {
-	filename := strings.TrimPrefix(state.Name, "minecraft:") + ".go"
-	file, err := os.Create(filename)
+func genSourceFile(states []State) {
+	file, err := os.Create("blocks.go")
 	if err != nil {
 		log.Panic(err)
 	}
@@ -72,7 +62,7 @@ func genSourceFile(state State) {
 		return
 	}
 
-	if err := temp.Execute(file, state); err != nil {
+	if err := temp.Execute(file, states); err != nil {
 		log.Panic(err)
 	}
 }
@@ -86,8 +76,18 @@ func ToGoTypeName(name string) string {
 	return strings.Join(words, "")
 }
 
-func GetType(v interface{}) string {
-	return reflect.TypeOf(v).String()
+var typeMaps = map[string]string{
+	"BooleanProperty":   "Boolean",
+	"DirectionProperty": "Direction",
+	"EnumProperty":      "string",
+	"IntegerProperty":   "Integer",
+}
+
+func GetType(v string) string {
+	if mapped, ok := typeMaps[v]; ok {
+		return mapped
+	}
+	return v
 }
 
 func UpperTheFirst(word string) string {

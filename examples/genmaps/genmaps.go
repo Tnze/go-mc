@@ -101,7 +101,7 @@ func main() {
 				var column save.Chunk
 				for task := range c {
 					if err := column.Load(task.data); err != nil {
-						log.Printf("Decode column (%d.%d) error: %v", task.pos[0], task.pos[1], err)
+						log.Printf("UnmarshalNBT column (%d.%d) error: %v", task.pos[0], task.pos[1], err)
 					}
 					//pos := [2]int{int(column.Level.PosX), int(column.Level.PosZ)}
 					//if pos != task.pos {

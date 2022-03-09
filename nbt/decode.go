@@ -2,6 +2,7 @@ package nbt
 
 import (
 	"bytes"
+	"encoding"
 	"errors"
 	"fmt"
 	"io"
@@ -23,7 +24,7 @@ func Unmarshal(data []byte, v interface{}) error {
 // into a struct or map, but not a string.
 //
 // This method also return tag name of the root tag.
-// In real world, it is often empty, but the API should allows you to get it when ever you want.
+// In real world, it is often empty, but the API should allow you to get it when ever you want.
 func (d *Decoder) Decode(v interface{}) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr {
@@ -39,7 +40,7 @@ func (d *Decoder) Decode(v interface{}) (string, error) {
 		return tagName, fmt.Errorf("nbt: unknown Tag, maybe compressed by %s, uncompress it first", c)
 	}
 
-	// We decode val not val.Elem because the NBTDecoder interface
+	// We decode val not val.Elem because the Unmarshaler interface
 	// test must be applied at the top level of the value.
 	err = d.unmarshal(val, tagType)
 	if err != nil {
@@ -64,9 +65,12 @@ func (d *Decoder) checkCompressed(head byte) (compress string) {
 var ErrEND = errors.New("unexpected TAG_End")
 
 func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
-	u, val := indirect(val, tagType == TagEnd)
+	u, t, val, assign := indirect(val, tagType == TagEnd)
+	if assign != nil {
+		defer assign()
+	}
 	if u != nil {
-		return u.Decode(tagType, d.r)
+		return u.UnmarshalNBT(tagType, d.r)
 	}
 
 	switch tagType {
@@ -177,13 +181,20 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		if err != nil {
 			return err
 		}
-		switch vk := val.Kind(); vk {
-		default:
-			return errors.New("cannot parse TagString as " + vk.String())
-		case reflect.String:
-			val.SetString(s)
-		case reflect.Interface:
-			val.Set(reflect.ValueOf(s))
+		if t != nil {
+			err := t.UnmarshalText([]byte(s))
+			if err != nil {
+				return err
+			}
+		} else {
+			switch vk := val.Kind(); vk {
+			default:
+				return errors.New("cannot parse TagString as " + vk.String())
+			case reflect.String:
+				val.SetString(s)
+			case reflect.Interface:
+				val.Set(reflect.ValueOf(s))
+			}
 		}
 
 	case TagByteArray:
@@ -270,7 +281,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 		// If we need parse TAG_List into slice, make a new with right length.
-		// Otherwise if we need parse into array, we check if len(array) are enough.
+		// Otherwise, if we need parse into array, we check if len(array) are enough.
 		var buf reflect.Value
 		vk := val.Kind()
 		switch vk {
@@ -370,14 +381,15 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 
 // indirect walks down v allocating pointers as needed,
 // until it gets to a non-pointer.
-// If it encounters an NBTDecoder, indirect stops and returns that.
-// If decodingNull is true, indirect stops at the first settable pointer so it
+// If it encounters an Unmarshaler, indirect stops and returns that.
+// If decodingNull is true, indirect stops at the first settable pointer, so it
 // can be set to nil.
 //
 // This function is copied and modified from encoding/json
-func indirect(v reflect.Value, decodingNull bool) (NBTDecoder, reflect.Value) {
+func indirect(v reflect.Value, decodingNull bool) (Unmarshaler, encoding.TextUnmarshaler, reflect.Value, func()) {
 	v0 := v
 	haveAddr := false
+	var assign func()
 
 	// If v is a named type and is addressable,
 	// start with its address, so that if the type has pointer methods,
@@ -389,10 +401,17 @@ func indirect(v reflect.Value, decodingNull bool) (NBTDecoder, reflect.Value) {
 	for {
 		// Load value from interface, but only if the result will be
 		// usefully addressable.
+		// Otherwise, try init a new value
 		if v.Kind() == reflect.Interface && !v.IsNil() {
 			e := v.Elem()
 			if e.Kind() == reflect.Ptr && !e.IsNil() && (!decodingNull || e.Elem().Kind() == reflect.Ptr) {
 				haveAddr = false
+				v = e
+				continue
+			} else if v.CanSet() {
+				e = reflect.New(e.Type())
+				cv := v
+				assign = func() { cv.Set(e.Elem()) }
 				v = e
 				continue
 			}
@@ -417,8 +436,12 @@ func indirect(v reflect.Value, decodingNull bool) (NBTDecoder, reflect.Value) {
 			v.Set(reflect.New(v.Type().Elem()))
 		}
 		if v.Type().NumMethod() > 0 && v.CanInterface() {
-			if u, ok := v.Interface().(NBTDecoder); ok {
-				return u, reflect.Value{}
+			i := v.Interface()
+			if u, ok := i.(Unmarshaler); ok {
+				return u, nil, reflect.Value{}, assign
+			}
+			if u, ok := i.(encoding.TextUnmarshaler); ok {
+				return nil, u, v, assign
 			}
 		}
 
@@ -429,7 +452,7 @@ func indirect(v reflect.Value, decodingNull bool) (NBTDecoder, reflect.Value) {
 			v = v.Elem()
 		}
 	}
-	return nil, v
+	return nil, nil, v, assign
 }
 
 // rawRead read and discard a value

@@ -49,8 +49,8 @@ func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error
 		return err
 	}
 	if val.CanInterface() {
-		if encoder, ok := val.Interface().(NBTEncoder); ok {
-			return encoder.Encode(e.w)
+		if encoder, ok := val.Interface().(Marshaler); ok {
+			return encoder.MarshalNBT(e.w)
 		}
 	}
 	return e.writeValue(val, tagType)
@@ -205,7 +205,7 @@ func getTagType(v reflect.Value) (byte, reflect.Value) {
 			v.Set(reflect.New(v.Type().Elem()))
 		}
 		if v.Type().NumMethod() > 0 && v.CanInterface() {
-			if u, ok := v.Interface().(NBTEncoder); ok {
+			if u, ok := v.Interface().(Marshaler); ok {
 				return u.TagType(), v
 			}
 		}
@@ -214,7 +214,7 @@ func getTagType(v reflect.Value) (byte, reflect.Value) {
 	}
 
 	if v.CanInterface() {
-		if encoder, ok := v.Interface().(NBTEncoder); ok {
+		if encoder, ok := v.Interface().(Marshaler); ok {
 			return encoder.TagType(), v
 		}
 	}
