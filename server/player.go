@@ -22,6 +22,36 @@ type Player struct {
 	errChan     chan error
 }
 
+func NewPlayer(conn *net.Conn, name string, id uuid.UUID, eid int32, gamemode byte) (p *Player) {
+	p = &Player{
+		Conn:        conn,
+		Name:        name,
+		UUID:        id,
+		EntityID:    eid,
+		Gamemode:    gamemode,
+		packetQueue: NewPacketQueue(),
+		errChan:     make(chan error, 1),
+	}
+	go func() {
+		for {
+			packet, ok := p.packetQueue.Pull()
+			if !ok {
+				break
+			}
+			err := p.Conn.WritePacket(packet)
+			if err != nil {
+				p.PutErr(err)
+				break
+			}
+		}
+	}()
+	return
+}
+
+func (p *Player) Close() {
+	p.packetQueue.Close()
+}
+
 // Packet758 is a packet in protocol 757.
 // We are using type system to force programmers to update packets.
 type Packet758 pk.Packet

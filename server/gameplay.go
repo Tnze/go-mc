@@ -79,15 +79,8 @@ func (g *Game) Run(ctx context.Context) {
 }
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
-	p := &Player{
-		Conn:        conn,
-		Name:        name,
-		UUID:        id,
-		EntityID:    g.newEID(),
-		Gamemode:    1,
-		packetQueue: NewPacketQueue(),
-		errChan:     make(chan error, 1),
-	}
+	p := NewPlayer(conn, name, id, g.newEID(), 1)
+	defer p.Close()
 	dimInfo := g.Dim.Info()
 	err := p.Conn.WritePacket(pk.Marshal(
 		packetid.ClientboundLogin,
@@ -114,21 +107,6 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		return
 	}
 
-	go func() {
-		for {
-			packet, ok := p.packetQueue.Pull()
-			if !ok {
-				break
-			}
-			err := p.Conn.WritePacket(packet)
-			if err != nil {
-				p.PutErr(err)
-				break
-			}
-		}
-	}()
-	defer p.packetQueue.Close()
-
 	g.Dim.PlayerJoin(p)
 	defer g.Dim.PlayerQuit(p)
 
@@ -137,7 +115,6 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		if err := p.GetErr(); err != nil {
 			return
 		}
-		//goland:noinspection GoDeferInLoop
 		defer c.RemovePlayer(p)
 	}
 

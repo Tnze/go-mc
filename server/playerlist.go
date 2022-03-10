@@ -17,7 +17,7 @@ import (
 type PlayerList struct {
 	maxPlayer int
 	players   map[uuid.UUID]*Player
-	// Only the linked-list is protected by this Mutex.
+	// Only the field players is protected by this Mutex.
 	// Because others field never change after created.
 	playersLock sync.Mutex
 }
