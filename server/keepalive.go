@@ -60,7 +60,7 @@ func (k *KeepAlive) AddPlayerDelayUpdateHandler(f func(p *Player, delay time.Dur
 func (k *KeepAlive) Init(g *Game) {
 	g.AddHandler(&PacketHandler{
 		ID: packetid.ServerboundKeepAlive,
-		F: func(player *Player, packet Packet757) error {
+		F: func(player *Player, packet Packet758) error {
 			var KeepAliveID pk.Long
 			if err := pk.Packet(packet).Scan(&KeepAliveID); err != nil {
 				return err
@@ -121,7 +121,7 @@ func (k *KeepAlive) pingPlayer(now time.Time) {
 	if elem := k.pingList.Front(); elem != nil {
 		p := k.pingList.Remove(elem).(keepAliveItem).player
 		// Send Clientbound KeepAlive packet.
-		p.WritePacket(Packet757(pk.Marshal(
+		p.WritePacket(Packet758(pk.Marshal(
 			packetid.ClientboundKeepAlive,
 			pk.Long(k.keepAliveID),
 		)))

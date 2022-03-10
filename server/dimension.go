@@ -50,10 +50,10 @@ func (s *SimpleDim) PlayerJoin(p *Player) {
 		)
 		column.Unlock()
 
-		p.WritePacket(Packet757(packet))
+		p.WritePacket(Packet758(packet))
 	}
 
-	p.WritePacket(Packet757(pk.Marshal(
+	p.WritePacket(Packet758(pk.Marshal(
 		packetid.ClientboundPlayerPosition,
 		pk.Double(0), pk.Double(143), pk.Double(0),
 		pk.Float(0), pk.Float(0),

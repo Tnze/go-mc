@@ -35,7 +35,7 @@ func NewGlobalChat() *GlobalChat {
 func (g *GlobalChat) Init(game *Game) {
 	game.AddHandler(&PacketHandler{
 		ID: packetid.ServerboundChat,
-		F: func(player *Player, packet Packet757) error {
+		F: func(player *Player, packet Packet758) error {
 			var msg pk.String
 			if err := pk.Packet(packet).Scan(&msg); err != nil {
 				return err
@@ -59,14 +59,14 @@ func (g *GlobalChat) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case item := <-g.msg:
-			g.broadcast(Packet757(pk.Marshal(
+			g.broadcast(Packet758(pk.Marshal(
 				packetid.ClientboundChat,
 				item.toMessage(),
 				pk.Byte(chatPosChat),
 				pk.UUID(item.p.UUID),
 			)))
 		case p := <-g.join:
-			g.broadcast(Packet757(pk.Marshal(
+			g.broadcast(Packet758(pk.Marshal(
 				packetid.ClientboundChat,
 				chat.TranslateMsg("multiplayer.player.joined", chat.Text(p.Name)).SetColor(chat.Yellow),
 				pk.Byte(chatPosSystem),
@@ -74,7 +74,7 @@ func (g *GlobalChat) Run(ctx context.Context) {
 			)))
 			g.players[p.UUID] = p
 		case p := <-g.quit:
-			g.broadcast(Packet757(pk.Marshal(
+			g.broadcast(Packet758(pk.Marshal(
 				packetid.ClientboundChat,
 				chat.TranslateMsg("multiplayer.player.left", chat.Text(p.Name)).SetColor(chat.Yellow),
 				pk.Byte(chatPosSystem),
@@ -85,7 +85,7 @@ func (g *GlobalChat) Run(ctx context.Context) {
 	}
 }
 
-func (g *GlobalChat) broadcast(packet Packet757) {
+func (g *GlobalChat) broadcast(packet Packet758) {
 	for _, p := range g.players {
 		p.WritePacket(packet)
 	}

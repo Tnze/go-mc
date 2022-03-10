@@ -6,6 +6,7 @@ package bot
 
 import (
 	"context"
+	"errors"
 	"net"
 	"strconv"
 
@@ -16,7 +17,7 @@ import (
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
-const ProtocolVersion = 757
+const ProtocolVersion = 758
 const DefaultPort = mcnet.DefaultPort
 
 // JoinServer connect a Minecraft server for playing the game.
@@ -27,20 +28,31 @@ func (c *Client) JoinServer(addr string) (err error) {
 
 // JoinServerWithDialer is similar to JoinServer but using a Dialer.
 func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
-	return c.join(context.Background(), &mcnet.Dialer{Dialer: d}, addr)
+	var dialer *mcnet.Dialer
+	if d != nil {
+		dialer = &mcnet.Dialer{Dialer: *d}
+	}
+	return c.join(context.Background(), dialer, addr)
 }
 
 func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	const Handshake = 0x00
-
 	// Split Host and Port
 	host, portStr, err := net.SplitHostPort(addr)
+	var port uint64
 	if err != nil {
-		return LoginErr{"split address", err}
-	}
-	port, err := strconv.ParseUint(portStr, 0, 16)
-	if err != nil {
-		return LoginErr{"parse port", err}
+		var addrErr *net.AddrError
+		const missingPort = "missing port in address"
+		if errors.As(err, &addrErr) && addrErr.Err == missingPort {
+			port = 25565
+		} else {
+			return LoginErr{"split address", err}
+		}
+	} else {
+		port, err = strconv.ParseUint(portStr, 0, 16)
+		if err != nil {
+			return LoginErr{"parse port", err}
+		}
 	}
 
 	// Dial connection
