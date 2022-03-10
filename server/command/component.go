@@ -13,7 +13,7 @@ import (
 func (g *Graph) Init(game *server.Game) {
 	game.AddHandler(&server.PacketHandler{
 		ID: packetid.ServerboundChat,
-		F: func(player *server.Player, packet server.Packet757) error {
+		F: func(player *server.Player, packet server.Packet758) error {
 			var msg pk.String
 			if err := pk.Packet(packet).Scan(&msg); err != nil {
 				return err
@@ -35,7 +35,7 @@ func (g *Graph) Run(ctx context.Context) {}
 
 // AddPlayer implement server.Component for Graph
 func (g *Graph) AddPlayer(p *server.Player) {
-	p.WritePacket(server.Packet757(pk.Marshal(
+	p.WritePacket(server.Packet758(pk.Marshal(
 		packetid.ClientboundCommands, g,
 	)))
 }

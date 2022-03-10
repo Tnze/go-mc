@@ -56,13 +56,13 @@ func (m StringifiedMessage) TagType() byte {
 	}
 }
 
-func (m StringifiedMessage) Encode(w io.Writer) error {
+func (m StringifiedMessage) MarshalNBT(w io.Writer) error {
 	d := decodeState{data: []byte(m)}
 	d.scan.reset()
 	return writeValue(NewEncoder(w), &d, false, "")
 }
 
-func (m *StringifiedMessage) Decode(tagType byte, r DecoderReader) error {
+func (m *StringifiedMessage) UnmarshalNBT(tagType byte, r DecoderReader) error {
 	if tagType == TagEnd {
 		return ErrEND
 	}
@@ -94,7 +94,7 @@ func (m *StringifiedMessage) encode(d *Decoder, sb *strings.Builder, tagType byt
 		return err
 	case TagInt:
 		i, err := d.readInt32()
-		sb.WriteString(strconv.FormatInt(int64(i), 10) + "I")
+		sb.WriteString(strconv.FormatInt(int64(i), 10))
 		return err
 	case TagFloat:
 		i, err := d.readInt32()

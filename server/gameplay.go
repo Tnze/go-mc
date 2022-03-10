@@ -42,7 +42,7 @@ type PacketHandler struct {
 	F  packetHandlerFunc
 }
 
-type packetHandlerFunc func(player *Player, packet Packet757) error
+type packetHandlerFunc func(player *Player, packet Packet758) error
 
 //go:embed DimensionCodec.snbt
 var dimensionCodecSNBT string
@@ -95,7 +95,9 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		pk.Boolean(false),   // Is hardcore
 		pk.Byte(p.Gamemode), // Gamemode
 		pk.Byte(-1),         // Prev Gamemode
-		pk.Array([]pk.Identifier{pk.Identifier(dimInfo.Name)}),
+		pk.Array([]pk.Identifier{
+			pk.Identifier(dimInfo.Name),
+		}),
 		pk.NBT(nbt.StringifiedMessage(dimensionCodecSNBT)),
 		pk.NBT(nbt.StringifiedMessage(dimensionSNBT)),
 		pk.Identifier(dimInfo.Name), // World Name
@@ -145,7 +147,7 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 			return
 		}
 		for _, ph := range g.handlers[packet.ID] {
-			if err := ph.F(p, Packet757(packet)); err != nil {
+			if err := ph.F(p, Packet758(packet)); err != nil {
 				return
 			}
 			if err := p.GetErr(); err != nil {

@@ -6,6 +6,7 @@ import (
 	"io"
 	"math"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -380,6 +381,31 @@ func TestDecoder_Decode_ErrorString(t *testing.T) {
 
 }
 
+type TextBool bool
+
+func (b TextBool) MarshalText() (text []byte, err error) {
+	return []byte(strconv.FormatBool(bool(b))), nil
+}
+func (b *TextBool) UnmarshalText(text []byte) (err error) {
+	*((*bool)(b)), err = strconv.ParseBool(string(text))
+	return
+}
+
+func TestDecoder_Decode_textUnmarshaler(t *testing.T) {
+	var b TextBool
+	data := []byte{
+		TagString, 0, 0,
+		0, 4, 't', 'r', 'u', 'e',
+	}
+	_, err := NewDecoder(bytes.NewReader(data)).Decode(&b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if b != true {
+		t.Errorf("b should be true")
+	}
+}
+
 func TestRawMessage_Decode(t *testing.T) {
 	data := []byte{
 		TagCompound, 0, 2, 'a', 'b',
@@ -435,16 +461,16 @@ func TestStringifiedMessage_Decode(t *testing.T) {
 		t.Fatal(tag, err)
 	} else {
 		if tag != "ab" {
-			t.Fatalf("Decode tag name error: want %s, get: %s", "ab", tag)
+			t.Fatalf("UnmarshalNBT tag name error: want %s, get: %s", "ab", tag)
 		}
 		if container.Key != 12 {
-			t.Fatalf("Decode Key error: want %v, get: %v", 12, container.Key)
+			t.Fatalf("UnmarshalNBT Key error: want %v, get: %v", 12, container.Key)
 		}
 		if container.Value != `"Tn ze"` {
-			t.Fatalf("Decode Key error: get: %v", container.Value)
+			t.Fatalf("UnmarshalNBT Key error: get: %v", container.Value)
 		}
 		if container.List != "[{},{}]" {
-			t.Fatalf("Decode List error: get: %v", container.List)
+			t.Fatalf("UnmarshalNBT List error: get: %v", container.List)
 		}
 	}
 }

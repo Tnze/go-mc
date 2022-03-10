@@ -159,7 +159,7 @@ func TestStringifiedMessage_Encode(t *testing.T) {
 		{`[B; 1B, 2B, 3B]`, []byte{0, 0, 0, 3, 1, 2, 3}},
 		{`[{},{}]`, []byte{TagCompound, 0, 0, 0, 2, 0, 0}},
 	} {
-		if err := StringifiedMessage(v.snbt).Encode(&buff); err != nil {
+		if err := StringifiedMessage(v.snbt).MarshalNBT(&buff); err != nil {
 			t.Errorf("Encode SNBT error: %v", err)
 		}
 		if !bytes.Equal(buff.Bytes(), v.data) {

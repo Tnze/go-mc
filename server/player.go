@@ -22,12 +22,13 @@ type Player struct {
 	errChan     chan error
 }
 
-// Packet757 is a packet in protocol 757.
+// Packet758 is a packet in protocol 757.
 // We are using type system to force programmers to update packets.
+type Packet758 pk.Packet
 type Packet757 pk.Packet
 
 // WritePacket to player client. The type of parameter will update per version.
-func (p *Player) WritePacket(packet Packet757) {
+func (p *Player) WritePacket(packet Packet758) {
 	p.packetQueue.Push(pk.Packet(packet))
 }
 

@@ -10,11 +10,8 @@ import (
 
 // WorldInfo content player info in server.
 type WorldInfo struct {
-	DimensionCodec struct {
-		DimensionType interface{} `nbt:"minecraft:dimension_type"`
-		WorldgenBiome interface{} `nbt:"minecraft:worldgen/biome"`
-	}
-	Dimension           interface{}
+	DimensionCodec      nbt.StringifiedMessage
+	Dimension           nbt.StringifiedMessage
 	WorldNames          []string // Identifiers for all worlds on the server.
 	WorldName           string   // Name of the world being spawned into.
 	HashedSeed          int64    // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
@@ -49,8 +46,8 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 		(*pk.Byte)(&p.PrevGamemode),
 		&WorldCount,
 		pk.Ary{Len: &WorldCount, Ary: &WorldNames},
-		pk.NBT(new(nbt.RawMessage)),
-		pk.NBT(new(nbt.RawMessage)),
+		pk.NBT(&p.WorldInfo.DimensionCodec),
+		pk.NBT(&p.WorldInfo.Dimension),
 		(*pk.Identifier)(&p.WorldName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.VarInt)(&p.MaxPlayers),

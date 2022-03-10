@@ -63,11 +63,11 @@ func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 }
 
 type Dialer struct {
-	*net.Dialer
+	net.Dialer
 }
 
 func (d *Dialer) resolver() *net.Resolver {
-	if d.Resolver != nil {
+	if d != nil && d.Resolver != nil {
 		return d.Resolver
 	}
 	return net.DefaultResolver

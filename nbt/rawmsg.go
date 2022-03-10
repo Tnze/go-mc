@@ -21,12 +21,12 @@ func (m RawMessage) TagType() byte {
 	return m.Type
 }
 
-func (m RawMessage) Encode(w io.Writer) error {
+func (m RawMessage) MarshalNBT(w io.Writer) error {
 	_, err := w.Write(m.Data)
 	return err
 }
 
-func (m *RawMessage) Decode(tagType byte, r DecoderReader) error {
+func (m *RawMessage) UnmarshalNBT(tagType byte, r DecoderReader) error {
 	if tagType == TagEnd {
 		return ErrEND
 	}
@@ -66,7 +66,7 @@ func (m RawMessage) Unmarshal(v interface{}) error {
 	d := NewDecoder(bytes.NewReader(m.Data))
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr {
-		return errors.New("nbt: non-pointer passed to Decode")
+		return errors.New("nbt: non-pointer passed to UnmarshalNBT")
 	}
 	return d.unmarshal(val, m.Type)
 }

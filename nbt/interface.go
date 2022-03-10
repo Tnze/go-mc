@@ -2,11 +2,11 @@ package nbt
 
 import "io"
 
-type NBTDecoder interface {
-	Decode(tagType byte, r DecoderReader) error
+type Unmarshaler interface {
+	UnmarshalNBT(tagType byte, r DecoderReader) error
 }
 
-type NBTEncoder interface {
+type Marshaler interface {
 	TagType() byte
-	Encode(w io.Writer) error
+	MarshalNBT(w io.Writer) error
 }

@@ -2,13 +2,14 @@ package level
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"math/bits"
 	"strings"
 	"sync"
 	"unsafe"
 
-	"github.com/Tnze/go-mc/data/block"
+	"github.com/Tnze/go-mc/level/block"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/save"
 )
@@ -113,10 +114,17 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 		statePalette := v.BlockStates.Palette
 		stateRawPalette := make([]int, len(statePalette))
 		for i, v := range statePalette {
-			// TODO: Consider the properties of block, not only index the block name
-			stateRawPalette[i] = int(stateIDs[strings.TrimPrefix(v.Name, "minecraft:")])
-			if v.Name != "minecraft:air" {
+			b := v.Block()
+			if b == nil {
+				panic(fmt.Errorf("block not found: %#v", v))
+			}
+			if !isAir(b) {
 				blockCount++
+			}
+			var ok bool
+			stateRawPalette[i], ok = block.ToStateID(b)
+			if !ok {
+				panic(fmt.Errorf("state id not found: %#v", b))
 			}
 		}
 
@@ -150,18 +158,6 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 			MotionBlocking: NewBitStorage(bits.Len(uint(secs)), 16*16, motionBlocking),
 			WorldSurface:   NewBitStorage(bits.Len(uint(secs)), 16*16, worldSurface),
 		},
-	}
-}
-
-// TODO: This map should be moved to data/block.
-var stateIDs = make(map[string]uint32)
-
-func init() {
-	for i, v := range block.StateID {
-		name := block.ByID[v].Name
-		if _, ok := stateIDs[name]; !ok {
-			stateIDs[name] = i
-		}
 	}
 }
 
@@ -211,8 +207,8 @@ func (s *Section) GetBlock(i int) int {
 	return s.States.Get(i)
 }
 func (s *Section) SetBlock(i int, v int) {
-	// TODO: Handle cave air and void air
-	if s.States.Get(i) != 0 {
+	b, _ := block.FromStateID(s.States.Get(i))
+	if isAir(b) {
 		s.blockCount--
 	}
 	if v != 0 {
@@ -262,4 +258,13 @@ func (l *lightData) WriteTo(w io.Writer) (int64, error) {
 		pk.Array(l.SkyLight),
 		pk.Array(l.BlockLight),
 	}.WriteTo(w)
+}
+
+func isAir(b block.Block) bool {
+	switch b.(type) {
+	case block.Air, block.CaveAir, block.VoidAir:
+		return true
+	default:
+		return false
+	}
 }
