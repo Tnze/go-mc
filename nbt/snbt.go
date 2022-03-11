@@ -89,29 +89,29 @@ func (m *StringifiedMessage) encode(d *Decoder, sb *strings.Builder, tagType byt
 		writeEscapeStr(sb, str)
 		return err
 	case TagShort:
-		s, err := d.readInt16()
+		s, err := d.readShort()
 		sb.WriteString(strconv.FormatInt(int64(s), 10) + "S")
 		return err
 	case TagInt:
-		i, err := d.readInt32()
+		i, err := d.readInt()
 		sb.WriteString(strconv.FormatInt(int64(i), 10))
 		return err
 	case TagFloat:
-		i, err := d.readInt32()
+		i, err := d.readInt()
 		f := float64(math.Float32frombits(uint32(i)))
 		sb.WriteString(strconv.FormatFloat(f, 'f', 10, 32) + "F")
 		return err
 	case TagLong:
-		i, err := d.readInt64()
+		i, err := d.readLong()
 		sb.WriteString(strconv.FormatInt(i, 10) + "L")
 		return err
 	case TagDouble:
-		i, err := d.readInt64()
+		i, err := d.readLong()
 		f := math.Float64frombits(uint64(i))
 		sb.WriteString(strconv.FormatFloat(f, 'f', 10, 64) + "D")
 		return err
 	case TagByteArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -131,14 +131,14 @@ func (m *StringifiedMessage) encode(d *Decoder, sb *strings.Builder, tagType byt
 		}
 		sb.WriteString("]")
 	case TagIntArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
 		sb.WriteString("[I;")
 		first := true
 		for i := 0; i < int(aryLen); i++ {
-			v, err := d.readInt32()
+			v, err := d.readInt()
 			if err != nil {
 				return err
 			}
@@ -151,14 +151,14 @@ func (m *StringifiedMessage) encode(d *Decoder, sb *strings.Builder, tagType byt
 		}
 		sb.WriteString("]")
 	case TagLongArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
 		first := true
 		sb.WriteString("[L;")
 		for i := 0; i < int(aryLen); i++ {
-			v, err := d.readInt64()
+			v, err := d.readLong()
 			if err != nil {
 				return err
 			}
@@ -175,7 +175,7 @@ func (m *StringifiedMessage) encode(d *Decoder, sb *strings.Builder, tagType byt
 		if err != nil {
 			return err
 		}
-		listLen, err := d.readInt32()
+		listLen, err := d.readInt()
 		if err != nil {
 			return err
 		}

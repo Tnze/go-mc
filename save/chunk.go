@@ -29,7 +29,7 @@ type Chunk struct {
 }
 
 type Section struct {
-	Y           byte
+	Y           int8
 	BlockStates struct {
 		Palette []BlockState `nbt:"palette"`
 		Data    []int64      `nbt:"data"`

@@ -83,7 +83,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		return ErrEND
 
 	case TagByte:
-		value, err := d.r.ReadByte()
+		value, err := d.readByte()
 		if err != nil {
 			return err
 		}
@@ -99,7 +99,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagShort:
-		value, err := d.readInt16()
+		value, err := d.readShort()
 		if err != nil {
 			return err
 		}
@@ -115,7 +115,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagInt:
-		value, err := d.readInt32()
+		value, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagFloat:
-		vInt, err := d.readInt32()
+		vInt, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -148,7 +148,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagLong:
-		value, err := d.readInt64()
+		value, err := d.readLong()
 		if err != nil {
 			return err
 		}
@@ -164,7 +164,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagDouble:
-		vInt, err := d.readInt64()
+		vInt, err := d.readLong()
 		if err != nil {
 			return err
 		}
@@ -201,7 +201,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagByteArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -223,7 +223,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagIntArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -238,7 +238,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 
 		buf := reflect.MakeSlice(vt, int(aryLen), int(aryLen))
 		for i := 0; i < int(aryLen); i++ {
-			value, err := d.readInt32()
+			value, err := d.readInt()
 			if err != nil {
 				return err
 			}
@@ -247,7 +247,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		val.Set(buf)
 
 	case TagLongArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -262,7 +262,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 
 		buf := reflect.MakeSlice(vt, int(aryLen), int(aryLen))
 		for i := 0; i < int(aryLen); i++ {
-			value, err := d.readInt64()
+			value, err := d.readLong()
 			if err != nil {
 				return err
 			}
@@ -275,7 +275,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		if err != nil {
 			return err
 		}
-		listLen, err := d.readInt32()
+		listLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -465,7 +465,7 @@ func (d *Decoder) rawRead(tagType byte) error {
 	default:
 		return fmt.Errorf("unknown to read 0x%02x", tagType)
 	case TagByte:
-		_, err := d.r.ReadByte()
+		_, err := d.readByte()
 		return err
 	case TagString:
 		_, err := d.readString()
@@ -480,7 +480,7 @@ func (d *Decoder) rawRead(tagType byte) error {
 		_, err := io.ReadFull(d.r, buf[:8])
 		return err
 	case TagByteArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -489,23 +489,23 @@ func (d *Decoder) rawRead(tagType byte) error {
 			return err
 		}
 	case TagIntArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
 		for i := 0; i < int(aryLen); i++ {
-			if _, err := d.readInt32(); err != nil {
+			if _, err := d.readInt(); err != nil {
 				return err
 			}
 		}
 
 	case TagLongArray:
-		aryLen, err := d.readInt32()
+		aryLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
 		for i := 0; i < int(aryLen); i++ {
-			if _, err := d.readInt64(); err != nil {
+			if _, err := d.readLong(); err != nil {
 				return err
 			}
 		}
@@ -515,7 +515,7 @@ func (d *Decoder) rawRead(tagType byte) error {
 		if err != nil {
 			return err
 		}
-		listLen, err := d.readInt32()
+		listLen, err := d.readInt()
 		if err != nil {
 			return err
 		}
@@ -554,20 +554,26 @@ func (d *Decoder) readTag() (tagType byte, tagName string, err error) {
 	return
 }
 
-func (d *Decoder) readInt16() (int16, error) {
+func (d *Decoder) readByte() (int8, error) {
+	b, err := d.r.ReadByte()
+	// TagByte is signed byte (that's what in Java), so we need to convert to int8
+	return int8(b), err
+}
+
+func (d *Decoder) readShort() (int16, error) {
 	var data [2]byte
 	_, err := io.ReadFull(d.r, data[:])
 	return int16(data[0])<<8 | int16(data[1]), err
 }
 
-func (d *Decoder) readInt32() (int32, error) {
+func (d *Decoder) readInt() (int32, error) {
 	var data [4]byte
 	_, err := io.ReadFull(d.r, data[:])
 	return int32(data[0])<<24 | int32(data[1])<<16 |
 		int32(data[2])<<8 | int32(data[3]), err
 }
 
-func (d *Decoder) readInt64() (int64, error) {
+func (d *Decoder) readLong() (int64, error) {
 	var data [8]byte
 	_, err := io.ReadFull(d.r, data[:])
 	return int64(data[0])<<56 | int64(data[1])<<48 |
@@ -577,7 +583,7 @@ func (d *Decoder) readInt64() (int64, error) {
 }
 
 func (d *Decoder) readString() (string, error) {
-	length, err := d.readInt16()
+	length, err := d.readShort()
 	if err != nil {
 		return "", err
 	} else if length < 0 {
