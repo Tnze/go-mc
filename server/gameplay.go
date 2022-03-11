@@ -45,10 +45,10 @@ type PacketHandler struct {
 type packetHandlerFunc func(player *Player, packet Packet758) error
 
 //go:embed DimensionCodec.snbt
-var dimensionCodecSNBT string
+var dimensionCodecSNBT nbt.StringifiedMessage
 
 //go:embed Dimension.snbt
-var dimensionSNBT string
+var dimensionSNBT nbt.StringifiedMessage
 
 func NewGame(dim Level, components ...Component) *Game {
 	g := &Game{
@@ -91,8 +91,8 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		pk.Array([]pk.Identifier{
 			pk.Identifier(dimInfo.Name),
 		}),
-		pk.NBT(nbt.StringifiedMessage(dimensionCodecSNBT)),
-		pk.NBT(nbt.StringifiedMessage(dimensionSNBT)),
+		pk.NBT(dimensionCodecSNBT),
+		pk.NBT(dimensionSNBT),
 		pk.Identifier(dimInfo.Name), // World Name
 		pk.Long(dimInfo.HashedSeed), // Hashed seed
 		pk.VarInt(0),                // Max Players (Ignored by client)

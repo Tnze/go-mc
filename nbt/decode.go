@@ -23,6 +23,9 @@ func Unmarshal(data []byte, v interface{}) error {
 // For example, you can decode an NBT value which root tag is TagCompound(0x0a)
 // into a struct or map, but not a string.
 //
+// If v implement Unmarshaler, the method will be called and override the default behavior.
+// Else if v implement encoding.TextUnmarshaler, the value will be encoded as TagString.
+//
 // This method also return tag name of the root tag.
 // In real world, it is often empty, but the API should allow you to get it when ever you want.
 func (d *Decoder) Decode(v interface{}) (string, error) {

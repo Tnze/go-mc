@@ -208,29 +208,6 @@ func TestEncoder_Encode_map(t *testing.T) {
 	}
 }
 
-func TestRawMessage_Encode(t *testing.T) {
-	data := []byte{
-		TagCompound, 0, 2, 'a', 'b',
-		TagInt, 0, 3, 'K', 'e', 'y', 0, 0, 0, 12,
-		TagString, 0, 5, 'V', 'a', 'l', 'u', 'e', 0, 4, 'T', 'n', 'z', 'e',
-		TagEnd,
-	}
-	var container struct {
-		Key   int32
-		Value RawMessage
-	}
-	container.Key = 12
-	container.Value.Type = TagString
-	container.Value.Data = []byte{0, 4, 'T', 'n', 'z', 'e'}
-
-	var buf bytes.Buffer
-	if err := NewEncoder(&buf).Encode(container, "ab"); err != nil {
-		t.Fatalf("Encode error: %v", err)
-	} else if !bytes.Equal(data, buf.Bytes()) {
-		t.Fatalf("Encode error: want %v, get: %v", data, buf.Bytes())
-	}
-}
-
 func TestEncoder_Encode_interface(t *testing.T) {
 	data := map[string]interface{}{
 		"Key":   int32(12),
@@ -251,5 +228,20 @@ func TestEncoder_Encode_interface(t *testing.T) {
 
 	if container.Key != 12 || container.Value != "Tnze" {
 		t.Fatalf("want: (%v, %v), but got (%v, %v)", 12, "Tnze", container.Key, container.Value)
+	}
+}
+
+func TestEncoder_Encode_textMarshaler(t *testing.T) {
+	var b TextBool = true
+	data, err := Marshal(&b)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wants := []byte{
+		TagString, 0, 0,
+		0, 4, 't', 'r', 'u', 'e',
+	}
+	if !bytes.Equal(data, wants) {
+		t.Errorf("get %v, want %v", data, wants)
 	}
 }

@@ -2,6 +2,7 @@ package nbt
 
 import (
 	"bytes"
+	"encoding"
 	"errors"
 	"fmt"
 	"io"
@@ -37,8 +38,8 @@ func NewEncoder(w io.Writer) *Encoder {
 // expect `[]int8`, `[]int32`, `[]int64`, `[]uint8`, `[]uint32` and `[]uint64`,
 // which TagByteArray, TagIntArray and TagLongArray.
 // To force encode them as TagList, add a struct field tag.
-// You haven't ability to encode them as TagList as root element at this time,
-// issue or pull-request is welcome.
+//
+//
 func (e *Encoder) Encode(v interface{}, tagName string) error {
 	t, val := getTagType(reflect.ValueOf(v))
 	return e.marshal(val, t, tagName)
@@ -129,10 +130,22 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 		}
 
 	case TagString:
-		if err := e.writeInt16(int16(val.Len())); err != nil {
+		var str []byte
+		if val.NumMethod() > 0 && val.CanInterface() {
+			if t, ok := val.Interface().(encoding.TextMarshaler); ok {
+				var err error
+				str, err = t.MarshalText()
+				if err != nil {
+					return err
+				}
+			}
+		} else {
+			str = []byte(val.String())
+		}
+		if err := e.writeInt16(int16(len(str))); err != nil {
 			return err
 		}
-		_, err := e.w.Write([]byte(val.String()))
+		_, err := e.w.Write(str)
 		return err
 
 	case TagCompound:
@@ -205,17 +218,23 @@ func getTagType(v reflect.Value) (byte, reflect.Value) {
 			v.Set(reflect.New(v.Type().Elem()))
 		}
 		if v.Type().NumMethod() > 0 && v.CanInterface() {
-			if u, ok := v.Interface().(Marshaler); ok {
+			i := v.Interface()
+			if u, ok := i.(Marshaler); ok {
 				return u.TagType(), v
+			} else if _, ok := i.(encoding.TextMarshaler); ok {
+				return TagString, v
 			}
 		}
 
 		v = v.Elem()
 	}
 
-	if v.CanInterface() {
-		if encoder, ok := v.Interface().(Marshaler); ok {
-			return encoder.TagType(), v
+	if v.Type().NumMethod() > 0 && v.CanInterface() {
+		i := v.Interface()
+		if u, ok := i.(Marshaler); ok {
+			return u.TagType(), v
+		} else if _, ok := i.(encoding.TextMarshaler); ok {
+			return TagString, v
 		}
 	}
 

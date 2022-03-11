@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"compress/gzip"
 	_ "embed"
+	"go/format"
 	"log"
 	"os"
 	"strings"
@@ -20,7 +23,7 @@ var temp = template.Must(template.
 		"UpperTheFirst": UpperTheFirst,
 		"ToGoTypeName":  ToGoTypeName,
 		"GetType":       GetType,
-		"Generator":     func() string { return "generator/main.go" },
+		"Generator":     func() string { return "generator/blocks/main.go" },
 	}).
 	Parse(tempSource))
 
@@ -45,25 +48,31 @@ func readBlockStates(states *[]State) {
 	}
 	defer f.Close()
 
+	r, err := gzip.NewReader(f)
+	if err != nil {
+		log.Panic(err)
+	}
+
 	// parse the nbt format
-	if _, err := nbt.NewDecoder(f).Decode(states); err != nil {
+	if _, err := nbt.NewDecoder(r).Decode(states); err != nil {
 		log.Panic(err)
 	}
 }
 
 func genSourceFile(states []State) {
-	file, err := os.Create("blocks.go")
-	if err != nil {
+	var source bytes.Buffer
+	if err := temp.Execute(&source, states); err != nil {
 		log.Panic(err)
-	}
-	defer file.Close()
-	// clean up the file
-	if err := file.Truncate(0); err != nil {
-		return
 	}
 
-	if err := temp.Execute(file, states); err != nil {
-		log.Panic(err)
+	formattedSource, err := format.Source(source.Bytes())
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.WriteFile("blocks.go", formattedSource, 0666)
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -79,7 +88,6 @@ func ToGoTypeName(name string) string {
 var typeMaps = map[string]string{
 	"BooleanProperty":   "Boolean",
 	"DirectionProperty": "Direction",
-	"EnumProperty":      "string",
 	"IntegerProperty":   "Integer",
 }
 

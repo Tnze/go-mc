@@ -2,7 +2,7 @@ package block
 
 import (
 	"bytes"
-	"compress/zlib"
+	"compress/gzip"
 	_ "embed"
 	"fmt"
 	"math/bits"
@@ -14,7 +14,7 @@ type Block interface {
 	ID() string
 }
 
-// This file stores all possible block states into a TAG_List with zlib compressed.
+// This file stores all possible block states into a TAG_List with gzip compressed.
 //go:embed block_states.nbt
 var blockStates []byte
 
@@ -33,7 +33,7 @@ type State struct {
 func init() {
 	var states []State
 	// decompress
-	z, err := zlib.NewReader(bytes.NewReader(blockStates))
+	z, err := gzip.NewReader(bytes.NewReader(blockStates))
 	if err != nil {
 		panic(err)
 	}
