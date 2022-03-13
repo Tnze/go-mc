@@ -17,6 +17,7 @@ func TestTree2_Insert(t *testing.T) {
 		{Upper: Vec2{102, 1}, Lower: Vec2{101, 0}},
 		{Upper: Vec2{111, 1}, Lower: Vec2{110, 0}},
 		{Upper: Vec2{112, 1}, Lower: Vec2{111, 0}},
+		{Upper: Vec2{1, 1}, Lower: Vec2{-1, -1}},
 	}
 	var bvh Tree2
 	for _, aabb := range aabbs {
@@ -26,6 +27,9 @@ func TestTree2_Insert(t *testing.T) {
 		toString(&sb, bvh.root)
 		t.Log(sb.String())
 	}
+	bvh.Find(Vec2{0.5, 0.5}, func(n *Node2) {
+		t.Logf("find! %v", n.box)
+	})
 }
 
 func TestTree2_Insert2_notLinkedTable(t *testing.T) {
@@ -83,11 +87,12 @@ func BenchmarkTree2_Insert(b *testing.B) {
 	const size = 25
 	// generate test cases
 	aabbs := make([]AABB2, b.N)
+	poses := make([]Vec2, b.N)
 	for i := range aabbs {
-		pos := Vec2{rand.Float64() * 1e4, rand.Float64() * 1e4}
+		poses[i] = Vec2{rand.Float64() * 1e4, rand.Float64() * 1e4}
 		aabbs[i] = AABB2{
-			Upper: Vec2{pos[0] + size, pos[0] + size},
-			Lower: Vec2{pos[0] - size, pos[0] - size},
+			Upper: Vec2{poses[i][0] + size, poses[i][0] + size},
+			Lower: Vec2{poses[i][0] - size, poses[i][0] - size},
 		}
 	}
 	b.ResetTimer()
@@ -95,5 +100,8 @@ func BenchmarkTree2_Insert(b *testing.B) {
 	var bvh Tree2
 	for _, v := range aabbs {
 		bvh.Insert(v)
+	}
+	for _, v := range poses {
+		bvh.Find(v, func(n *Node2) {})
 	}
 }

@@ -14,6 +14,11 @@ func (v Vec2) Min(other Vec2) Vec2 { return Vec2{math.Min(v[0], other[0]), math.
 
 type AABB2 struct{ Upper, Lower Vec2 }
 
+func (aabb AABB2) WithIn(point Vec2) bool {
+	return aabb.Lower[0] < point[0] && point[0] < aabb.Upper[0] &&
+		aabb.Lower[1] < point[1] && point[1] < aabb.Upper[1]
+}
+
 func (aabb AABB2) Union(other AABB2) AABB2 {
 	return AABB2{
 		Upper: aabb.Upper.Max(other.Upper),
@@ -28,19 +33,21 @@ func (aabb AABB2) Surface() float64 {
 
 type Node2 struct {
 	box      AABB2
+	Value    interface{}
 	parent   *Node2
 	children [2]*Node2
 	isLeaf   bool
 }
 
 func (n *Node2) findAnotherChild(not *Node2) *Node2 {
-	if v := n.children[0]; v != nil && v != not {
-		return v
+	if n.isLeaf {
+		return nil
+	} else if n.children[0] == not {
+		return n.children[1]
+	} else if n.children[1] == not {
+		return n.children[0]
 	}
-	if v := n.children[1]; v != nil && v != not {
-		return v
-	}
-	return nil
+	panic("unreachable, please make sure the 'not' is the n's child")
 }
 
 type Tree2 struct {
@@ -115,6 +122,22 @@ func (t *Tree2) Insert(leaf AABB2) (n *Node2) {
 	return
 }
 
+func (t *Tree2) Find(point Vec2, f func(*Node2)) {
+	t.root.lookup(point, f)
+}
+
+func (n *Node2) lookup(point Vec2, f func(node2 *Node2)) {
+	if n == nil || !n.box.WithIn(point) {
+		return
+	}
+	if n.isLeaf {
+		f(n)
+	} else {
+		n.children[0].lookup(point, f)
+		n.children[1].lookup(point, f)
+	}
+}
+
 type searchHeap []searchItem
 type searchItem struct {
 	pointer       *Node2
@@ -122,10 +145,8 @@ type searchItem struct {
 	inheritedCost float64
 }
 
-func (h searchHeap) Len() int { return len(h) }
-func (h searchHeap) Less(i, j int) bool {
-	return h[i].pointer.box.Surface() < h[j].pointer.box.Surface()
-}
+func (h searchHeap) Len() int            { return len(h) }
+func (h searchHeap) Less(i, j int) bool  { return h[i].inheritedCost < h[j].inheritedCost }
 func (h searchHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
 func (h *searchHeap) Push(x interface{}) { *h = append(*h, x.(searchItem)) }
 func (h *searchHeap) Pop() interface{} {
