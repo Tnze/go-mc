@@ -48,7 +48,7 @@ type BlockState struct {
 }
 
 func (s *BlockState) Block() block.Block {
-	b, ok := block.DefaultBlock(s.Name)
+	b, ok := block.FromID[s.Name]
 	if !ok {
 		return nil
 	}

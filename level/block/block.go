@@ -44,7 +44,7 @@ func init() {
 	ToStateID = make(map[Block]int, len(states))
 	StateList = make([]Block, 0, len(states))
 	for _, state := range states {
-		block := fromID[state.Name]
+		block := FromID[state.Name]
 		if state.Properties.Type != nbt.TagEnd {
 			err := state.Properties.Unmarshal(&block)
 			if err != nil {
@@ -58,9 +58,4 @@ func init() {
 		StateList = append(StateList, block)
 	}
 	BitsPerBlock = bits.Len(uint(len(StateList)))
-}
-
-func DefaultBlock(id string) (b Block, ok bool) {
-	b, ok = fromID[id]
-	return
 }

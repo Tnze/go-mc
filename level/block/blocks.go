@@ -3664,7 +3664,7 @@ func (RawGoldBlock) ID() string                { return "minecraft:raw_gold_bloc
 func (PottedAzaleaBush) ID() string            { return "minecraft:potted_azalea_bush" }
 func (PottedFloweringAzaleaBush) ID() string   { return "minecraft:potted_flowering_azalea_bush" }
 
-var fromID = map[string]Block{
+var FromID = map[string]Block{
 	"minecraft:air":                                Air{},
 	"minecraft:stone":                              Stone{},
 	"minecraft:granite":                            Granite{},
