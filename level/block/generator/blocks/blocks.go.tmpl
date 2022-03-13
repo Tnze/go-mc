@@ -12,6 +12,6 @@ type (
 {{- range .}}
 func ({{.Name | ToGoTypeName}}) ID() string { return {{.Name | printf "%q"}} }
 {{- end}}
-var fromID = map[string]Block { {{- range .}}
+var FromID = map[string]Block { {{- range .}}
 	{{.Name | printf "%#v"}}: {{.Name | ToGoTypeName}}{},{{end}}
 }

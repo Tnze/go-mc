@@ -274,6 +274,11 @@ func (l *linearPalette) ReadFrom(r io.Reader) (n int64, err error) {
 	if n, err = size.ReadFrom(r); err != nil {
 		return
 	}
+	if int(size) > cap(l.values) {
+		l.values = make([]state, size)
+	} else {
+		l.values = l.values[:size]
+	}
 	for i := 0; i < int(size); i++ {
 		if nn, err := value.ReadFrom(r); err != nil {
 			return n + nn, err

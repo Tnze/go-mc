@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/level"
@@ -33,6 +34,8 @@ func main() {
 		log.Fatalf("Set server info error: %v", err)
 	}
 
+	keepAlive := server.NewKeepAlive()
+	playerInfo := server.NewPlayerInfo(time.Second, keepAlive)
 	defaultDimension, err := loadAllRegions(*regionPath)
 	if err != nil {
 		log.Fatalf("Load chunks fail: %v", err)
@@ -60,7 +63,8 @@ func main() {
 	game := server.NewGame(
 		defaultDimension,
 		playerList,
-		server.NewKeepAlive(),
+		playerInfo,
+		keepAlive,
 		server.NewGlobalChat(),
 		commands,
 	)

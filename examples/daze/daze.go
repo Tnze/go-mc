@@ -5,6 +5,8 @@ package main
 import (
 	"errors"
 	"flag"
+	"github.com/Tnze/go-mc/bot/world"
+	"github.com/Tnze/go-mc/level"
 	"log"
 	"time"
 
@@ -22,6 +24,7 @@ import (
 var address = flag.String("address", "127.0.0.1", "The server address")
 var client *bot.Client
 var player *basic.Player
+var worldManager *world.World
 var screenManager *screen.Manager
 
 func main() {
@@ -31,11 +34,16 @@ func main() {
 	client.Auth.Name = "Daze"
 	player = basic.NewPlayer(client, basic.DefaultSettings)
 	basic.EventsListener{
-		GameStart:  onGameStart,
-		ChatMsg:    onChatMsg,
-		Disconnect: onDisconnect,
-		Death:      onDeath,
+		GameStart:    onGameStart,
+		ChatMsg:      onChatMsg,
+		Disconnect:   onDisconnect,
+		HealthChange: nil,
+		Death:        onDeath,
 	}.Attach(client)
+	worldManager = world.NewWorld(client, player, world.EventsListener{
+		LoadChunk:   onChunkLoad,
+		UnloadChunk: onChunkUnload,
+	})
 	screenManager = screen.NewManager(client, screen.EventsListener{
 		Open:    nil,
 		SetSlot: onScreenSlotChange,
@@ -89,6 +97,16 @@ func onGameStart() error {
 
 func onChatMsg(c chat.Message, _ byte, _ uuid.UUID) error {
 	log.Println("Chat:", c) // output chat message without any format code (like color or bold)
+	return nil
+}
+
+func onChunkLoad(pos level.ChunkPos) error {
+	log.Println("Load chunk:", pos)
+	return nil
+}
+
+func onChunkUnload(pos level.ChunkPos) error {
+	log.Println("Unload chunk:", pos)
 	return nil
 }
 

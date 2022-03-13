@@ -48,12 +48,11 @@ func NewKeepAlive() (k *KeepAlive) {
 	}
 }
 
-func (k *KeepAlive) AddPlayerDelayUpdateHandler(f func(p *Player, delay time.Duration)) *KeepAlive {
+func (k *KeepAlive) AddPlayerDelayUpdateHandler(f func(p *Player, delay time.Duration)) {
 	if k.updatePlayerDelay != nil {
 		panic("add player update handler twice")
 	}
 	k.updatePlayerDelay = f
-	return k
 }
 
 // Init implement Component for KeepAlive

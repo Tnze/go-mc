@@ -28,10 +28,7 @@ func (c *Client) JoinServer(addr string) (err error) {
 
 // JoinServerWithDialer is similar to JoinServer but using a Dialer.
 func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
-	var dialer *mcnet.Dialer
-	if d != nil {
-		dialer = &mcnet.Dialer{Dialer: *d}
-	}
+	dialer := (*mcnet.Dialer)(d)
 	return c.join(context.Background(), dialer, addr)
 }
 

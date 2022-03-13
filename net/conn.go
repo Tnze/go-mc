@@ -62,9 +62,7 @@ func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 	return DefaultDialer.DialMCContext(ctx, addr)
 }
 
-type Dialer struct {
-	net.Dialer
-}
+type Dialer net.Dialer
 
 func (d *Dialer) resolver() *net.Resolver {
 	if d != nil && d.Resolver != nil {
@@ -122,7 +120,7 @@ func (d *Dialer) DialMCContext(ctx context.Context, addr string) (*Conn, error) 
 				defer cancel()
 			}
 		}
-		conn, err := d.DialContext(dialCtx, "tcp", addr)
+		conn, err := (*net.Dialer)(d).DialContext(dialCtx, "tcp", addr)
 		if err != nil {
 			if firstErr == nil {
 				firstErr = err

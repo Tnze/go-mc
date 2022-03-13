@@ -256,19 +256,31 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 			vt = reflect.TypeOf([]int64{}) // pass
 		} else if vt.Kind() != reflect.Slice {
 			return errors.New("cannot parse TagLongArray to " + vt.String() + ", it must be a slice")
-		} else if val.Type().Elem().Kind() != reflect.Int64 {
+		}
+		switch val.Type().Elem().Kind() {
+		case reflect.Int64:
+			buf := reflect.MakeSlice(vt, int(aryLen), int(aryLen))
+			for i := 0; i < int(aryLen); i++ {
+				value, err := d.readLong()
+				if err != nil {
+					return err
+				}
+				buf.Index(i).SetInt(value)
+			}
+			val.Set(buf)
+		case reflect.Uint64:
+			buf := reflect.MakeSlice(vt, int(aryLen), int(aryLen))
+			for i := 0; i < int(aryLen); i++ {
+				value, err := d.readLong()
+				if err != nil {
+					return err
+				}
+				buf.Index(i).SetUint(uint64(value))
+			}
+			val.Set(buf)
+		default:
 			return errors.New("cannot parse TagLongArray to " + vt.String())
 		}
-
-		buf := reflect.MakeSlice(vt, int(aryLen), int(aryLen))
-		for i := 0; i < int(aryLen); i++ {
-			value, err := d.readLong()
-			if err != nil {
-				return err
-			}
-			buf.Index(i).SetInt(value)
-		}
-		val.Set(buf)
 
 	case TagList:
 		listType, err := d.r.ReadByte()

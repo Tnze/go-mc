@@ -56,6 +56,7 @@ func NewGame(dim Level, components ...Component) *Game {
 		components: components,
 		handlers:   make(map[int32][]*PacketHandler),
 	}
+	dim.Init(g)
 	for _, v := range components {
 		v.Init(g)
 	}

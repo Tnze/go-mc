@@ -10,19 +10,40 @@ import (
 	"unsafe"
 
 	"github.com/Tnze/go-mc/level/block"
+	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/save"
 )
 
 type ChunkPos struct{ X, Z int }
+
+func (c ChunkPos) WriteTo(w io.Writer) (n int64, err error) {
+	n, err = pk.Int(c.X).WriteTo(w)
+	if err != nil {
+		return
+	}
+	n1, err := pk.Int(c.Z).WriteTo(w)
+	return n + n1, err
+}
+
+func (c *ChunkPos) ReadFrom(r io.Reader) (n int64, err error) {
+	var x, z pk.Int
+	if n, err = x.ReadFrom(r); err != nil {
+		return n, err
+	}
+	var n1 int64
+	if n1, err = z.ReadFrom(r); err != nil {
+		return n + n1, err
+	}
+	*c = ChunkPos{int(x), int(z)}
+	return n + n1, nil
+}
+
 type Chunk struct {
 	sync.Mutex
-	Sections   []Section
-	HeightMaps HeightMaps
-}
-type HeightMaps struct {
-	MotionBlocking *BitStorage
-	WorldSurface   *BitStorage
+	Sections    []Section
+	HeightMaps  HeightMaps
+	BlockEntity []BlockEntity
 }
 
 func EmptyChunk(secs int) *Chunk {
@@ -122,7 +143,7 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 				blockCount++
 			}
 			var ok bool
-			stateRawPalette[i], ok = block.ToStateID(b)
+			stateRawPalette[i], ok = block.ToStateID[b]
 			if !ok {
 				panic(fmt.Errorf("state id not found: %#v", b))
 			}
@@ -176,7 +197,7 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 			WorldSurface:   c.HeightMaps.MotionBlocking.Raw(),
 		}),
 		pk.ByteArray(data),
-		pk.VarInt(0), // TODO: Block Entity
+		pk.Array(c.BlockEntity),
 		&lightData{
 			SkyLightMask:   make(pk.BitSet, (16*16*16-1)>>6+1),
 			BlockLightMask: make(pk.BitSet, (16*16*16-1)>>6+1),
@@ -186,15 +207,84 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 	}.WriteTo(w)
 }
 
+func (c *Chunk) ReadFrom(r io.Reader) (int64, error) {
+	var (
+		heightmaps struct {
+			MotionBlocking []uint64 `nbt:"MOTION_BLOCKING"`
+			WorldSurface   []uint64 `nbt:"WORLD_SURFACE"`
+		}
+		data pk.ByteArray
+	)
+
+	n, err := pk.Tuple{
+		pk.NBT(&heightmaps),
+		&data,
+		pk.Array(&c.BlockEntity),
+		&lightData{
+			SkyLightMask:   make(pk.BitSet, (16*16*16-1)>>6+1),
+			BlockLightMask: make(pk.BitSet, (16*16*16-1)>>6+1),
+			SkyLight:       []pk.ByteArray{},
+			BlockLight:     []pk.ByteArray{},
+		},
+	}.ReadFrom(r)
+	if err != nil {
+		return n, err
+	}
+
+	err = c.PutData(data)
+	return n, err
+}
+
 func (c *Chunk) Data() ([]byte, error) {
 	var buff bytes.Buffer
-	for _, section := range c.Sections {
-		_, err := section.WriteTo(&buff)
+	for i := range c.Sections {
+		_, err := c.Sections[i].WriteTo(&buff)
 		if err != nil {
 			return nil, err
 		}
 	}
 	return buff.Bytes(), nil
+}
+
+func (c *Chunk) PutData(data []byte) error {
+	r := bytes.NewReader(data)
+	for i := range c.Sections {
+		_, err := c.Sections[i].ReadFrom(r)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+type HeightMaps struct {
+	MotionBlocking *BitStorage
+	WorldSurface   *BitStorage
+}
+
+type BlockEntity struct {
+	XZ   int8
+	Y    int16
+	Type int32
+	Data nbt.RawMessage
+}
+
+func (b BlockEntity) WriteTo(w io.Writer) (n int64, err error) {
+	return pk.Tuple{
+		pk.Byte(b.XZ),
+		pk.Short(b.Y),
+		pk.VarInt(b.Type),
+		pk.NBT(b.Data),
+	}.WriteTo(w)
+}
+
+func (b *BlockEntity) ReadFrom(r io.Reader) (n int64, err error) {
+	return pk.Tuple{
+		(*pk.Byte)(&b.XZ),
+		(*pk.Short)(&b.Y),
+		(*pk.VarInt)(&b.Type),
+		pk.NBT(&b.Data),
+	}.ReadFrom(r)
 }
 
 type Section struct {
@@ -207,7 +297,10 @@ func (s *Section) GetBlock(i int) int {
 	return s.States.Get(i)
 }
 func (s *Section) SetBlock(i int, v int) {
-	b, _ := block.FromStateID(s.States.Get(i))
+	var b block.Block
+	if stateID := s.States.Get(i); stateID >= 0 && stateID < len(block.StateList) {
+		b = block.StateList[stateID]
+	}
 	if isAir(b) {
 		s.blockCount--
 	}
@@ -258,6 +351,20 @@ func (l *lightData) WriteTo(w io.Writer) (int64, error) {
 		pk.Array(l.SkyLight),
 		pk.Array(l.BlockLight),
 	}.WriteTo(w)
+}
+
+func (l *lightData) ReadFrom(r io.Reader) (int64, error) {
+	var TrustEdges pk.Boolean
+	var RevSkyLightMask, RevBlockLightMask pk.BitSet
+	return pk.Tuple{
+		&TrustEdges, // Trust Edges
+		&l.SkyLightMask,
+		&l.BlockLightMask,
+		&RevSkyLightMask,
+		&RevBlockLightMask,
+		pk.Array(&l.SkyLight),
+		pk.Array(&l.BlockLight),
+	}.ReadFrom(r)
 }
 
 func isAir(b block.Block) bool {

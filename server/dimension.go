@@ -7,6 +7,7 @@ import (
 )
 
 type Level interface {
+	Init(g *Game)
 	Info() LevelInfo
 	PlayerJoin(p *Player)
 	PlayerQuit(p *Player)
@@ -19,18 +20,20 @@ type LevelInfo struct {
 
 type SimpleDim struct {
 	numOfSection int
-	Columns      map[level.ChunkPos]*level.Chunk
+	columns      map[level.ChunkPos]*level.Chunk
 }
+
+func (s *SimpleDim) Init(*Game) {}
 
 func NewSimpleDim(secs int) *SimpleDim {
 	return &SimpleDim{
 		numOfSection: secs,
-		Columns:      make(map[level.ChunkPos]*level.Chunk),
+		columns:      make(map[level.ChunkPos]*level.Chunk),
 	}
 }
 
 func (s *SimpleDim) LoadChunk(pos level.ChunkPos, c *level.Chunk) {
-	s.Columns[pos] = c
+	s.columns[pos] = c
 }
 
 func (s *SimpleDim) Info() LevelInfo {
@@ -41,28 +44,16 @@ func (s *SimpleDim) Info() LevelInfo {
 }
 
 func (s *SimpleDim) PlayerJoin(p *Player) {
-	for pos, column := range s.Columns {
+	for pos, column := range s.columns {
 		column.Lock()
 		packet := pk.Marshal(
 			packetid.ClientboundLevelChunkWithLight,
-			pk.Int(pos.X), pk.Int(pos.Z),
-			column,
+			pos, column,
 		)
 		column.Unlock()
 
 		p.WritePacket(Packet758(packet))
 	}
-
-	p.WritePacket(Packet758(pk.Marshal(
-		packetid.ClientboundPlayerPosition,
-		pk.Double(0), pk.Double(143), pk.Double(0),
-		pk.Float(0), pk.Float(0),
-		pk.Byte(0),
-		pk.VarInt(0),
-		pk.Boolean(true),
-	)))
 }
 
-func (s *SimpleDim) PlayerQuit(p *Player) {
-
-}
+func (s *SimpleDim) PlayerQuit(*Player) {}
