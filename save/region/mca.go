@@ -20,6 +20,7 @@ type Region struct {
 }
 
 // In calculate chunk's coordinates relative to region
+// 计算chunk在region中的相对坐标。即，除以32并取余。
 func In(cx, cz int) (int, int) {
 	// c & (32-1)
 	// is equal to:
