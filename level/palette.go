@@ -123,6 +123,7 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	if err != nil {
 		return
 	}
+	p.bits = p.config.bits(int(bits))
 	p.palette = p.config.create(int(bits))
 
 	nn, err := p.palette.ReadFrom(r)
@@ -205,8 +206,7 @@ func (p *PaletteContainer) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 type palette interface {
-	pk.FieldEncoder
-	pk.FieldDecoder
+	pk.Field
 	id(v state) (int, bool)
 	value(i int) state
 }
