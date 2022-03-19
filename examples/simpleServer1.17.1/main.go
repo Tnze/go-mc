@@ -162,12 +162,11 @@ var dimensionSNBT string
 
 func joinGame(conn net.Conn) error {
 	return conn.WritePacket(pk.Marshal(JoinGame,
-		pk.Int(0),          // EntityID
-		pk.Boolean(false),  // Is hardcore
-		pk.UnsignedByte(1), // Gamemode
-		pk.Byte(1),         // Previous Gamemode
-		pk.VarInt(1),       // World Count
-		pk.Ary{Len: 1, Ary: []pk.Identifier{"world"}},      // World Names
+		pk.Int(0),                          // EntityID
+		pk.Boolean(false),                  // Is hardcore
+		pk.UnsignedByte(1),                 // Gamemode
+		pk.Byte(1),                         // Previous Gamemode
+		pk.Array([]pk.Identifier{"world"}), // World Names
 		pk.NBT(nbt.StringifiedMessage(dimensionCodecSNBT)), // Dimension codec
 		pk.NBT(nbt.StringifiedMessage(dimensionSNBT)),      // Dimension
 		pk.Identifier("world"),                             // World Name

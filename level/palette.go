@@ -140,6 +140,14 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	return n, nil
 }
 
+func (p *PaletteContainer) WriteTo(w io.Writer) (n int64, err error) {
+	return pk.Tuple{
+		pk.UnsignedByte(p.bits),
+		p.palette,
+		p.data,
+	}.WriteTo(w)
+}
+
 type paletteCfg interface {
 	bits(int) int
 	create(bits int) palette
@@ -195,14 +203,6 @@ func (b biomesCfg) create(bits int) palette {
 	default:
 		return &globalPalette{}
 	}
-}
-
-func (p *PaletteContainer) WriteTo(w io.Writer) (n int64, err error) {
-	return pk.Tuple{
-		pk.UnsignedByte(p.bits),
-		p.palette,
-		p.data,
-	}.WriteTo(w)
 }
 
 type palette interface {

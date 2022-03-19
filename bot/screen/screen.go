@@ -96,15 +96,13 @@ func (m *Manager) onSetContentPacket(p pk.Packet) error {
 	var (
 		ContainerID pk.UnsignedByte
 		StateID     pk.VarInt
-		Count       pk.VarInt
 		SlotData    []Slot
 		CarriedItem Slot
 	)
 	if err := p.Scan(
 		&ContainerID,
 		&StateID,
-		&Count, pk.Ary{
-			Len: &Count,
+		pk.Ary[pk.VarInt, *pk.VarInt]{
 			Ary: &SlotData,
 		},
 		&CarriedItem,

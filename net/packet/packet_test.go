@@ -109,7 +109,6 @@ func ExamplePacket_Scan_joinGame() {
 		Hardcore       pk.Boolean
 		Gamemode       pk.UnsignedByte
 		PreGamemode    pk.Byte
-		WorldCount     pk.VarInt
 		WorldNames     = make([]pk.Identifier, 0) // This cannot replace with "var WorldNames []pk.Identifier" because "nil" has no type information
 		DimensionCodec struct {
 			DimensionType interface{} `nbt:"minecraft:dimension_type"`
@@ -127,9 +126,7 @@ func ExamplePacket_Scan_joinGame() {
 		&Hardcore,
 		&Gamemode,
 		&PreGamemode,
-		&WorldCount,
-		pk.Ary{
-			Len: &WorldCount,
+		pk.Ary[pk.VarInt, *pk.VarInt]{
 			Ary: &WorldNames,
 		},
 		pk.NBT(&DimensionCodec),

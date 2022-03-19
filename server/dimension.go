@@ -45,13 +45,10 @@ func (s *SimpleDim) Info() LevelInfo {
 
 func (s *SimpleDim) PlayerJoin(p *Player) {
 	for pos, column := range s.columns {
-		column.Lock()
 		packet := pk.Marshal(
 			packetid.ClientboundLevelChunkWithLight,
 			pos, column,
 		)
-		column.Unlock()
-
 		p.WritePacket(Packet758(packet))
 	}
 }

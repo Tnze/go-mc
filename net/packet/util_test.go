@@ -13,28 +13,18 @@ func ExampleAry_WriteTo() {
 	// The length is inferred from the length of Ary.
 	pk.Marshal(
 		0x00,
-		// It's important to remember that
-		// typically the responsibility of
-		// sending the length field
-		// is on you.
-		pk.VarInt(len(data)),
-		pk.Ary{
-			Len: len(data), // this line can be removed
+		pk.Ary[pk.VarInt, *pk.VarInt]{
 			Ary: data,
 		},
 	)
 }
 
 func ExampleAry_ReadFrom() {
-	var length pk.VarInt
 	var data []pk.String
 
 	var p pk.Packet // = conn.ReadPacket()
 	if err := p.Scan(
-
-		&length, // decode length first
-		pk.Ary{ // then decode Ary according to length
-			Len: &length,
+		pk.Ary[pk.VarInt, *pk.VarInt]{ // then decode Ary according to length
 			Ary: &data,
 		},
 	); err != nil {
@@ -43,18 +33,18 @@ func ExampleAry_ReadFrom() {
 }
 
 func TestAry_ReadFrom(t *testing.T) {
-	var num pk.Int = 2
 	var ary []pk.String
 	var bin = []byte{
+		0, 0, 0, 2,
 		4, 'T', 'n', 'z', 'e',
 		0,
 	}
-	var data = pk.Ary{Len: &num, Ary: &ary}
+	var data = pk.Ary[pk.Int, *pk.Int]{Ary: &ary}
 	if _, err := data.ReadFrom(bytes.NewReader(bin)); err != nil {
 		t.Fatal(err)
 	}
-	if len(ary) != int(num) {
-		t.Fatalf("length not match: %d != %d", len(ary), num)
+	if len(ary) != 2 {
+		t.Fatalf("length not match: %d != %d", len(ary), 2)
 	}
 	for i, v := range []string{"Tnze", ""} {
 		if string(ary[i]) != v {
@@ -70,23 +60,22 @@ func TestAry_WriteTo(t *testing.T) {
 		0x00, 0x00, 0x00, 0x02,
 		0x00, 0x00, 0x00, 0x03,
 	}
-	int3, long3, varint3, varlong3 := pk.Int(3), pk.Long(3), pk.VarInt(3), pk.VarLong(3)
-	for _, item := range [...]pk.Ary{
-		{Len: 3, Ary: []pk.Int{1, 2, 3}},
-		{Len: int3, Ary: []pk.Int{1, 2, 3}},
-		{Len: long3, Ary: []pk.Int{1, 2, 3}},
-		{Len: varint3, Ary: []pk.Int{1, 2, 3}},
-		{Len: varlong3, Ary: []pk.Int{1, 2, 3}},
-		{Len: &int3, Ary: []pk.Int{1, 2, 3}},
-		{Len: &long3, Ary: []pk.Int{1, 2, 3}},
-		{Len: &varint3, Ary: []pk.Int{1, 2, 3}},
-		{Len: &varlong3, Ary: []pk.Int{1, 2, 3}},
+	for _, item := range [...]pk.FieldEncoder{
+		pk.Ary[pk.Int, *pk.Int]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Int, *pk.Int]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Long, *pk.Long]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarInt, *pk.VarInt]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarLong, *pk.VarLong]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Int, *pk.Int]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Long, *pk.Long]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarInt, *pk.VarInt]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarLong, *pk.VarLong]{Ary: []pk.Int{1, 2, 3}},
 	} {
 		_, err := item.WriteTo(&buf)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !bytes.Equal(buf.Bytes(), want) {
+		if !bytes.Equal(buf.Bytes()[buf.Len()-3*4:], want) {
 			t.Fatalf("Ary encoding error: got %#v, want %#v", buf.Bytes(), want)
 		}
 		buf.Reset()
@@ -96,11 +85,12 @@ func TestAry_WriteTo(t *testing.T) {
 func TestAry_WriteTo_pointer(t *testing.T) {
 	var buf bytes.Buffer
 	want := []byte{
+		0x00, 0x00, 0x00, 0x03,
 		0x00, 0x00, 0x00, 0x01,
 		0x00, 0x00, 0x00, 0x02,
 		0x00, 0x00, 0x00, 0x03,
 	}
-	data := pk.Ary{Ary: &[]pk.Int{1, 2, 3}}
+	data := pk.Ary[pk.Int, *pk.Int]{Ary: &[]pk.Int{1, 2, 3}}
 
 	_, err := data.WriteTo(&buf)
 	if err != nil {
@@ -184,7 +174,6 @@ func ExampleOpt_ReadFrom_func() {
 func ExampleTuple_ReadFrom() {
 	// When you need to read an "Optional Array of X":
 	var has pk.Boolean
-	var arylen pk.Int
 	var ary []pk.String
 
 	var p pk.Packet // = conn.ReadPacket()
@@ -193,9 +182,7 @@ func ExampleTuple_ReadFrom() {
 		pk.Opt{
 			Has: &has,
 			Field: pk.Tuple{
-				&arylen,
-				pk.Ary{
-					Len: &arylen,
+				pk.Ary[pk.Int, *pk.Int]{
 					Ary: &ary,
 				},
 			},

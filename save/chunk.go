@@ -7,7 +7,6 @@ import (
 	"errors"
 	"io"
 
-	"github.com/Tnze/go-mc/level/block"
 	"github.com/Tnze/go-mc/nbt"
 )
 
@@ -45,19 +44,6 @@ type Section struct {
 type BlockState struct {
 	Name       string
 	Properties nbt.RawMessage
-}
-
-func (s *BlockState) Block() block.Block {
-	b, ok := block.FromID[s.Name]
-	if !ok {
-		return nil
-	}
-	if s.Properties.Type != nbt.TagEnd {
-		if err := s.Properties.Unmarshal(&b); err != nil {
-			return nil
-		}
-	}
-	return b
 }
 
 // Load read column data from []byte

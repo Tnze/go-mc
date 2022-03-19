@@ -40,9 +40,8 @@ func NewBitStorage(bits, length int, data []uint64) (b *BitStorage) {
 	}
 
 	b = &BitStorage{
-		mask:          1<<bits - 1,
-		bits:          bits,
-		length:        length,
+		mask: 1<<bits - 1,
+		bits: bits, length: length,
 		valuesPerLong: 64 / bits,
 	}
 	dataLen := calcBitStorageSize(bits, length)

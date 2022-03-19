@@ -56,9 +56,9 @@ func TestTree2_Find_vec(t *testing.T) {
 	t.Log(find(TouchPoint[Vec2d, AABBVec2d](Vec2d{1.5, 1.5})))
 	t.Log(find(TouchPoint[Vec2d, AABBVec2d](Vec2d{-1.5, 0})))
 
-	t.Log(find(TouchBound[Vec2d, AABBVec2d](AABBVec2d{Upper: Vec2d{1, 1}, Lower: Vec2d{-1, -1}})))
-	t.Log(find(TouchBound[Vec2d, AABBVec2d](AABBVec2d{Upper: Vec2d{1, 1}, Lower: Vec2d{1.5, 1.5}})))
-	t.Log(find(TouchBound[Vec2d, AABBVec2d](AABBVec2d{Upper: Vec2d{-1.5, 0.5}, Lower: Vec2d{-2.5, -0.5}})))
+	t.Log(find(TouchBound[AABBVec2d](AABBVec2d{Upper: Vec2d{1, 1}, Lower: Vec2d{-1, -1}})))
+	t.Log(find(TouchBound[AABBVec2d](AABBVec2d{Upper: Vec2d{1, 1}, Lower: Vec2d{1.5, 1.5}})))
+	t.Log(find(TouchBound[AABBVec2d](AABBVec2d{Upper: Vec2d{-1.5, 0.5}, Lower: Vec2d{-2.5, -0.5}})))
 }
 
 func BenchmarkTree_Insert(b *testing.B) {

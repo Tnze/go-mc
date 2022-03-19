@@ -12,18 +12,18 @@ import (
 )
 
 type PlayerInfo struct {
-	updateDelay chan playerInfo
+	updateDelay chan playerDelayInfo
 	join        chan *Player
 	quit        chan *Player
 	ticker      *time.Ticker
 }
 
-type playerInfo struct {
+type playerDelayInfo struct {
 	player *Player
 	delay  time.Duration
 }
 
-func (p *playerInfo) WriteTo(w io.Writer) (n int64, err error) {
+func (p *playerDelayInfo) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
 		pk.UUID(p.player.UUID),
 		pk.String(p.player.Name),
@@ -35,7 +35,7 @@ func (p *playerInfo) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 type playerInfoList struct {
-	list map[uuid.UUID]playerInfo
+	list map[uuid.UUID]playerDelayInfo
 }
 
 func (p *playerInfoList) WriteTo(w io.Writer) (n int64, err error) {
@@ -54,7 +54,7 @@ func (p *playerInfoList) WriteTo(w io.Writer) (n int64, err error) {
 	return
 }
 
-type playerDelayUpdate playerInfo
+type playerDelayUpdate playerDelayInfo
 
 func (p playerDelayUpdate) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
@@ -77,7 +77,7 @@ type PlayerDelaySource interface {
 
 func NewPlayerInfo(updateFreq time.Duration, delaySource PlayerDelaySource) *PlayerInfo {
 	p := &PlayerInfo{
-		updateDelay: make(chan playerInfo),
+		updateDelay: make(chan playerDelayInfo),
 		join:        make(chan *Player),
 		quit:        make(chan *Player),
 		ticker:      time.NewTicker(updateFreq),
@@ -91,12 +91,12 @@ func NewPlayerInfo(updateFreq time.Duration, delaySource PlayerDelaySource) *Pla
 func (p *PlayerInfo) Init(*Game) {}
 
 func (p *PlayerInfo) Run(ctx context.Context) {
-	players := &playerInfoList{list: make(map[uuid.UUID]playerInfo)}
+	players := &playerInfoList{list: make(map[uuid.UUID]playerDelayInfo)}
 	var delayBuffer []playerDelayUpdate
 	for {
 		select {
 		case player := <-p.join:
-			info := playerInfo{player: player, delay: 0}
+			info := playerDelayInfo{player: player, delay: 0}
 			pack := Packet758(pk.Marshal(
 				packetid.ClientboundPlayerInfo,
 				pk.VarInt(actionAddPlayer),
@@ -144,5 +144,5 @@ func (p *PlayerInfo) Run(ctx context.Context) {
 func (p *PlayerInfo) AddPlayer(player *Player)    { p.join <- player }
 func (p *PlayerInfo) RemovePlayer(player *Player) { p.quit <- player }
 func (p *PlayerInfo) onPlayerDelayUpdate(player *Player, delay time.Duration) {
-	p.updateDelay <- playerInfo{player: player, delay: delay}
+	p.updateDelay <- playerDelayInfo{player: player, delay: delay}
 }

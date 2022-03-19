@@ -17,20 +17,29 @@ import (
 // In some special cases, you might want to read an "Array of X" with a fix length.
 // So it's allowed to directly set an integer type Len, but not a pointer.
 //
-// Note that Ary DO NOT read or write the Len. You are controlling it manually.
-type Ary struct {
-	Len interface{} // Value or Pointer of any integer type, only needed in ReadFrom
+// Note that Ary DO read or write the Len. You aren't need to do so by your self.
+type Ary[T VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long, L interface {
+	*T
+	ReadFrom(r io.Reader) (n int64, err error)
+	WriteTo(w io.Writer) (n int64, err error)
+}] struct {
 	Ary interface{} // Slice or Pointer of Slice of FieldEncoder, FieldDecoder or both (Field)
 }
 
-func (a Ary) WriteTo(r io.Writer) (n int64, err error) {
+func (a Ary[T, L]) WriteTo(w io.Writer) (n int64, err error) {
 	array := reflect.ValueOf(a.Ary)
 	for array.Kind() == reflect.Ptr {
 		array = array.Elem()
 	}
+	Len := T(array.Len())
+	if nn, err := L(&Len).WriteTo(w); err != nil {
+		return n, err
+	} else {
+		n += nn
+	}
 	for i := 0; i < array.Len(); i++ {
 		elem := array.Index(i)
-		nn, err := elem.Interface().(FieldEncoder).WriteTo(r)
+		nn, err := elem.Interface().(FieldEncoder).WriteTo(w)
 		n += nn
 		if err != nil {
 			return n, err
@@ -39,24 +48,14 @@ func (a Ary) WriteTo(r io.Writer) (n int64, err error) {
 	return n, nil
 }
 
-func (a Ary) length() int {
-	v := reflect.ValueOf(a.Len)
-	for {
-		switch v.Kind() {
-		case reflect.Ptr:
-			v = v.Elem()
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			return int(v.Int())
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			return int(v.Uint())
-		default:
-			panic(errors.New("unsupported Len value: " + v.Type().String()))
-		}
+func (a Ary[T, L]) ReadFrom(r io.Reader) (n int64, err error) {
+	var Len T
+	if nn, err := L(&Len).ReadFrom(r); err != nil {
+		return nn, err
+	} else {
+		n += nn
 	}
-}
 
-func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
-	length := a.length()
 	array := reflect.ValueOf(a.Ary)
 	for array.Kind() == reflect.Ptr {
 		array = array.Elem()
@@ -64,10 +63,12 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 	if !array.CanAddr() {
 		panic(errors.New("the contents of the Ary are not addressable"))
 	}
-	if array.Cap() < length {
-		array.Set(reflect.MakeSlice(array.Type(), length, length))
+	if array.Cap() < int(Len) {
+		array.Set(reflect.MakeSlice(array.Type(), int(Len), int(Len)))
+	} else {
+		array.Slice(0, int(Len))
 	}
-	for i := 0; i < length; i++ {
+	for i := 0; i < int(Len); i++ {
 		elem := array.Index(i)
 		nn, err := elem.Addr().Interface().(FieldDecoder).ReadFrom(r)
 		n += nn
@@ -78,27 +79,8 @@ func (a Ary) ReadFrom(r io.Reader) (n int64, err error) {
 	return n, err
 }
 
-// Array return an Ary but handled the previous Length field
-//
-// Warning: unstable API, may change in later version
-func Array(array interface{}) Field {
-	var length VarInt
-
-	value := reflect.ValueOf(array)
-	for value.Kind() == reflect.Ptr {
-		value = value.Elem()
-	}
-
-	if array != nil {
-		length = VarInt(value.Len())
-	}
-	return Tuple{
-		&length,
-		Ary{
-			Len: &length,
-			Ary: array,
-		},
-	}
+func Array(ary interface{}) Field {
+	return Ary[VarInt, *VarInt]{Ary: ary}
 }
 
 type Opt struct {

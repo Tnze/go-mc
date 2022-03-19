@@ -2,11 +2,9 @@ package level
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"math/bits"
 	"strings"
-	"sync"
 	"unsafe"
 
 	"github.com/Tnze/go-mc/level/block"
@@ -40,7 +38,6 @@ func (c *ChunkPos) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 type Chunk struct {
-	sync.Mutex
 	Sections    []Section
 	HeightMaps  HeightMaps
 	BlockEntity []BlockEntity
@@ -135,18 +132,21 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 		statePalette := v.BlockStates.Palette
 		stateRawPalette := make([]int, len(statePalette))
 		for i, v := range statePalette {
-			b := v.Block()
-			if b == nil {
-				panic(fmt.Errorf("block not found: %#v", v))
+			b, ok := block.FromID[v.Name]
+			if !ok {
+				return nil
 			}
-			if !isAir(b) {
+			if v.Properties.Data != nil {
+				err := v.Properties.Unmarshal(&b)
+				if err != nil {
+					return nil
+				}
+			}
+			s := block.ToStateID[b]
+			if !isAir(s) {
 				blockCount++
 			}
-			var ok bool
-			stateRawPalette[i], ok = block.ToStateID[b]
-			if !ok {
-				panic(fmt.Errorf("state id not found: %#v", b))
-			}
+			stateRawPalette[i] = s
 		}
 
 		biomesData := *(*[]uint64)((unsafe.Pointer)(&v.Biomes.Data))
@@ -156,7 +156,7 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 			biomesRawPalette[i] = biomesIDs[strings.TrimPrefix(v, "minecraft:")]
 		}
 
-		i := int32(int8(v.Y)) - c.YPos
+		i := int32(v.Y) - c.YPos
 		sections[i].blockCount = blockCount
 		sections[i].States = NewStatesPaletteContainerWithData(16*16*16, stateData, stateRawPalette)
 		sections[i].Biomes = NewBiomesPaletteContainerWithData(4*4*4, biomesData, biomesRawPalette)
@@ -297,11 +297,7 @@ func (s *Section) GetBlock(i int) int {
 	return s.States.Get(i)
 }
 func (s *Section) SetBlock(i int, v int) {
-	var b block.Block
-	if stateID := s.States.Get(i); stateID >= 0 && stateID < len(block.StateList) {
-		b = block.StateList[stateID]
-	}
-	if isAir(b) {
+	if isAir(s.States.Get(i)) {
 		s.blockCount--
 	}
 	if v != 0 {
@@ -367,8 +363,8 @@ func (l *lightData) ReadFrom(r io.Reader) (int64, error) {
 	}.ReadFrom(r)
 }
 
-func isAir(b block.Block) bool {
-	switch b.(type) {
+func isAir(s int) bool {
+	switch block.StateList[s].(type) {
 	case block.Air, block.CaveAir, block.VoidAir:
 		return true
 	default:

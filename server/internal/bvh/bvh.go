@@ -191,7 +191,7 @@ func TouchPoint[Vec any, B interface{ WithIn(Vec) bool }](point Vec) func(bound 
 	}
 }
 
-func TouchBound[Vec any, B interface{ Touch(B) bool }](other B) func(bound B) bool {
+func TouchBound[B interface{ Touch(B) bool }](other B) func(bound B) bool {
 	return func(bound B) bool {
 		return bound.Touch(other)
 	}
