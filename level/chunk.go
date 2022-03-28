@@ -47,7 +47,7 @@ func EmptyChunk(secs int) *Chunk {
 	sections := make([]Section, secs)
 	for i := range sections {
 		sections[i] = Section{
-			blockCount: 0,
+			BlockCount: 0,
 			States:     NewStatesPaletteContainer(16*16*16, 0),
 			Biomes:     NewBiomesPaletteContainer(4*4*4, 0),
 		}
@@ -157,14 +157,14 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 		}
 
 		i := int32(v.Y) - c.YPos
-		sections[i].blockCount = blockCount
+		sections[i].BlockCount = blockCount
 		sections[i].States = NewStatesPaletteContainerWithData(16*16*16, stateData, stateRawPalette)
 		sections[i].Biomes = NewBiomesPaletteContainerWithData(4*4*4, biomesData, biomesRawPalette)
 	}
 	for i := range sections {
 		if sections[i].States == nil {
 			sections[i] = Section{
-				blockCount: 0,
+				BlockCount: 0,
 				States:     NewStatesPaletteContainer(16*16*16, 0),
 				Biomes:     NewBiomesPaletteContainer(4*4*4, 0),
 			}
@@ -288,7 +288,7 @@ func (b *BlockEntity) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 type Section struct {
-	blockCount int16
+	BlockCount int16
 	States     *PaletteContainer
 	Biomes     *PaletteContainer
 }
@@ -298,17 +298,17 @@ func (s *Section) GetBlock(i int) int {
 }
 func (s *Section) SetBlock(i int, v int) {
 	if isAir(s.States.Get(i)) {
-		s.blockCount--
+		s.BlockCount--
 	}
 	if v != 0 {
-		s.blockCount++
+		s.BlockCount++
 	}
 	s.States.Set(i, v)
 }
 
 func (s *Section) WriteTo(w io.Writer) (int64, error) {
 	return pk.Tuple{
-		pk.Short(s.blockCount),
+		pk.Short(s.BlockCount),
 		s.States,
 		s.Biomes,
 	}.WriteTo(w)
@@ -316,7 +316,7 @@ func (s *Section) WriteTo(w io.Writer) (int64, error) {
 
 func (s *Section) ReadFrom(r io.Reader) (int64, error) {
 	return pk.Tuple{
-		(*pk.Short)(&s.blockCount),
+		(*pk.Short)(&s.BlockCount),
 		s.States,
 		s.Biomes,
 	}.ReadFrom(r)
