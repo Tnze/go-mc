@@ -6,7 +6,7 @@
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
 [![Discord](https://img.shields.io/discord/915805561138860063?label=Discord)](https://discord.gg/A4qh8BT8Ue)
 
-Require Go version: 1.16
+Require Go version: 1.18
 
 There's some library in Go support you to create your Minecraft client or server.  
 这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器。
@@ -14,7 +14,7 @@ There's some library in Go support you to create your Minecraft client or server
 - [x] 👍 Minecraft network protocol
 - [x] 👍 Dual role RCON protocol (Server & Client)
 - [x] 👍 Robot framework
-- [ ] 🚧 Server framework
+- [x] 🚧 Server framework
 - [x] 👍 Chat Message (Support both Json and old `§` format)
 - [x] 👍 NBT (Based on reflection)
 - [x] 👍 SNBT ⇋ NBT
