@@ -143,7 +143,7 @@ func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
 				}
 			}
 			s := block.ToStateID[b]
-			if !isAir(s) {
+			if !block.IsAir(s) {
 				blockCount++
 			}
 			stateRawPalette[i] = s
@@ -297,7 +297,7 @@ func (s *Section) GetBlock(i int) int {
 	return s.States.Get(i)
 }
 func (s *Section) SetBlock(i int, v int) {
-	if isAir(s.States.Get(i)) {
+	if block.IsAir(s.States.Get(i)) {
 		s.BlockCount--
 	}
 	if v != 0 {
@@ -361,13 +361,4 @@ func (l *lightData) ReadFrom(r io.Reader) (int64, error) {
 		pk.Array(&l.SkyLight),
 		pk.Array(&l.BlockLight),
 	}.ReadFrom(r)
-}
-
-func isAir(s int) bool {
-	switch block.StateList[s].(type) {
-	case block.Air, block.CaveAir, block.VoidAir:
-		return true
-	default:
-		return false
-	}
 }
