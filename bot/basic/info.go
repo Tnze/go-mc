@@ -112,9 +112,16 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	return nil
 }
 func (p *Player) handleRespawnPacket(packet pk.Packet) error {
+	var copyMeta bool
 	err := packet.Scan(
 		pk.NBT(&p.WorldInfo.Dimension),
 		(*pk.Identifier)(&p.WorldName),
+		(*pk.Long)(&p.HashedSeed),
+		(*pk.UnsignedByte)(&p.Gamemode),
+		(*pk.Byte)(&p.PrevGamemode),
+		(*pk.Boolean)(&p.IsDebug),
+		(*pk.Boolean)(&p.IsFlat),
+		(*pk.Boolean)(&copyMeta),
 	)
 	if err != nil {
 		return Error{err}
