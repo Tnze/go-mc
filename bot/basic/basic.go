@@ -21,6 +21,7 @@ func NewPlayer(c *bot.Client, settings Settings) *Player {
 		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundLogin, F: b.handleLoginPacket},
 		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundKeepAlive, F: b.handleKeepAlivePacket},
 		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundPlayerPosition, F: b.handlePlayerPosition},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundRespawn, F: b.handleRespawnPacket},
 	)
 	return b
 }
