@@ -111,3 +111,13 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	}
 	return nil
 }
+func (p *Player) handleRespawnPacket(packet pk.Packet) error {
+	err := packet.Scan(
+		pk.NBT(&p.WorldInfo.Dimension),
+		(*pk.Identifier)(&p.WorldName),
+	)
+	if err != nil {
+		return Error{err}
+	}
+	return nil
+}
