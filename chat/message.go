@@ -134,6 +134,8 @@ func (m Message) WriteTo(w io.Writer) (int64, error) {
 	return pk.String(code).WriteTo(w)
 }
 
+// Append extra message to the end of the message and return the new one.
+// The source message remains unchanged.
 func (m Message) Append(extraMsg ...Message) Message {
 	origLen := len(m.Extra)
 	finalLen := origLen + len(extraMsg)
