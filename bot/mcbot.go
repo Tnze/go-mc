@@ -51,6 +51,9 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			return LoginErr{"parse port", err}
 		}
 	}
+	if host == "" {
+		host = addr
+	}
 
 	// Dial connection
 	c.Conn, err = d.DialMCContext(ctx, addr)
