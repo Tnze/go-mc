@@ -38,6 +38,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	host, portStr, err := net.SplitHostPort(addr)
 	var port uint64
 	if err != nil {
+		host = addr
 		var addrErr *net.AddrError
 		const missingPort = "missing port in address"
 		if errors.As(err, &addrErr) && addrErr.Err == missingPort {
@@ -50,9 +51,6 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		if err != nil {
 			return LoginErr{"parse port", err}
 		}
-	}
-	if host == "" {
-		host = addr
 	}
 
 	// Dial connection
