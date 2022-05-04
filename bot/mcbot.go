@@ -38,10 +38,10 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	host, portStr, err := net.SplitHostPort(addr)
 	var port uint64
 	if err != nil {
-		host = addr
 		var addrErr *net.AddrError
 		const missingPort = "missing port in address"
 		if errors.As(err, &addrErr) && addrErr.Err == missingPort {
+			host = addr
 			port = 25565
 		} else {
 			return LoginErr{"split address", err}
