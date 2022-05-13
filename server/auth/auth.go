@@ -73,7 +73,7 @@ func Encrypt(conn *net.Conn, name string) (*Resp, error) {
 		CFB8.NewCFB8Encrypt(block, SharedSecret),
 		CFB8.NewCFB8Decrypt(block, SharedSecret))
 
-	hash := authDigest("", SharedSecret, publicKey)
+	hash := AuthDigest("", SharedSecret, publicKey)
 	resp, err := authentication(name, hash) //auth
 	if err != nil {
 		return nil, errors.New("auth servers down")
@@ -133,13 +133,13 @@ func authentication(name, hash string) (*Resp, error) {
 	return &Resp, err
 }
 
-// authDigest computes a special SHA-1 digest required for Minecraft web
+// AuthDigest computes a special SHA-1 digest required for Minecraft web
 // authentication on Premium servers (online-mode=true).
 // Source: http://wiki.vg/Protocol_Encryption#Server
 //
 // Also many, many thanks to SirCmpwn and his wonderful gist (C#):
 // https://gist.github.com/SirCmpwn/404223052379e82f91e6
-func authDigest(serverID string, sharedSecret, publicKey []byte) string {
+func AuthDigest(serverID string, sharedSecret, publicKey []byte) string {
 	h := sha1.New()
 	h.Write([]byte(serverID))
 	h.Write(sharedSecret)
