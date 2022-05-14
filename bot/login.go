@@ -126,7 +126,6 @@ type request struct {
 func loginAuth(auth Auth, shareSecret []byte, er encryptionRequest) error {
 	digest := authDigest(er.ServerID, shareSecret, er.PublicKey)
 
-	client := http.Client{}
 	requestPacket, err := json.Marshal(
 		request{
 			AccessToken: auth.AsTk,
@@ -149,7 +148,7 @@ func loginAuth(auth Auth, shareSecret []byte, er encryptionRequest) error {
 	PostRequest.Header.Set("User-agent", "go-mc")
 	PostRequest.Header.Set("Connection", "keep-alive")
 	PostRequest.Header.Set("Content-Type", "application/json")
-	resp, err := client.Do(PostRequest)
+	resp, err := http.DefaultClient.Do(PostRequest)
 	if err != nil {
 		return fmt.Errorf("post fail: %v", err)
 	}

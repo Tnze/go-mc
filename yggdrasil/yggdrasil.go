@@ -26,7 +26,7 @@ func (e Error) Error() string {
 
 var AuthURL = "https://authserver.mojang.com"
 
-var client http.Client
+var client = http.DefaultClient
 
 func post(endpoint string, payload interface{}, resp interface{}) error {
 	rowResp, err := rawPost(endpoint, payload)
