@@ -140,7 +140,7 @@ func loadAllChunks(dim *server.SimpleDim, file string, rx, rz int) error {
 			if err := c.Load(data); err != nil {
 				return err
 			}
-			chunk := level.ChunkFromSave(&c, 256)
+			chunk := level.ChunkFromSave(&c)
 			dim.LoadChunk(level.ChunkPos{X: rx<<5 + x, Z: rz<<5 + z}, chunk)
 		}
 	}

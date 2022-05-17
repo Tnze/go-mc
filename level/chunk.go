@@ -2,6 +2,7 @@ package level
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"math/bits"
 	"strings"
@@ -124,63 +125,98 @@ var biomesIDs = map[string]int{
 	"end_barrens":              60,
 }
 
-func ChunkFromSave(c *save.Chunk, secs int) *Chunk {
+// ChunkFromSave convert save.Chunk to level.Chunk.
+func ChunkFromSave(c *save.Chunk) *Chunk {
+	secs := len(c.Sections)
 	sections := make([]Section, secs)
 	for _, v := range c.Sections {
-		var blockCount int16
-		stateData := *(*[]uint64)((unsafe.Pointer)(&v.BlockStates.Data))
-		statePalette := v.BlockStates.Palette
-		stateRawPalette := make([]int, len(statePalette))
-		for i, v := range statePalette {
-			b, ok := block.FromID[v.Name]
-			if !ok {
-				return nil
-			}
-			if v.Properties.Data != nil {
-				err := v.Properties.Unmarshal(&b)
-				if err != nil {
-					return nil
-				}
-			}
-			s := block.ToStateID[b]
-			if !block.IsAir(s) {
-				blockCount++
-			}
-			stateRawPalette[i] = s
-		}
-
-		biomesData := *(*[]uint64)((unsafe.Pointer)(&v.Biomes.Data))
-		biomesPalette := v.Biomes.Palette
-		biomesRawPalette := make([]int, len(biomesPalette))
-		for i, v := range biomesPalette {
-			biomesRawPalette[i] = biomesIDs[strings.TrimPrefix(v, "minecraft:")]
-		}
-
 		i := int32(v.Y) - c.YPos
-		sections[i].BlockCount = blockCount
-		sections[i].States = NewStatesPaletteContainerWithData(16*16*16, stateData, stateRawPalette)
-		sections[i].Biomes = NewBiomesPaletteContainerWithData(4*4*4, biomesData, biomesRawPalette)
-	}
-	for i := range sections {
-		if sections[i].States == nil {
-			sections[i] = Section{
-				BlockCount: 0,
-				States:     NewStatesPaletteContainer(16*16*16, 0),
-				Biomes:     NewBiomesPaletteContainer(4*4*4, 0),
-			}
-		}
+		// TODO: the error is ignored
+		sections[i].BlockCount, sections[i].States, _ = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
+		sections[i].Biomes, _ = readBiomesPalette(v.Biomes.Palette, v.Biomes.Data)
 	}
 
 	motionBlocking := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.MotionBlocking))
+	motionBlockingNoLeaves := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.MotionBlockingNoLeaves))
+	oceanFloor := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.OceanFloor))
 	worldSurface := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.WorldSurface))
+
+	bitsForHeight := bits.Len( /* chunk height in blocks */ uint(secs) * 16)
 	return &Chunk{
 		Sections: sections,
 		HeightMaps: HeightMaps{
-			MotionBlocking: NewBitStorage(bits.Len(uint(secs)), 16*16, motionBlocking),
-			WorldSurface:   NewBitStorage(bits.Len(uint(secs)), 16*16, worldSurface),
+			MotionBlocking:         NewBitStorage(bitsForHeight, 16*16, motionBlocking),
+			MotionBlockingNoLeaves: NewBitStorage(bitsForHeight, 16*16, motionBlockingNoLeaves),
+			OceanFloor:             NewBitStorage(bitsForHeight, 16*16, oceanFloor),
+			WorldSurface:           NewBitStorage(bitsForHeight, 16*16, worldSurface),
 		},
 	}
 }
+
+func readStatesPalette(palette []save.BlockState, data []int64) (blockCount int16, paletteData *PaletteContainer, err error) {
+	stateData := *(*[]uint64)((unsafe.Pointer)(&data))
+	statePalette := make([]int, len(palette))
+	for i, v := range palette {
+		b, ok := block.FromID[v.Name]
+		if !ok {
+			return 0, nil, fmt.Errorf("unknown block id: %v", v.Name)
+		}
+		if v.Properties.Data != nil {
+			if err := v.Properties.Unmarshal(&b); err != nil {
+				return 0, nil, fmt.Errorf("unmarshal block properties fail: %v", err)
+			}
+		}
+		s, ok := block.ToStateID[b]
+		if !ok {
+			return 0, nil, fmt.Errorf("unknown block: %v", b)
+		}
+		if !block.IsAir(s) {
+			blockCount++
+		}
+		statePalette[i] = s
+	}
+	paletteData = NewStatesPaletteContainerWithData(16*16*16, stateData, statePalette)
+	return
+}
+
+func readBiomesPalette(palette []string, data []int64) (*PaletteContainer, error) {
+	biomesData := *(*[]uint64)((unsafe.Pointer)(&data))
+	biomesRawPalette := make([]int, len(palette))
+	var ok bool
+	for i, v := range palette {
+		biomesRawPalette[i], ok = biomesIDs[strings.TrimPrefix(v, "minecraft:")]
+		if !ok {
+			return nil, fmt.Errorf("unknown biomes: %s", v)
+		}
+	}
+	return NewBiomesPaletteContainerWithData(4*4*4, biomesData, biomesRawPalette), nil
+}
+
+//// ChunkToSave convert level.Chunk to save.Chunk
+//func ChunkToSave(c *Chunk, dst *save.Chunk) {
+//	secs := len(c.Sections)
+//	sections := make([]save.Section, secs)
+//	for i, v := range c.Sections {
+//		sections[i] = save.Section{
+//			Y: int8(int32(i) + dst.YPos),
+//			BlockStates: struct {
+//				Palette []save.BlockState `nbt:"palette"`
+//				Data    []int64           `nbt:"data"`
+//			}{},
+//			Biomes: struct {
+//				Palette []string `nbt:"palette"`
+//				Data    []int64  `nbt:"data"`
+//			}{},
+//			SkyLight:   nil,
+//			BlockLight: nil,
+//		}
+//	}
+//	dst.Sections = sections
+//}
+
+//func writeStatesPalette(paletteData *PaletteContainer) (palette []save.BlockState, data []int64) {
+//	paletteData.palette.export()
+//}
 
 func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 	data, err := c.Data()
@@ -258,8 +294,10 @@ func (c *Chunk) PutData(data []byte) error {
 }
 
 type HeightMaps struct {
-	MotionBlocking *BitStorage
-	WorldSurface   *BitStorage
+	MotionBlocking         *BitStorage
+	MotionBlockingNoLeaves *BitStorage
+	OceanFloor             *BitStorage
+	WorldSurface           *BitStorage
 }
 
 type BlockEntity struct {

@@ -25,6 +25,14 @@ type Chunk struct {
 		WorldSurface           []int64 `nbt:"WORLD_SURFACE"`
 	}
 	Sections []Section `nbt:"sections"`
+
+	BlockTicks     nbt.RawMessage `nbt:"block_ticks"`
+	FluidTicks     nbt.RawMessage `nbt:"fluid_ticks"`
+	PostProcessing nbt.RawMessage
+	InhabitedTime  int64
+	IsLightOn      byte `nbt:"isLightOn"`
+	LastUpdate     int64
+	Status         string
 }
 
 type Section struct {
@@ -37,8 +45,8 @@ type Section struct {
 		Palette []string `nbt:"palette"`
 		Data    []int64  `nbt:"data"`
 	} `nbt:"biomes"`
-	SkyLight   []byte
-	BlockLight []byte
+	SkyLight   []int8
+	BlockLight []int8
 }
 
 type BlockState struct {

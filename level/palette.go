@@ -34,9 +34,17 @@ func NewStatesPaletteContainerWithData(length int, data []uint64, pat []int) *Pa
 		p = &singleValuePalette{pat[0]}
 	case 1, 2, 3, 4:
 		n = 4
-		fallthrough
-	case 5, 6, 7, 8:
 		p = &linearPalette{
+			values: pat,
+			bits:   n,
+		}
+	case 5, 6, 7, 8:
+		ids := make(map[state]int)
+		for i, v := range pat {
+			ids[v] = i
+		}
+		p = &hashPalette{
+			ids:    ids,
 			values: pat,
 			bits:   n,
 		}
@@ -207,8 +215,11 @@ func (b biomesCfg) create(bits int) palette {
 
 type palette interface {
 	pk.Field
+	// id return the index of state v in the palette and true if existed.
+	// otherwise return the new bits for resize and false.
 	id(v state) (int, bool)
 	value(i int) state
+	export() []state
 }
 
 type singleValuePalette struct {
@@ -228,6 +239,10 @@ func (s *singleValuePalette) value(i int) state {
 		return s.v
 	}
 	panic("singleValuePalette: " + strconv.Itoa(i) + " out of bounds")
+}
+
+func (s *singleValuePalette) export() []state {
+	return []int{s.v}
 }
 
 func (s *singleValuePalette) ReadFrom(r io.Reader) (n int64, err error) {
@@ -269,6 +284,10 @@ func (l *linearPalette) value(i int) state {
 	panic("linearPalette: " + strconv.Itoa(i) + " out of bounds")
 }
 
+func (l *linearPalette) export() []state {
+	return l.values
+}
+
 func (l *linearPalette) ReadFrom(r io.Reader) (n int64, err error) {
 	var size, value pk.VarInt
 	if n, err = size.ReadFrom(r); err != nil {
@@ -304,6 +323,71 @@ func (l *linearPalette) WriteTo(w io.Writer) (n int64, err error) {
 	return
 }
 
+type hashPalette struct {
+	ids    map[state]int
+	values []state
+	bits   int
+}
+
+func (h *hashPalette) id(v state) (int, bool) {
+	if i, ok := h.ids[v]; ok {
+		return i, true
+	}
+	if cap(h.values)-len(h.values) > 0 {
+		h.ids[v] = len(h.values)
+		h.values = append(h.values, v)
+		return len(h.values) - 1, true
+	}
+	return h.bits + 1, false
+}
+
+func (h *hashPalette) value(i int) state {
+	if i >= 0 && i < len(h.values) {
+		return h.values[i]
+	}
+	panic("hashPalette: " + strconv.Itoa(i) + " out of bounds")
+}
+
+func (h *hashPalette) export() []state {
+	return h.values
+}
+
+func (h *hashPalette) ReadFrom(r io.Reader) (n int64, err error) {
+	var size, value pk.VarInt
+	if n, err = size.ReadFrom(r); err != nil {
+		return
+	}
+	if int(size) > cap(h.values) {
+		h.values = make([]state, size)
+	} else {
+		h.values = h.values[:size]
+	}
+	for i := 0; i < int(size); i++ {
+		if nn, err := value.ReadFrom(r); err != nil {
+			return n + nn, err
+		} else {
+			n += nn
+		}
+		h.values[i] = state(value)
+		h.ids[state(value)] = i
+	}
+	return
+}
+
+func (h *hashPalette) WriteTo(w io.Writer) (n int64, err error) {
+	if n, err = pk.VarInt(len(h.values)).WriteTo(w); err != nil {
+		return
+	}
+	for _, v := range h.values {
+		if nn, err := pk.VarInt(v).WriteTo(w); err != nil {
+			return n + nn, err
+		} else {
+			n += nn
+		}
+	}
+	return
+}
+
 type globalPalette struct{}
 
 func (g *globalPalette) id(v state) (int, bool) {
@@ -312,6 +396,10 @@ func (g *globalPalette) id(v state) (int, bool) {
 
 func (g *globalPalette) value(i int) state {
 	return i
+}
+
+func (g *globalPalette) export() []state {
+	return []state{}
 }
 
 func (g *globalPalette) ReadFrom(_ io.Reader) (int64, error) {
