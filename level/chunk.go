@@ -124,6 +124,69 @@ var biomesIDs = map[string]int{
 	"small_end_islands":        59,
 	"end_barrens":              60,
 }
+var biomesNames = []string{
+	0:  "the_void",
+	1:  "plains",
+	2:  "sunflower_plains",
+	3:  "snowy_plains",
+	4:  "ice_spikes",
+	5:  "desert",
+	6:  "swamp",
+	7:  "forest",
+	8:  "flower_forest",
+	9:  "birch_forest",
+	10: "dark_forest",
+	11: "old_growth_birch_forest",
+	12: "old_growth_pine_taiga",
+	13: "old_growth_spruce_taiga",
+	14: "taiga",
+	15: "snowy_taiga",
+	16: "savanna",
+	17: "savanna_plateau",
+	18: "windswept_hills",
+	19: "windswept_gravelly_hills",
+	20: "windswept_forest",
+	21: "windswept_savanna",
+	22: "jungle",
+	23: "sparse_jungle",
+	24: "bamboo_jungle",
+	25: "badlands",
+	26: "eroded_badlands",
+	27: "wooded_badlands",
+	28: "meadow",
+	29: "grove",
+	30: "snowy_slopes",
+	31: "frozen_peaks",
+	32: "jagged_peaks",
+	33: "stony_peaks",
+	34: "river",
+	35: "frozen_river",
+	36: "beach",
+	37: "snowy_beach",
+	38: "stony_shore",
+	39: "warm_ocean",
+	40: "lukewarm_ocean",
+	41: "deep_lukewarm_ocean",
+	42: "ocean",
+	43: "deep_ocean",
+	44: "cold_ocean",
+	45: "deep_cold_ocean",
+	46: "frozen_ocean",
+	47: "deep_frozen_ocean",
+	48: "mushroom_fields",
+	49: "dripstone_caves",
+	50: "lush_caves",
+	51: "nether_wastes",
+	52: "warped_forest",
+	53: "crimson_forest",
+	54: "soul_sand_valley",
+	55: "basalt_deltas",
+	56: "the_end",
+	57: "end_highlands",
+	58: "end_midlands",
+	59: "small_end_islands",
+	60: "end_barrens",
+}
 
 // ChunkFromSave convert save.Chunk to level.Chunk.
 func ChunkFromSave(c *save.Chunk) *Chunk {
@@ -192,31 +255,69 @@ func readBiomesPalette(palette []string, data []int64) (*PaletteContainer, error
 	return NewBiomesPaletteContainerWithData(4*4*4, biomesData, biomesRawPalette), nil
 }
 
-//// ChunkToSave convert level.Chunk to save.Chunk
-//func ChunkToSave(c *Chunk, dst *save.Chunk) {
-//	secs := len(c.Sections)
-//	sections := make([]save.Section, secs)
-//	for i, v := range c.Sections {
-//		sections[i] = save.Section{
-//			Y: int8(int32(i) + dst.YPos),
-//			BlockStates: struct {
-//				Palette []save.BlockState `nbt:"palette"`
-//				Data    []int64           `nbt:"data"`
-//			}{},
-//			Biomes: struct {
-//				Palette []string `nbt:"palette"`
-//				Data    []int64  `nbt:"data"`
-//			}{},
-//			SkyLight:   nil,
-//			BlockLight: nil,
-//		}
-//	}
-//	dst.Sections = sections
-//}
+// ChunkToSave convert level.Chunk to save.Chunk
+func ChunkToSave(c *Chunk, dst *save.Chunk) {
+	secs := len(c.Sections)
+	sections := make([]save.Section, secs)
+	for i, v := range c.Sections {
+		statePalette, stateData := writeStatesPalette(v.States)
+		biomePalette, biomeData := writeBiomesPalette(v.Biomes)
+		sections[i] = save.Section{
+			Y: int8(int32(i) + dst.YPos),
+			BlockStates: struct {
+				Palette []save.BlockState `nbt:"palette"`
+				Data    []int64           `nbt:"data"`
+			}{
+				Palette: statePalette, Data: stateData,
+			},
+			Biomes: struct {
+				Palette []string `nbt:"palette"`
+				Data    []int64  `nbt:"data"`
+			}{
+				Palette: biomePalette, Data: biomeData,
+			},
+			SkyLight:   nil,
+			BlockLight: nil,
+		}
+	}
+	dst.Sections = sections
+}
 
-//func writeStatesPalette(paletteData *PaletteContainer) (palette []save.BlockState, data []int64) {
-//	paletteData.palette.export()
-//}
+func writeStatesPalette(paletteData *PaletteContainer) (palette []save.BlockState, data []int64) {
+	rawPalette := paletteData.palette.export()
+	palette = make([]save.BlockState, len(rawPalette))
+	var buffer bytes.Buffer
+	for i, v := range rawPalette {
+		b := block.StateList[v]
+		palette[i].Name = b.ID()
+
+		buffer.Reset()
+		if err := nbt.NewEncoder(&buffer).Encode(b, ""); err != nil {
+			panic(err)
+		}
+		if _, err := nbt.NewDecoder(&buffer).Decode(&palette[i].Properties); err != nil {
+			panic(err)
+		}
+	}
+
+	rawData := paletteData.data.Raw()
+	copy(data, *(*[]int64)(unsafe.Pointer(&rawData)))
+
+	return
+}
+
+func writeBiomesPalette(paletteData *PaletteContainer) (palette []string, data []int64) {
+	rawPalette := paletteData.palette.export()
+	palette = make([]string, len(rawPalette))
+	for i, v := range rawPalette {
+		palette[i] = biomesNames[v]
+	}
+
+	rawData := paletteData.data.Raw()
+	copy(data, *(*[]int64)(unsafe.Pointer(&rawData)))
+
+	return
+}
 
 func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 	data, err := c.Data()
