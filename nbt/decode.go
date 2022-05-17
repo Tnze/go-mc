@@ -213,13 +213,34 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 			return err
 		}
 
-		switch vt := val.Type(); {
-		default:
-			return errors.New("cannot parse TagByteArray to " + vt.String() + ", use []byte in this instance")
-		case vt == reflect.TypeOf(ba):
+		vt := val.Type()
+		if vt == reflect.TypeOf(ba) {
 			val.SetBytes(ba)
-		case vt.Kind() == reflect.Interface:
+		} else if vt.Kind() == reflect.Slice {
+			switch ve := vt.Elem(); ve.Kind() {
+			case reflect.Int8, reflect.Uint8:
+				length := int(aryLen)
+				if val.Cap() < length {
+					val.Set(reflect.MakeSlice(vt, length, length))
+				}
+				val.SetLen(length)
+				switch ve.Kind() {
+				case reflect.Int8:
+					for i := 0; i < length; i++ {
+						val.Index(i).Set(reflect.ValueOf(int8(ba[i])))
+					}
+				case reflect.Uint8:
+					for i := 0; i < length; i++ {
+						val.Index(i).Set(reflect.ValueOf(ba[i]))
+					}
+				}
+			default:
+				return errors.New("cannot parse TagByteArray to slice of" + ve.String())
+			}
+		} else if vt.Kind() == reflect.Interface {
 			val.Set(reflect.ValueOf(ba))
+		} else {
+			return errors.New("cannot parse TagByteArray to " + vt.String())
 		}
 
 	case TagIntArray:
