@@ -41,7 +41,7 @@ func TestEncoder_Encode_intArray(t *testing.T) {
 	}
 }
 
-func TestENcoder_encodeInt8(t *testing.T) {
+func TestEncoder_encodeInt8(t *testing.T) {
 	// Test marshal pure Int array
 	v := []int8{0, -10, 3}
 	out := []byte{
