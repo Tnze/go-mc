@@ -41,6 +41,20 @@ func TestEncoder_Encode_intArray(t *testing.T) {
 	}
 }
 
+func TestENcoder_encodeInt8(t *testing.T) {
+	// Test marshal pure Int array
+	v := []int8{0, -10, 3}
+	out := []byte{
+		TagByteArray, 0x00, 0x00, 0, 0, 0, 3,
+		0x00, 0xf6, 0x03,
+	}
+	if data, err := Marshal(v); err != nil {
+		t.Error(err)
+	} else if !bytes.Equal(data, out) {
+		t.Errorf("output binary not right: get % 02x, want % 02x ", data, out)
+	}
+}
+
 func TestEncoder_Encode_floatArray(t *testing.T) {
 	// Test marshal pure Int array
 	v := []float32{0.3, -100, float32(math.NaN())}

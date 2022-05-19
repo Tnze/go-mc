@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"unsafe"
 )
 
 // Marshal is the shortcut of NewEncoder().Encode() with empty tag name.
@@ -62,7 +63,13 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 	default:
 		return errors.New("unsupported type 0x" + strconv.FormatUint(uint64(tagType), 16))
 	case TagByte:
-		_, err := e.w.Write([]byte{byte(val.Uint())})
+		var err error
+		switch val.Kind() {
+		case reflect.Int8:
+			_, err = e.w.Write([]byte{byte(val.Int())})
+		case reflect.Uint8:
+			_, err = e.w.Write([]byte{byte(val.Uint())})
+		}
 		return err
 	case TagShort:
 		return e.writeInt16(int16(val.Int()))
@@ -81,7 +88,11 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 		}
 
 		if tagType == TagByteArray {
-			_, err := e.w.Write(val.Bytes())
+			_, err := e.w.Write(*(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{
+				Data: val.Pointer(),
+				Len:  val.Len(),
+				Cap:  val.Cap(),
+			})))
 			return err
 		} else {
 			for i := 0; i < n; i++ {
@@ -264,7 +275,7 @@ func getTagType(v reflect.Value) (byte, reflect.Value) {
 
 func getTagTypeByType(vk reflect.Type) byte {
 	switch vk.Kind() {
-	case reflect.Uint8:
+	case reflect.Int8, reflect.Uint8:
 		return TagByte
 	case reflect.Int16, reflect.Uint16:
 		return TagShort
