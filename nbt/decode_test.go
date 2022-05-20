@@ -364,6 +364,29 @@ func TestDecoder_Decode_ByteArray(t *testing.T) {
 	// t.Log(infValue)
 }
 
+func TestDecoder_Decode_bool(t *testing.T) {
+	data := [][]byte{
+		{TagByte, 0, 0, 0},
+		{TagByte, 0, 0, 1},
+		{TagByte, 0, 0, 2},
+		{TagByte, 0, 0, 128},
+		{TagByte, 0, 0, 255},
+	}
+	want := []bool{
+		false, true, true, true, true,
+	}
+	var value bool
+	for i, v := range data {
+		//Unmarshal to []byte
+		if err := Unmarshal(v, &value); err != nil {
+			t.Fatal(err)
+		}
+		if value != want[i] {
+			t.Errorf("parse fail, expect %v, get %v", want, value)
+		}
+	}
+}
+
 func TestDecoder_Decode_ErrorString(t *testing.T) {
 	var data = []byte{
 		0x08, 0x00, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0xFF, 0xFE,

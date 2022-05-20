@@ -90,6 +90,8 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		switch vk := val.Kind(); vk {
 		default:
 			return errors.New("cannot parse TagByte as " + vk.String())
+		case reflect.Bool:
+			val.SetBool(value != 0)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			val.SetInt(int64(value))
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:

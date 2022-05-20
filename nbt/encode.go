@@ -40,7 +40,6 @@ func NewEncoder(w io.Writer) *Encoder {
 // which TagByteArray, TagIntArray and TagLongArray.
 // To force encode them as TagList, add a struct field tag.
 //
-//
 func (e *Encoder) Encode(v interface{}, tagName string) error {
 	t, val := getTagType(reflect.ValueOf(v))
 	return e.marshal(val, t, tagName)
@@ -65,6 +64,12 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 	case TagByte:
 		var err error
 		switch val.Kind() {
+		case reflect.Bool:
+			var b byte
+			if val.Bool() {
+				b = 1
+			}
+			_, err = e.w.Write([]byte{b})
 		case reflect.Int8:
 			_, err = e.w.Write([]byte{byte(val.Int())})
 		case reflect.Uint8:
@@ -88,11 +93,27 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 		}
 
 		if tagType == TagByteArray {
-			_, err := e.w.Write(*(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{
-				Data: val.Pointer(),
-				Len:  val.Len(),
-				Cap:  val.Cap(),
-			})))
+			var data []byte
+			switch val.Type().Elem().Kind() {
+			case reflect.Bool:
+				data = make([]byte, val.Len())
+				for i := range data {
+					if val.Index(i).Bool() {
+						data[i] = 1
+					} else {
+						data[i] = 0
+					}
+				}
+			case reflect.Uint8:
+				data = val.Bytes()
+			case reflect.Int8:
+				data = *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{
+					Data: val.Pointer(),
+					Len:  val.Len(),
+					Cap:  val.Cap(),
+				}))
+			}
+			_, err := e.w.Write(data)
 			return err
 		} else {
 			for i := 0; i < n; i++ {
@@ -275,7 +296,7 @@ func getTagType(v reflect.Value) (byte, reflect.Value) {
 
 func getTagTypeByType(vk reflect.Type) byte {
 	switch vk.Kind() {
-	case reflect.Int8, reflect.Uint8:
+	case reflect.Bool, reflect.Int8, reflect.Uint8:
 		return TagByte
 	case reflect.Int16, reflect.Uint16:
 		return TagShort
