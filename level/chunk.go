@@ -390,6 +390,10 @@ type BlockEntity struct {
 	Data nbt.RawMessage
 }
 
+func (b BlockEntity) UnpackXZ() (X, Z int) {
+	return int((uint8(b.XZ) >> 4) & 0xF), int(uint8(b.XZ) & 0xF)
+}
+
 func (b BlockEntity) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
 		pk.Byte(b.XZ),
