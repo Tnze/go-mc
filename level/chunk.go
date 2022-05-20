@@ -301,7 +301,7 @@ func writeStatesPalette(paletteData *PaletteContainer) (palette []save.BlockStat
 	}
 
 	rawData := paletteData.data.Raw()
-	copy(data, *(*[]int64)(unsafe.Pointer(&rawData)))
+	data = append(data, *(*[]int64)(unsafe.Pointer(&rawData))...)
 
 	return
 }
@@ -314,7 +314,7 @@ func writeBiomesPalette(paletteData *PaletteContainer) (palette []string, data [
 	}
 
 	rawData := paletteData.data.Raw()
-	copy(data, *(*[]int64)(unsafe.Pointer(&rawData)))
+	data = append(data, *(*[]int64)(unsafe.Pointer(&rawData))...)
 
 	return
 }
