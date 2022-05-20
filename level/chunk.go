@@ -61,7 +61,7 @@ func EmptyChunk(secs int) *Chunk {
 	}
 }
 
-var biomesIDs = map[string]int{
+var biomesIDs = map[string]BiomesState{
 	"the_void":                 0,
 	"plains":                   1,
 	"sunflower_plains":         2,
@@ -216,9 +216,8 @@ func ChunkFromSave(c *save.Chunk) *Chunk {
 	}
 }
 
-func readStatesPalette(palette []save.BlockState, data []int64) (blockCount int16, paletteData *PaletteContainer, err error) {
-	stateData := *(*[]uint64)((unsafe.Pointer)(&data))
-	statePalette := make([]int, len(palette))
+func readStatesPalette(palette []save.BlockState, data []uint64) (blockCount int16, paletteData *PaletteContainer[BlocksState], err error) {
+	statePalette := make([]BlocksState, len(palette))
 	for i, v := range palette {
 		b, ok := block.FromID[v.Name]
 		if !ok {
@@ -238,13 +237,12 @@ func readStatesPalette(palette []save.BlockState, data []int64) (blockCount int1
 		}
 		statePalette[i] = s
 	}
-	paletteData = NewStatesPaletteContainerWithData(16*16*16, stateData, statePalette)
+	paletteData = NewStatesPaletteContainerWithData(16*16*16, data, statePalette)
 	return
 }
 
-func readBiomesPalette(palette []string, data []int64) (*PaletteContainer, error) {
-	biomesData := *(*[]uint64)((unsafe.Pointer)(&data))
-	biomesRawPalette := make([]int, len(palette))
+func readBiomesPalette(palette []string, data []uint64) (*PaletteContainer[BiomesState], error) {
+	biomesRawPalette := make([]BiomesState, len(palette))
 	var ok bool
 	for i, v := range palette {
 		biomesRawPalette[i], ok = biomesIDs[strings.TrimPrefix(v, "minecraft:")]
@@ -252,7 +250,7 @@ func readBiomesPalette(palette []string, data []int64) (*PaletteContainer, error
 			return nil, fmt.Errorf("unknown biomes: %s", v)
 		}
 	}
-	return NewBiomesPaletteContainerWithData(4*4*4, biomesData, biomesRawPalette), nil
+	return NewBiomesPaletteContainerWithData(4*4*4, data, biomesRawPalette), nil
 }
 
 // ChunkToSave convert level.Chunk to save.Chunk
@@ -260,30 +258,18 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) {
 	secs := len(c.Sections)
 	sections := make([]save.Section, secs)
 	for i, v := range c.Sections {
-		statePalette, stateData := writeStatesPalette(v.States)
-		biomePalette, biomeData := writeBiomesPalette(v.Biomes)
-		sections[i] = save.Section{
-			Y: int8(int32(i) + dst.YPos),
-			BlockStates: struct {
-				Palette []save.BlockState `nbt:"palette"`
-				Data    []int64           `nbt:"data"`
-			}{
-				Palette: statePalette, Data: stateData,
-			},
-			Biomes: struct {
-				Palette []string `nbt:"palette"`
-				Data    []int64  `nbt:"data"`
-			}{
-				Palette: biomePalette, Data: biomeData,
-			},
-			SkyLight:   nil,
-			BlockLight: nil,
-		}
+		s := &sections[i]
+		states := &s.BlockStates
+		biomes := &s.Biomes
+		s.Y = int8(int32(i) + dst.YPos)
+		states.Palette, states.Data = writeStatesPalette(v.States)
+		biomes.Palette, biomes.Data = writeBiomesPalette(v.Biomes)
 	}
 	dst.Sections = sections
+	//dst.Heightmaps.MotionBlocking = c.HeightMaps.MotionBlocking.Raw()
 }
 
-func writeStatesPalette(paletteData *PaletteContainer) (palette []save.BlockState, data []int64) {
+func writeStatesPalette(paletteData *PaletteContainer[BlocksState]) (palette []save.BlockState, data []uint64) {
 	rawPalette := paletteData.palette.export()
 	palette = make([]save.BlockState, len(rawPalette))
 	var buffer bytes.Buffer
@@ -299,22 +285,18 @@ func writeStatesPalette(paletteData *PaletteContainer) (palette []save.BlockStat
 			panic(err)
 		}
 	}
-
-	rawData := paletteData.data.Raw()
-	data = append(data, *(*[]int64)(unsafe.Pointer(&rawData))...)
+	data = append(data, paletteData.data.Raw()...)
 
 	return
 }
 
-func writeBiomesPalette(paletteData *PaletteContainer) (palette []string, data []int64) {
+func writeBiomesPalette(paletteData *PaletteContainer[BiomesState]) (palette []string, data []uint64) {
 	rawPalette := paletteData.palette.export()
 	palette = make([]string, len(rawPalette))
 	for i, v := range rawPalette {
 		palette[i] = biomesNames[v]
 	}
-
-	rawData := paletteData.data.Raw()
-	data = append(data, *(*[]int64)(unsafe.Pointer(&rawData))...)
+	data = append(data, paletteData.data.Raw()...)
 
 	return
 }
@@ -428,14 +410,14 @@ func (b *BlockEntity) ReadFrom(r io.Reader) (n int64, err error) {
 
 type Section struct {
 	BlockCount int16
-	States     *PaletteContainer
-	Biomes     *PaletteContainer
+	States     *PaletteContainer[BlocksState]
+	Biomes     *PaletteContainer[BiomesState]
 }
 
-func (s *Section) GetBlock(i int) int {
+func (s *Section) GetBlock(i int) BlocksState {
 	return s.States.Get(i)
 }
-func (s *Section) SetBlock(i int, v int) {
+func (s *Section) SetBlock(i int, v BlocksState) {
 	if block.IsAir(s.States.Get(i)) {
 		s.BlockCount--
 	}

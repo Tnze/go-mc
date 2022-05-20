@@ -19,10 +19,10 @@ type Chunk struct {
 	BlockEntities nbt.RawMessage `nbt:"block_entities"`
 	Structures    nbt.RawMessage `nbt:"structures"`
 	Heightmaps    struct {
-		MotionBlocking         []int64 `nbt:"MOTION_BLOCKING"`
-		MotionBlockingNoLeaves []int64 `nbt:"MOTION_BLOCKING_NO_LEAVES"`
-		OceanFloor             []int64 `nbt:"OCEAN_FLOOR"`
-		WorldSurface           []int64 `nbt:"WORLD_SURFACE"`
+		MotionBlocking         []uint64 `nbt:"MOTION_BLOCKING"`
+		MotionBlockingNoLeaves []uint64 `nbt:"MOTION_BLOCKING_NO_LEAVES"`
+		OceanFloor             []uint64 `nbt:"OCEAN_FLOOR"`
+		WorldSurface           []uint64 `nbt:"WORLD_SURFACE"`
 	}
 	Sections []Section `nbt:"sections"`
 
@@ -39,11 +39,11 @@ type Section struct {
 	Y           int8
 	BlockStates struct {
 		Palette []BlockState `nbt:"palette"`
-		Data    []int64      `nbt:"data"`
+		Data    []uint64     `nbt:"data"`
 	} `nbt:"block_states"`
 	Biomes struct {
 		Palette []string `nbt:"palette"`
-		Data    []int64  `nbt:"data"`
+		Data    []uint64 `nbt:"data"`
 	} `nbt:"biomes"`
 	SkyLight   []int8
 	BlockLight []int8

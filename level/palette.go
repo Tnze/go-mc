@@ -5,53 +5,58 @@ import (
 	"math/bits"
 	"strconv"
 
+	"github.com/Tnze/go-mc/level/block"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-type state = int
+type State interface {
+	~int
+}
+type BlocksState = block.StateID
+type BiomesState int
 
-type PaletteContainer struct {
+type PaletteContainer[T State] struct {
 	bits    int
-	config  paletteCfg
-	palette palette
+	config  paletteCfg[T]
+	palette palette[T]
 	data    *BitStorage
 }
 
-func NewStatesPaletteContainer(length int, defaultValue state) *PaletteContainer {
-	return &PaletteContainer{
+func NewStatesPaletteContainer(length int, defaultValue BlocksState) *PaletteContainer[BlocksState] {
+	return &PaletteContainer[BlocksState]{
 		bits:    0,
 		config:  statesCfg{},
-		palette: &singleValuePalette{v: defaultValue},
+		palette: &singleValuePalette[BlocksState]{v: defaultValue},
 		data:    NewBitStorage(0, length, nil),
 	}
 }
 
-func NewStatesPaletteContainerWithData(length int, data []uint64, pat []int) *PaletteContainer {
-	var p palette
+func NewStatesPaletteContainerWithData(length int, data []uint64, pat []BlocksState) *PaletteContainer[BlocksState] {
+	var p palette[BlocksState]
 	n := bits.Len(uint(len(pat) - 1))
 	switch n {
 	case 0:
-		p = &singleValuePalette{pat[0]}
+		p = &singleValuePalette[BlocksState]{pat[0]}
 	case 1, 2, 3, 4:
 		n = 4
-		p = &linearPalette{
+		p = &linearPalette[BlocksState]{
 			values: pat,
 			bits:   n,
 		}
 	case 5, 6, 7, 8:
-		ids := make(map[state]int)
+		ids := make(map[BlocksState]int)
 		for i, v := range pat {
 			ids[v] = i
 		}
-		p = &hashPalette{
+		p = &hashPalette[BlocksState]{
 			ids:    ids,
 			values: pat,
 			bits:   n,
 		}
 	default:
-		p = &globalPalette{}
+		p = &globalPalette[BlocksState]{}
 	}
-	return &PaletteContainer{
+	return &PaletteContainer[BlocksState]{
 		bits:    n,
 		config:  statesCfg{},
 		palette: p,
@@ -59,30 +64,30 @@ func NewStatesPaletteContainerWithData(length int, data []uint64, pat []int) *Pa
 	}
 }
 
-func NewBiomesPaletteContainer(length int, defaultValue state) *PaletteContainer {
-	return &PaletteContainer{
+func NewBiomesPaletteContainer(length int, defaultValue BiomesState) *PaletteContainer[BiomesState] {
+	return &PaletteContainer[BiomesState]{
 		bits:    0,
 		config:  biomesCfg{},
-		palette: &singleValuePalette{v: defaultValue},
+		palette: &singleValuePalette[BiomesState]{v: defaultValue},
 		data:    NewBitStorage(0, length, nil),
 	}
 }
 
-func NewBiomesPaletteContainerWithData(length int, data []uint64, pat []int) *PaletteContainer {
-	var p palette
+func NewBiomesPaletteContainerWithData(length int, data []uint64, pat []BiomesState) *PaletteContainer[BiomesState] {
+	var p palette[BiomesState]
 	n := bits.Len(uint(len(pat) - 1))
 	switch n {
 	case 0:
-		p = &singleValuePalette{pat[0]}
+		p = &singleValuePalette[BiomesState]{pat[0]}
 	case 1, 2, 3:
-		p = &linearPalette{
+		p = &linearPalette[BiomesState]{
 			values: pat,
 			bits:   n,
 		}
 	default:
-		p = &globalPalette{}
+		p = &globalPalette[BiomesState]{}
 	}
-	return &PaletteContainer{
+	return &PaletteContainer[BiomesState]{
 		bits:    n,
 		config:  biomesCfg{},
 		palette: p,
@@ -90,17 +95,17 @@ func NewBiomesPaletteContainerWithData(length int, data []uint64, pat []int) *Pa
 	}
 }
 
-func (p *PaletteContainer) Get(i int) state {
+func (p *PaletteContainer[T]) Get(i int) T {
 	return p.palette.value(p.data.Get(i))
 }
 
-func (p *PaletteContainer) Set(i int, v state) {
+func (p *PaletteContainer[T]) Set(i int, v T) {
 	if vv, ok := p.palette.id(v); ok {
 		p.data.Set(i, vv)
 	} else {
 		// resize
 		oldLen := p.data.Len()
-		newPalette := PaletteContainer{
+		newPalette := PaletteContainer[T]{
 			bits:    vv,
 			config:  p.config,
 			palette: p.config.create(vv),
@@ -109,7 +114,7 @@ func (p *PaletteContainer) Set(i int, v state) {
 		// copy
 		for i := 0; i < oldLen; i++ {
 			raw := p.data.Get(i)
-			if vv, ok := newPalette.palette.id(raw); !ok {
+			if vv, ok := newPalette.palette.id(T(raw)); !ok {
 				panic("not reachable")
 			} else {
 				newPalette.data.Set(i, vv)
@@ -125,14 +130,14 @@ func (p *PaletteContainer) Set(i int, v state) {
 	}
 }
 
-func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
-	var bits pk.UnsignedByte
-	n, err = bits.ReadFrom(r)
+func (p *PaletteContainer[T]) ReadFrom(r io.Reader) (n int64, err error) {
+	var nBits pk.UnsignedByte
+	n, err = nBits.ReadFrom(r)
 	if err != nil {
 		return
 	}
-	p.bits = p.config.bits(int(bits))
-	p.palette = p.config.create(int(bits))
+	p.bits = p.config.bits(int(nBits))
+	p.palette = p.config.create(int(nBits))
 
 	nn, err := p.palette.ReadFrom(r)
 	n += nn
@@ -148,7 +153,7 @@ func (p *PaletteContainer) ReadFrom(r io.Reader) (n int64, err error) {
 	return n, nil
 }
 
-func (p *PaletteContainer) WriteTo(w io.Writer) (n int64, err error) {
+func (p *PaletteContainer[T]) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
 		pk.UnsignedByte(p.bits),
 		p.palette,
@@ -156,9 +161,9 @@ func (p *PaletteContainer) WriteTo(w io.Writer) (n int64, err error) {
 	}.WriteTo(w)
 }
 
-type paletteCfg interface {
+type paletteCfg[T State] interface {
 	bits(int) int
-	create(bits int) palette
+	create(bits int) palette[T]
 }
 
 type statesCfg struct{}
@@ -176,17 +181,17 @@ func (s statesCfg) bits(bits int) int {
 	}
 }
 
-func (s statesCfg) create(bits int) palette {
+func (s statesCfg) create(bits int) palette[BlocksState] {
 	switch bits {
 	case 0:
-		return &singleValuePalette{v: -1}
+		return &singleValuePalette[BlocksState]{v: -1}
 	case 1, 2, 3, 4:
-		return &linearPalette{bits: 4, values: make([]state, 0, 1<<4)}
+		return &linearPalette[BlocksState]{bits: 4, values: make([]BlocksState, 0, 1<<4)}
 	case 5, 6, 7, 8:
 		// TODO: HashMapPalette
-		return &linearPalette{bits: bits, values: make([]state, 0, 1<<bits)}
+		return &linearPalette[BlocksState]{bits: bits, values: make([]BlocksState, 0, 1<<bits)}
 	default:
-		return &globalPalette{}
+		return &globalPalette[BlocksState]{}
 	}
 }
 
@@ -202,31 +207,31 @@ func (b biomesCfg) bits(bits int) int {
 		return bits
 	}
 }
-func (b biomesCfg) create(bits int) palette {
+func (b biomesCfg) create(bits int) palette[BiomesState] {
 	switch bits {
 	case 0:
-		return &singleValuePalette{v: -1}
+		return &singleValuePalette[BiomesState]{v: -1}
 	case 1, 2, 3:
-		return &linearPalette{bits: bits, values: make([]state, 0, 1<<bits)}
+		return &linearPalette[BiomesState]{bits: bits, values: make([]BiomesState, 0, 1<<bits)}
 	default:
-		return &globalPalette{}
+		return &globalPalette[BiomesState]{}
 	}
 }
 
-type palette interface {
+type palette[T State] interface {
 	pk.Field
 	// id return the index of state v in the palette and true if existed.
 	// otherwise return the new bits for resize and false.
-	id(v state) (int, bool)
-	value(i int) state
-	export() []state
+	id(v T) (int, bool)
+	value(i int) T
+	export() []T
 }
 
-type singleValuePalette struct {
-	v state
+type singleValuePalette[T State] struct {
+	v T
 }
 
-func (s *singleValuePalette) id(v state) (int, bool) {
+func (s *singleValuePalette[T]) id(v T) (int, bool) {
 	if s.v == v {
 		return 0, true
 	}
@@ -234,37 +239,37 @@ func (s *singleValuePalette) id(v state) (int, bool) {
 	return 1, false
 }
 
-func (s *singleValuePalette) value(i int) state {
+func (s *singleValuePalette[T]) value(i int) T {
 	if i == 0 {
 		return s.v
 	}
 	panic("singleValuePalette: " + strconv.Itoa(i) + " out of bounds")
 }
 
-func (s *singleValuePalette) export() []state {
-	return []int{s.v}
+func (s *singleValuePalette[T]) export() []T {
+	return []T{s.v}
 }
 
-func (s *singleValuePalette) ReadFrom(r io.Reader) (n int64, err error) {
+func (s *singleValuePalette[T]) ReadFrom(r io.Reader) (n int64, err error) {
 	var i pk.VarInt
 	n, err = i.ReadFrom(r)
 	if err != nil {
 		return
 	}
-	s.v = state(i)
+	s.v = T(i)
 	return
 }
 
-func (s *singleValuePalette) WriteTo(w io.Writer) (n int64, err error) {
+func (s *singleValuePalette[T]) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.VarInt(s.v).WriteTo(w)
 }
 
-type linearPalette struct {
-	values []state
+type linearPalette[T State] struct {
+	values []T
 	bits   int
 }
 
-func (l *linearPalette) id(v state) (int, bool) {
+func (l *linearPalette[T]) id(v T) (int, bool) {
 	for i, t := range l.values {
 		if t == v {
 			return i, true
@@ -277,24 +282,24 @@ func (l *linearPalette) id(v state) (int, bool) {
 	return l.bits + 1, false
 }
 
-func (l *linearPalette) value(i int) state {
+func (l *linearPalette[T]) value(i int) T {
 	if i >= 0 && i < len(l.values) {
 		return l.values[i]
 	}
 	panic("linearPalette: " + strconv.Itoa(i) + " out of bounds")
 }
 
-func (l *linearPalette) export() []state {
+func (l *linearPalette[T]) export() []T {
 	return l.values
 }
 
-func (l *linearPalette) ReadFrom(r io.Reader) (n int64, err error) {
+func (l *linearPalette[T]) ReadFrom(r io.Reader) (n int64, err error) {
 	var size, value pk.VarInt
 	if n, err = size.ReadFrom(r); err != nil {
 		return
 	}
 	if int(size) > cap(l.values) {
-		l.values = make([]state, size)
+		l.values = make([]T, size)
 	} else {
 		l.values = l.values[:size]
 	}
@@ -304,12 +309,12 @@ func (l *linearPalette) ReadFrom(r io.Reader) (n int64, err error) {
 		} else {
 			n += nn
 		}
-		l.values[i] = state(value)
+		l.values[i] = T(value)
 	}
 	return
 }
 
-func (l *linearPalette) WriteTo(w io.Writer) (n int64, err error) {
+func (l *linearPalette[T]) WriteTo(w io.Writer) (n int64, err error) {
 	if n, err = pk.VarInt(len(l.values)).WriteTo(w); err != nil {
 		return
 	}
@@ -323,13 +328,13 @@ func (l *linearPalette) WriteTo(w io.Writer) (n int64, err error) {
 	return
 }
 
-type hashPalette struct {
-	ids    map[state]int
-	values []state
+type hashPalette[T State] struct {
+	ids    map[T]int
+	values []T
 	bits   int
 }
 
-func (h *hashPalette) id(v state) (int, bool) {
+func (h *hashPalette[T]) id(v T) (int, bool) {
 	if i, ok := h.ids[v]; ok {
 		return i, true
 	}
@@ -341,24 +346,24 @@ func (h *hashPalette) id(v state) (int, bool) {
 	return h.bits + 1, false
 }
 
-func (h *hashPalette) value(i int) state {
+func (h *hashPalette[T]) value(i int) T {
 	if i >= 0 && i < len(h.values) {
 		return h.values[i]
 	}
 	panic("hashPalette: " + strconv.Itoa(i) + " out of bounds")
 }
 
-func (h *hashPalette) export() []state {
+func (h *hashPalette[T]) export() []T {
 	return h.values
 }
 
-func (h *hashPalette) ReadFrom(r io.Reader) (n int64, err error) {
+func (h *hashPalette[T]) ReadFrom(r io.Reader) (n int64, err error) {
 	var size, value pk.VarInt
 	if n, err = size.ReadFrom(r); err != nil {
 		return
 	}
 	if int(size) > cap(h.values) {
-		h.values = make([]state, size)
+		h.values = make([]T, size)
 	} else {
 		h.values = h.values[:size]
 	}
@@ -368,13 +373,13 @@ func (h *hashPalette) ReadFrom(r io.Reader) (n int64, err error) {
 		} else {
 			n += nn
 		}
-		h.values[i] = state(value)
-		h.ids[state(value)] = i
+		h.values[i] = T(value)
+		h.ids[T(value)] = i
 	}
 	return
 }
 
-func (h *hashPalette) WriteTo(w io.Writer) (n int64, err error) {
+func (h *hashPalette[T]) WriteTo(w io.Writer) (n int64, err error) {
 	if n, err = pk.VarInt(len(h.values)).WriteTo(w); err != nil {
 		return
 	}
@@ -388,24 +393,24 @@ func (h *hashPalette) WriteTo(w io.Writer) (n int64, err error) {
 	return
 }
 
-type globalPalette struct{}
+type globalPalette[T State] struct{}
 
-func (g *globalPalette) id(v state) (int, bool) {
-	return v, true
+func (g *globalPalette[T]) id(v T) (int, bool) {
+	return int(v), true
 }
 
-func (g *globalPalette) value(i int) state {
-	return i
+func (g *globalPalette[T]) value(i int) T {
+	return T(i)
 }
 
-func (g *globalPalette) export() []state {
-	return []state{}
+func (g *globalPalette[T]) export() []T {
+	return []T{}
 }
 
-func (g *globalPalette) ReadFrom(_ io.Reader) (int64, error) {
+func (g *globalPalette[T]) ReadFrom(_ io.Reader) (int64, error) {
 	return 0, nil
 }
 
-func (g *globalPalette) WriteTo(_ io.Writer) (int64, error) {
+func (g *globalPalette[T]) WriteTo(_ io.Writer) (int64, error) {
 	return 0, nil
 }

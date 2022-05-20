@@ -1,6 +1,6 @@
 package block
 
-func IsAir(s int) bool {
+func IsAir(s StateID) bool {
 	switch StateList[s].(type) {
 	case Air, CaveAir, VoidAir:
 		return true
