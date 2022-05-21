@@ -24,7 +24,7 @@ func (m StringifiedMessage) TagType() byte {
 			return TagEnd
 		}
 		literal := d.data[start:d.readIndex()]
-		tagType, _ := parseLiteral(literal)
+		tagType, _, _ := parseLiteral(literal)
 		return tagType
 
 	case scanBeginCompound:

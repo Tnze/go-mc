@@ -30,7 +30,10 @@ func writeValue(e *Encoder, d *decodeState, writeTag bool, tagName string) error
 			return d.error(d.scan.errContext)
 		}
 		literal := d.data[start:d.readIndex()]
-		tagType, litVal := parseLiteral(literal)
+		tagType, litVal, err := parseLiteral(literal)
+		if err != nil {
+			return err
+		}
 		if writeTag {
 			if err := e.writeTag(tagType, tagName); err != nil {
 				return err
@@ -57,7 +60,7 @@ func writeValue(e *Encoder, d *decodeState, writeTag bool, tagName string) error
 	}
 }
 
-func writeLiteralPayload(e *Encoder, v interface{}) (err error) {
+func writeLiteralPayload(e *Encoder, v any) (err error) {
 	switch v.(type) {
 	case string:
 		str := v.(string)
@@ -101,7 +104,9 @@ func writeCompoundPayload(e *Encoder, d *decodeState) error {
 			return d.error(d.scan.errContext)
 		}
 		var tagName string
-		if tt, v := parseLiteral(d.data[start:d.readIndex()]); tt == TagString {
+		if tt, v, err := parseLiteral(d.data[start:d.readIndex()]); err != nil {
+			return err
+		} else if tt == TagString {
 			tagName = v.(string)
 		} else {
 			tagName = string(d.data[start:d.readIndex()])
@@ -205,7 +210,12 @@ func writeListOrArray(e *Encoder, d *decodeState) (tagType byte, err error) {
 					return tagType, d.error(d.scan.errContext)
 				}
 				literal := d.data[start:d.readIndex()]
-				subType, litVal := parseLiteral(literal)
+				var subType byte
+				var litVal any
+				subType, litVal, err = parseLiteral(literal)
+				if err != nil {
+					return tagType, err
+				}
 				if subType != elemType {
 					err = d.error("unexpected element type in TAG_Array")
 					return
@@ -252,7 +262,10 @@ func writeListOrArray(e *Encoder, d *decodeState) (tagType byte, err error) {
 		}
 		var tagType byte
 		for {
-			t, v := parseLiteral(literal)
+			t, v, err := parseLiteral(literal)
+			if err != nil {
+				return tagType, err
+			}
 			if tagType == 0 {
 				tagType = t
 			}
@@ -411,7 +424,7 @@ func (d *decodeState) scanWhile(op int) {
 // parseLiteral parse an SNBT literal, might be
 // TAG_String, TAG_Int, TAG_Float, ... etc.
 // so returned value is one of string, int32, float32 ...
-func parseLiteral(literal []byte) (byte, interface{}) {
+func parseLiteral(literal []byte) (byte, any, error) {
 	switch literal[0] {
 	case '"', '\'': // Quoted String
 		var sb strings.Builder
@@ -420,7 +433,7 @@ func parseLiteral(literal []byte) (byte, interface{}) {
 			c := literal[i]
 			switch c {
 			case literal[0]:
-				return TagString, sb.String()
+				return TagString, sb.String(), nil
 			case '\\':
 				i++
 				c = literal[i]
@@ -458,39 +471,39 @@ func parseLiteral(literal []byte) (byte, interface{}) {
 			}
 		}
 		if integer {
-			num, err := strconv.ParseInt(string(literal[:strlen]), 10, 64)
-			if err != nil {
-				panic(err)
-			}
 			switch numberType {
 			case 'B', 'b':
-				return TagByte, int8(num)
+				num, err := strconv.ParseInt(string(literal[:strlen]), 10, 8)
+				return TagByte, int8(num), err
 			case 'S', 's':
-				return TagShort, int16(num)
+				num, err := strconv.ParseInt(string(literal[:strlen]), 10, 16)
+				return TagShort, int16(num), err
 			default:
-				return TagInt, int32(num)
+				num, err := strconv.ParseInt(string(literal[:strlen]), 10, 32)
+				return TagInt, int32(num), err
 			case 'L', 'l':
-				return TagLong, num
+				num, err := strconv.ParseInt(string(literal[:strlen]), 10, 64)
+				return TagLong, num, err
 			case 'F', 'f':
-				return TagFloat, float32(num)
+				num, err := strconv.ParseFloat(string(literal[:strlen]), 32)
+				return TagFloat, float32(num), err
 			case 'D', 'd':
-				return TagDouble, float64(num)
+				num, err := strconv.ParseFloat(string(literal[:strlen]), 64)
+				return TagDouble, num, err
 			}
 		} else if number {
-			num, err := strconv.ParseFloat(string(literal[:strlen-1]), 64)
-			if err != nil {
-				panic(err)
-			}
 			switch numberType {
 			case 'F', 'f':
-				return TagFloat, float32(num)
+				num, err := strconv.ParseFloat(string(literal[:strlen-1]), 64)
+				return TagFloat, float32(num), err
 			case 'D', 'd':
 				fallthrough
 			default:
-				return TagDouble, num
+				num, err := strconv.ParseFloat(string(literal[:strlen-1]), 64)
+				return TagDouble, num, err
 			}
 		} else if unqstr {
-			return TagString, string(literal)
+			return TagString, string(literal), nil
 		}
 	}
 	panic(phasePanicMsg)
