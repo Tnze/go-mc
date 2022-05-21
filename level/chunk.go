@@ -188,7 +188,7 @@ var biomesNames = []string{
 }
 
 // ChunkFromSave convert save.Chunk to level.Chunk.
-func ChunkFromSave(c *save.Chunk) *Chunk {
+func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 	secs := len(c.Sections)
 	sections := make([]Section, secs)
 	for _, v := range c.Sections {
@@ -196,11 +196,11 @@ func ChunkFromSave(c *save.Chunk) *Chunk {
 		var err error
 		sections[i].BlockCount, sections[i].States, err = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		sections[i].Biomes, err = readBiomesPalette(v.Biomes.Palette, v.Biomes.Data)
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 		sections[i].SkyLight = v.SkyLight
 		sections[i].BlockLight = v.BlockLight
@@ -220,7 +220,7 @@ func ChunkFromSave(c *save.Chunk) *Chunk {
 			OceanFloor:             NewBitStorage(bitsForHeight, 16*16, oceanFloor),
 			WorldSurface:           NewBitStorage(bitsForHeight, 16*16, worldSurface),
 		},
-	}
+	}, nil
 }
 
 func readStatesPalette(palette []save.BlockState, data []uint64) (blockCount int16, paletteData *PaletteContainer[BlocksState], err error) {
@@ -261,7 +261,7 @@ func readBiomesPalette(palette []string, data []uint64) (*PaletteContainer[Biome
 }
 
 // ChunkToSave convert level.Chunk to save.Chunk
-func ChunkToSave(c *Chunk, dst *save.Chunk) {
+func ChunkToSave(c *Chunk, dst *save.Chunk) (err error) {
 	secs := len(c.Sections)
 	sections := make([]save.Section, secs)
 	for i, v := range c.Sections {
@@ -269,16 +269,20 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) {
 		states := &s.BlockStates
 		biomes := &s.Biomes
 		s.Y = int8(int32(i) + dst.YPos)
-		states.Palette, states.Data = writeStatesPalette(v.States)
+		states.Palette, states.Data, err = writeStatesPalette(v.States)
+		if err != nil {
+			return
+		}
 		biomes.Palette, biomes.Data = writeBiomesPalette(v.Biomes)
 		s.SkyLight = v.SkyLight
 		s.BlockLight = v.BlockLight
 	}
 	dst.Sections = sections
 	//dst.Heightmaps.MotionBlocking = c.HeightMaps.MotionBlocking.Raw()
+	return
 }
 
-func writeStatesPalette(paletteData *PaletteContainer[BlocksState]) (palette []save.BlockState, data []uint64) {
+func writeStatesPalette(paletteData *PaletteContainer[BlocksState]) (palette []save.BlockState, data []uint64, err error) {
 	rawPalette := paletteData.palette.export()
 	palette = make([]save.BlockState, len(rawPalette))
 	var buffer bytes.Buffer
@@ -287,11 +291,13 @@ func writeStatesPalette(paletteData *PaletteContainer[BlocksState]) (palette []s
 		palette[i].Name = b.ID()
 
 		buffer.Reset()
-		if err := nbt.NewEncoder(&buffer).Encode(b, ""); err != nil {
-			panic(err)
+		err = nbt.NewEncoder(&buffer).Encode(b, "")
+		if err != nil {
+			return
 		}
-		if _, err := nbt.NewDecoder(&buffer).Decode(&palette[i].Properties); err != nil {
-			panic(err)
+		_, err = nbt.NewDecoder(&buffer).Decode(&palette[i].Properties)
+		if err != nil {
+			return
 		}
 	}
 	data = append(data, paletteData.data.Raw()...)
