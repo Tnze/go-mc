@@ -6,7 +6,6 @@ import (
 	"io"
 	"math/bits"
 	"strings"
-	"unsafe"
 
 	"github.com/Tnze/go-mc/level/block"
 	"github.com/Tnze/go-mc/nbt"
@@ -194,15 +193,23 @@ func ChunkFromSave(c *save.Chunk) *Chunk {
 	sections := make([]Section, secs)
 	for _, v := range c.Sections {
 		i := int32(v.Y) - c.YPos
-		// TODO: the error is ignored
-		sections[i].BlockCount, sections[i].States, _ = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
-		sections[i].Biomes, _ = readBiomesPalette(v.Biomes.Palette, v.Biomes.Data)
+		var err error
+		sections[i].BlockCount, sections[i].States, err = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
+		if err != nil {
+			panic(err)
+		}
+		sections[i].Biomes, err = readBiomesPalette(v.Biomes.Palette, v.Biomes.Data)
+		if err != nil {
+			panic(err)
+		}
+		sections[i].SkyLight = v.SkyLight
+		sections[i].BlockLight = v.BlockLight
 	}
 
-	motionBlocking := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.MotionBlocking))
-	motionBlockingNoLeaves := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.MotionBlockingNoLeaves))
-	oceanFloor := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.OceanFloor))
-	worldSurface := *(*[]uint64)(unsafe.Pointer(&c.Heightmaps.WorldSurface))
+	motionBlocking := c.Heightmaps.MotionBlocking
+	motionBlockingNoLeaves := c.Heightmaps.MotionBlockingNoLeaves
+	oceanFloor := c.Heightmaps.OceanFloor
+	worldSurface := c.Heightmaps.WorldSurface
 
 	bitsForHeight := bits.Len( /* chunk height in blocks */ uint(secs) * 16)
 	return &Chunk{
@@ -264,6 +271,8 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) {
 		s.Y = int8(int32(i) + dst.YPos)
 		states.Palette, states.Data = writeStatesPalette(v.States)
 		biomes.Palette, biomes.Data = writeBiomesPalette(v.Biomes)
+		s.SkyLight = v.SkyLight
+		s.BlockLight = v.BlockLight
 	}
 	dst.Sections = sections
 	//dst.Heightmaps.MotionBlocking = c.HeightMaps.MotionBlocking.Raw()
@@ -306,6 +315,22 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	light := lightData{
+		SkyLightMask:   make(pk.BitSet, (16*16*16-1)>>6+1),
+		BlockLightMask: make(pk.BitSet, (16*16*16-1)>>6+1),
+		SkyLight:       []pk.ByteArray{},
+		BlockLight:     []pk.ByteArray{},
+	}
+	for i, v := range c.Sections {
+		if v.SkyLight != nil {
+			light.SkyLightMask.Set(i, true)
+			light.SkyLight = append(light.SkyLight, v.SkyLight)
+		}
+		if v.BlockLight != nil {
+			light.BlockLightMask.Set(i, true)
+			light.BlockLight = append(light.BlockLight, v.BlockLight)
+		}
+	}
 	return pk.Tuple{
 		// Heightmaps
 		pk.NBT(struct {
@@ -317,12 +342,7 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 		}),
 		pk.ByteArray(data),
 		pk.Array(c.BlockEntity),
-		&lightData{
-			SkyLightMask:   make(pk.BitSet, (16*16*16-1)>>6+1),
-			BlockLightMask: make(pk.BitSet, (16*16*16-1)>>6+1),
-			SkyLight:       []pk.ByteArray{},
-			BlockLight:     []pk.ByteArray{},
-		},
+		&light,
 	}.WriteTo(w)
 }
 
@@ -416,6 +436,10 @@ type Section struct {
 	BlockCount int16
 	States     *PaletteContainer[BlocksState]
 	Biomes     *PaletteContainer[BiomesState]
+	// Half a byte per light value.
+	// Could be nil if not exist
+	SkyLight   []byte // len() == 2048
+	BlockLight []byte // len() == 2048
 }
 
 func (s *Section) GetBlock(i int) BlocksState {

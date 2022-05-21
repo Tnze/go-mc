@@ -45,8 +45,8 @@ type Section struct {
 		Palette []string `nbt:"palette"`
 		Data    []uint64 `nbt:"data"`
 	} `nbt:"biomes"`
-	SkyLight   []int8
-	BlockLight []int8
+	SkyLight   []byte
+	BlockLight []byte
 }
 
 type BlockState struct {
