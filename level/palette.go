@@ -188,8 +188,11 @@ func (s statesCfg) create(bits int) palette[BlocksState] {
 	case 1, 2, 3, 4:
 		return &linearPalette[BlocksState]{bits: 4, values: make([]BlocksState, 0, 1<<4)}
 	case 5, 6, 7, 8:
-		// TODO: HashMapPalette
-		return &linearPalette[BlocksState]{bits: bits, values: make([]BlocksState, 0, 1<<bits)}
+		return &hashPalette[BlocksState]{
+			bits:   bits,
+			ids:    make(map[BlocksState]int),
+			values: make([]BlocksState, 0, 1<<bits),
+		}
 	default:
 		return &globalPalette[BlocksState]{}
 	}
