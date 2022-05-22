@@ -10,7 +10,7 @@ type Node[I constraints.Float, B interface {
 	Union(B) B
 	Surface() I
 }, V any] struct {
-	box      B
+	Box      B
 	Value    V
 	parent   *Node[I, B, V]
 	children [2]*Node[I, B, V]
@@ -35,17 +35,14 @@ func (n *Node[I, B, V]) findChildPointer(child *Node[I, B, V]) **Node[I, B, V] {
 	panic("unreachable, please make sure the 'not' is the n's child")
 }
 
-func (n *Node[I, B, V]) each(test func(bound B) bool, foreach func(v V)) {
+func (n *Node[I, B, V]) each(test func(bound B) bool, foreach func(n *Node[I, B, V]) bool) bool {
 	if n == nil {
-		return
+		return true
 	}
 	if n.isLeaf {
-		if test(n.box) {
-			foreach(n.Value)
-		}
+		return !test(n.Box) || foreach(n)
 	} else {
-		n.children[0].each(test, foreach)
-		n.children[1].each(test, foreach)
+		return n.children[0].each(test, foreach) && n.children[1].each(test, foreach)
 	}
 }
 
@@ -58,7 +55,7 @@ type Tree[I constraints.Float, B interface {
 
 func (t *Tree[I, B, V]) Insert(leaf B, value V) (n *Node[I, B, V]) {
 	n = &Node[I, B, V]{
-		box:      leaf,
+		Box:      leaf,
 		Value:    value,
 		parent:   nil,
 		children: [2]*Node[I, B, V]{nil, nil},
@@ -71,7 +68,7 @@ func (t *Tree[I, B, V]) Insert(leaf B, value V) (n *Node[I, B, V]) {
 
 	// Stage 1: find the best sibling for the new leaf
 	sibling := t.root
-	bestCost := t.root.box.Union(leaf).Surface()
+	bestCost := t.root.Box.Union(leaf).Surface()
 	parentTo := &t.root // the parent's children pointer which point to the sibling
 
 	var queue searchHeap[I, Node[I, B, V]]
@@ -81,8 +78,8 @@ func (t *Tree[I, B, V]) Insert(leaf B, value V) (n *Node[I, B, V]) {
 	for queue.Len() > 0 {
 		p := heap.Pop(&queue).(searchItem[I, Node[I, B, V]])
 		// determine if node p has the best cost
-		mergeSurface := p.pointer.box.Union(leaf).Surface()
-		deltaCost := mergeSurface - p.pointer.box.Surface()
+		mergeSurface := p.pointer.Box.Union(leaf).Surface()
+		deltaCost := mergeSurface - p.pointer.Box.Surface()
 		cost := p.inheritedCost + mergeSurface
 		if cost <= bestCost {
 			bestCost = cost
@@ -107,7 +104,7 @@ func (t *Tree[I, B, V]) Insert(leaf B, value V) (n *Node[I, B, V]) {
 
 	// Stage 2: create a new parent
 	*parentTo = &Node[I, B, V]{
-		box:      sibling.box.Union(leaf), // we will calculate in Stage3
+		Box:      sibling.Box.Union(leaf), // we will calculate in Stage3
 		parent:   sibling.parent,
 		children: [2]*Node[I, B, V]{sibling, n},
 		isLeaf:   false,
@@ -117,7 +114,7 @@ func (t *Tree[I, B, V]) Insert(leaf B, value V) (n *Node[I, B, V]) {
 
 	// Stage 3: walk back up the tree refitting AABBs
 	for p := *parentTo; p != nil; p = p.parent {
-		p.box = p.children[0].box.Union(p.children[1].box)
+		p.Box = p.children[0].Box.Union(p.children[1].Box)
 		t.rotate(p)
 	}
 	return
@@ -140,7 +137,7 @@ func (t *Tree[I, B, V]) Delete(n *Node[I, B, V]) interface{} {
 		*p = sibling
 		sibling.parent = grand
 		for p := sibling.parent; p.parent != nil; p = p.parent {
-			p.box = p.children[0].box.Union(p.children[1].box)
+			p.Box = p.children[0].Box.Union(p.children[1].Box)
 			t.rotate(p)
 		}
 	}
@@ -153,23 +150,23 @@ func (t *Tree[I, B, V]) rotate(n *Node[I, B, V]) {
 	}
 	// trying to swap n's sibling and children
 	sibling := n.parent.findAnotherChild(n)
-	current := n.box.Surface()
-	if n.children[1].box.Union(sibling.box).Surface() < current {
+	current := n.Box.Surface()
+	if n.children[1].Box.Union(sibling.Box).Surface() < current {
 		// swap n.children[0] and sibling
 		t1 := [2]*Node[I, B, V]{n, n.children[0]}
 		t2 := [2]*Node[I, B, V]{sibling, n.children[1]}
 		n.parent.children, n.children, n.children[0].parent, sibling.parent = t1, t2, n.parent, n
-		n.box = n.children[0].box.Union(n.children[1].box)
-	} else if n.children[0].box.Union(sibling.box).Surface() < current {
+		n.Box = n.children[0].Box.Union(n.children[1].Box)
+	} else if n.children[0].Box.Union(sibling.Box).Surface() < current {
 		// swap n.children[1] and sibling
 		t1 := [2]*Node[I, B, V]{n, n.children[1]}
 		t2 := [2]*Node[I, B, V]{sibling, n.children[0]}
 		n.parent.children, n.children, n.children[1].parent, sibling.parent = t1, t2, n.parent, n
-		n.box = n.children[0].box.Union(n.children[1].box)
+		n.Box = n.children[0].Box.Union(n.children[1].Box)
 	}
 }
 
-func (t *Tree[I, B, V]) Find(test func(bound B) bool, foreach func(v V)) {
+func (t *Tree[I, B, V]) Find(test func(bound B) bool, foreach func(n *Node[I, B, V]) bool) {
 	t.root.each(test, foreach)
 }
 

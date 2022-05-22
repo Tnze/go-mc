@@ -23,8 +23,9 @@ func TestTree2_Insert(t *testing.T) {
 		// visualize
 		t.Log(bvh)
 	}
-	bvh.Find(TouchPoint[Vec2[float64], AABB[float64, Vec2[float64]]](Vec2[float64]{0.5, 0.5}), func(v int) {
-		t.Logf("find! %v", v)
+	bvh.Find(TouchPoint[Vec2[float64], AABB[float64, Vec2[float64]]](Vec2[float64]{0.5, 0.5}), func(n *Node[float64, AABB[float64, Vec2[float64]], int]) bool {
+		t.Logf("find! %v", n.Value)
+		return true
 	})
 }
 
@@ -46,8 +47,9 @@ func TestTree2_Find_vec(t *testing.T) {
 	}
 	find := func(test func(bound AABBVec2d) bool) []int {
 		var result []int
-		bvh.Find(test, func(i int) {
-			result = append(result, i)
+		bvh.Find(test, func(n *Node[float64, AABBVec2d, int]) bool {
+			result = append(result, n.Value)
+			return true
 		})
 		return result
 	}
@@ -108,7 +110,7 @@ func BenchmarkTree2_Find_random(b *testing.B) {
 	b.ResetTimer()
 
 	for _, v := range poses {
-		bvh.Find(TouchPoint[Vec2d, AABBVec2d](v), func(v any) {})
+		bvh.Find(TouchPoint[Vec2d, AABBVec2d](v), func(n *Node[float64, AABBVec2d, any]) bool { return true })
 	}
 }
 

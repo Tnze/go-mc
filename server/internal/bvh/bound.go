@@ -56,4 +56,4 @@ func (s Sphere[I, V]) Union(other Sphere[I, V]) Sphere[I, V] {
 		R:      d + s.R + other.R,
 	}
 }
-func (s Sphere[I, V]) Surface() I { return I(2 * math.Pi * s.R) }
+func (s Sphere[I, V]) Surface() I { return 2 * math.Pi * s.R }
