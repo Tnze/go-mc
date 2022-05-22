@@ -74,3 +74,20 @@ func (c *Chunk) Load(data []byte) (err error) {
 	_, err = nbt.NewDecoder(r).Decode(c)
 	return
 }
+
+func (c *Chunk) Data(compressingType byte) ([]byte, error) {
+	var buff bytes.Buffer
+
+	buff.WriteByte(compressingType)
+	var w io.Writer
+	switch compressingType {
+	default:
+		return nil, errors.New("unknown compression")
+	case 1:
+		w = gzip.NewWriter(&buff)
+	case 2:
+		w = zlib.NewWriter(&buff)
+	}
+	err := nbt.NewEncoder(w).Encode(c, "")
+	return buff.Bytes(), err
+}
