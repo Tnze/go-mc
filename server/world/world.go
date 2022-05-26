@@ -22,6 +22,13 @@ type Dimension struct {
 	Name string
 }
 
+func NewDimension(name, path string) Dimension {
+	return Dimension{
+		Name:    name,
+		storage: storage{regionDir: path},
+	}
+}
+
 type DimensionList struct {
 	Dims                  []ecs.Index
 	DimNames              []string
@@ -39,6 +46,11 @@ func (d *DimensionList) Find(dim string) (ecs.Index, bool) {
 		}
 	}
 	return 0, false
+}
+
+func (d *DimensionList) Add(id ecs.Index, name string) {
+	d.Dims = append(d.Dims, id)
+	d.DimNames = append(d.DimNames, name)
 }
 
 func NewDimensionManager(g *server.Game) *DimensionList {

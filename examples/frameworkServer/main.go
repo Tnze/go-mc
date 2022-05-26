@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"flag"
+	"github.com/Tnze/go-mc/server/ecs"
 	"github.com/Tnze/go-mc/server/world"
 	"image"
 	_ "image/png"
@@ -57,7 +58,11 @@ func main() {
 		keepAlive,
 		commands,
 	)
-	world.NewDimensionManager(game)
+	ecs.Register[world.Dimension, *ecs.HashMapStorage[world.Dimension]](game.World)
+	dimList := world.NewDimensionManager(game)
+	dimList.Add(game.CreateEntity(world.NewDimension(
+		"minecraft:overworld", *regionPath,
+	)), "minecraft:overworld")
 	player.SpawnSystem(game, "./save/testdata/playerdata")
 	player.PosAndRotSystem(game)
 	go game.Run(context.Background())

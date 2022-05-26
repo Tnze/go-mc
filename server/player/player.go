@@ -7,7 +7,6 @@ import (
 	"github.com/Tnze/go-mc/server"
 	"github.com/Tnze/go-mc/server/ecs"
 	"github.com/Tnze/go-mc/server/world"
-	"log"
 )
 
 type PlayerProfile struct {
@@ -31,7 +30,6 @@ func (p playerSpawnSystem) Update(w *ecs.World) {
 			client.PutErr(fmt.Errorf("read player data fail: %w", err))
 			return
 		}
-		log.Println("load player info successes", profile)
 		dim, ok := dimensionRes.Find(profile.Dimension)
 		if !ok {
 			panic("dimension " + profile.Dimension + " not found")
