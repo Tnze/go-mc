@@ -273,3 +273,51 @@ func TestEncoder_Encode_textMarshaler(t *testing.T) {
 		t.Errorf("get %v, want %v", data, wants)
 	}
 }
+
+func TestEncoder_Encode_omitempty(t *testing.T) {
+	type Struct struct {
+		S string `nbt:"test,omitempty"`
+		B []byte `nbt:",omitempty"`
+		I int32  `nbt:",omitempty"`
+	}
+
+	tests := []struct {
+		name string
+		args any
+		want []byte
+	}{
+		{
+			name: "Empty struct",
+			args: Struct{},
+			want: []byte{
+				TagCompound, 0x00, 0x00,
+				TagEnd,
+			},
+		}, {
+			name: "Non-empty struct",
+			args: Struct{
+				S: "ab",
+				B: []byte{4, 5},
+				I: 9,
+			},
+			want: []byte{
+				TagCompound, 0x00, 0x00,
+				TagString, 0x00, 4, 't', 'e', 's', 't', 0, 2, 'a', 'b',
+				TagByteArray, 0x00, 1, 'B', 0x00, 0x00, 0, 2, 4, 5,
+				TagInt, 0x00, 1, 'I', 0x00, 0x00, 0x00, 0x09,
+				TagEnd,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			data, err := Marshal(tt.args)
+			if err != nil {
+				t.Error(err)
+			} else if !bytes.Equal(data, tt.want) {
+				t.Errorf("Marshal([]struct{}) got = % 02x, want % 02x", data, tt.want)
+				return
+			}
+		})
+	}
+}

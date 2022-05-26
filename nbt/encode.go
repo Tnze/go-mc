@@ -197,6 +197,10 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 				}
 
 				tagProps := parseTag(f, v, tag)
+				if tagProps.OmitEmpty && isEmptyValue(v) {
+					continue
+				}
+
 				if err := e.marshal(val.Field(i), tagProps.Type, tagProps.Name); err != nil {
 					return err
 				}
@@ -318,11 +322,17 @@ func getTagTypeByType(vk reflect.Type) byte {
 }
 
 type tagProps struct {
-	Name string
-	Type byte
+	Name      string
+	Type      byte
+	OmitEmpty bool
 }
 
 func parseTag(f reflect.StructField, v reflect.Value, tagName string) (result tagProps) {
+	if strings.HasSuffix(tagName, ",omitempty") {
+		result.OmitEmpty = true
+		tagName = tagName[:len(tagName)-10]
+	}
+
 	if tagName != "" {
 		result.Name = tagName
 	} else {
@@ -380,4 +390,23 @@ func (e *Encoder) writeInt64(n int64) error {
 		byte(n >> 56), byte(n >> 48), byte(n >> 40), byte(n >> 32),
 		byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
 	return err
+}
+
+// Copied from encoding/json/encode.go
+func isEmptyValue(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Array, reflect.Map, reflect.Slice, reflect.String:
+		return v.Len() == 0
+	case reflect.Bool:
+		return !v.Bool()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v.Int() == 0
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return v.Uint() == 0
+	case reflect.Float32, reflect.Float64:
+		return v.Float() == 0
+	case reflect.Interface, reflect.Pointer:
+		return v.IsNil()
+	}
+	return false
 }
