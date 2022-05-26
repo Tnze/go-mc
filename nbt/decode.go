@@ -253,13 +253,18 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		vt := val.Type() //receiver must be []int or []int32
 		if vt.Kind() == reflect.Interface {
 			vt = reflect.TypeOf([]int32{}) // pass
-		} else if vt.Kind() != reflect.Slice {
+		} else if vt.Kind() == reflect.Array && vt.Len() != int(aryLen) {
+			return errors.New("cannot parse TagIntArray to " + vt.String() + ", length not match")
+		} else if k := vt.Kind(); k != reflect.Slice && k != reflect.Array {
 			return errors.New("cannot parse TagIntArray to " + vt.String() + ", it must be a slice")
 		} else if tk := val.Type().Elem().Kind(); tk != reflect.Int && tk != reflect.Int32 {
 			return errors.New("cannot parse TagIntArray to " + vt.String())
 		}
 
-		buf := reflect.MakeSlice(vt, int(aryLen), int(aryLen))
+		buf := val
+		if vt.Kind() == reflect.Slice {
+			buf = reflect.MakeSlice(vt, int(aryLen), int(aryLen))
+		}
 		for i := 0; i < int(aryLen); i++ {
 			value, err := d.readInt()
 			if err != nil {
@@ -267,7 +272,9 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 			}
 			buf.Index(i).SetInt(int64(value))
 		}
-		val.Set(buf)
+		if vt.Kind() == reflect.Slice {
+			val.Set(buf)
+		}
 
 	case TagLongArray:
 		aryLen, err := d.readInt()

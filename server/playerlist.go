@@ -16,7 +16,7 @@ import (
 // This struct should not be copied after used.
 type PlayerList struct {
 	maxPlayer int
-	players   map[uuid.UUID]*Player
+	clients   map[uuid.UUID]*Player
 	// Only the field players is protected by this Mutex.
 	// Because others field never change after created.
 	playersLock sync.Mutex
@@ -26,7 +26,7 @@ type PlayerList struct {
 func NewPlayerList(maxPlayers int) *PlayerList {
 	return &PlayerList{
 		maxPlayer: maxPlayers,
-		players:   make(map[uuid.UUID]*Player),
+		clients:   make(map[uuid.UUID]*Player),
 	}
 }
 
@@ -36,35 +36,35 @@ func (p *PlayerList) Init(*Game) {}
 // Run implement Component for PlayerList
 func (p *PlayerList) Run(context.Context) {}
 
-// AddPlayer implement Component for PlayerList
-func (p *PlayerList) AddPlayer(player *Player) {
+// ClientJoin implement Component for PlayerList
+func (p *PlayerList) ClientJoin(client *Client, player *Player) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
 
-	if len(p.players) >= p.maxPlayer {
-		player.WritePacket(Packet758(pk.Marshal(
+	if len(p.clients) >= p.maxPlayer {
+		client.WritePacket(Packet758(pk.Marshal(
 			packetid.ClientboundDisconnect,
 			chat.TranslateMsg("multiplayer.disconnect.server_full"),
 		)))
-		player.PutErr(errors.New("playerlist: server full"))
+		client.PutErr(errors.New("playerlist: server full"))
 		return
 	}
 
-	p.players[player.UUID] = player
+	p.clients[player.UUID] = player
 }
 
-// RemovePlayer implement Component for PlayerList
-func (p *PlayerList) RemovePlayer(player *Player) {
+// ClientLeft implement Component for PlayerList
+func (p *PlayerList) ClientLeft(_ *Client, player *Player) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
-	delete(p.players, player.UUID)
+	delete(p.clients, player.UUID)
 }
 
 // CheckPlayer implement LoginChecker for PlayerList
 func (p *PlayerList) CheckPlayer(name string, id uuid.UUID, protocol int32) (ok bool, reason chat.Message) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
-	if len(p.players) >= p.maxPlayer {
+	if len(p.clients) >= p.maxPlayer {
 		return false, chat.TranslateMsg("multiplayer.disconnect.server_full")
 	}
 	return true, chat.Message{}
@@ -77,20 +77,20 @@ func (p *PlayerList) MaxPlayer() int {
 func (p *PlayerList) OnlinePlayer() int {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
-	return len(p.players)
+	return len(p.clients)
 }
 
 func (p *PlayerList) PlayerSamples() (sample []PlayerSample) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
 	// Up to 10 players can be returned
-	length := len(p.players)
+	length := len(p.clients)
 	if length > 10 {
 		length = 10
 	}
 	sample = make([]PlayerSample, length)
 	var i int
-	for _, v := range p.players {
+	for _, v := range p.clients {
 		sample[i] = PlayerSample{
 			Name: v.Name,
 			ID:   v.UUID,

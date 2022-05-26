@@ -4,14 +4,16 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"image"
+	"image/png"
+	"strings"
+
+	"github.com/google/uuid"
+
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/google/uuid"
-	"image"
-	"image/png"
-	"strings"
 )
 
 // ListPingHandler collect server running status info

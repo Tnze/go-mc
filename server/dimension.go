@@ -9,8 +9,8 @@ import (
 type Level interface {
 	Init(g *Game)
 	Info() LevelInfo
-	PlayerJoin(p *Player)
-	PlayerQuit(p *Player)
+	PlayerJoin(p *Client)
+	PlayerQuit(p *Client)
 }
 
 type LevelInfo struct {
@@ -43,7 +43,7 @@ func (s *SimpleDim) Info() LevelInfo {
 	}
 }
 
-func (s *SimpleDim) PlayerJoin(p *Player) {
+func (s *SimpleDim) PlayerJoin(p *Client) {
 	for pos, column := range s.columns {
 		packet := pk.Marshal(
 			packetid.ClientboundLevelChunkWithLight,
@@ -53,4 +53,4 @@ func (s *SimpleDim) PlayerJoin(p *Player) {
 	}
 }
 
-func (s *SimpleDim) PlayerQuit(*Player) {}
+func (s *SimpleDim) PlayerQuit(*Client) {}

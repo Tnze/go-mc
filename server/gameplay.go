@@ -3,15 +3,13 @@ package server
 import (
 	"context"
 	_ "embed"
-	"sync"
-	"sync/atomic"
+	"time"
 
 	"github.com/google/uuid"
 
-	"github.com/Tnze/go-mc/data/packetid"
-	"github.com/Tnze/go-mc/nbt"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/server/ecs"
 )
 
 type GamePlay interface {
@@ -23,18 +21,10 @@ type GamePlay interface {
 }
 
 type Game struct {
-	Dim        Level
-	components []Component
+	*ecs.World
+	*ecs.Dispatcher
 	handlers   map[int32][]*PacketHandler
-
-	eid int32
-}
-
-type Component interface {
-	Init(g *Game)
-	Run(ctx context.Context)
-	AddPlayer(p *Player)
-	RemovePlayer(p *Player)
+	components []Component
 }
 
 type PacketHandler struct {
@@ -42,24 +32,27 @@ type PacketHandler struct {
 	F  packetHandlerFunc
 }
 
-type packetHandlerFunc func(player *Player, packet Packet758) error
+type packetHandlerFunc func(client *Client, player *Player, packet Packet758) error
 
-//go:embed DimensionCodec.snbt
-var dimensionCodecSNBT nbt.StringifiedMessage
+type Component interface {
+	Init(g *Game)
+	Run(ctx context.Context)
+	ClientJoin(c *Client, p *Player)
+	ClientLeft(c *Client, p *Player)
+}
 
-//go:embed Dimension.snbt
-var dimensionSNBT nbt.StringifiedMessage
-
-func NewGame(dim Level, components ...Component) *Game {
+func NewGame(components ...Component) *Game {
 	g := &Game{
-		Dim:        dim,
-		components: components,
+		World:      ecs.NewWorld(),
+		Dispatcher: ecs.NewDispatcher(),
 		handlers:   make(map[int32][]*PacketHandler),
+		components: components,
 	}
-	dim.Init(g)
-	for _, v := range components {
-		v.Init(g)
+	for _, c := range components {
+		c.Init(g)
 	}
+	ecs.Register[Client, *ecs.HashMapStorage[Client]](g.World)
+	ecs.Register[Player, *ecs.HashMapStorage[Player]](g.World)
 	return g
 }
 
@@ -68,73 +61,68 @@ func (g *Game) AddHandler(ph *PacketHandler) {
 }
 
 func (g *Game) Run(ctx context.Context) {
-	var wg sync.WaitGroup
-	wg.Add(len(g.components))
 	for _, c := range g.components {
-		go func(c Component) {
-			defer wg.Done()
-			c.Run(ctx)
-		}(c)
+		go c.Run(ctx)
 	}
-	wg.Wait()
+	ticker := time.NewTicker(time.Second / 20)
+	for {
+		select {
+		case <-ticker.C:
+			g.Dispatcher.Run(g.World)
+		case <-ctx.Done():
+			return
+		}
+	}
 }
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
-	p := NewPlayer(conn, name, id, g.newEID(), 1)
-	defer p.Close()
-	dimInfo := g.Dim.Info()
-	err := p.Conn.WritePacket(pk.Marshal(
-		packetid.ClientboundLogin,
-		pk.Int(p.EntityID),  // Entity ID
-		pk.Boolean(false),   // Is hardcore
-		pk.Byte(p.Gamemode), // Gamemode
-		pk.Byte(-1),         // Prev Gamemode
-		pk.Array([]pk.Identifier{
-			pk.Identifier(dimInfo.Name),
-		}),
-		pk.NBT(dimensionCodecSNBT),
-		pk.NBT(dimensionSNBT),
-		pk.Identifier(dimInfo.Name), // World Name
-		pk.Long(dimInfo.HashedSeed), // Hashed seed
-		pk.VarInt(0),                // Max Players (Ignored by client)
-		pk.VarInt(15),               // View Distance
-		pk.VarInt(15),               // Simulation Distance
-		pk.Boolean(false),           // Reduced Debug Info
-		pk.Boolean(true),            // Enable respawn screen
-		pk.Boolean(false),           // Is Debug
-		pk.Boolean(true),            // Is Flat
-	))
-	if err != nil {
-		return
-	}
+	eid := g.CreateEntity(
+		Client{
+			Conn:        conn,
+			Protocol:    protocol,
+			packetQueue: NewPacketQueue(),
+			errChan:     make(chan error, 1),
+		},
+		Player{
+			UUID: id,
+			Name: name,
+		},
+	)
+	c := ecs.GetComponent[Client](g.World).GetValue(eid)
+	p := ecs.GetComponent[Player](g.World).GetValue(eid)
+	defer c.packetQueue.Close()
 
-	g.Dim.PlayerJoin(p)
-	defer g.Dim.PlayerQuit(p)
-
-	for _, c := range g.components {
-		c.AddPlayer(p)
-		if err := p.GetErr(); err != nil {
-			return
+	go func() {
+		for {
+			packet, ok := c.packetQueue.Pull()
+			if !ok {
+				break
+			}
+			err := c.Conn.WritePacket(packet)
+			if err != nil {
+				c.PutErr(err)
+				break
+			}
 		}
-		defer c.RemovePlayer(p)
+	}()
+
+	for _, component := range g.components {
+		component.ClientJoin(c, p)
+		defer component.ClientLeft(c, p)
 	}
 
 	var packet pk.Packet
 	for {
-		if err := p.ReadPacket(&packet); err != nil {
+		if err := c.ReadPacket(&packet); err != nil {
 			return
 		}
 		for _, ph := range g.handlers[packet.ID] {
-			if err := ph.F(p, Packet758(packet)); err != nil {
+			if err := ph.F(c, p, Packet758(packet)); err != nil {
 				return
 			}
-			if err := p.GetErr(); err != nil {
+			if err := c.GetErr(); err != nil {
 				return
 			}
 		}
 	}
-}
-
-func (g *Game) newEID() int32 {
-	return atomic.AddInt32(&g.eid, 1)
 }

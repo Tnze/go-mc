@@ -4,20 +4,16 @@ import (
 	"context"
 	_ "embed"
 	"flag"
-	"fmt"
+	"github.com/Tnze/go-mc/server/world"
 	"image"
 	_ "image/png"
 	"log"
 	"os"
-	"path/filepath"
-	"time"
 
 	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/level"
-	"github.com/Tnze/go-mc/save"
-	"github.com/Tnze/go-mc/save/region"
 	"github.com/Tnze/go-mc/server"
 	"github.com/Tnze/go-mc/server/command"
+	"github.com/Tnze/go-mc/server/player"
 )
 
 var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
@@ -35,11 +31,7 @@ func main() {
 	}
 
 	keepAlive := server.NewKeepAlive()
-	playerInfo := server.NewPlayerInfo(time.Second, keepAlive)
-	defaultDimension, err := loadAllRegions(*regionPath)
-	if err != nil {
-		log.Fatalf("Load chunks fail: %v", err)
-	}
+	//playerInfo := player.NewPlayerInfo(keepAlive)
 
 	commands := command.NewGraph()
 	handleFunc := func(ctx context.Context, args []command.ParsedData) error {
@@ -59,21 +51,21 @@ func main() {
 			HandleFunc(handleFunc)).
 		HandleFunc(handleFunc),
 	)
-
 	game := server.NewGame(
-		defaultDimension,
 		playerList,
-		playerInfo,
+		//playerInfo,
 		keepAlive,
-		server.NewGlobalChat(),
 		commands,
 	)
+	world.NewDimensionManager(game)
+	player.SpawnSystem(game, "./save/testdata/playerdata")
+	player.PosAndRotSystem(game)
 	go game.Run(context.Background())
 
 	s := server.Server{
 		ListPingHandler: serverInfo,
 		LoginHandler: &server.MojangLoginHandler{
-			OnlineMode:   false,
+			OnlineMode:   true,
 			Threshold:    256,
 			LoginChecker: playerList,
 		},
@@ -99,53 +91,4 @@ func readIcon() image.Image {
 		log.Fatalf("Decode image error: %v", err)
 	}
 	return icon
-}
-
-func loadAllRegions(dir string) (*server.SimpleDim, error) {
-	mcafiles, err := filepath.Glob(filepath.Join(dir, "r.*.*.mca"))
-	if err != nil {
-		return nil, err
-	}
-	dim := server.NewSimpleDim(256)
-	for _, file := range mcafiles {
-		var rx, rz int
-		_, err := fmt.Sscanf(filepath.Base(file), "r.%d.%d.mca", &rx, &rz)
-		if err != nil {
-			return nil, err
-		}
-		err = loadAllChunks(dim, file, rx, rz)
-		if err != nil {
-			return nil, err
-		}
-	}
-	return dim, nil
-}
-
-func loadAllChunks(dim *server.SimpleDim, file string, rx, rz int) error {
-	r, err := region.Open(file)
-	if err != nil {
-		return err
-	}
-	defer r.Close()
-	var c save.Chunk
-	for x := 0; x < 32; x++ {
-		for z := 0; z < 32; z++ {
-			if !r.ExistSector(x, z) {
-				continue
-			}
-			data, err := r.ReadSector(x, z)
-			if err != nil {
-				return err
-			}
-			if err := c.Load(data); err != nil {
-				return err
-			}
-			chunk, err := level.ChunkFromSave(&c)
-			if err != nil {
-				return err
-			}
-			dim.LoadChunk(level.ChunkPos{X: rx<<5 + x, Z: rz<<5 + z}, chunk)
-		}
-	}
-	return nil
 }

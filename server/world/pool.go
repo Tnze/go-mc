@@ -1,4 +1,4 @@
-package dimension
+package world
 
 import (
 	"fmt"

@@ -1,9 +1,7 @@
 package save
 
 import (
-	"encoding/binary"
 	"github.com/Tnze/go-mc/nbt"
-	"github.com/google/uuid"
 	"io"
 )
 
@@ -18,8 +16,7 @@ type PlayerData struct {
 	FallFlying   byte
 	OnGround     byte
 
-	UUID                uuid.UUID `nbt:"-"`
-	UUIDLeast, UUIDMost int64
+	UUID [4]int32
 
 	PlayerGameType  int32 `nbt:"playerGameType"`
 	Air             int16
@@ -80,8 +77,5 @@ type Item struct {
 
 func ReadPlayerData(r io.Reader) (data PlayerData, err error) {
 	_, err = nbt.NewDecoder(r).Decode(&data)
-	//parse UUID from two int64s
-	binary.BigEndian.PutUint64(data.UUID[:], uint64(data.UUIDMost))
-	binary.BigEndian.PutUint64(data.UUID[8:], uint64(data.UUIDLeast))
 	return
 }

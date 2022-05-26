@@ -2,54 +2,27 @@ package server
 
 import (
 	"container/list"
-	"github.com/google/uuid"
 	"strconv"
 	"sync"
 
+	"github.com/google/uuid"
+
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/server/ecs"
 )
 
-type Player struct {
+type Client struct {
 	*net.Conn
-
-	Name string
-	uuid.UUID
-	EntityID int32
-	Gamemode byte
-
+	Protocol int32
+	ecs.Index
 	packetQueue *PacketQueue
 	errChan     chan error
 }
 
-func NewPlayer(conn *net.Conn, name string, id uuid.UUID, eid int32, gamemode byte) (p *Player) {
-	p = &Player{
-		Conn:        conn,
-		Name:        name,
-		UUID:        id,
-		EntityID:    eid,
-		Gamemode:    gamemode,
-		packetQueue: NewPacketQueue(),
-		errChan:     make(chan error, 1),
-	}
-	go func() {
-		for {
-			packet, ok := p.packetQueue.Pull()
-			if !ok {
-				break
-			}
-			err := p.Conn.WritePacket(packet)
-			if err != nil {
-				p.PutErr(err)
-				break
-			}
-		}
-	}()
-	return
-}
-
-func (p *Player) Close() {
-	p.packetQueue.Close()
+type Player struct {
+	uuid.UUID
+	Name string
 }
 
 // Packet758 is a packet in protocol 757.
@@ -58,8 +31,8 @@ type Packet758 pk.Packet
 type Packet757 pk.Packet
 
 // WritePacket to player client. The type of parameter will update per version.
-func (p *Player) WritePacket(packet Packet758) {
-	p.packetQueue.Push(pk.Packet(packet))
+func (c *Client) WritePacket(packet Packet758) {
+	c.packetQueue.Push(pk.Packet(packet))
 }
 
 type WritePacketError struct {
@@ -75,17 +48,17 @@ func (s WritePacketError) Unwrap() error {
 	return s.Err
 }
 
-func (p *Player) PutErr(err error) {
+func (c *Client) PutErr(err error) {
 	select {
-	case p.errChan <- err:
+	case c.errChan <- err:
 	default:
 		// previous error exist, ignore this.
 	}
 }
 
-func (p *Player) GetErr() error {
+func (c *Client) GetErr() error {
 	select {
-	case err := <-p.errChan:
+	case err := <-c.errChan:
 		return err
 	default:
 		return nil
