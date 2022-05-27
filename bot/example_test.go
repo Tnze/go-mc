@@ -48,12 +48,16 @@ func ExampleClient_JoinServer_offline() {
 func ExampleClient_JoinServer_online() {
 	c := NewClient()
 
-	//Login Mojang account to get AccessToken
+	// Login Mojang account to get AccessToken
+	// To use Microsoft Account, see issue #106
+	// https://github.com/Tnze/go-mc/issues/106
 	auth, err := yggdrasil.Authenticate("Your E-mail", "Your Password")
 	if err != nil {
 		panic(err)
 	}
 
+	// As long as you set these three fields correctly,
+	// the client can connect to the online-mode server
 	c.Auth.UUID, c.Auth.Name = auth.SelectedProfile()
 	c.Auth.AsTk = auth.AccessToken()
 
