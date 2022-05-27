@@ -23,7 +23,7 @@ func (p playerSpawnSystem) Update(w *ecs.World) {
 	pos, rot := ecs.GetComponent[server.Pos](w), ecs.GetComponent[server.Rot](w)
 	profiles := ecs.GetComponent[PlayerProfile](w)
 	dimensionRes := ecs.GetResource[world.DimensionList](w)
-	players.AndNot(profiles.BitSetLike).Range(func(eid ecs.Index) {
+	players.AndNot(profiles.BitSet).Range(func(eid ecs.Index) {
 		player := players.GetValue(eid)
 		client := clients.GetValue(eid)
 		profile, err := p.GetPlayer(player.UUID)

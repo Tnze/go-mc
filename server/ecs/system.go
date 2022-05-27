@@ -14,8 +14,9 @@ type funcsystem struct {
 
 func FuncSystem(F any) System {
 	type Storage interface {
-		BitSetLike
 		GetValueAny(eid Index) any
+		And(*BitSet) *BitSet
+		Range(f func(eid Index))
 	}
 	f := reflect.ValueOf(F)
 	in := f.Type().NumIn()
@@ -37,22 +38,25 @@ func FuncSystem(F any) System {
 			}
 			args := make([]reflect.Value, len(storages))
 			if len(storages) > 0 {
-				set := BitSetLike(storages[0])
+				set := reflect.ValueOf(storages[0]).FieldByName("BitSet").Addr()
 				for _, v := range storages[1:] {
-					set = set.And(v)
+					p := reflect.ValueOf(v).FieldByName("BitSet").Addr()
+					set = set.MethodByName("And").Call([]reflect.Value{p})[0]
 				}
-				set.Range(func(eid Index) {
-					for i := range args {
-						arg := storages[i].GetValueAny(eid)
-						if arg == nil {
-							args[i] = reflect.Zero(argTypes[i])
-						} else if needCopy[i] {
-							args[i] = reflect.ValueOf(arg).Elem()
-						} else {
-							args[i] = reflect.ValueOf(arg)
+				set.MethodByName("Range").Call([]reflect.Value{
+					reflect.ValueOf(func(eid Index) {
+						for i := range args {
+							arg := storages[i].GetValueAny(eid)
+							if arg == nil {
+								args[i] = reflect.Zero(argTypes[i])
+							} else if needCopy[i] {
+								args[i] = reflect.ValueOf(arg).Elem()
+							} else {
+								args[i] = reflect.ValueOf(arg)
+							}
 						}
-					}
-					f.Call(args)
+						f.Call(args)
+					}),
 				})
 			} else {
 				f.Call(args)

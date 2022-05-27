@@ -45,15 +45,12 @@ func (NullStorage[T]) SetValue(eid Index, v T) {}
 func (NullStorage[T]) DelValue(eid Index)      {}
 
 type MaskedStorage[T any] struct {
-	BitSetLike
+	BitSet
 	Storage[T]
 	Len int
 }
 
 func (m *MaskedStorage[T]) Init() {
-	if m.BitSetLike == nil {
-		m.BitSetLike = BitSet{make(map[Index]struct{})}
-	}
 	m.Storage.Init()
 }
 func (m *MaskedStorage[T]) GetValue(eid Index) *T {
@@ -64,14 +61,14 @@ func (m *MaskedStorage[T]) GetValue(eid Index) *T {
 }
 func (m *MaskedStorage[T]) GetValueAny(eid Index) any { return m.GetValue(eid) }
 func (m *MaskedStorage[T]) SetValue(eid Index, v T) {
-	if !m.BitSetLike.Set(eid) {
+	if !m.BitSet.Set(eid) {
 		m.Len++
 	}
 	m.Storage.SetValue(eid, v)
 }
 func (m *MaskedStorage[T]) SetAny(eid Index, v any) { m.SetValue(eid, v.(T)) }
 func (m *MaskedStorage[T]) DelValue(eid Index) {
-	if m.BitSetLike.Unset(eid) {
+	if m.BitSet.Unset(eid) {
 		m.Len--
 	}
 	m.Storage.DelValue(eid)

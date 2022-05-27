@@ -59,9 +59,13 @@ func (b *BitSet) And(other *BitSet) *BitSet {
 }
 
 func (b *BitSet) AndNot(other BitSet) *BitSet {
-	result := BitSet{values: make([]uint, max(len(b.values), len(other.values)))}
+	result := BitSet{values: make([]uint, len(b.values))}
 	for i := range b.values {
-		result.values[i] = b.values[i] & ^other.values[i]
+		if i < len(other.values) {
+			result.values[i] = b.values[i] & ^other.values[i]
+		} else {
+			result.values[i] = b.values[i]
+		}
 	}
 	return &result
 }

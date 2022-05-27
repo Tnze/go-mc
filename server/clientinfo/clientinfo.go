@@ -38,7 +38,7 @@ func (c *ClientInformation) Init(g *server.Game) {
 				return
 			}
 		}
-	}), "ClientInfoSystem", nil)
+	}), "go-mc:ClientInfoSystem", nil)
 	g.AddHandler(&server.PacketHandler{
 		ID: packetid.ServerboundClientInformation,
 		F: func(client *server.Client, player *server.Player, p server.Packet758) error {

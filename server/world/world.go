@@ -2,12 +2,12 @@ package world
 
 import (
 	_ "embed"
-	"github.com/Tnze/go-mc/server"
 	"io"
 	"unsafe"
 
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/server"
 	"github.com/Tnze/go-mc/server/ecs"
 )
 
