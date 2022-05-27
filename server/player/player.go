@@ -20,6 +20,7 @@ type playerSpawnSystem struct {
 func (p playerSpawnSystem) Update(w *ecs.World) {
 	clients := ecs.GetComponent[server.Client](w)
 	players := ecs.GetComponent[server.Player](w)
+	pos, rot := ecs.GetComponent[server.Pos](w), ecs.GetComponent[server.Rot](w)
 	profiles := ecs.GetComponent[PlayerProfile](w)
 	dimensionRes := ecs.GetResource[world.DimensionList](w)
 	players.AndNot(profiles.BitSetLike).Range(func(eid ecs.Index) {
@@ -35,6 +36,15 @@ func (p playerSpawnSystem) Update(w *ecs.World) {
 			panic("dimension " + profile.Dimension + " not found")
 		}
 		profiles.SetValue(eid, PlayerProfile{Dim: dim})
+		pos.SetValue(eid, server.Pos{
+			X: profile.Pos[0],
+			Y: profile.Pos[1],
+			Z: profile.Pos[2],
+		})
+		rot.SetValue(eid, server.Rot{
+			Yaw:   profile.Rotation[0],
+			Pitch: profile.Rotation[1],
+		})
 		client.WritePacket(server.Packet758(pk.Marshal(
 			packetid.ClientboundLogin,
 			pk.Int(eid),                     // Entity ID
@@ -59,7 +69,11 @@ func (p playerSpawnSystem) Update(w *ecs.World) {
 
 func SpawnSystem(g *server.Game, playerdataPath string) {
 	ecs.Register[PlayerProfile, *ecs.HashMapStorage[PlayerProfile]](g.World)
-	g.Dispatcher.Add(playerSpawnSystem{storage: storage{playerdataPath}}, "go-mc:player:SpawnSystem", nil)
+	g.Dispatcher.Add(
+		playerSpawnSystem{storage: storage{playerdataPath}},
+		"go-mc:player:SpawnSystem",
+		nil,
+	)
 }
 
 // PosAndRotSystem add a system to g.Dispatcher that

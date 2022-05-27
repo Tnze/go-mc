@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	_ "embed"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,8 +24,9 @@ type GamePlay interface {
 type Game struct {
 	*ecs.World
 	*ecs.Dispatcher
-	handlers   map[int32][]*PacketHandler
-	components []Component
+	WorldLocker sync.Mutex
+	handlers    map[int32][]*PacketHandler
+	components  []Component
 }
 
 type PacketHandler struct {
@@ -68,7 +70,9 @@ func (g *Game) Run(ctx context.Context) {
 	for {
 		select {
 		case <-ticker.C:
+			g.WorldLocker.Lock()
 			g.Dispatcher.Run(g.World)
+			g.WorldLocker.Unlock()
 		case <-ctx.Done():
 			return
 		}
@@ -76,6 +80,7 @@ func (g *Game) Run(ctx context.Context) {
 }
 
 func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
+	g.WorldLocker.Lock()
 	eid := g.CreateEntity(
 		Client{
 			Conn:        conn,
@@ -90,6 +95,7 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 	)
 	c := ecs.GetComponent[Client](g.World).GetValue(eid)
 	p := ecs.GetComponent[Player](g.World).GetValue(eid)
+	g.WorldLocker.Unlock()
 	defer c.packetQueue.Close()
 
 	go func() {

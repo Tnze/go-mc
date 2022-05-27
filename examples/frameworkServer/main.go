@@ -18,7 +18,7 @@ import (
 )
 
 var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
-var addr = flag.String("Address", ":25565", "Listening address")
+var addr = flag.String("Address", "127.0.0.1:25565", "Listening address")
 var iconPath = flag.String("ServerIcon", "./server-icon.png", "The path to server icon")
 var maxPlayer = flag.Int("MaxPlayer", 16384, "The maximum number of players")
 var regionPath = flag.String("Regions", "./save/testdata/region/", "The region files")
