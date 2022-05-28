@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
-	"math"
 	"os"
 	"time"
 )
@@ -158,7 +157,7 @@ func (r *Region) ReadSector(x, z int) (data []byte, err error) {
 
 // WriteSector write Chunk data into region file
 func (r *Region) WriteSector(x, z int, data []byte) error {
-	need := int32(math.Ceil(float64(len(data)+4) / 4096))
+	need := int32((len(data) + 4 + 4096 - 1) / 4096)
 	n, now := sectorLoc(r.offsets[z][x])
 
 	// maximum chunk size is 1MB
