@@ -3,8 +3,12 @@ package region
 import (
 	"bytes"
 	"compress/zlib"
-	"github.com/Tnze/go-mc/nbt"
+	"io"
+	"math/rand"
+	"os"
 	"testing"
+
+	"github.com/Tnze/go-mc/nbt"
 )
 
 func TestIn(t *testing.T) {
@@ -94,4 +98,74 @@ func TestCountChunks(t *testing.T) {
 		}
 	}
 	t.Logf("chunk count: %d", count)
+}
+
+func TestWriteSectors(t *testing.T) {
+	temp, err := os.CreateTemp("", "region*.mca")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		if err := temp.Close(); err != nil {
+			t.Error(err)
+		}
+		if err := os.Remove(temp.Name()); err != nil {
+			t.Error(err)
+		}
+	}()
+	region, err := CreateWriter(temp)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expectedSectorsNum := 2
+	for idx, test := range []struct{ size, sectors int }{
+		{0, 1},
+		{1000, 1},
+		{4091, 1},
+		{4092, 1},
+		{4093, 2},
+		{5000, 2},
+	} {
+		expectedSectorsNum += test.sectors
+
+		data := make([]byte, test.size)
+		rand.Read(data)
+		if err = region.WriteSector(idx, 0, data); err != nil {
+			t.Fatal("write sector", err)
+		}
+		if len(region.sectors) != expectedSectorsNum {
+			t.Errorf("wrong region sector count. Got: %d, Want: %d", len(region.sectors), expectedSectorsNum)
+		}
+		
+		if read, err := region.ReadSector(idx, 0); err != nil {
+			t.Fatal("read sector", err)
+		} else if !bytes.Equal(data, read) {
+			t.Fatal("read corrupted sector data")
+		}
+	}
+
+	// reset file
+	if _, err = temp.Seek(0, io.SeekStart); err != nil {
+		t.Fatal(err)
+	}
+
+	// Test load
+	region, err = Load(temp)
+	if err != nil {
+		t.Fatalf("load region: %v", err)
+	}
+	if len(region.sectors) != expectedSectorsNum {
+		t.Fatalf("read sector count missmatch. Got: %d, Want: %d", len(region.sectors), expectedSectorsNum)
+	}
+
+	// Test padding
+	if err = region.PadToFullSector(); err != nil {
+		t.Fatal(err)
+	}
+	if stat, err := temp.Stat(); err != nil {
+		t.Fatal(err)
+	} else if stat.Size()%4096 != 0 {
+		t.Fatalf("wrong file size. Got %d, Want: %d", stat.Size(), stat.Size()+(4096-stat.Size()%4096))
+	}
 }
