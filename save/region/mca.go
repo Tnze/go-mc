@@ -79,14 +79,19 @@ func Load(f io.ReadWriteSeeker) (r *Region, err error) {
 }
 
 // Create open .mca file with os.O_CREATE|os. O_EXCL, and init the region
-func Create(name string) (r *Region, err error) {
-	r = new(Region)
-	r.sectors = make(map[int32]bool)
-
-	r.f, err = os.OpenFile(name, os.O_CREATE|os.O_RDWR|os.O_EXCL, 0666)
+func Create(name string) (*Region, error) {
+	f, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR|os.O_EXCL, 0666)
 	if err != nil {
 		return nil, err
 	}
+	return CreateWriter(f)
+}
+
+// CreateWriter init the region
+func CreateWriter(f io.ReadWriteSeeker) (r *Region, err error) {
+	r = new(Region)
+	r.sectors = make(map[int32]bool)
+	r.f = f
 
 	// write the offsets
 	err = binary.Write(r.f, binary.BigEndian, &r.offsets)
@@ -211,6 +216,23 @@ func (r *Region) WriteSector(x, z int, data []byte) error {
 // ExistSector return if a sector is exist
 func (r *Region) ExistSector(x, z int) bool {
 	return r.offsets[z][x] != 0
+}
+
+// PadToFullSector writes zeros to the end of the file to make size a multiple of 4096
+// Legacy versions of Minecraft require this
+// Need to be called right before Close
+func (r *Region) PadToFullSector() error {
+	size, err := r.f.Seek(0, io.SeekEnd)
+	if err != nil {
+		return err
+	}
+	if size%4096 != 0 {
+		_, err = r.f.Write(make([]byte, 4096-size%4096))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r *Region) findSpace(need int32) (n int32) {
