@@ -126,9 +126,7 @@ func ExamplePacket_Scan_joinGame() {
 		&Hardcore,
 		&Gamemode,
 		&PreGamemode,
-		pk.Ary[pk.VarInt, *pk.VarInt]{
-			Ary: &WorldNames,
-		},
+		pk.Array(&WorldNames),
 		pk.NBT(&DimensionCodec),
 		pk.NBT(&Dimension),
 		&WorldName,

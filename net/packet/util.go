@@ -18,21 +18,17 @@ import (
 // So it's allowed to directly set an integer type Len, but not a pointer.
 //
 // Note that Ary DO read or write the Len. You aren't need to do so by your self.
-type Ary[T VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long, L interface {
-	*T
-	ReadFrom(r io.Reader) (n int64, err error)
-	WriteTo(w io.Writer) (n int64, err error)
-}] struct {
+type Ary[T VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long] struct {
 	Ary interface{} // Slice or Pointer of Slice of FieldEncoder, FieldDecoder or both (Field)
 }
 
-func (a Ary[T, L]) WriteTo(w io.Writer) (n int64, err error) {
+func (a Ary[T]) WriteTo(w io.Writer) (n int64, err error) {
 	array := reflect.ValueOf(a.Ary)
 	for array.Kind() == reflect.Ptr {
 		array = array.Elem()
 	}
 	Len := T(array.Len())
-	if nn, err := L(&Len).WriteTo(w); err != nil {
+	if nn, err := any(&Len).(FieldEncoder).WriteTo(w); err != nil {
 		return n, err
 	} else {
 		n += nn
@@ -48,9 +44,9 @@ func (a Ary[T, L]) WriteTo(w io.Writer) (n int64, err error) {
 	return n, nil
 }
 
-func (a Ary[T, L]) ReadFrom(r io.Reader) (n int64, err error) {
+func (a Ary[T]) ReadFrom(r io.Reader) (n int64, err error) {
 	var Len T
-	if nn, err := L(&Len).ReadFrom(r); err != nil {
+	if nn, err := any(&Len).(FieldDecoder).ReadFrom(r); err != nil {
 		return nn, err
 	} else {
 		n += nn
@@ -80,7 +76,7 @@ func (a Ary[T, L]) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func Array(ary interface{}) Field {
-	return Ary[VarInt, *VarInt]{Ary: ary}
+	return Ary[VarInt]{Ary: ary}
 }
 
 type Opt struct {

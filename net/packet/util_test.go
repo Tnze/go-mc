@@ -13,7 +13,7 @@ func ExampleAry_WriteTo() {
 	// The length is inferred from the length of Ary.
 	pk.Marshal(
 		0x00,
-		pk.Ary[pk.VarInt, *pk.VarInt]{
+		pk.Ary[pk.VarInt]{
 			Ary: data,
 		},
 	)
@@ -24,7 +24,7 @@ func ExampleAry_ReadFrom() {
 
 	var p pk.Packet // = conn.ReadPacket()
 	if err := p.Scan(
-		pk.Ary[pk.VarInt, *pk.VarInt]{ // then decode Ary according to length
+		pk.Ary[pk.VarInt]{ // then decode Ary according to length
 			Ary: &data,
 		},
 	); err != nil {
@@ -39,7 +39,7 @@ func TestAry_ReadFrom(t *testing.T) {
 		4, 'T', 'n', 'z', 'e',
 		0,
 	}
-	var data = pk.Ary[pk.Int, *pk.Int]{Ary: &ary}
+	var data = pk.Ary[pk.Int]{Ary: &ary}
 	if _, err := data.ReadFrom(bytes.NewReader(bin)); err != nil {
 		t.Fatal(err)
 	}
@@ -61,15 +61,15 @@ func TestAry_WriteTo(t *testing.T) {
 		0x00, 0x00, 0x00, 0x03,
 	}
 	for _, item := range [...]pk.FieldEncoder{
-		pk.Ary[pk.Int, *pk.Int]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.Int, *pk.Int]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.Long, *pk.Long]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.VarInt, *pk.VarInt]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.VarLong, *pk.VarLong]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.Int, *pk.Int]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.Long, *pk.Long]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.VarInt, *pk.VarInt]{Ary: []pk.Int{1, 2, 3}},
-		pk.Ary[pk.VarLong, *pk.VarLong]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Int]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Int]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Long]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarInt]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarLong]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Int]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.Long]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarInt]{Ary: []pk.Int{1, 2, 3}},
+		pk.Ary[pk.VarLong]{Ary: []pk.Int{1, 2, 3}},
 	} {
 		_, err := item.WriteTo(&buf)
 		if err != nil {
@@ -90,7 +90,7 @@ func TestAry_WriteTo_pointer(t *testing.T) {
 		0x00, 0x00, 0x00, 0x02,
 		0x00, 0x00, 0x00, 0x03,
 	}
-	data := pk.Ary[pk.Int, *pk.Int]{Ary: &[]pk.Int{1, 2, 3}}
+	data := pk.Ary[pk.Int]{Ary: &[]pk.Int{1, 2, 3}}
 
 	_, err := data.WriteTo(&buf)
 	if err != nil {
@@ -126,9 +126,7 @@ func ExampleOpt_ReadFrom() {
 	}}
 	if err := p2.Scan(
 		&has,
-		pk.Opt{
-			Has: &has, Field: &data2,
-		},
+		pk.Opt{Has: &has, Field: &data2},
 	); err != nil {
 		panic(err)
 	}
@@ -182,9 +180,7 @@ func ExampleTuple_ReadFrom() {
 		pk.Opt{
 			Has: &has,
 			Field: pk.Tuple{
-				pk.Ary[pk.Int, *pk.Int]{
-					Ary: &ary,
-				},
+				pk.Ary[pk.Int]{Ary: &ary},
 			},
 		},
 	); err != nil {

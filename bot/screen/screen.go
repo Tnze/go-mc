@@ -102,9 +102,7 @@ func (m *Manager) onSetContentPacket(p pk.Packet) error {
 	if err := p.Scan(
 		&ContainerID,
 		&StateID,
-		pk.Ary[pk.VarInt, *pk.VarInt]{
-			Ary: &SlotData,
-		},
+		pk.Array(&SlotData),
 		&CarriedItem,
 	); err != nil {
 		return Error{err}
