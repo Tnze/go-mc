@@ -32,27 +32,27 @@ func FuncSystem(F any) System {
 	}
 	return &funcsystem{
 		update: func(w *World) {
-			storages := make([]Storage, in)
+			storages := make([]reflect.Value, in)
 			for i := 0; i < in; i++ {
-				storages[i] = w.GetResourceRaw(argTypes[i]).(Storage)
+				storages[i] = reflect.ValueOf(w.GetResourceRaw(argTypes[i]))
 			}
 			args := make([]reflect.Value, len(storages))
 			if len(storages) > 0 {
-				set := reflect.ValueOf(storages[0]).FieldByName("BitSet").Addr()
+				set := reflect.Indirect(storages[0]).FieldByName("BitSet").Addr()
 				for _, v := range storages[1:] {
-					p := reflect.ValueOf(v).FieldByName("BitSet").Addr()
+					p := reflect.Indirect(v).FieldByName("BitSet").Addr()
 					set = set.MethodByName("And").Call([]reflect.Value{p})[0]
 				}
 				set.MethodByName("Range").Call([]reflect.Value{
 					reflect.ValueOf(func(eid Index) {
 						for i := range args {
-							arg := storages[i].GetValueAny(eid)
-							if arg == nil {
+							arg := storages[i].MethodByName("GetValue").Call([]reflect.Value{reflect.ValueOf(eid)})[0]
+							if arg.IsNil() {
 								args[i] = reflect.Zero(argTypes[i])
 							} else if needCopy[i] {
-								args[i] = reflect.ValueOf(arg).Elem()
+								args[i] = arg.Elem()
 							} else {
-								args[i] = reflect.ValueOf(arg)
+								args[i] = arg
 							}
 						}
 						f.Call(args)

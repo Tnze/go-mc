@@ -41,4 +41,4 @@ func (g *Graph) ClientJoin(client *server.Client, _ *server.Player) {
 }
 
 // ClientLeft implement server.Component for Graph
-func (g *Graph) ClientLeft(_ *server.Client, _ *server.Player) {}
+func (g *Graph) ClientLeft(_ *server.Client, _ *server.Player, _ error) {}

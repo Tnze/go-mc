@@ -100,7 +100,7 @@ func (k *KeepAlive) Run(ctx context.Context) {
 func (k *KeepAlive) ClientJoin(client *Client, _ *Player) { k.join <- client }
 
 // ClientLeft implement Component for KeepAlive
-func (k *KeepAlive) ClientLeft(client *Client, _ *Player) { k.quit <- client }
+func (k *KeepAlive) ClientLeft(client *Client, _ *Player, _ error) { k.quit <- client }
 
 func (k KeepAlive) pushPlayer(p *Client) {
 	k.listIndex[p] = k.pingList.PushBack(

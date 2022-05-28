@@ -54,7 +54,7 @@ func (p *PlayerList) ClientJoin(client *Client, player *Player) {
 }
 
 // ClientLeft implement Component for PlayerList
-func (p *PlayerList) ClientLeft(_ *Client, player *Player) {
+func (p *PlayerList) ClientLeft(_ *Client, player *Player, _ error) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
 	delete(p.clients, player.UUID)

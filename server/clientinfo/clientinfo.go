@@ -84,6 +84,6 @@ func (c *ClientInformation) Init(g *server.Game) {
 	})
 }
 
-func (c *ClientInformation) Run(ctx context.Context)     {}
-func (c *ClientInformation) ClientJoin(p *server.Client) {}
-func (c *ClientInformation) ClientLeft(p *server.Client) {}
+func (c *ClientInformation) Run(ctx context.Context)                                               {}
+func (c *ClientInformation) ClientJoin(client *server.Client, player *server.Player)               {}
+func (c *ClientInformation) ClientLeft(client *server.Client, player *server.Player, reason error) {}

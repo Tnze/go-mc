@@ -22,21 +22,20 @@ var addr = flag.String("Address", "127.0.0.1:25565", "Listening address")
 var iconPath = flag.String("ServerIcon", "./server-icon.png", "The path to server icon")
 var maxPlayer = flag.Int("MaxPlayer", 16384, "The maximum number of players")
 var regionPath = flag.String("Regions", "./save/testdata/region/", "The region files")
+var playerdataPath = flag.String("PlayerData", "./save/testdata/playerdata", "The player data files")
 
 func main() {
 	flag.Parse()
+	logger := Logger{log.Default()}
 	playerList := server.NewPlayerList(*maxPlayer)
 	serverInfo, err := server.NewPingInfo(playerList, server.ProtocolName, server.ProtocolVersion, motd, readIcon())
 	if err != nil {
-		log.Fatalf("Set server info error: %v", err)
+		logger.Fatalf("Set server info error: %v", err)
 	}
-
 	keepAlive := server.NewKeepAlive()
-	//playerInfo := player.NewPlayerInfo(keepAlive)
-
 	commands := command.NewGraph()
 	handleFunc := func(ctx context.Context, args []command.ParsedData) error {
-		log.Printf("Command: args: %v", args)
+		logger.Printf("Command: args: %v", args)
 		return nil
 	}
 	commands.AppendLiteral(commands.Literal("me").
@@ -53,8 +52,8 @@ func main() {
 		HandleFunc(handleFunc),
 	)
 	game := server.NewGame(
+		logger,
 		playerList,
-		//playerInfo,
 		keepAlive,
 		commands,
 	)
@@ -63,7 +62,7 @@ func main() {
 	dimList.Add(game.CreateEntity(world.NewDimension(
 		"minecraft:overworld", *regionPath,
 	)), "minecraft:overworld")
-	player.SpawnSystem(game, "./save/testdata/playerdata")
+	player.SpawnSystem(game, *playerdataPath)
 	player.PosAndRotSystem(game)
 	go game.Run(context.Background())
 
@@ -96,4 +95,22 @@ func readIcon() image.Image {
 		log.Fatalf("Decode image error: %v", err)
 	}
 	return icon
+}
+
+type Logger struct{ *log.Logger }
+
+func (l Logger) Init(g *server.Game) {
+	l.Print("Server init")
+}
+
+func (l Logger) Run(ctx context.Context) {
+	l.Print("Server is running")
+}
+
+func (l Logger) ClientJoin(c *server.Client, p *server.Player) {
+	l.Printf("Player join [%s]%v from %v", p.Name, p.UUID, c.Socket.RemoteAddr())
+}
+
+func (l Logger) ClientLeft(c *server.Client, p *server.Player, reason error) {
+	l.Printf("Player left [%s]%v reason: %v", p.Name, p.UUID, reason)
 }

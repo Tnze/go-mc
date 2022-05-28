@@ -40,7 +40,7 @@ type Component interface {
 	Init(g *Game)
 	Run(ctx context.Context)
 	ClientJoin(c *Client, p *Player)
-	ClientLeft(c *Client, p *Player)
+	ClientLeft(c *Client, p *Player, reason error)
 }
 
 func NewGame(components ...Component) *Game {
@@ -112,21 +112,22 @@ func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net
 		}
 	}()
 
+	var err error
 	for _, component := range g.components {
 		component.ClientJoin(c, p)
-		defer component.ClientLeft(c, p)
+		defer func(cmp Component) { cmp.ClientLeft(c, p, err) }(component)
 	}
 
 	var packet pk.Packet
 	for {
-		if err := c.ReadPacket(&packet); err != nil {
+		if err = c.ReadPacket(&packet); err != nil {
 			return
 		}
 		for _, ph := range g.handlers[packet.ID] {
-			if err := ph.F(c, p, Packet758(packet)); err != nil {
+			if err = ph.F(c, p, Packet758(packet)); err != nil {
 				return
 			}
-			if err := c.GetErr(); err != nil {
+			if err = c.GetErr(); err != nil {
 				return
 			}
 		}
