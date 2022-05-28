@@ -8,6 +8,8 @@ import (
 	"sync"
 )
 
+const MaxDataLength = 2097152
+
 // Packet define a net data package
 type Packet struct {
 	ID   int32
@@ -170,6 +172,9 @@ func (p *Packet) unpackWithoutCompression(r io.Reader) error {
 	p.ID = int32(PacketID)
 
 	lengthOfData := int(Length) - int(n)
+	if lengthOfData < 0 || lengthOfData > MaxDataLength {
+		return fmt.Errorf("uncompressed packet error: lenght is %d", lengthOfData)
+	}
 	if cap(p.Data) < lengthOfData {
 		p.Data = make([]byte, lengthOfData)
 	} else {
@@ -210,7 +215,6 @@ func (p *Packet) unpackWithCompression(r io.Reader, threshold int) error {
 		if int(DataLength) < threshold {
 			return fmt.Errorf("compressed packet error: size of %d is below threshold of %d", DataLength, threshold)
 		}
-		const MaxDataLength = 2097152
 		if DataLength > MaxDataLength {
 			return fmt.Errorf("compressed packet error: size of %d is larger than protocol maximum of %d", DataLength, MaxDataLength)
 		}
