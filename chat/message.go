@@ -12,6 +12,7 @@ package chat
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -106,12 +107,16 @@ func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 	}
 	// The right way to distinguish JSON String and Object
 	// is to look up the first character.
-	if raw[0] == '"' {
-		err = json.Unmarshal(raw, &m.Text) // Unmarshal as jsonString
-	} else {
-		err = json.Unmarshal(raw, (*jsonMsg)(m)) // Unmarshal as jsonMsg
+	switch raw[0] {
+	case '"':
+		return json.Unmarshal(raw, &m.Text) // Unmarshal as jsonString
+	case '{':
+		return json.Unmarshal(raw, (*jsonMsg)(m)) // Unmarshal as jsonMsg
+	case '[':
+		return json.Unmarshal(raw, &m.Extra) // Unmarshal as []Message
+	default:
+		return errors.New("unknown chat message type: '" + string(raw[0]) + "'")
 	}
-	return
 }
 
 // ReadFrom decode Message in a ChatMsg packet
@@ -299,7 +304,7 @@ func (m Message) String() string {
 	return msg.String()
 }
 
-var fmtPat = regexp.MustCompile("(?i)§[0-9A-FK-OR]")
+var fmtPat = regexp.MustCompile(`(?i)§[\dA-FK-OR]`)
 
 // TransCtrlSeq will transform control sequences into ANSI code
 // or simply filter them. Depends on the second argument.
