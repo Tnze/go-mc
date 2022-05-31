@@ -198,7 +198,7 @@ func (r *Region) WriteSector(x, z int, data []byte) error {
 		return err
 	}
 	//data length
-	err = binary.Write(r.f, binary.BigEndian, int32(len(data)))
+	err = binary.Write(r.f, binary.BigEndian, int64(len(data)))
 	if err != nil {
 		return err
 	}
