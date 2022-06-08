@@ -32,20 +32,17 @@ const (
 const (
 	ClientboundAddEntity = iota
 	ClientboundAddExperienceOrb
-	ClientboundAddMob
-	ClientboundAddPainting
 	ClientboundAddPlayer
-	ClientboundAddVibrationSignal
 	ClientboundAnimate
 	ClientboundAwardStats
-	ClientboundBlockBreakAck
+	ClientboundBlockChangedAck
 	ClientboundBlockDestruction
 	ClientboundBlockEntityData
 	ClientboundBlockEvent
 	ClientboundBlockUpdate
 	ClientboundBossEvent
 	ClientboundChangeDifficulty
-	ClientboundChat
+	ClientboundChatPreview
 	ClientboundClearTitles
 	ClientboundCommandSuggestions
 	ClientboundCommands
@@ -81,6 +78,7 @@ const (
 	ClientboundPing
 	ClientboundPlaceGhostRecipe
 	ClientboundPlayerAbilities
+	ClientboundPlayerChat
 	ClientboundPlayerCombatEnd
 	ClientboundPlayerCombatEnter
 	ClientboundPlayerCombatKill
@@ -95,6 +93,7 @@ const (
 	ClientboundRotateHead
 	ClientboundSectionBlocksUpdate
 	ClientboundSelectAdvancementsTab
+	ClientboundServerData
 	ClientboundSetActionBarText
 	ClientboundSetBorderCenter
 	ClientboundSetBorderLerpSize
@@ -106,6 +105,7 @@ const (
 	ClientboundSetChunkCacheCenter
 	ClientboundSetChunkCacheRadius
 	ClientboundSetDefaultSpawnPosition
+	ClientboundSetDisplayChatPreview
 	ClientboundSetDisplayObjective
 	ClientboundSetEntityData
 	ClientboundSetEntityLink
@@ -125,6 +125,7 @@ const (
 	ClientboundSoundEntity
 	ClientboundSound
 	ClientboundStopSound
+	ClientboundSystemChat
 	ClientboundTabList
 	ClientboundTagQuery
 	ClientboundTakeItemEntity
@@ -141,7 +142,9 @@ const (
 	ServerboundAcceptTeleportation = iota
 	ServerboundBlockEntityTagQuery
 	ServerboundChangeDifficulty
+	ServerboundChatCommand
 	ServerboundChat
+	ServerboundChatPreview
 	ServerboundClientCommand
 	ServerboundClientInformation
 	ServerboundCommandSuggestion

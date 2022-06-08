@@ -13,10 +13,6 @@ type Item struct {
 	StackSize   uint
 }
 
-func (i Item) String() string {
-	return i.DisplayName
-}
-
 var (
 	Stone = Item{
 		ID:          1,
