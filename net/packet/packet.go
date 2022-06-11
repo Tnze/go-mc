@@ -53,7 +53,9 @@ func (p *Packet) Pack(w io.Writer, threshold int) error {
 }
 
 func (p *Packet) GetPackData(threshold int) (*bytes.Buffer, error) {
-	buffer := new(bytes.Buffer)
+	buffer := bufPool.Get().(*bytes.Buffer)
+	defer bufPool.Put(buffer)
+	buffer.Reset()
 	var err error
 	if threshold >= 0 {
 		err = p.packWithCompression(buffer, threshold)
