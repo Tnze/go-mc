@@ -52,17 +52,12 @@ func (p *Packet) Pack(w io.Writer, threshold int) error {
 	}
 }
 
-func (p *Packet) GetPackData(threshold int) (*bytes.Buffer, error) {
+func (p *Packet) GetPackData(threshold int) ([]byte, error) {
 	buffer := bufPool.Get().(*bytes.Buffer)
 	defer bufPool.Put(buffer)
 	buffer.Reset()
-	var err error
-	if threshold >= 0 {
-		err = p.packWithCompression(buffer, threshold)
-	} else {
-		err = p.packWithoutCompression(buffer)
-	}
-	return buffer, err
+	err := p.Pack(buffer, threshold)
+	return buffer.Bytes(), err
 }
 
 func (p *Packet) packWithoutCompression(w io.Writer) error {
