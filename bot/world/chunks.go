@@ -39,7 +39,8 @@ func (w *World) onPlayerSpawn(pk.Packet) error {
 
 func (w *World) handleLevelChunkWithLightPacket(packet pk.Packet) error {
 	var pos level.ChunkPos
-	chunk := level.EmptyChunk(int(w.p.WorldInfo.Dimension.Height / 16))
+
+	chunk := level.EmptyChunk(int(w.p.WorldInfo.Dimension.Element.Height / 16))
 	if err := packet.Scan(&pos, chunk); err != nil {
 		return err
 	}

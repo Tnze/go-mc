@@ -1,17 +1,17 @@
 package basic
 
 import (
+	"golang.org/x/exp/slices"
 	"unsafe"
 
 	"github.com/Tnze/go-mc/data/packetid"
-	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 // WorldInfo content player info in server.
 type WorldInfo struct {
-	DimensionCodec      nbt.StringifiedMessage
-	Dimension           string
+	DimensionCodec      DimensionCodec
+	Dimension           Dimension
 	WorldNames          []string // Identifiers for all worlds on the server.
 	WorldName           string   // Name of the world being spawned into.
 	HashedSeed          int64    // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
@@ -23,24 +23,112 @@ type WorldInfo struct {
 	IsDebug             bool     // True if the world is a debug mode world; debug mode worlds cannot be modified and have predefined blocks.
 	IsFlat              bool     // True if the world is a superflat world; flat worlds have different void fog and a horizon at y=0 instead of y=63.
 }
-
 type Dimension struct {
-	PiglinSafe         int8    `nbt:"piglin_safe"`
-	Natural            int8    `nbt:"natural"`
-	AmbientLight       float32 `nbt:"ambient_light"`
-	FixedTime          *int64  `nbt:"fixed_time"`
-	Infiniburn         string  `nbt:"infiniburn"`
-	RespawnAnchorWorks int8    `nbt:"respawn_anchor_works"`
-	HasSkylight        int8    `nbt:"has_skylight"`
-	BedWorks           int8    `nbt:"bed_works"`
-	Effects            string  `nbt:"effects"`
-	HasRaids           int8    `nbt:"has_raids"`
-	LogicalHeight      int32   `nbt:"logical_height"`
-	CoordinateScale    float64 `nbt:"coordinate_scale"`
-	MinY               int32   `nbt:"min_y"`
-	HasCeiling         int8    `nbt:"has_ceiling"`
-	Ultrawarm          int8    `nbt:"ultrawarm"`
-	Height             int32   `nbt:"height"`
+	Name    string `nbt:"name"`
+	Id      int    `nbt:"id"`
+	Element struct {
+		PiglinSafe                  byte    `nbt:"piglin_safe"`
+		Natural                     byte    `nbt:"natural"`
+		AmbientLight                float64 `nbt:"ambient_light"`
+		MonsterSpawnBlockLightLimit int     `nbt:"monster_spawn_block_light_limit"`
+		Infiniburn                  string  `nbt:"infiniburn"`
+		RespawnAnchorWorks          byte    `nbt:"respawn_anchor_works"`
+		HasSkylight                 byte    `nbt:"has_skylight"`
+		BedWorks                    byte    `nbt:"bed_works"`
+		Effects                     string  `nbt:"effects"`
+		HasRaids                    byte    `nbt:"has_raids"`
+		Shrunk                      byte    `nbt:"shrunk"`
+		LogicalHeight               int     `nbt:"logical_height"`
+		CoordinateScale             float64 `nbt:"coordinate_scale"`
+		MinY                        int     `nbt:"min_y"`
+		MonsterSpawnLightLevel      int     `nbt:"monster_spawn_light_level"`
+		Ultrawarm                   byte    `nbt:"ultrawarm"`
+		HasCeiling                  byte    `nbt:"has_ceiling"`
+		Height                      int     `nbt:"height"`
+		FixedTime                   int64   `nbt:"fixed_time,omitempty"`
+	} `nbt:"element"`
+}
+type DimensionCodec struct {
+	// What is Below (wik.vg)
+	ChatType struct {
+		Type  string `nbt:"type"`
+		Value []struct {
+			Name    string `nbt:"name"`
+			Id      int    `nbt:"id"`
+			Element struct {
+				Chat struct {
+					Decoration struct {
+						TranslationKey interface{} `nbt:"translation_key"`
+						Style          struct {
+							Color  interface{} `nbt:"color,omitempty"`
+							Italic interface{} `nbt:"italic,omitempty"`
+						} `nbt:"style"`
+						Parameters []interface{} `nbt:"parameters"`
+					} `nbt:"decoration,omitempty"`
+				} `nbt:"chat,omitempty"`
+				Narration struct {
+					Priority   interface{} `nbt:"priority"`
+					Decoration struct {
+						TranslationKey interface{} `nbt:"translation_key"`
+						Style          struct {
+						} `nbt:"style"`
+						Parameters []interface{} `nbt:"parameters"`
+					} `nbt:"decoration,omitempty"`
+				} `nbt:"narration,omitempty"`
+				Overlay struct {
+				} `nbt:"overlay,omitempty"`
+			} `nbt:"element"`
+		} `nbt:"value"`
+	} `nbt:"minecraft:chat_type"`
+	DimensionType struct {
+		Type  string      `nbt:"type"`
+		Value []Dimension `nbt:"value"`
+	} `nbt:"minecraft:dimension_type"`
+	WorldGenBiome struct {
+		Type  string `nbt:"type"`
+		Value []struct {
+			Name    string `nbt:"name"`
+			Id      int    `nbt:"id"`
+			Element struct {
+				Precipitation interface{} `nbt:"precipitation"`
+				Effects       struct {
+					SkyColor      int `nbt:"sky_color"`
+					WaterFogColor int `nbt:"water_fog_color"`
+					FogColor      int `nbt:"fog_color"`
+					WaterColor    int `nbt:"water_color"`
+					MoodSound     struct {
+						TickDelay         int         `nbt:"tick_delay"`
+						Offset            interface{} `nbt:"offset"`
+						Sound             string      `nbt:"sound"`
+						BlockSearchExtent int         `nbt:"block_search_extent"`
+					} `nbt:"mood_sound"`
+					GrassColorModifier interface{} `nbt:"grass_color_modifier,omitempty"`
+					Music              struct {
+						ReplaceCurrentMusic interface{} `nbt:"replace_current_music"`
+						MaxDelay            int         `nbt:"max_delay"`
+						Sound               string      `nbt:"sound"`
+						MinDelay            int         `nbt:"min_delay"`
+					} `nbt:"music,omitempty"`
+					FoliageColor   int    `nbt:"foliage_color,omitempty"`
+					GrassColor     int    `nbt:"grass_color,omitempty"`
+					AmbientSound   string `nbt:"ambient_sound,omitempty"`
+					AdditionsSound struct {
+						Sound      string      `nbt:"sound"`
+						TickChance interface{} `nbt:"tick_chance"`
+					} `nbt:"additions_sound,omitempty"`
+					Particle struct {
+						Probability interface{} `nbt:"probability"`
+						Options     struct {
+							Type string `nbt:"type"`
+						} `nbt:"options"`
+					} `nbt:"particle,omitempty"`
+				} `nbt:"effects"`
+				Temperature         interface{} `nbt:"temperature"`
+				Downfall            interface{} `nbt:"downfall"`
+				TemperatureModifier interface{} `nbt:"temperature_modifier,omitempty"`
+			} `nbt:"element"`
+		} `nbt:"value"`
+	} `nbt:"minecraft:worldgen/biome"`
 }
 
 type PlayerInfo struct {
@@ -57,6 +145,7 @@ type ServInfo struct {
 
 func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	var WorldNames = make([]pk.Identifier, 0)
+	var currentDimension pk.Identifier
 	err := packet.Scan(
 		(*pk.Int)(&p.EID),
 		(*pk.Boolean)(&p.Hardcore),
@@ -64,7 +153,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 		(*pk.Byte)(&p.PrevGamemode),
 		pk.Array(&WorldNames),
 		pk.NBT(&p.WorldInfo.DimensionCodec),
-		(*pk.Identifier)(&p.Dimension),
+		&currentDimension,
 		(*pk.Identifier)(&p.WorldName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.VarInt)(&p.MaxPlayers),
@@ -84,6 +173,12 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	//		p.WorldNames[i] = string(v)
 	//	}
 	p.WorldNames = *(*[]string)(unsafe.Pointer(&WorldNames))
+	index := slices.IndexFunc(p.DimensionCodec.DimensionType.Value, func(d Dimension) bool {
+		return d.Name == string(currentDimension)
+	})
+	if index != -1 {
+		p.Dimension = p.DimensionCodec.DimensionType.Value[index]
+	}
 
 	err = p.c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
 		packetid.ServerboundCustomPayload,
@@ -112,9 +207,10 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 }
 func (p *Player) handleRespawnPacket(packet pk.Packet) error {
 	var copyMeta bool
+	var currentDimension pk.Identifier
 	err := packet.Scan(
 		//pk.NBT(&p.WorldInfo.Dimension),
-		(*pk.Identifier)(&p.Dimension),
+		&currentDimension,
 		(*pk.Identifier)(&p.WorldName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.UnsignedByte)(&p.Gamemode),
@@ -125,6 +221,12 @@ func (p *Player) handleRespawnPacket(packet pk.Packet) error {
 	)
 	if err != nil {
 		return Error{err}
+	}
+	index := slices.IndexFunc(p.DimensionCodec.DimensionType.Value, func(d Dimension) bool {
+		return d.Name == string(currentDimension)
+	})
+	if index != -1 {
+		p.Dimension = p.DimensionCodec.DimensionType.Value[index]
 	}
 	return nil
 }
