@@ -45,9 +45,10 @@ func (p *Player) handlePlayerPosition(packet pk.Packet) error {
 	if !p.isSpawn {
 		// PlayerPositionAndRotation to confirm the spawn position
 		err = p.c.Conn.WritePacket(pk.Marshal(
-			packetid.ServerboundMoveVehicle,
+			packetid.ServerboundMovePlayerPosRot,
 			X, Y-1.62, Z,
 			Yaw, Pitch,
+			pk.Boolean(true),
 		))
 		if err != nil {
 			return Error{err}
