@@ -49,7 +49,7 @@ type Dimension struct {
 	} `nbt:"element"`
 }
 type DimensionCodec struct {
-	// What is Below (wik.vg)
+	// What is Below? (wik.vg)
 	ChatType struct {
 		Type  string `nbt:"type"`
 		Value []struct {
@@ -209,7 +209,6 @@ func (p *Player) handleRespawnPacket(packet pk.Packet) error {
 	var copyMeta bool
 	var currentDimension pk.Identifier
 	err := packet.Scan(
-		//pk.NBT(&p.WorldInfo.Dimension),
 		&currentDimension,
 		(*pk.Identifier)(&p.WorldName),
 		(*pk.Long)(&p.HashedSeed),

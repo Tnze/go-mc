@@ -62,23 +62,9 @@ type PlayerMessage struct {
 func (e *EventsListener) onPlayerMsg(p pk.Packet) error {
 	if e.ChatMsg != nil {
 		var message PlayerMessage
-		//var (
-		//	signedChat chat.Message
-		//	unsigned pk.Boolean
-		//	unsignedChat chat.Message
-		//	pos pk.VarInt
-		//	sender uuid.UUID
-		//	senderDisplayName pk.String
-		//	hasSenderTeam pk.Boolean
-		//	senderTeam pk.String
-		//	timeStamp pk.Long
-		//	salt pk.Long
-		//
-		//)
 		var senderDisplayName pk.String
 		var senderTeamName pk.String
 		var timeStamp pk.Long
-		//var sig pk.VarInt
 		var salt pk.Long
 		var signature pk.ByteArray
 		if err := p.Scan(&message.SignedMessage,
