@@ -2,13 +2,15 @@ package bot
 
 import (
 	"github.com/Tnze/go-mc/net"
+	"github.com/Tnze/go-mc/yggdrasil/userApi"
 	"github.com/google/uuid"
 )
 
 // Client is used to access Minecraft server
 type Client struct {
-	Conn *net.Conn
-	Auth Auth
+	Conn    *net.Conn
+	Auth    Auth
+	KeyPair userApi.KeyPairResp
 
 	Name string
 	UUID uuid.UUID

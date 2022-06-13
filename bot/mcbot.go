@@ -7,6 +7,7 @@ package bot
 import (
 	"context"
 	"errors"
+	"github.com/Tnze/go-mc/yggdrasil/userApi"
 	"net"
 	"strconv"
 
@@ -17,7 +18,7 @@ import (
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
-const ProtocolVersion = 758
+const ProtocolVersion = 759
 const DefaultPort = mcnet.DefaultPort
 
 // JoinServer connect a Minecraft server for playing the game.
@@ -33,6 +34,7 @@ func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
 }
 
 func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
+
 	const Handshake = 0x00
 	// Split Host and Port
 	host, portStr, err := net.SplitHostPort(addr)
@@ -70,16 +72,39 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	if err != nil {
 		return LoginErr{"handshake", err}
 	}
-
 	// Login Start
-	err = c.Conn.WritePacket(pk.Marshal(
-		packetid.LoginStart,
-		pk.String(c.Auth.Name),
-	))
+	pair, err := userApi.GetOrFetchKeyPair(c.Auth.AsTk)
 	if err != nil {
-		return LoginErr{"login start", err}
+		err = c.Conn.WritePacket(pk.Marshal(
+			packetid.LoginStart,
+			pk.String(c.Auth.Name),
+			pk.Boolean(false),
+		))
+		if err != nil {
+			return LoginErr{"login start (without sig)", err}
+		}
+	} else {
+		// Login Start (Currently not support sig)
+		err = c.Conn.WritePacket(pk.Marshal(
+			packetid.LoginStart,
+			pk.String(c.Auth.Name),
+			pk.Boolean(false),
+		))
+		//block, _ := pem.Decode([]byte(pair.KeyPair.PublicKey))
+		//sig, _ := base64.StdEncoding.DecodeString(pair.PublicKeySignature)
+		//err = c.Conn.WritePacket(pk.Marshal(
+		//	packetid.LoginStart,
+		//	pk.String(c.Auth.Name),
+		//	pk.Boolean(true),
+		//	pk.Long(pair.ExpiresAt.UnixMilli()),
+		//	pk.ByteArray(block.Bytes),
+		//	pk.ByteArray(sig),
+		//))
+		if err != nil {
+			return LoginErr{"login start (with sig)", err}
+		}
+		c.KeyPair = pair
 	}
-
 	for {
 		//Receive Packet
 		var p pk.Packet

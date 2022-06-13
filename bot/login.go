@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
+	"github.com/Tnze/go-mc/yggdrasil/userApi"
 	"io"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-// Auth includes a account
+// Auth includes an account
 type Auth struct {
 	Name string
 	UUID string
@@ -42,7 +43,7 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 
 	// 响应加密请求
 	// Write Encryption Key Response
-	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken)
+	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, c.KeyPair)
 	if err != nil {
 		return fmt.Errorf("gen encryption key response fail: %v", err)
 	}
@@ -177,7 +178,7 @@ func newSymmetricEncryption() (key []byte, encoStream, decoStream cipher.Stream)
 	return
 }
 
-func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte) (erp pk.Packet, err error) {
+func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair userApi.KeyPairResp) (erp pk.Packet, err error) {
 	iPK, err := x509.ParsePKIXPublicKey(publicKey) // Decode Public Key
 	if err != nil {
 		err = fmt.Errorf("decode public key fail: %v", err)
@@ -189,14 +190,19 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte) (erp p
 		err = fmt.Errorf("encryption share secret fail: %v", err)
 		return
 	}
+
 	verifyT, err := rsa.EncryptPKCS1v15(rand.Reader, rsaKey, verifyToken)
 	if err != nil {
 		err = fmt.Errorf("encryption verfy tokenfail: %v", err)
 		return
 	}
+
+	// currently broken
+
 	return pk.Marshal(
 		0x01,
 		pk.ByteArray(cryptPK),
+		pk.Boolean(true),
 		pk.ByteArray(verifyT),
 	), nil
 }
