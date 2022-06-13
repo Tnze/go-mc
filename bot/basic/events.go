@@ -2,6 +2,7 @@ package basic
 
 import (
 	"github.com/google/uuid"
+	"time"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
@@ -11,7 +12,8 @@ import (
 
 type EventsListener struct {
 	GameStart    func() error
-	ChatMsg      func(c chat.Message, pos byte, uuid uuid.UUID) error
+	ChatMsg      func(c *PlayerMessage, pos byte, uuid uuid.UUID) error
+	SystemMsg    func(c chat.Message, pos byte) error
 	Disconnect   func(reason chat.Message) error
 	HealthChange func(health float32) error
 	Death        func() error
@@ -20,7 +22,8 @@ type EventsListener struct {
 func (e EventsListener) Attach(c *bot.Client) {
 	c.Events.AddListener(
 		bot.PacketHandler{Priority: 64, ID: packetid.ClientboundLogin, F: e.onJoinGame},
-		//bot.PacketHandler{Priority: 64, ID: packetid.ClientboundChat, F: e.onChatMsg},
+		bot.PacketHandler{Priority: 64, ID: packetid.ClientboundSystemChat, F: e.onSystemMsg},
+		bot.PacketHandler{Priority: 64, ID: packetid.ClientboundPlayerChat, F: e.onPlayerMsg},
 		bot.PacketHandler{Priority: 64, ID: packetid.ClientboundDisconnect, F: e.onDisconnect},
 		bot.PacketHandler{Priority: 64, ID: packetid.ClientboundSetHealth, F: e.onUpdateHealth},
 	)
@@ -44,17 +47,78 @@ func (e *EventsListener) onDisconnect(p pk.Packet) error {
 	return nil
 }
 
-func (e *EventsListener) onChatMsg(p pk.Packet) error {
-	if e.ChatMsg != nil {
-		var msg chat.Message
-		var pos pk.Byte
-		var sender pk.UUID
+type PlayerMessage struct {
+	SignedMessage     chat.Message
+	Unsigned          bool
+	UnsignedMessage   chat.Message
+	Position          int32
+	Sender            uuid.UUID
+	SenderDisplayName chat.Message
+	HasSenderTeam     bool
+	SenderTeamName    chat.Message
+	TimeStamp         time.Time
+}
 
-		if err := p.Scan(&msg, &pos, &sender); err != nil {
+func (e *EventsListener) onPlayerMsg(p pk.Packet) error {
+	if e.ChatMsg != nil {
+		var message PlayerMessage
+		//var (
+		//	signedChat chat.Message
+		//	unsigned pk.Boolean
+		//	unsignedChat chat.Message
+		//	pos pk.VarInt
+		//	sender uuid.UUID
+		//	senderDisplayName pk.String
+		//	hasSenderTeam pk.Boolean
+		//	senderTeam pk.String
+		//	timeStamp pk.Long
+		//	salt pk.Long
+		//
+		//)
+		var senderDisplayName pk.String
+		var senderTeamName pk.String
+		var timeStamp pk.Long
+		//var sig pk.VarInt
+		var salt pk.Long
+		var signature pk.ByteArray
+		if err := p.Scan(&message.SignedMessage,
+			(*pk.Boolean)(&message.Unsigned),
+			pk.Opt{
+				Has:   &message.Unsigned,
+				Field: &message.UnsignedMessage,
+			},
+			(*pk.VarInt)(&message.Position),
+			(*pk.UUID)(&message.Sender),
+			&senderDisplayName,
+			(*pk.Boolean)(&message.HasSenderTeam),
+			pk.Opt{
+				Has:   &message.HasSenderTeam,
+				Field: &senderTeamName,
+			},
+			&timeStamp,
+			&salt,
+			&signature); err != nil {
 			return Error{err}
 		}
+		if err := message.SenderDisplayName.UnmarshalJSON([]byte(senderDisplayName)); err != nil {
+			return Error{err}
+		}
+		if err := message.SenderTeamName.UnmarshalJSON([]byte(senderDisplayName)); err != nil {
+			return Error{err}
+		}
+		return e.ChatMsg(&message, byte(message.Position), message.Sender)
+	}
+	return nil
+}
+func (e *EventsListener) onSystemMsg(p pk.Packet) error {
+	if e.SystemMsg != nil {
+		var msg chat.Message
+		var pos pk.VarInt
 
-		return e.ChatMsg(msg, byte(pos), uuid.UUID(sender))
+		if err := p.Scan(&msg, &pos); err != nil {
+			return Error{err}
+		}
+		return e.SystemMsg(msg, byte(pos))
 	}
 	return nil
 }

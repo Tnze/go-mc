@@ -11,7 +11,7 @@ import (
 // WorldInfo content player info in server.
 type WorldInfo struct {
 	DimensionCodec      nbt.StringifiedMessage
-	Dimension           Dimension
+	Dimension           string
 	WorldNames          []string // Identifiers for all worlds on the server.
 	WorldName           string   // Name of the world being spawned into.
 	HashedSeed          int64    // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
@@ -64,7 +64,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 		(*pk.Byte)(&p.PrevGamemode),
 		pk.Array(&WorldNames),
 		pk.NBT(&p.WorldInfo.DimensionCodec),
-		pk.NBT(&p.WorldInfo.Dimension),
+		(*pk.Identifier)(&p.Dimension),
 		(*pk.Identifier)(&p.WorldName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.VarInt)(&p.MaxPlayers),
@@ -78,7 +78,6 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	if err != nil {
 		return Error{err}
 	}
-
 	// This line should work "like" the following code but without copy things
 	//	p.WorldNames = make([]string, len(WorldNames))
 	//	for i, v := range WorldNames {
@@ -114,7 +113,8 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 func (p *Player) handleRespawnPacket(packet pk.Packet) error {
 	var copyMeta bool
 	err := packet.Scan(
-		pk.NBT(&p.WorldInfo.Dimension),
+		//pk.NBT(&p.WorldInfo.Dimension),
+		(*pk.Identifier)(&p.Dimension),
 		(*pk.Identifier)(&p.WorldName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.UnsignedByte)(&p.Gamemode),

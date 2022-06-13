@@ -178,7 +178,7 @@ func newSymmetricEncryption() (key []byte, encoStream, decoStream cipher.Stream)
 	return
 }
 
-func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair userApi.KeyPairResp) (erp pk.Packet, err error) {
+func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair *userApi.KeyPairResp) (erp pk.Packet, err error) {
 	iPK, err := x509.ParsePKIXPublicKey(publicKey) // Decode Public Key
 	if err != nil {
 		err = fmt.Errorf("decode public key fail: %v", err)
