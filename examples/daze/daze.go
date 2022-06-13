@@ -8,7 +8,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/google/uuid"
 	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
@@ -36,6 +35,7 @@ func main() {
 	basic.EventsListener{
 		GameStart:    onGameStart,
 		ChatMsg:      onChatMsg,
+		SystemMsg:    onSystemMsg,
 		Disconnect:   onDisconnect,
 		HealthChange: nil,
 		Death:        onDeath,
@@ -95,8 +95,12 @@ func onGameStart() error {
 	return nil //if err isn't nil, HandleGame() will return it.
 }
 
-func onChatMsg(c chat.Message, _ byte, _ uuid.UUID) error {
-	log.Println("Chat:", c) // output chat message without any format code (like color or bold)
+func onChatMsg(c *basic.PlayerMessage) error {
+	log.Println("Chat:", c.SignedMessage.String())
+	return nil
+}
+func onSystemMsg(c chat.Message, pos byte) error {
+	log.Printf("System: %v, Location: %v", c.String(), pos)
 	return nil
 }
 

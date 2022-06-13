@@ -4,7 +4,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/google/uuid"
 	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
@@ -33,6 +32,7 @@ func main() {
 	basic.EventsListener{
 		GameStart:  onGameStart,
 		ChatMsg:    onChatMsg,
+		SystemMsg:  onSystemMsg,
 		Disconnect: onDisconnect,
 		Death:      onDeath,
 	}.Attach(c)
@@ -107,8 +107,12 @@ func onSound(id int, category int, x, y, z float64, volume, pitch float32) error
 	return nil
 }
 
-func onChatMsg(c chat.Message, pos byte, uuid uuid.UUID) error {
-	log.Println("Chat:", c)
+func onChatMsg(c *basic.PlayerMessage) error {
+	log.Println("Chat:", c.SignedMessage.String())
+	return nil
+}
+func onSystemMsg(c chat.Message, pos byte) error {
+	log.Printf("System: %v, Location: %v", c.String(), pos)
 	return nil
 }
 

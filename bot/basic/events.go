@@ -12,7 +12,7 @@ import (
 
 type EventsListener struct {
 	GameStart    func() error
-	ChatMsg      func(c *PlayerMessage, pos byte, uuid uuid.UUID) error
+	ChatMsg      func(c *PlayerMessage) error
 	SystemMsg    func(c chat.Message, pos byte) error
 	Disconnect   func(reason chat.Message) error
 	HealthChange func(health float32) error
@@ -106,7 +106,7 @@ func (e *EventsListener) onPlayerMsg(p pk.Packet) error {
 		if err := message.SenderTeamName.UnmarshalJSON([]byte(senderDisplayName)); err != nil {
 			return Error{err}
 		}
-		return e.ChatMsg(&message, byte(message.Position), message.Sender)
+		return e.ChatMsg(&message)
 	}
 	return nil
 }
