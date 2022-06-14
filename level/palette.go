@@ -150,7 +150,7 @@ func (p *PaletteContainer[T]) ReadFrom(r io.Reader) (n int64, err error) {
 	if err != nil {
 		return n, err
 	}
-	return n, nil
+	return n, p.data.Fix(int(nBits))
 }
 
 func (p *PaletteContainer[T]) WriteTo(w io.Writer) (n int64, err error) {

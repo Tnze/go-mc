@@ -182,3 +182,15 @@ func (b *BitStorage) WriteTo(w io.Writer) (int64, error) {
 	}
 	return n, nil
 }
+
+func (b *BitStorage) Fix(bits int) error {
+	b.mask = 1<<bits - 1
+	b.bits = bits
+	b.valuesPerLong = 64 / bits
+	// check data length
+	dataLen := calcBitStorageSize(bits, b.length)
+	if l := len(b.data); l != dataLen {
+		return newBitStorageErr{ArrlLen: l, WantLen: dataLen}
+	}
+	return nil
+}
