@@ -184,6 +184,12 @@ func (b *BitStorage) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (b *BitStorage) Fix(bits int) error {
+	if bits == 0 {
+		b.mask = 0
+		b.bits = 0
+		b.valuesPerLong = 0
+		return nil
+	}
 	b.mask = 1<<bits - 1
 	b.bits = bits
 	b.valuesPerLong = 64 / bits
