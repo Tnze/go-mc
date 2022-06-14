@@ -6,6 +6,8 @@ package bot
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/pem"
 	"errors"
 	"github.com/Tnze/go-mc/yggdrasil/userApi"
 	"net"
@@ -75,6 +77,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	// Login Start
 	pair, err := userApi.GetOrFetchKeyPair(c.Auth.AsTk)
 	if err != nil {
+		// (No Signature)
 		err = c.Conn.WritePacket(pk.Marshal(
 			packetid.LoginStart,
 			pk.String(c.Auth.Name),
@@ -84,22 +87,17 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			return LoginErr{"login start (without sig)", err}
 		}
 	} else {
-		// Login Start (With Signature) (Currently not supported)
+		// Login Start (With Signature)
+		block, _ := pem.Decode([]byte(pair.KeyPair.PublicKey))
+		sig, _ := base64.StdEncoding.DecodeString(pair.PublicKeySignature)
 		err = c.Conn.WritePacket(pk.Marshal(
 			packetid.LoginStart,
 			pk.String(c.Auth.Name),
-			pk.Boolean(false),
+			pk.Boolean(true),
+			pk.Long(pair.ExpiresAt.UnixMilli()),
+			pk.ByteArray(block.Bytes),
+			pk.ByteArray(sig),
 		))
-		/*		block, _ := pem.Decode([]byte(pair.KeyPair.PublicKey))
-				sig, _ := base64.StdEncoding.DecodeString(pair.PublicKeySignature)
-				err = c.Conn.WritePacket(pk.Marshal(
-					packetid.LoginStart,
-					pk.String(c.Auth.Name),
-					pk.Boolean(true),
-					pk.Long(pair.ExpiresAt.UnixMilli()),
-					pk.ByteArray(block.Bytes),
-					pk.ByteArray(sig),
-				))*/
 		if err != nil {
 			return LoginErr{"login start (with sig)", err}
 		}

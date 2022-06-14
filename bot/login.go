@@ -2,15 +2,19 @@ package bot
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/json"
+	"encoding/pem"
 	"fmt"
 	"github.com/Tnze/go-mc/yggdrasil/userApi"
+	randN "golang.org/x/exp/rand"
 	"io"
 	"net/http"
 	"strings"
@@ -190,19 +194,45 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 		err = fmt.Errorf("encryption share secret fail: %v", err)
 		return
 	}
+	if keyPair != nil {
+		privateKeyBlock, _ := pem.Decode([]byte(keyPair.KeyPair.PrivateKey))
+		privateKey, err := x509.ParsePKCS8PrivateKey(privateKeyBlock.Bytes)
+		if err != nil {
+			err = fmt.Errorf("decode user private key fail: %v", err)
+			return erp, err
+		}
 
-	verifyT, err := rsa.EncryptPKCS1v15(rand.Reader, rsaKey, verifyToken)
-	if err != nil {
-		err = fmt.Errorf("encryption verfy tokenfail: %v", err)
-		return
+		l := randN.Int63()
+		var b bytes.Buffer
+		pk.Long(l).WriteTo(&b)
+
+		key := privateKey.(*rsa.PrivateKey)
+		hash := sha256.New()
+		hash.Write(verifyToken)
+		hash.Write(b.Bytes())
+		signedData, err := key.Sign(rand.Reader, hash.Sum(nil), crypto.SHA256)
+		if err != nil {
+			err = fmt.Errorf("sign verifyToken fail: %v", err)
+			return erp, err
+		}
+		return pk.Marshal(
+			0x01,
+			pk.ByteArray(cryptPK),
+			pk.Boolean(false),
+			pk.Long(l),
+			pk.ByteArray(signedData),
+		), nil
+	} else {
+		verifyT, err := rsa.EncryptPKCS1v15(rand.Reader, rsaKey, verifyToken)
+		if err != nil {
+			err = fmt.Errorf("encryption verfy tokenfail: %v", err)
+			return erp, err
+		}
+		return pk.Marshal(
+			0x01,
+			pk.ByteArray(cryptPK),
+			pk.Boolean(true),
+			pk.ByteArray(verifyT),
+		), nil
 	}
-
-	// currently broken
-
-	return pk.Marshal(
-		0x01,
-		pk.ByteArray(cryptPK),
-		pk.Boolean(true),
-		pk.ByteArray(verifyT),
-	), nil
 }
