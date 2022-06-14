@@ -1,8 +1,8 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/bot/userApi"
 	"github.com/Tnze/go-mc/net"
-	"github.com/Tnze/go-mc/yggdrasil/userApi"
 	"github.com/google/uuid"
 )
 

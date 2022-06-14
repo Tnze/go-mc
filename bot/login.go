@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/Tnze/go-mc/yggdrasil/userApi"
+	"github.com/Tnze/go-mc/bot/userApi"
 	randN "golang.org/x/exp/rand"
 	"io"
 	"net/http"

@@ -9,7 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
-	"github.com/Tnze/go-mc/yggdrasil/userApi"
+	"github.com/Tnze/go-mc/bot/userApi"
 	"net"
 	"strconv"
 
