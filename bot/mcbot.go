@@ -9,7 +9,6 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
-	"github.com/Tnze/go-mc/yggdrasil/userApi"
 	"net"
 	"strconv"
 
@@ -17,6 +16,7 @@ import (
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/yggdrasil/user"
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
@@ -75,7 +75,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		return LoginErr{"handshake", err}
 	}
 	// Login Start
-	pair, err := userApi.GetOrFetchKeyPair(c.Auth.AsTk)
+	pair, err := user.GetOrFetchKeyPair(c.Auth.AsTk)
 	if err != nil {
 		// (No Signature)
 		err = c.Conn.WritePacket(pk.Marshal(
@@ -101,7 +101,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		if err != nil {
 			return LoginErr{"login start (with sig)", err}
 		}
-		c.KeyPair = &pair
+		c.KeyPair = pair
 	}
 	for {
 		//Receive Packet

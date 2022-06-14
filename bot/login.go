@@ -13,14 +13,13 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/Tnze/go-mc/yggdrasil/userApi"
-	randN "golang.org/x/exp/rand"
 	"io"
 	"net/http"
 	"strings"
 
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/yggdrasil/user"
 )
 
 // Auth includes an account
@@ -47,7 +46,7 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 
 	// 响应加密请求
 	// Write Encryption Key Response
-	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, c.KeyPair)
+	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, &c.KeyPair)
 	if err != nil {
 		return fmt.Errorf("gen encryption key response fail: %v", err)
 	}
@@ -182,7 +181,7 @@ func newSymmetricEncryption() (key []byte, encoStream, decoStream cipher.Stream)
 	return
 }
 
-func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair *userApi.KeyPairResp) (erp pk.Packet, err error) {
+func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair *user.KeyPairResp) (erp pk.Packet, err error) {
 	iPK, err := x509.ParsePKIXPublicKey(publicKey) // Decode Public Key
 	if err != nil {
 		err = fmt.Errorf("decode public key fail: %v", err)
@@ -202,14 +201,16 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 			return erp, err
 		}
 
-		l := randN.Int63()
-		var b bytes.Buffer
-		pk.Long(l).WriteTo(&b)
+		var l pk.Long
+		if _, err := l.ReadFrom(rand.Reader); err != nil {
+			err = fmt.Errorf("generate random number fail: %v", err)
+			return erp, err
+		}
 
 		key := privateKey.(*rsa.PrivateKey)
 		hash := sha256.New()
 		hash.Write(verifyToken)
-		hash.Write(b.Bytes())
+		_, _ = l.WriteTo(hash)
 		signedData, err := key.Sign(rand.Reader, hash.Sum(nil), crypto.SHA256)
 		if err != nil {
 			err = fmt.Errorf("sign verifyToken fail: %v", err)
@@ -219,7 +220,7 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 			0x01,
 			pk.ByteArray(cryptPK),
 			pk.Boolean(false),
-			pk.Long(l),
+			l,
 			pk.ByteArray(signedData),
 		), nil
 	} else {

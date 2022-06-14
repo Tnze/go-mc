@@ -2,7 +2,7 @@ package bot
 
 import (
 	"github.com/Tnze/go-mc/net"
-	"github.com/Tnze/go-mc/yggdrasil/userApi"
+	"github.com/Tnze/go-mc/yggdrasil/user"
 	"github.com/google/uuid"
 )
 
@@ -10,7 +10,7 @@ import (
 type Client struct {
 	Conn    *net.Conn
 	Auth    Auth
-	KeyPair *userApi.KeyPairResp
+	KeyPair user.KeyPairResp
 
 	Name string
 	UUID uuid.UUID

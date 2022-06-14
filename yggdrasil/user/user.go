@@ -1,14 +1,35 @@
-package userApi
+package user
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 var ServicesURL = "https://api.minecraftservices.com"
 
 var client = http.DefaultClient
+
+type KeyPairResp struct {
+	KeyPair struct {
+		PrivateKey string `json:"privateKey"`
+		PublicKey  string `json:"publicKey"`
+	} `json:"keyPair"`
+	PublicKeySignature string    `json:"publicKeySignature"`
+	ExpiresAt          time.Time `json:"expiresAt"`
+	RefreshedAfter     time.Time `json:"refreshedAfter"`
+}
+
+func GetOrFetchKeyPair(accessToken string) (KeyPairResp, error) {
+	return fetchKeyPair(accessToken) // TODO: cache
+}
+
+func fetchKeyPair(accessToken string) (KeyPairResp, error) {
+	var keyPairResp KeyPairResp
+	err := post("/player/certificates", accessToken, &keyPairResp)
+	return keyPairResp, err
+}
 
 func post(endpoint string, accessToken string, resp interface{}) error {
 	rowResp, err := rawPost(endpoint, accessToken)

@@ -1,7 +1,6 @@
 package basic
 
 import (
-	"golang.org/x/exp/slices"
 	"unsafe"
 
 	"github.com/Tnze/go-mc/data/packetid"
@@ -49,7 +48,7 @@ type Dimension struct {
 	} `nbt:"element"`
 }
 type DimensionCodec struct {
-	// What is Below? (wik.vg)
+	// What is Below? (wiki.vg)
 	ChatType struct {
 		Type  string `nbt:"type"`
 		Value []struct {
@@ -173,11 +172,10 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	//		p.WorldNames[i] = string(v)
 	//	}
 	p.WorldNames = *(*[]string)(unsafe.Pointer(&WorldNames))
-	index := slices.IndexFunc(p.DimensionCodec.DimensionType.Value, func(d Dimension) bool {
-		return d.Name == string(currentDimension)
-	})
-	if index != -1 {
-		p.Dimension = p.DimensionCodec.DimensionType.Value[index]
+	for _, d := range p.DimensionCodec.DimensionType.Value {
+		if d.Name == string(currentDimension) {
+			p.Dimension = d
+		}
 	}
 
 	err = p.c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
@@ -221,11 +219,10 @@ func (p *Player) handleRespawnPacket(packet pk.Packet) error {
 	if err != nil {
 		return Error{err}
 	}
-	index := slices.IndexFunc(p.DimensionCodec.DimensionType.Value, func(d Dimension) bool {
-		return d.Name == string(currentDimension)
-	})
-	if index != -1 {
-		p.Dimension = p.DimensionCodec.DimensionType.Value[index]
+	for _, d := range p.DimensionCodec.DimensionType.Value {
+		if d.Name == string(currentDimension) {
+			p.Dimension = d
+		}
 	}
 	return nil
 }

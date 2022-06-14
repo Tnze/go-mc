@@ -99,8 +99,9 @@ func onChatMsg(c *basic.PlayerMessage) error {
 	log.Println("Chat:", c.SignedMessage.String())
 	return nil
 }
+
 func onSystemMsg(c chat.Message, pos byte) error {
-	log.Printf("System: %v, Location: %v", c.String(), pos)
+	log.Printf("System: %v, Location: %v", c, pos)
 	return nil
 }
 

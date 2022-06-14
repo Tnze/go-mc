@@ -137,7 +137,7 @@ func TestWriteSectors(t *testing.T) {
 		if len(region.sectors) != expectedSectorsNum {
 			t.Errorf("wrong region sector count. Got: %d, Want: %d", len(region.sectors), expectedSectorsNum)
 		}
-		
+
 		if read, err := region.ReadSector(idx, 0); err != nil {
 			t.Fatal("read sector", err)
 		} else if !bytes.Equal(data, read) {
