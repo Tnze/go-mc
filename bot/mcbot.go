@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/pem"
 	"errors"
+	"io"
 	"net"
 	"strconv"
 
@@ -36,7 +37,6 @@ func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
 }
 
 func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
-
 	const Handshake = 0x00
 	// Split Host and Port
 	host, portStr, err := net.SplitHostPort(addr)
@@ -75,33 +75,19 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		return LoginErr{"handshake", err}
 	}
 	// Login Start
-	pair, err := user.GetOrFetchKeyPair(c.Auth.AsTk)
+	c.KeyPair, err = user.GetOrFetchKeyPair(c.Auth.AsTk)
+	HasSignature := err == nil
+	err = c.Conn.WritePacket(pk.Marshal(
+		packetid.LoginStart,
+		pk.String(c.Auth.Name),
+		pk.Boolean(HasSignature),
+		pk.Opt{
+			Has:   HasSignature,
+			Field: keyPair(c.KeyPair),
+		},
+	))
 	if err != nil {
-		// (No Signature)
-		err = c.Conn.WritePacket(pk.Marshal(
-			packetid.LoginStart,
-			pk.String(c.Auth.Name),
-			pk.Boolean(false),
-		))
-		if err != nil {
-			return LoginErr{"login start (without sig)", err}
-		}
-	} else {
-		// Login Start (With Signature)
-		block, _ := pem.Decode([]byte(pair.KeyPair.PublicKey))
-		sig, _ := base64.StdEncoding.DecodeString(pair.PublicKeySignature)
-		err = c.Conn.WritePacket(pk.Marshal(
-			packetid.LoginStart,
-			pk.String(c.Auth.Name),
-			pk.Boolean(true),
-			pk.Long(pair.ExpiresAt.UnixMilli()),
-			pk.ByteArray(block.Bytes),
-			pk.ByteArray(sig),
-		))
-		if err != nil {
-			return LoginErr{"login start (with sig)", err}
-		}
-		c.KeyPair = pair
+		return LoginErr{"login start", err}
 	}
 	for {
 		//Receive Packet
@@ -169,6 +155,24 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			}
 		}
 	}
+}
+
+type keyPair user.KeyPairResp
+
+func (k keyPair) WriteTo(w io.Writer) (int64, error) {
+	block, _ := pem.Decode([]byte(k.KeyPair.PublicKey))
+	if block == nil {
+		return 0, errors.New("pem decode error: no data is found")
+	}
+	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignature)
+	if err != nil {
+		return 0, err
+	}
+	return pk.Tuple{
+		pk.Long(k.ExpiresAt.UnixMilli()),
+		pk.ByteArray(block.Bytes),
+		pk.ByteArray(signature),
+	}.WriteTo(w)
 }
 
 type LoginErr struct {
