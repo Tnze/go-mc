@@ -21,6 +21,10 @@ import (
 )
 
 var address = flag.String("address", "127.0.0.1", "The server address")
+var name = flag.String("name", "Daze", "The player's name")
+var playerID = flag.String("uuid", "", "The player's UUID")
+var accessToken = flag.String("token", "", "AccessToken")
+
 var client *bot.Client
 var player *basic.Player
 var worldManager *world.World
@@ -30,14 +34,18 @@ func main() {
 	flag.Parse()
 	//log.SetOutput(colorable.NewColorableStdout())
 	client = bot.NewClient()
-	client.Auth.Name = "Daze"
+	client.Auth = bot.Auth{
+		Name: *name,
+		UUID: *playerID,
+		AsTk: *accessToken,
+	}
 	player = basic.NewPlayer(client, basic.DefaultSettings)
 	basic.EventsListener{
 		GameStart:    onGameStart,
 		ChatMsg:      onChatMsg,
 		SystemMsg:    onSystemMsg,
 		Disconnect:   onDisconnect,
-		HealthChange: nil,
+		HealthChange: onHealthChange,
 		Death:        onDeath,
 	}.Attach(client)
 	worldManager = world.NewWorld(client, player, world.EventsListener{
@@ -132,6 +140,11 @@ func onScreenSlotChange(id, index int) error {
 			}
 		}
 	}
+	return nil
+}
+
+func onHealthChange(health float32) error {
+	log.Printf("HealthChange: %v", health)
 	return nil
 }
 
