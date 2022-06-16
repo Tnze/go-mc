@@ -9,8 +9,6 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/net"
-	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/server/ecs"
 )
 
 type GamePlay interface {
@@ -22,11 +20,13 @@ type GamePlay interface {
 }
 
 type Game struct {
-	*ecs.World
-	*ecs.Dispatcher
 	WorldLocker sync.Mutex
 	handlers    map[int32][]*PacketHandler
 	components  []Component
+}
+
+func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
+	conn.Close()
 }
 
 type PacketHandler struct {
@@ -45,16 +45,12 @@ type Component interface {
 
 func NewGame(components ...Component) *Game {
 	g := &Game{
-		World:      ecs.NewWorld(),
-		Dispatcher: ecs.NewDispatcher(),
 		handlers:   make(map[int32][]*PacketHandler),
 		components: components,
 	}
 	for _, c := range components {
 		c.Init(g)
 	}
-	ecs.Register[Client, *ecs.HashMapStorage[Client]](g.World)
-	ecs.Register[Player, *ecs.HashMapStorage[Player]](g.World)
 	return g
 }
 
@@ -71,65 +67,10 @@ func (g *Game) Run(ctx context.Context) {
 		select {
 		case <-ticker.C:
 			g.WorldLocker.Lock()
-			g.Dispatcher.Run(g.World)
+			//g.Dispatcher.Run(g.World)
 			g.WorldLocker.Unlock()
 		case <-ctx.Done():
 			return
-		}
-	}
-}
-
-func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
-	g.WorldLocker.Lock()
-	eid := g.CreateEntity(
-		Client{
-			Conn:        conn,
-			Protocol:    protocol,
-			packetQueue: NewPacketQueue(),
-			errChan:     make(chan error, 1),
-		},
-		Player{
-			UUID: id,
-			Name: name,
-		},
-	)
-	c := ecs.GetComponent[Client](g.World).GetValue(eid)
-	p := ecs.GetComponent[Player](g.World).GetValue(eid)
-	g.WorldLocker.Unlock()
-	defer c.packetQueue.Close()
-
-	go func() {
-		for {
-			packet, ok := c.packetQueue.Pull()
-			if !ok {
-				break
-			}
-			err := c.Conn.WritePacket(packet)
-			if err != nil {
-				c.PutErr(err)
-				break
-			}
-		}
-	}()
-
-	var err error
-	for _, component := range g.components {
-		component.ClientJoin(c, p)
-		defer func(cmp Component) { cmp.ClientLeft(c, p, err) }(component)
-	}
-
-	var packet pk.Packet
-	for {
-		if err = c.ReadPacket(&packet); err != nil {
-			return
-		}
-		for _, ph := range g.handlers[packet.ID] {
-			if err = ph.F(c, p, Packet758(packet)); err != nil {
-				return
-			}
-			if err = c.GetErr(); err != nil {
-				return
-			}
 		}
 	}
 }

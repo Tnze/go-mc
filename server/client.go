@@ -9,13 +9,11 @@ import (
 
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/server/ecs"
 )
 
 type Client struct {
 	*net.Conn
-	Protocol int32
-	ecs.Index
+	Protocol    int32
 	packetQueue *PacketQueue
 	errChan     chan error
 }

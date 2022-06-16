@@ -8,7 +8,6 @@ import (
 
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/server/ecs"
 )
 
 // keepAliveInterval represents the interval when the server sends keep alive
@@ -58,11 +57,6 @@ func (k *KeepAlive) AddPlayerDelayUpdateHandler(f func(p *Client, delay time.Dur
 
 // Init implement Component for KeepAlive
 func (k *KeepAlive) Init(g *Game) {
-	ecs.Register[ClientDelay, *ecs.HashMapStorage[ClientDelay]](g.World)
-	k.AddPlayerDelayUpdateHandler(func(p *Client, delay time.Duration) {
-		c := ClientDelay{Delay: delay}
-		ecs.GetComponent[ClientDelay](g.World).SetValue(p.Index, c)
-	})
 	g.AddHandler(&PacketHandler{
 		ID: packetid.ServerboundKeepAlive,
 		F: func(client *Client, player *Player, packet Packet758) error {

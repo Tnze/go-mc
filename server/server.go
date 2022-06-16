@@ -30,8 +30,8 @@ import (
 	"github.com/Tnze/go-mc/net"
 )
 
-const ProtocolName = "1.18.2"
-const ProtocolVersion = 758
+const ProtocolName = "1.19"
+const ProtocolVersion = 759
 
 type Server struct {
 	ListPingHandler

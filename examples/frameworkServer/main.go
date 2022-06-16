@@ -4,8 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"flag"
-	"github.com/Tnze/go-mc/server/ecs"
-	"github.com/Tnze/go-mc/server/world"
 	"image"
 	_ "image/png"
 	"log"
@@ -14,7 +12,6 @@ import (
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/server"
 	"github.com/Tnze/go-mc/server/command"
-	"github.com/Tnze/go-mc/server/player"
 )
 
 var motd = chat.Message{Text: "A Minecraft Server ", Extra: []chat.Message{{Text: "Powered by go-mc", Color: "yellow"}}}
@@ -57,13 +54,6 @@ func main() {
 		keepAlive,
 		commands,
 	)
-	ecs.Register[world.Dimension, *ecs.HashMapStorage[world.Dimension]](game.World)
-	dimList := world.NewDimensionManager(game)
-	dimList.Add(game.CreateEntity(world.NewDimension(
-		"minecraft:overworld", *regionPath,
-	)), "minecraft:overworld")
-	player.SpawnSystem(game, *playerdataPath)
-	player.PosAndRotSystem(game)
 	go game.Run(context.Background())
 
 	s := server.Server{
