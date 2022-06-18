@@ -28,6 +28,12 @@ func In(cx, cz int) (int, int) {
 	return cx & 31, cz & 31
 }
 
+// At calculate the region's coordinates where the chunk in
+// 计算chunk在哪一个region中
+func At(cx, cz int) (int, int) {
+	return cx >> 5, cz >> 5
+}
+
 // Open a .mca file and read the head.
 // Close the Region after used.
 func Open(name string) (r *Region, err error) {

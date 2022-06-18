@@ -13,14 +13,14 @@ import (
 	"github.com/Tnze/go-mc/save"
 )
 
-type ChunkPos struct{ X, Z int }
+type ChunkPos [2]int32
 
 func (c ChunkPos) WriteTo(w io.Writer) (n int64, err error) {
-	n, err = pk.Int(c.X).WriteTo(w)
+	n, err = pk.Int(c[0]).WriteTo(w)
 	if err != nil {
 		return
 	}
-	n1, err := pk.Int(c.Z).WriteTo(w)
+	n1, err := pk.Int(c[1]).WriteTo(w)
 	return n + n1, err
 }
 
@@ -33,7 +33,7 @@ func (c *ChunkPos) ReadFrom(r io.Reader) (n int64, err error) {
 	if n1, err = z.ReadFrom(r); err != nil {
 		return n + n1, err
 	}
-	*c = ChunkPos{int(x), int(z)}
+	*c = ChunkPos{int32(x), int32(z)}
 	return n + n1, nil
 }
 
@@ -41,6 +41,7 @@ type Chunk struct {
 	Sections    []Section
 	HeightMaps  HeightMaps
 	BlockEntity []BlockEntity
+	Status      ChunkStatus
 }
 
 func EmptyChunk(secs int) *Chunk {
@@ -57,6 +58,7 @@ func EmptyChunk(secs int) *Chunk {
 		HeightMaps: HeightMaps{
 			MotionBlocking: NewBitStorage(bits.Len(uint(secs)*16), 16*16, nil),
 		},
+		Status: StatusEmpty,
 	}
 }
 
@@ -220,6 +222,7 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 			OceanFloor:             NewBitStorage(bitsForHeight, 16*16, oceanFloor),
 			WorldSurface:           NewBitStorage(bitsForHeight, 16*16, worldSurface),
 		},
+		Status: ChunkStatus(c.Status),
 	}, nil
 }
 
@@ -278,7 +281,8 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) (err error) {
 		s.BlockLight = v.BlockLight
 	}
 	dst.Sections = sections
-	//dst.Heightmaps.MotionBlocking = c.HeightMaps.MotionBlocking.Raw()
+	dst.Heightmaps.MotionBlocking = c.HeightMaps.MotionBlocking.Raw()
+	dst.Status = string(c.Status)
 	return
 }
 
