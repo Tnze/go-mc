@@ -26,7 +26,7 @@ type Game struct {
 	components  []Component
 }
 
-func (g *Game) AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn) {
+func (g *Game) AcceptPlayer(name string, id uuid.UUID, profilePubKey *rsa.PublicKey, protocol int32, conn *net.Conn) {
 	conn.Close()
 }
 

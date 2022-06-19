@@ -200,6 +200,9 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 				if tagProps.OmitEmpty && isEmptyValue(v) {
 					continue
 				}
+				if tagProps.Type == TagNone {
+					return fmt.Errorf("encode %q error: unsupport type %v", tagProps.Name, v.Type())
+				}
 
 				if err := e.marshal(val.Field(i), tagProps.Type, tagProps.Name); err != nil {
 					return err
@@ -216,7 +219,7 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 				}
 				tagType, tagValue := getTagType(r.Value())
 				if tagType == TagNone {
-					return errors.New("unsupported value " + tagValue.String())
+					return fmt.Errorf("encoding %q error: unsupport type %v", tagName, tagValue.Type())
 				}
 
 				if err := e.marshal(tagValue, tagType, tagName); err != nil {

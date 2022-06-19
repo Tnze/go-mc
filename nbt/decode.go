@@ -39,10 +39,6 @@ func (d *Decoder) Decode(v interface{}) (string, error) {
 		return tagName, fmt.Errorf("nbt: %w", err)
 	}
 
-	if c := d.checkCompressed(tagType); c != "" {
-		return tagName, fmt.Errorf("nbt: unknown Tag, maybe compressed by %s, uncompress it first", c)
-	}
-
 	// We decode val not val.Elem because the Unmarshaler interface
 	// test must be applied at the top level of the value.
 	err = d.unmarshal(val, tagType)
@@ -78,7 +74,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 
 	switch tagType {
 	default:
-		return fmt.Errorf("unknown Tag 0x%02x", tagType)
+		return fmt.Errorf("unknown Tag %#02x", tagType)
 	case TagEnd:
 		return ErrEND
 
@@ -505,7 +501,7 @@ func (d *Decoder) rawRead(tagType byte) error {
 	var buf [8]byte
 	switch tagType {
 	default:
-		return fmt.Errorf("unknown to read 0x%02x", tagType)
+		return fmt.Errorf("unknown to read %#02x", tagType)
 	case TagByte:
 		_, err := d.readByte()
 		return err
@@ -590,7 +586,12 @@ func (d *Decoder) readTag() (tagType byte, tagName string, err error) {
 		return
 	}
 
-	if tagType != TagEnd { //Read Tag
+	switch tagType {
+	case 0x1f, 0x78:
+		c := d.checkCompressed(tagType)
+		err = fmt.Errorf("nbt: unknown Tag %#02x, which seems like %s header and you should uncompress it first", tagType, c)
+	case TagEnd:
+	default: //Read Tag
 		tagName, err = d.readString()
 	}
 	return
