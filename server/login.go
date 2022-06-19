@@ -1,9 +1,14 @@
 package server
 
 import (
+	"crypto/rsa"
+	"crypto/x509"
+	"errors"
 	"fmt"
-
 	"github.com/google/uuid"
+	"io"
+	"time"
+	"unsafe"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -16,7 +21,7 @@ import (
 // LoginHandler is used to handle player login process, that is,
 // from clientbound "LoginStart" packet to serverbound "LoginSuccess" packet.
 type LoginHandler interface {
-	AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, err error)
+	AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *rsa.PublicKey, err error)
 }
 
 // LoginChecker is the interface to check if a player is allowed to log in the server.
@@ -35,6 +40,9 @@ type MojangLoginHandler struct {
 	// And also encrypt the connection after login.
 	OnlineMode bool
 
+	// EnforceSecureProfile enforce to check the player's profile public key
+	EnforceSecureProfile bool
+
 	// Threshold set the smallest size of raw network payload to compress.
 	// Set to 0 to compress all packets. Set to -1 to disable compression.
 	Threshold int
@@ -46,7 +54,7 @@ type MojangLoginHandler struct {
 }
 
 // AcceptLogin implement LoginHandler for MojangLoginHandler
-func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, err error) {
+func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *rsa.PublicKey, err error) {
 	//login start
 	var p pk.Packet
 	err = conn.ReadPacket(&p)
@@ -58,21 +66,56 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		return
 	}
 
-	err = p.Scan((*pk.String)(&name)) //decode username as pk.String
+	var hasSignature pk.Boolean
+	var timestamp pk.Long
+	var profilePubKeyBytes pk.ByteArray
+	var signature pk.ByteArray
+	err = p.Scan(
+		(*pk.String)(&name),
+		&hasSignature, pk.Opt{
+			Has:   &hasSignature,
+			Field: pk.Tuple{&timestamp, &profilePubKeyBytes, &signature},
+		},
+	) //decode username as pk.String
 	if err != nil {
 		return
 	}
 
+	if hasSignature {
+		if time.UnixMilli(int64(timestamp)).Before(time.Now()) ||
+			!auth.VerifySignature(profilePubKeyBytes, signature) {
+			err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.invalid_public_key_signature")}
+			return
+		}
+	} else if d.EnforceSecureProfile {
+		err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.missing_public_key")}
+		return
+	}
+
+	var properties []property
 	//auth
 	if d.OnlineMode {
 		var resp *auth.Resp
 		//Auth, Encrypt
-		resp, err = auth.Encrypt(conn, name)
+		var key any
+		key, err = x509.ParsePKIXPublicKey(profilePubKeyBytes)
+		if err != nil {
+			return
+		}
+		if rsaPubKey, ok := key.(*rsa.PublicKey); !ok {
+			err = errors.New("expect RSA public key")
+			return
+		} else {
+			profilePubKey = rsaPubKey
+		}
+
+		resp, err = auth.Encrypt(conn, name, profilePubKey)
 		if err != nil {
 			return
 		}
 		name = resp.Name
 		id = resp.ID
+		properties = *(*[]property)(unsafe.Pointer(&resp.Properties))
 	} else {
 		// offline-mode UUID
 		id = offline.NameToUUID(name)
@@ -81,7 +124,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	//set compression
 	if d.Threshold >= 0 {
 		err = conn.WritePacket(pk.Marshal(
-			packetid.SetCompression,
+			packetid.LoginCompression,
 			pk.VarInt(d.Threshold),
 		))
 		if err != nil {
@@ -94,25 +137,38 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	if d.LoginChecker != nil {
 		if ok, result := d.CheckPlayer(name, id, protocol); !ok {
 			// player is not allowed to join the server
-			err = conn.WritePacket(pk.Marshal(
-				packetid.LoginDisconnect,
-				result,
-			))
-			if err != nil {
-				return
-			}
-			err = loginFailErr{reason: result}
+			err = LoginFailErr{reason: result}
 			return
 		}
 	}
-
 	// send login success
 	err = conn.WritePacket(pk.Marshal(
 		packetid.LoginSuccess,
 		pk.UUID(id),
 		pk.String(name),
+		pk.Array(properties),
 	))
 	return
+}
+
+type GameProfile struct {
+	ID   uuid.UUID
+	Name string
+}
+
+type property auth.Property
+
+func (p property) WriteTo(w io.Writer) (n int64, err error) {
+	hasSignature := len(p.Signature) > 0
+	return pk.Tuple{
+		pk.String(p.Name),
+		pk.String(p.Value),
+		pk.Boolean(hasSignature),
+		pk.Opt{
+			Has:   hasSignature,
+			Field: pk.String(p.Signature),
+		},
+	}.WriteTo(w)
 }
 
 type wrongPacketErr struct {
@@ -123,10 +179,10 @@ func (w wrongPacketErr) Error() string {
 	return fmt.Sprintf("wrong packet id: expect %#02X, get %#02X", w.expect, w.get)
 }
 
-type loginFailErr struct {
+type LoginFailErr struct {
 	reason chat.Message
 }
 
-func (l loginFailErr) Error() string {
+func (l LoginFailErr) Error() string {
 	return "login error: " + l.reason.ClearString()
 }

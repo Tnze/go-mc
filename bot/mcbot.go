@@ -121,7 +121,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			}
 			return nil
 
-		case packetid.SetCompression: //Set Compression
+		case packetid.LoginCompression: //Set Compression
 			var threshold pk.VarInt
 			if err := p.Scan(&threshold); err != nil {
 				return LoginErr{"compression", err}

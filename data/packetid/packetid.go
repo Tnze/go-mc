@@ -5,7 +5,7 @@ const (
 	LoginDisconnect = iota
 	LoginEncryptionRequest
 	LoginSuccess
-	SetCompression
+	LoginCompression
 	LoginPluginRequest
 )
 

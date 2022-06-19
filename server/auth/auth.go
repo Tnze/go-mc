@@ -2,20 +2,22 @@ package auth
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/aes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
+	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Tnze/go-mc/data/packetid"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -25,7 +27,7 @@ import (
 const verifyTokenLen = 16
 
 //Encrypt a connection, with authentication
-func Encrypt(conn *net.Conn, name string) (*Resp, error) {
+func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, error) {
 	//generate keys
 	key, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
@@ -38,32 +40,18 @@ func Encrypt(conn *net.Conn, name string) (*Resp, error) {
 	}
 
 	//encryption request
-	VT1, err := encryptionRequest(conn, publicKey)
+	nonce, err := encryptionRequest(conn, publicKey)
 	if err != nil {
 		return nil, err
 	}
 
 	//encryption response
-	ESharedSecret, EVerifyToken, err := encryptionResponse(conn)
+	SharedSecret, err := encryptionResponse(conn, profilePubKey, nonce, key)
 	if err != nil {
 		return nil, err
 	}
 
 	//encryption the connection
-	SharedSecret, err := rsa.DecryptPKCS1v15(rand.Reader, key, ESharedSecret)
-	if err != nil {
-		return nil, err
-	}
-	VT2, err := rsa.DecryptPKCS1v15(rand.Reader, key, EVerifyToken)
-	if err != nil {
-		return nil, err
-	}
-
-	//confirm to verify token
-	if !bytes.Equal(VT1, VT2) {
-		return nil, errors.New("verify token not match")
-	}
-
 	block, err := aes.NewCipher(SharedSecret)
 	if err != nil {
 		return nil, errors.New("load aes encryption key fail")
@@ -71,8 +59,8 @@ func Encrypt(conn *net.Conn, name string) (*Resp, error) {
 
 	conn.SetCipher( //启用加密
 		CFB8.NewCFB8Encrypt(block, SharedSecret),
-		CFB8.NewCFB8Decrypt(block, SharedSecret))
-
+		CFB8.NewCFB8Decrypt(block, SharedSecret),
+	)
 	hash := authDigest("", SharedSecret, publicKey)
 	resp, err := authentication(name, hash) //auth
 	if err != nil {
@@ -97,22 +85,64 @@ func encryptionRequest(conn *net.Conn, publicKey []byte) ([]byte, error) {
 	return verifyToken[:], err
 }
 
-func encryptionResponse(conn *net.Conn) ([]byte, []byte, error) {
+func encryptionResponse(conn *net.Conn, profilePubKey *rsa.PublicKey, nonce []byte, key *rsa.PrivateKey) ([]byte, error) {
 	var p pk.Packet
 	err := conn.ReadPacket(&p)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	if p.ID != packetid.LoginEncryptionResponse {
-		return nil, nil, fmt.Errorf("0x%02X is not Encryption Response", p.ID)
+		return nil, fmt.Errorf("0x%02X is not Encryption Response", p.ID)
 	}
 
-	var SharedSecret, VerifyToken pk.ByteArray
-	if err = p.Scan(&SharedSecret, &VerifyToken); err != nil {
-		return nil, nil, err
+	r := bytes.NewReader(p.Data)
+	var ESharedSecret pk.ByteArray
+	if _, err = ESharedSecret.ReadFrom(r); err != nil {
+		return nil, err
+	}
+	var isNonce pk.Boolean
+	if _, err = isNonce.ReadFrom(r); err != nil {
+		return nil, err
+	}
+	if isNonce {
+		var nonce2 pk.ByteArray
+		_, err = nonce2.ReadFrom(r)
+		if err != nil {
+			return nil, err
+		}
+
+		nonce2, err = rsa.DecryptPKCS1v15(rand.Reader, key, nonce2)
+		if err != nil {
+			return nil, err
+		}
+		if !bytes.Equal(nonce, nonce2) {
+			return nil, errors.New("nonce not match")
+		}
+
+	} else {
+		var salt pk.Long
+		var signature pk.ByteArray
+		_, err = pk.Tuple{&salt, &signature}.ReadFrom(r)
+		if err != nil {
+			return nil, err
+		}
+
+		hash := sha256.New()
+		unwrap(hash.Write(nonce))
+		unwrap(salt.WriteTo(hash))
+		err := rsa.VerifyPKCS1v15(profilePubKey, crypto.SHA256, hash.Sum(nil), signature)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	return SharedSecret, VerifyToken, nil
+	//confirm to verify token
+	SharedSecret, err := rsa.DecryptPKCS1v15(rand.Reader, key, ESharedSecret)
+	if err != nil {
+		return nil, err
+	}
+
+	return SharedSecret, nil
 }
 
 func authentication(name, hash string) (*Resp, error) {
@@ -178,9 +208,11 @@ func twosComplement(p []byte) []byte {
 type Resp struct {
 	Name       string
 	ID         uuid.UUID
-	Properties [1]struct {
-		Name, Value, Signature string
-	}
+	Properties []Property
+}
+
+type Property struct {
+	Name, Value, Signature string
 }
 
 //Texture includes player's skin and cape

@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/rsa"
 	_ "embed"
 	"sync"
 	"time"
@@ -16,7 +17,7 @@ type GamePlay interface {
 	//
 	// Note: the connection will be closed after this function returned.
 	// You don't need to close the connection, but to keep not returning while the player is playing.
-	AcceptPlayer(name string, id uuid.UUID, protocol int32, conn *net.Conn)
+	AcceptPlayer(name string, id uuid.UUID, profilePubKey *rsa.PublicKey, protocol int32, conn *net.Conn)
 }
 
 type Game struct {

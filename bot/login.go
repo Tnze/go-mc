@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"github.com/Tnze/go-mc/data/packetid"
 	"io"
 	"net/http"
 	"strings"
@@ -217,7 +218,7 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 			return erp, err
 		}
 		return pk.Marshal(
-			0x01,
+			packetid.LoginEncryptionResponse,
 			pk.ByteArray(cryptPK),
 			pk.Boolean(false),
 			l,
@@ -230,7 +231,7 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 			return erp, err
 		}
 		return pk.Marshal(
-			0x01,
+			packetid.LoginEncryptionResponse,
 			pk.ByteArray(cryptPK),
 			pk.Boolean(true),
 			pk.ByteArray(verifyT),

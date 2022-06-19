@@ -27,13 +27,18 @@
 package server
 
 import (
+	"errors"
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
+	pk "github.com/Tnze/go-mc/net/packet"
+	"log"
 )
 
 const ProtocolName = "1.19"
 const ProtocolVersion = 759
 
 type Server struct {
+	*log.Logger
 	ListPingHandler
 	LoginHandler
 	GamePlay
@@ -65,10 +70,20 @@ func (s *Server) acceptConn(conn *net.Conn) {
 	case 1: // list ping
 		s.acceptListPing(conn)
 	case 2: // login
-		name, id, err := s.AcceptLogin(conn, protocol)
+		name, id, profilePubKey, err := s.AcceptLogin(conn, protocol)
 		if err != nil {
+			var loginErr *LoginFailErr
+			if errors.As(err, &loginErr) {
+				_ = conn.WritePacket(pk.Marshal(
+					packetid.LoginDisconnect,
+					loginErr.reason,
+				))
+			}
+			if s.Logger != nil {
+				s.Logger.Printf("client %v login error: %v", conn.Socket.RemoteAddr(), err)
+			}
 			return
 		}
-		s.AcceptPlayer(name, id, protocol, conn)
+		s.AcceptPlayer(name, id, profilePubKey, protocol, conn)
 	}
 }
