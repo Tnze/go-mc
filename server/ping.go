@@ -3,7 +3,6 @@ package server
 import (
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"image"
 	"image/png"
 	"strings"
@@ -95,38 +94,35 @@ func (s *Server) listResp() ([]byte, error) {
 
 // PingInfo implement ListPingHandler.
 type PingInfo struct {
-	name     string
-	protocol int
-	*PlayerList
+	name        string
+	protocol    int
 	description chat.Message
 	favicon     string
 }
 
 // NewPingInfo crate a new PingInfo, the icon can be nil.
-func NewPingInfo(list *PlayerList, name string, protocol int, motd chat.Message, icon image.Image) (p *PingInfo, err error) {
+// Panic if icon's size is not 64x64.
+func NewPingInfo(name string, protocol int, motd chat.Message, icon image.Image) (p *PingInfo) {
 	var favIcon string
 	if icon != nil {
 		if !icon.Bounds().Size().Eq(image.Point{X: 64, Y: 64}) {
-			return nil, errors.New("icon size is not 64x64")
+			panic("icon size is not 64x64")
 		}
 		// Encode icon into string "data:image/png;base64,......" format
 		var sb strings.Builder
 		sb.WriteString("data:image/png;base64,")
 		w := base64.NewEncoder(base64.StdEncoding, &sb)
-		err = png.Encode(w, icon)
-		if err != nil {
-			return nil, err
+		if err := png.Encode(w, icon); err != nil {
+			panic(err)
 		}
-		err = w.Close()
-		if err != nil {
-			return nil, err
+		if err := w.Close(); err != nil {
+			panic(err)
 		}
 		favIcon = sb.String()
 	}
 	p = &PingInfo{
 		name:        name,
 		protocol:    protocol,
-		PlayerList:  list,
 		description: motd,
 		favicon:     favIcon,
 	}

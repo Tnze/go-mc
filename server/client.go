@@ -5,33 +5,13 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/google/uuid"
-
-	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
-
-type Client struct {
-	*net.Conn
-	Protocol    int32
-	packetQueue *PacketQueue
-	errChan     chan error
-}
-
-type Player struct {
-	uuid.UUID
-	Name string
-}
 
 // Packet758 is a packet in protocol 757.
 // We are using type system to force programmers to update packets.
 type Packet758 pk.Packet
 type Packet757 pk.Packet
-
-// WritePacket to player client. The type of parameter will update per version.
-func (c *Client) WritePacket(packet Packet758) {
-	c.packetQueue.Push(pk.Packet(packet))
-}
 
 type WritePacketError struct {
 	Err error
@@ -44,23 +24,6 @@ func (s WritePacketError) Error() string {
 
 func (s WritePacketError) Unwrap() error {
 	return s.Err
-}
-
-func (c *Client) PutErr(err error) {
-	select {
-	case c.errChan <- err:
-	default:
-		// previous error exist, ignore this.
-	}
-}
-
-func (c *Client) GetErr() error {
-	select {
-	case err := <-c.errChan:
-		return err
-	default:
-		return nil
-	}
 }
 
 type PacketQueue struct {
