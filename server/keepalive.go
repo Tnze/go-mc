@@ -36,7 +36,7 @@ type KeepAlive struct {
 	updatePlayerDelay []func(p KeepAliveClient, delay time.Duration)
 }
 
-func NewKeepAlive[C KeepAliveClient]() (k *KeepAlive) {
+func NewKeepAlive() (k *KeepAlive) {
 	return &KeepAlive{
 		join:        make(chan KeepAliveClient),
 		quit:        make(chan KeepAliveClient),
