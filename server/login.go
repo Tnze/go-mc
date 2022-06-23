@@ -1,27 +1,20 @@
 package server
 
 import (
-	"crypto/rsa"
-	"crypto/x509"
-	"errors"
 	"fmt"
-	"github.com/google/uuid"
-	"io"
-	"time"
-	"unsafe"
-
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/offline"
 	"github.com/Tnze/go-mc/server/auth"
+	"github.com/google/uuid"
 )
 
 // LoginHandler is used to handle player login process, that is,
 // from clientbound "LoginStart" packet to serverbound "LoginSuccess" packet.
 type LoginHandler interface {
-	AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *rsa.PublicKey, err error)
+	AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *auth.PublicKey, properties []auth.Property, err error)
 }
 
 // LoginChecker is the interface to check if a player is allowed to log in the server.
@@ -30,6 +23,9 @@ type LoginHandler interface {
 type LoginChecker interface {
 	CheckPlayer(name string, id uuid.UUID, protocol int32) (ok bool, reason chat.Message)
 }
+
+// Make sure MojangLoginHandler implement LoginHandler
+var _ LoginHandler = (*MojangLoginHandler)(nil)
 
 // MojangLoginHandler is a standard LoginHandler that implement both online and offline login progress.
 // This implementation also support custom LoginChecker.
@@ -54,7 +50,7 @@ type MojangLoginHandler struct {
 }
 
 // AcceptLogin implement LoginHandler for MojangLoginHandler
-func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *rsa.PublicKey, err error) {
+func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *auth.PublicKey, properties []auth.Property, err error) {
 	//login start
 	var p pk.Packet
 	err = conn.ReadPacket(&p)
@@ -66,56 +62,41 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		return
 	}
 
-	var hasSignature pk.Boolean
-	var timestamp pk.Long
-	var profilePubKeyBytes pk.ByteArray
-	var signature pk.ByteArray
+	var hasPubKey pk.Boolean
+	var pubKey auth.PublicKey
 	err = p.Scan(
 		(*pk.String)(&name),
-		&hasSignature, pk.Opt{
-			Has:   &hasSignature,
-			Field: pk.Tuple{&timestamp, &profilePubKeyBytes, &signature},
+		&hasPubKey, pk.Opt{
+			Has:   &hasPubKey,
+			Field: &pubKey,
 		},
 	) //decode username as pk.String
 	if err != nil {
 		return
 	}
 
-	if hasSignature {
-		if time.UnixMilli(int64(timestamp)).Before(time.Now()) ||
-			!auth.VerifySignature(profilePubKeyBytes, signature) {
+	if hasPubKey {
+		if !pubKey.Verify() {
 			err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.invalid_public_key_signature")}
 			return
 		}
+		profilePubKey = &pubKey
 	} else if d.EnforceSecureProfile {
 		err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.missing_public_key")}
 		return
 	}
 
-	var properties []property
 	//auth
 	if d.OnlineMode {
 		var resp *auth.Resp
 		//Auth, Encrypt
-		var key any
-		key, err = x509.ParsePKIXPublicKey(profilePubKeyBytes)
-		if err != nil {
-			return
-		}
-		if rsaPubKey, ok := key.(*rsa.PublicKey); !ok {
-			err = errors.New("expect RSA public key")
-			return
-		} else {
-			profilePubKey = rsaPubKey
-		}
-
-		resp, err = auth.Encrypt(conn, name, profilePubKey)
+		resp, err = auth.Encrypt(conn, name, profilePubKey.PubKey)
 		if err != nil {
 			return
 		}
 		name = resp.Name
 		id = resp.ID
-		properties = *(*[]property)(unsafe.Pointer(&resp.Properties))
+		properties = resp.Properties
 	} else {
 		// offline-mode UUID
 		id = offline.NameToUUID(name)
@@ -154,21 +135,6 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 type GameProfile struct {
 	ID   uuid.UUID
 	Name string
-}
-
-type property auth.Property
-
-func (p property) WriteTo(w io.Writer) (n int64, err error) {
-	hasSignature := len(p.Signature) > 0
-	return pk.Tuple{
-		pk.String(p.Name),
-		pk.String(p.Value),
-		pk.Boolean(hasSignature),
-		pk.Opt{
-			Has:   hasSignature,
-			Field: pk.String(p.Signature),
-		},
-	}.WriteTo(w)
 }
 
 type wrongPacketErr struct {

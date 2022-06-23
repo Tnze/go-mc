@@ -75,7 +75,7 @@ func (a Ary[T]) ReadFrom(r io.Reader) (n int64, err error) {
 	return n, err
 }
 
-func Array(ary interface{}) Field {
+func Array(ary any) Field {
 	return Ary[VarInt]{Ary: ary}
 }
 

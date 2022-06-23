@@ -13,6 +13,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -213,6 +214,19 @@ type Resp struct {
 
 type Property struct {
 	Name, Value, Signature string
+}
+
+func (p Property) WriteTo(w io.Writer) (n int64, err error) {
+	hasSignature := len(p.Signature) > 0
+	return pk.Tuple{
+		pk.String(p.Name),
+		pk.String(p.Value),
+		pk.Boolean(hasSignature),
+		pk.Opt{
+			Has:   hasSignature,
+			Field: pk.String(p.Signature),
+		},
+	}.WriteTo(w)
 }
 
 //Texture includes player's skin and cape

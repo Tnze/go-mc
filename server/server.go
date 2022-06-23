@@ -70,7 +70,7 @@ func (s *Server) acceptConn(conn *net.Conn) {
 	case 1: // list ping
 		s.acceptListPing(conn)
 	case 2: // login
-		name, id, profilePubKey, err := s.AcceptLogin(conn, protocol)
+		name, id, profilePubKey, properties, err := s.AcceptLogin(conn, protocol)
 		if err != nil {
 			var loginErr *LoginFailErr
 			if errors.As(err, &loginErr) {
@@ -84,6 +84,6 @@ func (s *Server) acceptConn(conn *net.Conn) {
 			}
 			return
 		}
-		s.AcceptPlayer(name, id, profilePubKey, protocol, conn)
+		s.AcceptPlayer(name, id, profilePubKey, properties, protocol, conn)
 	}
 }

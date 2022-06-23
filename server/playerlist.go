@@ -30,7 +30,6 @@ func NewPlayerList(maxPlayers int) *PlayerList {
 	}
 }
 
-// ClientJoin implement Component for PlayerList
 func (p *PlayerList) ClientJoin(client PlayerListClient, player PlayerSample) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
@@ -49,6 +48,7 @@ func (p *PlayerList) ClientLeft(client PlayerListClient) {
 	delete(p.players, client)
 }
 
+// CheckPlayer implements LoginChecker for PlayerList
 func (p *PlayerList) CheckPlayer(string, uuid.UUID, int32) (ok bool, reason chat.Message) {
 	p.playersLock.Lock()
 	defer p.playersLock.Unlock()
@@ -86,4 +86,18 @@ func (p *PlayerList) PlayerSamples() (sample []PlayerSample) {
 		}
 	}
 	return
+}
+
+func (p *PlayerList) Len() int {
+	p.playersLock.Lock()
+	defer p.playersLock.Unlock()
+	return len(p.players)
+}
+
+func (p *PlayerList) Range(f func(PlayerListClient, PlayerSample)) {
+	p.playersLock.Lock()
+	defer p.playersLock.Unlock()
+	for client, player := range p.players {
+		f(client, player)
+	}
 }
