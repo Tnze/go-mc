@@ -13,11 +13,11 @@ import (
 // Chunk is 16* chunk
 type Chunk struct {
 	DataVersion   int32
-	XPos          int32          `nbt:"xPos"`
-	YPos          int32          `nbt:"yPos"`
-	ZPos          int32          `nbt:"zPos"`
-	BlockEntities nbt.RawMessage `nbt:"block_entities"`
-	Structures    nbt.RawMessage `nbt:"structures"`
+	XPos          int32            `nbt:"xPos"`
+	YPos          int32            `nbt:"yPos"`
+	ZPos          int32            `nbt:"zPos"`
+	BlockEntities []nbt.RawMessage `nbt:"block_entities"`
+	Structures    nbt.RawMessage   `nbt:"structures"`
 	Heightmaps    struct {
 		MotionBlocking         []uint64 `nbt:"MOTION_BLOCKING"`
 		MotionBlockingNoLeaves []uint64 `nbt:"MOTION_BLOCKING_NO_LEAVES"`

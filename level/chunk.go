@@ -143,6 +143,9 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 	sections := make([]Section, secs)
 	for _, v := range c.Sections {
 		i := int32(v.Y) - c.YPos
+		if i < 0 || i >= int32(secs) {
+			return nil, fmt.Errorf("section Y value %d out of bounds", v.Y)
+		}
 		var err error
 		sections[i].BlockCount, sections[i].States, err = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
 		if err != nil {
