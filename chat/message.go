@@ -22,6 +22,19 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+type Type int32
+
+const (
+	Chat Type = iota
+	System
+	GameInfo
+	SayCommand
+	MsgCommand
+	TeamMsgCommand
+	EmoteCommand
+	TellrawCommand
+)
+
 // Colors
 const (
 	Black       = "black"
