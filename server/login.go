@@ -90,7 +90,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	if d.OnlineMode {
 		var resp *auth.Resp
 		//Auth, Encrypt
-		resp, err = auth.Encrypt(conn, name, profilePubKey.PubKey)
+		resp, err = auth.Encrypt(conn, name, pubKey.PubKey)
 		if err != nil {
 			return
 		}
