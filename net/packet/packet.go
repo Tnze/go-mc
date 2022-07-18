@@ -5,7 +5,7 @@ import (
 	"compress/zlib"
 	"fmt"
 	"io"
-	"sync"
+	// "github.com/klauspost/compress/zlib"
 )
 
 const MaxDataLength = 2097152
@@ -27,7 +27,9 @@ func Marshal(id int32, fields ...FieldEncoder) (pk Packet) {
 
 //Scan decode the packet and fill data into fields
 func (p Packet) Scan(fields ...FieldDecoder) error {
-	r := bytes.NewReader(p.Data)
+	// r := bytes.NewReader(p.Data)
+	r := buffReaderPool.Get(p.Data)
+	defer buffReaderPool.Return(r)
 	for _, v := range fields {
 		_, err := v.ReadFrom(r)
 		if err != nil {
@@ -35,12 +37,6 @@ func (p Packet) Scan(fields ...FieldDecoder) error {
 		}
 	}
 	return nil
-}
-
-var bufPool = sync.Pool{
-	New: func() interface{} {
-		return new(bytes.Buffer)
-	},
 }
 
 // Pack 打包一个数据包
@@ -107,7 +103,9 @@ func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 			return err
 		}
 	} else {
-		zw := zlib.NewWriter(buff)
+		// zw := zlib.NewWriter(buff)
+		zw := zlibWriterPool.Get(buff)
+		defer zlibWriterPool.Return(zw)
 		n1, err := VarInt(p.ID).WriteTo(zw)
 		if err != nil {
 			return err
@@ -202,7 +200,10 @@ func (p *Packet) unpackWithCompression(r io.Reader, threshold int) error {
 	if err != nil {
 		return err
 	}
-	r = bytes.NewReader(buff.Bytes())
+	// r = bytes.NewReader(buff.Bytes())
+	br := buffReaderPool.Get(buff.Bytes())
+	r = br
+	defer buffReaderPool.Return(br)
 
 	var DataLength VarInt
 	n2, err := DataLength.ReadFrom(r)
