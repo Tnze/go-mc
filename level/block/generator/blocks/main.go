@@ -7,10 +7,9 @@ import (
 	"go/format"
 	"log"
 	"os"
-	"strings"
 	"text/template"
-	"unicode"
 
+	"github.com/Tnze/go-mc/internal/generateutils"
 	"github.com/Tnze/go-mc/nbt"
 )
 
@@ -20,12 +19,13 @@ var tempSource string
 var temp = template.Must(template.
 	New("block_template").
 	Funcs(template.FuncMap{
-		"UpperTheFirst": UpperTheFirst,
-		"ToGoTypeName":  ToGoTypeName,
+		"UpperTheFirst": generateutils.UpperTheFirst,
+		"ToGoTypeName":  generateutils.ToGoTypeName,
 		"GetType":       GetType,
 		"Generator":     func() string { return "generator/blocks/main.go" },
 	}).
-	Parse(tempSource))
+	Parse(tempSource),
+)
 
 type State struct {
 	Name string
@@ -76,15 +76,6 @@ func genSourceFile(states []State) {
 	}
 }
 
-func ToGoTypeName(name string) string {
-	name = strings.TrimPrefix(name, "minecraft:")
-	words := strings.Split(name, "_")
-	for i := range words {
-		words[i] = UpperTheFirst(words[i])
-	}
-	return strings.Join(words, "")
-}
-
 var typeMaps = map[string]string{
 	"BooleanProperty":   "Boolean",
 	"DirectionProperty": "Direction",
@@ -96,12 +87,4 @@ func GetType(v string) string {
 		return mapped
 	}
 	return v
-}
-
-func UpperTheFirst(word string) string {
-	runes := []rune(word)
-	if len(runes) > 0 {
-		runes[0] = unicode.ToUpper(runes[0])
-	}
-	return string(runes)
 }
