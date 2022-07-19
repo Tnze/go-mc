@@ -2,10 +2,11 @@ package packet
 
 import (
 	"bytes"
-	"compress/zlib"
+	// "compress/zlib"
 	"io"
 	"sync"
-	// "github.com/klauspost/compress/zlib"
+
+	"github.com/klauspost/compress/zlib"
 )
 
 var bufPool = sync.Pool{
