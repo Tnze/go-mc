@@ -46,6 +46,10 @@ type MojangLoginHandler struct {
 	// Set to 0 to compress all packets. Set to -1 to disable compression.
 	Threshold int
 
+	// Compression level, same as zlib
+	// DefaultCompression = -1, BestSpeed = 1, NoCompression = 0, HuffmanOnly = -2
+	CompressLevel int
+
 	// LoginChecker is used to apply some checks before sending "LoginSuccess" packet
 	// (e.g. blacklist or is server full).
 	// This is optional field and can be set to nil.
@@ -122,7 +126,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		if err != nil {
 			return
 		}
-		conn.SetThreshold(d.Threshold)
+		conn.SetThresholdLevel(d.Threshold, d.CompressLevel)
 	}
 
 	// check if player can join (whitelist, blacklist, server full or something else)
