@@ -2,11 +2,7 @@ package packet
 
 import (
 	"bytes"
-	// "compress/zlib"
-	"io"
 	"sync"
-
-	"github.com/klauspost/compress/zlib"
 )
 
 var bufPool = sync.Pool{
@@ -36,27 +32,3 @@ func NewBuffReaderPool() *BuffReaderPool {
 }
 
 var buffReaderPool = NewBuffReaderPool()
-
-type ZlibWriterPool sync.Pool
-
-func (pl *ZlibWriterPool) Get(w io.Writer) *zlib.Writer {
-	zw := ((*sync.Pool)(pl)).Get().(*zlib.Writer)
-	zw.Reset(w)
-	return zw
-}
-
-func (pl *ZlibWriterPool) Return(zw *zlib.Writer) {
-	((*sync.Pool)(pl)).Put(zw)
-}
-
-func NewZlibWriterPool() *ZlibWriterPool {
-	return (*ZlibWriterPool)(&sync.Pool{
-		New: func() interface{} {
-			// return new(zlib.Writer)
-			zw, _ := zlib.NewWriterLevel(nil, zlib.BestSpeed)
-			return zw
-		},
-	})
-}
-
-var zlibWriterPool = NewZlibWriterPool()
