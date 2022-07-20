@@ -45,6 +45,7 @@ type Conn struct {
 	io.Writer
 
 	threshold int
+	zw        *pk.ZlibWriter
 }
 
 var DefaultDialer = Dialer{}
@@ -207,7 +208,7 @@ func (c *Conn) ReadPacket(p *pk.Packet) error {
 
 // WritePacket write a Packet to Conn.
 func (c *Conn) WritePacket(p pk.Packet) error {
-	return p.Pack(c.Writer, c.threshold)
+	return p.Pack(c.Writer, c.threshold, c.zw)
 }
 
 // SetCipher load the decode/encode stream to this Conn
@@ -228,4 +229,12 @@ func (c *Conn) SetCipher(ecoStream, decoStream cipher.Stream) {
 // will be compressed when sending.
 func (c *Conn) SetThreshold(t int) {
 	c.threshold = t
+	c.zw = pk.NewZlibWriterLevel(-1)
+}
+
+// with compress level
+// pass to zlib
+func (c *Conn) SetThresholdLevel(t int, lv int) {
+	c.threshold = t
+	c.zw = pk.NewZlibWriterLevel(lv)
 }
