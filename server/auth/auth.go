@@ -8,7 +8,6 @@ import (
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/sha256"
-	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -28,26 +27,16 @@ import (
 const verifyTokenLen = 16
 
 //Encrypt a connection, with authentication
-func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, error) {
-	//generate keys
-	key, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		return nil, err
-	}
-
-	publicKey, err := x509.MarshalPKIXPublicKey(&key.PublicKey)
-	if err != nil {
-		return nil, err
-	}
+func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey, srvPrivKey *rsa.PrivateKey, x509PubKey []byte) (*Resp, error) {
 
 	//encryption request
-	nonce, err := encryptionRequest(conn, publicKey)
+	nonce, err := encryptionRequest(conn, x509PubKey)
 	if err != nil {
 		return nil, err
 	}
 
 	//encryption response
-	SharedSecret, err := encryptionResponse(conn, profilePubKey, nonce, key)
+	SharedSecret, err := encryptionResponse(conn, profilePubKey, nonce, srvPrivKey)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +51,7 @@ func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, 
 		CFB8.NewCFB8Encrypt(block, SharedSecret),
 		CFB8.NewCFB8Decrypt(block, SharedSecret),
 	)
-	hash := authDigest("", SharedSecret, publicKey)
+	hash := authDigest("", SharedSecret, x509PubKey)
 	resp, err := authentication(name, hash) //auth
 	if err != nil {
 		return nil, errors.New("auth servers down")

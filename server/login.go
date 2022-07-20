@@ -27,6 +27,9 @@ type LoginChecker interface {
 // Make sure MojangLoginHandler implement LoginHandler
 var _ LoginHandler = (*MojangLoginHandler)(nil)
 
+// Make sure MojangLoginHandler implement KeyManager
+var _ KeyManager = (*MojangLoginHandler)(nil)
+
 // MojangLoginHandler is a standard LoginHandler that implement both online and offline login progress.
 // This implementation also support custom LoginChecker.
 // None of Custom login packet (also called LoginPluginRequest/Response) is support by this implementation.
@@ -47,6 +50,9 @@ type MojangLoginHandler struct {
 	// (e.g. blacklist or is server full).
 	// This is optional field and can be set to nil.
 	LoginChecker
+
+	// Manager the server key, reuse without regenerate when a client try to join
+	KeyManager
 }
 
 // AcceptLogin implement LoginHandler for MojangLoginHandler
@@ -88,9 +94,14 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 
 	//auth
 	if d.OnlineMode {
+		privKey, x509Pub, ok := d.GetServerKey(conn, name, id, pubKey.PubKey)
+		if !ok {
+			return // can not get the key for Encrypt
+		}
+
 		var resp *auth.Resp
 		//Auth, Encrypt
-		resp, err = auth.Encrypt(conn, name, pubKey.PubKey)
+		resp, err = auth.Encrypt(conn, name, pubKey.PubKey, privKey, x509Pub)
 		if err != nil {
 			return
 		}
@@ -130,6 +141,19 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		pk.Array(properties),
 	))
 	return
+}
+
+func NewMojangLoginHandler(onlineMode bool, threshold int) (*MojangLoginHandler, error) {
+	km, err := NewDefaultKeyManager(1024)
+	if err != nil {
+		return nil, err
+	}
+	handle := &MojangLoginHandler{
+		OnlineMode: onlineMode,
+		Threshold:  threshold,
+		KeyManager: km,
+	}
+	return handle, nil
 }
 
 type GameProfile struct {
