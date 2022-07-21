@@ -169,3 +169,48 @@ func ExampleMarshal_setSlot() {
 	// 15 00 00 05 01 01 01 00
 	// 15 00 00 05 01 01 01 03 00 00 12 34 56 78
 }
+
+func BenchmarkPacketScan(b *testing.B) {
+	p := pk.Packet{ID: 0x24, Data: testJoinGameData}
+	var (
+		EID            pk.Int
+		Hardcore       pk.Boolean
+		Gamemode       pk.UnsignedByte
+		PreGamemode    pk.Byte
+		WorldNames     = make([]pk.Identifier, 0) // This cannot replace with "var DimensionNames []pk.Identifier" because "nil" has no type information
+		DimensionCodec struct {
+			DimensionType interface{} `nbt:"minecraft:dimension_type"`
+			WorldgenBiome interface{} `nbt:"minecraft:worldgen/biome"`
+		}
+		Dimension                 interface{}
+		WorldName                 pk.Identifier
+		HashedSeed                pk.Long
+		MaxPlayers                pk.VarInt
+		ViewDistance              pk.VarInt
+		RDI, ERS, IsDebug, IsFlat pk.Boolean
+	)
+
+	b.SetBytes(int64(len(p.Data)))
+	b.ResetTimer()
+	b.ReportAllocs()
+
+	for i := 0; i < b.N; i++ {
+		err := p.Scan(
+			&EID,
+			&Hardcore,
+			&Gamemode,
+			&PreGamemode,
+			pk.Array(&WorldNames),
+			pk.NBT(&DimensionCodec),
+			pk.NBT(&Dimension),
+			&WorldName,
+			&HashedSeed,
+			&MaxPlayers,
+			&ViewDistance,
+			&RDI, &ERS, &IsDebug, &IsFlat,
+		)
+		if err != nil {
+			b.Fatalf("err = %d; want <nil>", err)
+		}
+	}
+}
