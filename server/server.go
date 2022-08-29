@@ -2,7 +2,7 @@
 // You can build the server you want by combining the various functional modules provided here.
 // An example can be found in examples/frameworkServer.
 //
-// This package is under rapid development, and any API may be subject to break changes
+// # This package is under rapid development, and any API may be subject to break changes
 //
 // A server is roughly divided into two parts: Gate and GamePlay
 //
@@ -23,7 +23,7 @@
 // (that is, after the LoginSuccess package is sent),
 // and is responsible for functions including player status, chunk management, keep alive, chat, etc.
 //
-// The implement of Gameplay will provide later.
+// The implement of Gameplay is provided at https://github.com/go-mc/server.
 package server
 
 import (
