@@ -1,5 +1,5 @@
 // This file is used to generate blocks.nbt and block_states.nbt
-// The necessary environment can be generate from https://github.com/Hexeption/MCP-Reborn
+// The necessary environment can be generated from https://github.com/Hexeption/MCP-Reborn
 package tnze.github.com;
 
 import com.google.common.collect.ImmutableMap;
