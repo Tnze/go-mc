@@ -2,7 +2,7 @@ package save
 
 // https://minecraft.fandom.com/wiki/Custom_dimension
 type DimensionType struct {
-	BonusChest bool `nbt:"bonus_chest"`
+	Ultrawarm bool `nbt:"ultrawarm"`
 
 	// When false, compasses spin randomly, and using a bed to set the respawn point or sleep, is disabled. When true, nether portals can spawn zombified piglins.
 	Natural bool `nbt:"natural"`
@@ -44,7 +44,7 @@ type DimensionGenerator struct {
 
 var (
 	// as of 1.19.2
-	DefaultDimensions = map[string]DimensionGenerator{
+	DefaultDimensionsGenerators = map[string]DimensionGenerator{
 		"minecraft:overworld": {
 			Type: "minecraft:overworld",
 			Generator: map[string]interface{}{
@@ -76,6 +76,88 @@ var (
 					"type":   "minecraft:multi_noise",
 				},
 			},
+		},
+	}
+	DefaultDimensionsTypes = map[string]DimensionType{
+		"minecraft:overworld": {
+			FixedTime:                   0,
+			HasSkylight:                 true,
+			HasCeiling:                  false,
+			Ultrawarm:                   false,
+			Natural:                     true,
+			CoordinatesScale:            1.0,
+			BedWorks:                    true,
+			RespawnAnchorWorks:          false,
+			MinY:                        -64,
+			Height:                      384,
+			LogicalHeight:               384,
+			Infiniburn:                  "minecraft:infiniburn_overworld",
+			Effects:                     "minecraft:overworld",
+			AmbientLight:                0.0,
+			PiglinSafe:                  false,
+			HasRaids:                    true,
+			MonsterSpawnLightLevel:      7,
+			MonsterSpawnBlockLightLimit: 0,
+		},
+		"minecraft:the_nether": {
+			FixedTime:                   18000,
+			HasSkylight:                 false,
+			HasCeiling:                  true,
+			Ultrawarm:                   true,
+			Natural:                     false,
+			CoordinatesScale:            8.0,
+			BedWorks:                    false,
+			RespawnAnchorWorks:          true,
+			MinY:                        0,
+			Height:                      256,
+			LogicalHeight:               128,
+			Infiniburn:                  "minecraft:infiniburn_nether",
+			Effects:                     "minecraft:the_nether",
+			AmbientLight:                0.1,
+			PiglinSafe:                  true,
+			HasRaids:                    false,
+			MonsterSpawnLightLevel:      11,
+			MonsterSpawnBlockLightLimit: 15,
+		},
+		"minecraft:the_end": {
+			FixedTime:                   6000,
+			HasSkylight:                 false,
+			HasCeiling:                  false,
+			Ultrawarm:                   false,
+			Natural:                     false,
+			CoordinatesScale:            1.0,
+			BedWorks:                    false,
+			RespawnAnchorWorks:          false,
+			MinY:                        0,
+			Height:                      256,
+			LogicalHeight:               256,
+			Infiniburn:                  "minecraft:infiniburn_end",
+			Effects:                     "minecraft:the_end",
+			AmbientLight:                0.0,
+			PiglinSafe:                  false,
+			HasRaids:                    true,
+			MonsterSpawnLightLevel:      7,
+			MonsterSpawnBlockLightLimit: 0,
+		},
+		"minecraft:overworld_caves": {
+			FixedTime:                   0,
+			HasSkylight:                 true,
+			HasCeiling:                  true,
+			Ultrawarm:                   false,
+			Natural:                     false,
+			CoordinatesScale:            1.0,
+			BedWorks:                    true,
+			RespawnAnchorWorks:          false,
+			MinY:                        -64,
+			Height:                      384,
+			LogicalHeight:               384,
+			Infiniburn:                  "minecraft:infiniburn_overworld",
+			Effects:                     "minecraft:overworld",
+			AmbientLight:                0.0,
+			PiglinSafe:                  false,
+			HasRaids:                    true,
+			MonsterSpawnLightLevel:      7,
+			MonsterSpawnBlockLightLimit: 0,
 		},
 	}
 )
