@@ -129,34 +129,37 @@ func (r *Region) Close() error {
 }
 
 func sectorLoc(offset int32) (sec, num int32) {
-	return offset >> 8, offset & 0xFF
+	return (offset >> 8) & 0xFFFFFF, offset & 0xFF
 }
 
 // ReadSector find and read the Chunk data from region
 func (r *Region) ReadSector(x, z int) (data []byte, err error) {
-	offset, _ := sectorLoc(r.offsets[z][x])
-
-	if offset == 0 {
+	sec, num := sectorLoc(r.offsets[z][x])
+	if sec == 0 {
 		return nil, errors.New("sector not exist")
 	}
-
-	_, err = r.f.Seek(4096*int64(offset), 0)
+	_, err = r.f.Seek(4096*int64(sec), 0)
 	if err != nil {
 		return
 	}
+	reader := io.LimitReader(r.f, 4096*int64(num))
 
 	var length int32
-	err = binary.Read(r.f, binary.BigEndian, &length)
+	err = binary.Read(reader, binary.BigEndian, &length)
 	if err != nil {
 		return
 	}
-
-	if length < 0 || length > 1024*1024 {
-		err = errors.New("data too large")
-		return
+	if length == 0 {
+		return nil, errors.New("data is missing")
+	}
+	if length < 0 {
+		return nil, errors.New("declared length of data is negative")
+	}
+	if length > 4096*num {
+		return nil, errors.New("data too large")
 	}
 	data = make([]byte, length)
-	_, err = io.ReadFull(r.f, data)
+	_, err = io.ReadFull(reader, data)
 
 	return
 }

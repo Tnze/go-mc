@@ -65,6 +65,8 @@ func (c *Chunk) Load(data []byte) (err error) {
 		r, err = gzip.NewReader(r)
 	case 2:
 		r, err = zlib.NewReader(r)
+	case 3:
+		// none compression
 	}
 
 	if err != nil {

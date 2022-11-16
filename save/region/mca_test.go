@@ -120,7 +120,7 @@ func TestWriteSectors(t *testing.T) {
 
 	expectedSectorsNum := 2
 	for idx, test := range []struct{ size, sectors int }{
-		{0, 1},
+		{1, 1},
 		{1000, 1},
 		{4091, 1},
 		{4092, 1},
