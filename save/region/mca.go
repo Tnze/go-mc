@@ -221,7 +221,7 @@ func (r *Region) WriteSector(x, z int, data []byte) error {
 	return nil
 }
 
-// ExistSector return if a sector is exist
+// ExistSector return if a sector is existed
 func (r *Region) ExistSector(x, z int) bool {
 	return r.offsets[z][x] != 0
 }

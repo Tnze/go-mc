@@ -2,7 +2,7 @@ package realms
 
 import "fmt"
 
-// Invite invite player to Realm
+// Invite player to Realm
 func (r *Realms) Invite(s Server, name, uuid string) error {
 	pl := struct {
 		Name string `json:"name"`

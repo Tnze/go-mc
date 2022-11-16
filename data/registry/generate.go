@@ -21,7 +21,7 @@ type registry struct {
 }
 
 //go:embed registries.json
-var registeriesJson []byte
+var registersJson []byte
 
 //go:embed template.go.tmpl
 var tempSource string
@@ -45,7 +45,7 @@ var temp = template.Must(template.
 
 func main() {
 	var registries map[string]registry
-	if err := json.Unmarshal(registeriesJson, &registries); err != nil {
+	if err := json.Unmarshal(registersJson, &registries); err != nil {
 		log.Fatal(err)
 	}
 

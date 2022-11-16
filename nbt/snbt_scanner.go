@@ -6,7 +6,7 @@ const (
 	scanContinue        = iota // uninteresting byte
 	scanBeginLiteral           // end implied by next result != scanContinue
 	scanBeginCompound          // begin TAG_Compound (after left-brace )
-	scanBeginList              // begin TAG_List (after left-brack)
+	scanBeginList              // begin TAG_List (after left-bracket)
 	scanListValue              // just finished read list value (after comma)
 	scanListType               // just finished read list type (after "B;" or "L;")
 	scanCompoundTagName        // just finished read tag name (before colon)

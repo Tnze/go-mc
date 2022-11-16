@@ -8,7 +8,7 @@ func (r *Realms) Available() (ok bool, err error) {
 	return
 }
 
-// Compatible returns whether the clients version is up to date with Realms.
+// Compatible returns whether the clients version is up-to-date with Realms.
 //
 //	if the client is outdated, it returns OUTDATED,
 //	if the client is running a snapshot, it returns OTHER,

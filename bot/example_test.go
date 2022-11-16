@@ -20,7 +20,7 @@ func ExamplePingAndList() {
 
 func ExampleClient_JoinServer_offline() {
 	c := NewClient()
-	c.Auth.Name = "Tnze" // set it's name before login.
+	c.Auth.Name = "Tnze" // set its name before login.
 
 	id := offline.NameToUUID(c.Auth.Name) // optional, get uuid of offline mode game
 	c.Auth.UUID = hex.EncodeToString(id[:])

@@ -118,7 +118,7 @@ for i := 0; i < int(WorldCount); i++ {
 }
 ```
 
-But this is tediously long an not compatible with `p.Scan()` method.
+But this is tediously long and not compatible with `p.Scan()` method.
 
 In the latest version, two new types is added: `pk.Ary` and `pk.Opt`. Dedicated to handling "Array of ...." and "
 Optional ...." fields.
