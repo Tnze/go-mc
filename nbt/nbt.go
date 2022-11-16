@@ -6,7 +6,7 @@ import (
 	"io"
 )
 
-//Tag type IDs
+// Tag type IDs
 const (
 	TagEnd byte = iota
 	TagByte

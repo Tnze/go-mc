@@ -30,7 +30,7 @@ const (
 	Hat
 )
 
-//DefaultSettings are the default settings of client
+// DefaultSettings are the default settings of client
 var DefaultSettings = Settings{
 	Locale:             "zh_CN", // ^_^
 	ViewDistance:       15,

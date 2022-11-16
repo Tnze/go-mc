@@ -18,7 +18,7 @@ const DefaultPort = 25565
 // A Listener is a minecraft Listener
 type Listener struct{ net.Listener }
 
-//ListenMC listen as TCP but Accept a mc Conn
+// ListenMC listen as TCP but Accept a mc Conn
 func ListenMC(addr string) (*Listener, error) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
@@ -27,7 +27,7 @@ func ListenMC(addr string) (*Listener, error) {
 	return &Listener{l}, nil
 }
 
-//Accept a minecraft Conn
+// Accept a minecraft Conn
 func (l Listener) Accept() (Conn, error) {
 	conn, err := l.Listener.Accept()
 	return Conn{
@@ -38,7 +38,7 @@ func (l Listener) Accept() (Conn, error) {
 	}, err
 }
 
-//Conn is a minecraft Connection
+// Conn is a minecraft Connection
 type Conn struct {
 	Socket net.Conn
 	io.Reader
@@ -136,6 +136,7 @@ func (d *Dialer) DialMCContext(ctx context.Context, addr string) (*Conn, error) 
 //   - now+Timeout
 //   - d.Deadline
 //   - the context's deadline
+//
 // Or zero, if none of Timeout, Deadline, or context's deadline is set.
 //
 // Copied from net/dial.go
@@ -197,7 +198,7 @@ func WrapConn(conn net.Conn) *Conn {
 	}
 }
 
-//Close the connection
+// Close the connection
 func (c *Conn) Close() error { return c.Socket.Close() }
 
 // ReadPacket read a Packet from Conn.

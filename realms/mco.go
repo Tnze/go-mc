@@ -9,9 +9,10 @@ func (r *Realms) Available() (ok bool, err error) {
 }
 
 // Compatible returns whether the clients version is up to date with Realms.
-//  if the client is outdated, it returns OUTDATED,
-//  if the client is running a snapshot, it returns OTHER,
-//  else it returns COMPATIBLE.
+//
+//	if the client is outdated, it returns OUTDATED,
+//	if the client is running a snapshot, it returns OTHER,
+//	else it returns COMPATIBLE.
 func (r *Realms) Compatible() (string, error) {
 	resp, err := r.c.Get(Domain + "/mco/client/compatible")
 	if err != nil {

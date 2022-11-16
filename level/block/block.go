@@ -15,6 +15,7 @@ type Block interface {
 }
 
 // This file stores all possible block states into a TAG_List with gzip compressed.
+//
 //go:embed block_states.nbt
 var blockStates []byte
 

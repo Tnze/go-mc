@@ -16,7 +16,7 @@ type Packet struct {
 	Data []byte
 }
 
-//Marshal generate Packet with the ID and Fields
+// Marshal generate Packet with the ID and Fields
 func Marshal(id int32, fields ...FieldEncoder) (pk Packet) {
 	var pb Builder
 	for _, v := range fields {
@@ -25,7 +25,7 @@ func Marshal(id int32, fields ...FieldEncoder) (pk Packet) {
 	return pb.Packet(id)
 }
 
-//Scan decode the packet and fill data into fields
+// Scan decode the packet and fill data into fields
 func (p Packet) Scan(fields ...FieldDecoder) error {
 	r := bytes.NewReader(p.Data)
 	for _, v := range fields {

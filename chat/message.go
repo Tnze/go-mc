@@ -113,7 +113,7 @@ func (m Message) MarshalJSON() ([]byte, error) {
 	}
 }
 
-//UnmarshalJSON decode json to Message
+// UnmarshalJSON decode json to Message
 func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 	if len(raw) == 0 {
 		return io.EOF

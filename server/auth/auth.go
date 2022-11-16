@@ -14,7 +14,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -27,7 +26,7 @@ import (
 
 const verifyTokenLen = 16
 
-//Encrypt a connection, with authentication
+// Encrypt a connection, with authentication
 func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, error) {
 	//generate keys
 	key, err := rsa.GenerateKey(rand.Reader, 1024)
@@ -153,7 +152,7 @@ func authentication(name, hash string) (*Resp, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -205,7 +204,7 @@ func twosComplement(p []byte) []byte {
 	return p
 }
 
-//Resp is the response of authentication
+// Resp is the response of authentication
 type Resp struct {
 	Name       string
 	ID         uuid.UUID
@@ -229,7 +228,7 @@ func (p Property) WriteTo(w io.Writer) (n int64, err error) {
 	}.WriteTo(w)
 }
 
-//Texture includes player's skin and cape
+// Texture includes player's skin and cape
 type Texture struct {
 	TimeStamp int64     `json:"timestamp"`
 	ID        uuid.UUID `json:"profileId"`
@@ -241,7 +240,7 @@ type Texture struct {
 	} `json:"textures"`
 }
 
-//Texture unmarshal the base64 encoded texture of Resp
+// Texture unmarshal the base64 encoded texture of Resp
 func (r *Resp) Texture() (t Texture, err error) {
 	var texture []byte
 	texture, err = base64.StdEncoding.DecodeString(r.Properties[0].Value)
