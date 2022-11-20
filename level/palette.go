@@ -5,6 +5,7 @@ import (
 	"math/bits"
 	"strconv"
 
+	"github.com/Tnze/go-mc/level/biome"
 	"github.com/Tnze/go-mc/level/block"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -202,7 +203,7 @@ func (b biomesCfg) bits(bits int) int {
 	case 1, 2, 3:
 		return bits
 	default:
-		return bits
+		return biome.BitsPerBiome
 	}
 }
 func (b biomesCfg) create(bits int) palette[BiomesState] {
