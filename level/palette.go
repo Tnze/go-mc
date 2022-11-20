@@ -1,11 +1,12 @@
 package level
 
 import (
-	"github.com/Tnze/go-mc/level/block"
-	pk "github.com/Tnze/go-mc/net/packet"
 	"io"
 	"math/bits"
 	"strconv"
+
+	"github.com/Tnze/go-mc/level/block"
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type State interface {
@@ -102,30 +103,25 @@ func (p *PaletteContainer[T]) Set(i int, v T) {
 	if vv, ok := p.palette.id(v); ok {
 		p.data.Set(i, vv)
 	} else {
+		length := p.data.Len()
 		// resize
-		oldLen := p.data.Len()
-		newPalette := PaletteContainer[T]{
+		newContainer := PaletteContainer[T]{
 			bits:    vv,
 			config:  p.config,
 			palette: p.config.create(vv),
-			data:    NewBitStorage(p.config.bits(vv), oldLen, nil),
+			data:    NewBitStorage(p.config.bits(vv), length, nil),
 		}
 		// copy
-		for i := 0; i < oldLen; i++ {
-			raw := p.data.Get(i)
-			if vv, ok := newPalette.palette.id(T(raw)); !ok {
-				panic("not reachable")
-			} else {
-				newPalette.data.Set(i, vv)
-			}
+		for i := 0; i < length; i++ {
+			newContainer.Set(i, p.Get(i))
 		}
 
-		if vv, ok := newPalette.palette.id(v); !ok {
+		if vv, ok := newContainer.palette.id(v); !ok {
 			panic("not reachable")
 		} else {
-			newPalette.data.Set(i, vv)
+			newContainer.data.Set(i, vv)
 		}
-		*p = newPalette
+		*p = newContainer
 	}
 }
 
