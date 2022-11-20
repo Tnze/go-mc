@@ -1,12 +1,11 @@
 package level
 
 import (
+	"github.com/Tnze/go-mc/level/block"
+	pk "github.com/Tnze/go-mc/net/packet"
 	"io"
 	"math/bits"
 	"strconv"
-
-	"github.com/Tnze/go-mc/level/block"
-	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type State interface {
@@ -109,7 +108,7 @@ func (p *PaletteContainer[T]) Set(i int, v T) {
 			bits:    vv,
 			config:  p.config,
 			palette: p.config.create(vv),
-			data:    NewBitStorage(vv, oldLen+1, nil),
+			data:    NewBitStorage(p.config.bits(vv), oldLen, nil),
 		}
 		// copy
 		for i := 0; i < oldLen; i++ {
@@ -124,7 +123,7 @@ func (p *PaletteContainer[T]) Set(i int, v T) {
 		if vv, ok := newPalette.palette.id(v); !ok {
 			panic("not reachable")
 		} else {
-			newPalette.data.Set(oldLen, vv)
+			newPalette.data.Set(i, vv)
 		}
 		*p = newPalette
 	}
@@ -177,7 +176,7 @@ func (s statesCfg) bits(bits int) int {
 	case 5, 6, 7, 8:
 		return bits
 	default:
-		return bits
+		return block.BitsPerBlock
 	}
 }
 
