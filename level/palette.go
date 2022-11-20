@@ -108,7 +108,7 @@ func (p *PaletteContainer[T]) Set(i int, v T) {
 			bits:    vv,
 			config:  p.config,
 			palette: p.config.create(vv),
-			data:    NewBitStorage(p.config.bits(vv), oldLen+1, nil),
+			data:    NewBitStorage(p.config.bits(vv), oldLen, nil),
 		}
 		// copy
 		for i := 0; i < oldLen; i++ {
@@ -123,7 +123,7 @@ func (p *PaletteContainer[T]) Set(i int, v T) {
 		if vv, ok := newPalette.palette.id(v); !ok {
 			panic("not reachable")
 		} else {
-			newPalette.data.Set(oldLen, vv)
+			newPalette.data.Set(i, vv)
 		}
 		*p = newPalette
 	}
