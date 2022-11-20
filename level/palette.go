@@ -1,7 +1,6 @@
 package level
 
 import (
-	//"fmt"
 	"github.com/Tnze/go-mc/level/block"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"io"
