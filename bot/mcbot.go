@@ -18,10 +18,11 @@ import (
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/yggdrasil/user"
+	"github.com/google/uuid"
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
-const ProtocolVersion = 759
+const ProtocolVersion = 760
 const DefaultPort = mcnet.DefaultPort
 
 // JoinServer connect a Minecraft server for playing the game.
@@ -77,6 +78,8 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	// Login Start
 	c.KeyPair, err = user.GetOrFetchKeyPair(c.Auth.AsTk)
 	HasSignature := err == nil
+	c.UUID, err = uuid.Parse(c.Auth.UUID)
+	HasPlayerUUID := err == nil
 	err = c.Conn.WritePacket(pk.Marshal(
 		packetid.LoginStart,
 		pk.String(c.Auth.Name),
@@ -84,6 +87,11 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		pk.Opt{
 			Has:   HasSignature,
 			Field: keyPair(c.KeyPair),
+		},
+		pk.Boolean(HasPlayerUUID),
+		pk.Opt{
+			Has:   HasPlayerUUID,
+			Field: pk.UUID(c.UUID),
 		},
 	))
 	if err != nil {
