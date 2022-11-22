@@ -51,8 +51,10 @@ const (
 	ClientboundContainerSetData
 	ClientboundContainerSetSlot
 	ClientboundCooldown
+	ClientboundCustomChatCompletions
 	ClientboundCustomPayload
 	ClientboundCustomSound
+	ClientboundDeleteChat
 	ClientboundDisconnect
 	ClientboundEntityEvent
 	ClientboundExplode
@@ -78,6 +80,7 @@ const (
 	ClientboundPing
 	ClientboundPlaceGhostRecipe
 	ClientboundPlayerAbilities
+	ClientboundPlayerChatHeader
 	ClientboundPlayerChat
 	ClientboundPlayerCombatEnd
 	ClientboundPlayerCombatEnter
@@ -142,6 +145,7 @@ const (
 	ServerboundAcceptTeleportation = iota
 	ServerboundBlockEntityTagQuery
 	ServerboundChangeDifficulty
+	ServerboundChatAck
 	ServerboundChatCommand
 	ServerboundChat
 	ServerboundChatPreview
