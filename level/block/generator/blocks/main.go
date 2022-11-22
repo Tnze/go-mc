@@ -74,6 +74,7 @@ func genSourceFile(states []State) {
 	if err != nil {
 		panic(err)
 	}
+	log.Print("Generated blocks.go")
 }
 
 var typeMaps = map[string]string{

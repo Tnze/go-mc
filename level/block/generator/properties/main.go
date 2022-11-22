@@ -82,6 +82,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+	log.Print("Generated properties_enum.go")
 }
 
 func UpperTheFirst(word string) string {
