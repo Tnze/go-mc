@@ -10,7 +10,7 @@ import (
 
 // WorldInfo content player info in server.
 type WorldInfo struct {
-	DimensionCodec      DimensionCodec
+	RegistryCodec       RegistryCodec
 	DimensionType       string
 	DimensionNames      []string // Identifiers for all worlds on the server.
 	DimensionName       string   // Name of the world being spawned into.
@@ -46,7 +46,7 @@ type Dimension struct {
 	MonsterSpawnBlockLightLimit int32          `nbt:"monster_spawn_block_light_limit"`
 }
 
-type DimensionCodec struct {
+type RegistryCodec struct {
 	// What is Below? (wiki.vg)
 	ChatType      Registry[nbt.RawMessage] `nbt:"minecraft:chat_type"`
 	DimensionType Registry[Dimension]      `nbt:"minecraft:dimension_type"`
@@ -90,7 +90,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 		(*pk.UnsignedByte)(&p.Gamemode),
 		(*pk.Byte)(&p.PrevGamemode),
 		pk.Array((*[]pk.Identifier)(unsafe.Pointer(&p.DimensionNames))),
-		pk.NBT(&p.WorldInfo.DimensionCodec),
+		pk.NBT(&p.WorldInfo.RegistryCodec),
 		(*pk.Identifier)(&p.WorldInfo.DimensionType),
 		(*pk.Identifier)(&p.DimensionName),
 		(*pk.Long)(&p.HashedSeed),

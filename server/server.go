@@ -34,8 +34,8 @@ import (
 	"log"
 )
 
-const ProtocolName = "1.19"
-const ProtocolVersion = 759
+const ProtocolName = "1.19.2"
+const ProtocolVersion = 760
 
 type Server struct {
 	*log.Logger
