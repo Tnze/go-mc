@@ -1,8 +1,9 @@
 package bvh
 
 import (
-	"golang.org/x/exp/constraints"
 	"math"
+
+	"golang.org/x/exp/constraints"
 )
 
 type AABB[I constraints.Signed | constraints.Float, V interface {
@@ -18,10 +19,12 @@ type AABB[I constraints.Signed | constraints.Float, V interface {
 func (aabb AABB[I, V]) WithIn(point V) bool {
 	return aabb.Lower.Less(point) && aabb.Upper.More(point)
 }
+
 func (aabb AABB[I, V]) Touch(other AABB[I, V]) bool {
 	return aabb.Lower.Less(other.Upper) && other.Lower.Less(aabb.Upper) &&
 		aabb.Upper.More(other.Lower) && other.Upper.More(aabb.Lower)
 }
+
 func (aabb AABB[I, V]) Union(other AABB[I, V]) AABB[I, V] {
 	return AABB[I, V]{Upper: aabb.Upper.Max(other.Upper), Lower: aabb.Lower.Min(other.Lower)}
 }
@@ -45,9 +48,11 @@ type Sphere[I constraints.Float, V interface {
 func (s Sphere[I, V]) WithIn(point V) bool {
 	return s.Center.Sub(point).Norm() < s.R
 }
+
 func (s Sphere[I, V]) Touch(other Sphere[I, V]) bool {
 	return s.Center.Sub(other.Center).Norm() < s.R+other.R
 }
+
 func (s Sphere[I, V]) Union(other Sphere[I, V]) Sphere[I, V] {
 	d := other.Center.Sub(s.Center).Norm()
 	r1r2d := (s.R - other.R) / d

@@ -1,8 +1,9 @@
 package save
 
 import (
-	"github.com/Tnze/go-mc/save/region"
 	"testing"
+
+	"github.com/Tnze/go-mc/save/region"
 )
 
 func TestColumn(t *testing.T) {
@@ -36,7 +37,7 @@ func BenchmarkColumn_Load(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		x, z := (i%1024)/32, (i%1024)%32
-		//x, z := rand.Intn(32), rand.Intn(32)
+		// x, z := rand.Intn(32), rand.Intn(32)
 		if !r.ExistSector(x, z) {
 			continue
 		}

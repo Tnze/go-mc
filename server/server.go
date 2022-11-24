@@ -28,14 +28,17 @@ package server
 
 import (
 	"errors"
+	"log"
+
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"log"
 )
 
-const ProtocolName = "1.19.2"
-const ProtocolVersion = 760
+const (
+	ProtocolName    = "1.19.2"
+	ProtocolVersion = 760
+)
 
 type Server struct {
 	*log.Logger

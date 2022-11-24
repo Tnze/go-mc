@@ -13,11 +13,11 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
-	"github.com/Tnze/go-mc/data/packetid"
 	"io"
 	"net/http"
 	"strings"
 
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/yggdrasil/user"
@@ -40,7 +40,7 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	err := loginAuth(c.Auth, key, er) //向Mojang验证
+	err := loginAuth(c.Auth, key, er) // 向Mojang验证
 	if err != nil {
 		return fmt.Errorf("login fail: %v", err)
 	}

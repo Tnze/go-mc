@@ -4,8 +4,9 @@ import (
 	"container/list"
 	"context"
 	"errors"
-	"github.com/Tnze/go-mc/chat"
 	"time"
+
+	"github.com/Tnze/go-mc/chat"
 )
 
 // keepAliveInterval represents the interval when the server sends keep alive
