@@ -1,6 +1,6 @@
 # Go-MC
 
-![Version](https://img.shields.io/badge/Minecraft-1.19-blue.svg)
+![Version](https://img.shields.io/badge/Minecraft-1.19.2-blue.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Tnze/go-mc.svg)](https://pkg.go.dev/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
@@ -28,7 +28,8 @@ There's some library in Go support you to create your Minecraft client or server
 
 After you install golang:  
 To get the latest version: `go get github.com/Tnze/go-mc@master`  
-To get old versions (e.g. 1.14.3): `go get github.com/Tnze/go-mc@v1.14.3`
+To get the first of each primary version: `go get github.com/Tnze/go-mc@v1.19.0`  
+To get old versions (e.g. 1.18.2): `go get github.com/Tnze/go-mc@v1.18.2`
 
 First, you might have a try of the simple examples. It's a good start.
 
