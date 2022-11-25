@@ -1,3 +1,26 @@
+// Package basic provides some basic packet handler which client needs.
+//
+// # [Player]
+//
+// The [Player] is attached to a [Client] by calling [NewPlayer] before the client joins a server.
+//
+// There is 4 kinds of clientbound packet is handled by this package.
+//   - LoginPacket, for cache player info. The player info will be stored in [Player.PlayerInfo].
+//   - KeepAlivePacket, for avoid the client to be kicked by the server.
+//   - PlayerPosition, is only received when server teleporting the player. And the confirm packet is automatically sent.
+//   - Respawn, for updating player info, which may change when player respawned.
+//
+// # [EventsListener]
+//
+// Handles some basic event you probably need.
+//   - GameStart
+//   - ChatMsg
+//   - SystemMsg
+//   - Disconnect
+//   - HealthChange
+//   - Death
+//
+// You must manully attach the [EventsListener] to the [Client] as needed.
 package basic
 
 import (
