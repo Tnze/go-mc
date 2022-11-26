@@ -12,7 +12,7 @@ func (p Player) handleKeepAlivePacket(packet pk.Packet) error {
 	}
 	// Response
 	err := p.c.Conn.WritePacket(pk.Packet{
-		ID:   packetid.ServerboundKeepAlive,
+		ID:   int32(packetid.ServerboundKeepAlive),
 		Data: packet.Data,
 	})
 	if err != nil {

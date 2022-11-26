@@ -44,11 +44,10 @@ func newIndividual(id int, name string) (i *individual) {
 	i.id = id
 	i.client = bot.NewClient()
 	i.client.Auth.Name = name
-	i.player = basic.NewPlayer(i.client, basic.DefaultSettings)
-	basic.EventsListener{
+	i.player = basic.NewPlayer(i.client, basic.DefaultSettings, basic.EventsListener{
 		GameStart:  i.onGameStart,
 		Disconnect: onDisconnect,
-	}.Attach(i.client)
+	})
 	return
 }
 

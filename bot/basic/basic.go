@@ -20,7 +20,7 @@
 //   - HealthChange
 //   - Death
 //
-// You must manully attach the [EventsListener] to the [Client] as needed.
+// You must manually attach the [EventsListener] to the [Client] as needed.
 package basic
 
 import (
@@ -38,22 +38,23 @@ type Player struct {
 	isSpawn bool
 }
 
-func NewPlayer(c *bot.Client, settings Settings) *Player {
-	b := &Player{c: c, Settings: settings}
+func NewPlayer(c *bot.Client, settings Settings, events EventsListener) *Player {
+	p := &Player{c: c, Settings: settings}
 	c.Events.AddListener(
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundLogin, F: b.handleLoginPacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundKeepAlive, F: b.handleKeepAlivePacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundPlayerPosition, F: b.handlePlayerPosition},
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundRespawn, F: b.handleRespawnPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundLogin, F: p.handleLoginPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundKeepAlive, F: p.handleKeepAlivePacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundPlayerPosition, F: p.handlePlayerPosition},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundRespawn, F: p.handleRespawnPacket},
 	)
-	return b
+	events.attach(p)
+	return p
 }
 
 func (p *Player) Respawn() error {
 	const PerformRespawn = 0
 
 	err := p.c.Conn.WritePacket(pk.Marshal(
-		packetid.ServerboundClientCommand,
+		int32(packetid.ServerboundClientCommand),
 		pk.VarInt(PerformRespawn),
 	))
 	if err != nil {

@@ -28,7 +28,7 @@ func main() {
 	//log.SetOutput(colorable.NewColorableStdout())
 	client = bot.NewClient()
 	client.Auth.Name = "Daze"
-	player = basic.NewPlayer(client, basic.DefaultSettings)
+	player = basic.NewPlayer(client, basic.DefaultSettings, basic.EventsListener{})
 	client.Events.AddListener(bot.PacketHandler{
 		ID:       packetid.ClientboundCommands,
 		Priority: 50,

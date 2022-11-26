@@ -1,6 +1,7 @@
 package main
 
 import (
+	botchat "github.com/Tnze/go-mc/bot/chat"
 	"log"
 	"time"
 
@@ -17,8 +18,9 @@ import (
 const timeout = 45
 
 var (
-	c *bot.Client
-	p *basic.Player
+	c  *bot.Client
+	p  *basic.Player
+	bc *botchat.Chat
 
 	watch chan time.Time
 )
@@ -26,16 +28,16 @@ var (
 func main() {
 	//log.SetOutput(colorable.NewColorableStdout()) // optional for colorable output
 	c = bot.NewClient()
-	p = basic.NewPlayer(c, basic.DefaultSettings)
-
-	//Register event handlers
-	basic.EventsListener{
+	p = basic.NewPlayer(c, basic.DefaultSettings, basic.EventsListener{
 		GameStart:  onGameStart,
-		ChatMsg:    onChatMsg,
 		SystemMsg:  onSystemMsg,
 		Disconnect: onDisconnect,
 		Death:      onDeath,
-	}.Attach(c)
+	})
+	bc = botchat.NewChat(c, p, botchat.EventsHandler{PlayerChatMessage: onChatMsg})
+
+	//Register event handlers
+
 	c.Events.AddListener(soundListener)
 
 	//Login
@@ -107,13 +109,13 @@ func onSound(id int, category int, x, y, z float64, volume, pitch float32) error
 	return nil
 }
 
-func onChatMsg(c *basic.PlayerMessage) error {
-	log.Println("Chat:", c.SignedMessage)
+func onChatMsg(c chat.Message) error {
+	log.Println("Chat:", c)
 	return nil
 }
 
-func onSystemMsg(c chat.Message, pos byte) error {
-	log.Printf("System: %v, Location: %v", c, pos)
+func onSystemMsg(c chat.Message, overlay bool) error {
+	log.Printf("System: %v, Overlay: %v", c, overlay)
 	return nil
 }
 

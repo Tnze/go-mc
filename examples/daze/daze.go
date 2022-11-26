@@ -12,6 +12,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
+	botchat "github.com/Tnze/go-mc/bot/chat"
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/chat"
@@ -27,6 +28,7 @@ var accessToken = flag.String("token", "", "AccessToken")
 
 var client *bot.Client
 var player *basic.Player
+var chatHandler *botchat.Chat
 var worldManager *world.World
 var screenManager *screen.Manager
 
@@ -39,15 +41,16 @@ func main() {
 		UUID: *playerID,
 		AsTk: *accessToken,
 	}
-	player = basic.NewPlayer(client, basic.DefaultSettings)
-	basic.EventsListener{
+	player = basic.NewPlayer(client, basic.DefaultSettings, basic.EventsListener{
 		GameStart:    onGameStart,
-		ChatMsg:      onChatMsg,
 		SystemMsg:    onSystemMsg,
 		Disconnect:   onDisconnect,
 		HealthChange: onHealthChange,
 		Death:        onDeath,
-	}.Attach(client)
+	})
+	chatHandler = botchat.NewChat(client, player, botchat.EventsHandler{
+		PlayerChatMessage: onPlayerMsg,
+	})
 	worldManager = world.NewWorld(client, player, world.EventsListener{
 		LoadChunk:   onChunkLoad,
 		UnloadChunk: onChunkUnload,
@@ -103,13 +106,13 @@ func onGameStart() error {
 	return nil //if err isn't nil, HandleGame() will return it.
 }
 
-func onChatMsg(c *basic.PlayerMessage) error {
-	log.Println("Chat:", c.SignedMessage.String())
+func onPlayerMsg(msg chat.Message) error {
+	log.Printf("Player: %v", msg)
 	return nil
 }
 
-func onSystemMsg(c chat.Message, pos byte) error {
-	log.Printf("System: %v, Location: %v", c, pos)
+func onSystemMsg(c chat.Message, overlay bool) error {
+	log.Printf("System: %v, Overlay: %v", c, overlay)
 	return nil
 }
 

@@ -22,10 +22,8 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-type Type int32
-
 const (
-	Chat Type = iota
+	Chat = iota
 	System
 	GameInfo
 	SayCommand
@@ -76,9 +74,9 @@ type Message struct {
 	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
 	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
 
-	Translate string            `json:"translate,omitempty"`
-	With      []json.RawMessage `json:"with,omitempty"`
-	Extra     []Message         `json:"extra,omitempty"`
+	Translate string    `json:"translate,omitempty"`
+	With      []Message `json:"with,omitempty"`
+	Extra     []Message `json:"extra,omitempty"`
 }
 
 // Same as Message, but "Text" is omitempty
@@ -98,9 +96,9 @@ type translateMsg struct {
 	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
 	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
 
-	Translate string            `json:"translate"`
-	With      []json.RawMessage `json:"with,omitempty"`
-	Extra     []Message         `json:"extra,omitempty"`
+	Translate string    `json:"translate"`
+	With      []Message `json:"with,omitempty"`
+	Extra     []Message `json:"extra,omitempty"`
 }
 
 type jsonMsg Message
@@ -180,10 +178,7 @@ func Text(str string) Message {
 
 func TranslateMsg(key string, with ...Message) (m Message) {
 	m.Translate = key
-	m.With = make([]json.RawMessage, len(with))
-	for i, v := range with {
-		m.With[i], _ = json.Marshal(v)
-	}
+	m.With = with
 	return
 }
 
@@ -250,9 +245,7 @@ func (m Message) ClearString() string {
 	if m.Translate != "" {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
-			var arg Message
-			_ = arg.UnmarshalJSON(v) //ignore error
-			args[i] = arg.ClearString()
+			args[i] = v.ClearString()
 		}
 
 		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
@@ -297,9 +290,7 @@ func (m Message) String() string {
 	if m.Translate != "" {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
-			var arg Message
-			_ = arg.UnmarshalJSON(v) //ignore error
-			args[i] = arg
+			args[i] = v
 		}
 
 		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)

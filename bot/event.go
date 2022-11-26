@@ -1,12 +1,13 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type Events struct {
-	generic  *handlerHeap           // for every packet
-	handlers map[int32]*handlerHeap // for specific packet id only
+	generic  *handlerHeap                                  // for every packet
+	handlers map[packetid.ClientboundPacketID]*handlerHeap // for specific packet id only
 }
 
 func (e *Events) AddListener(listeners ...PacketHandler) {
@@ -36,7 +37,7 @@ func (e *Events) AddGeneric(listeners ...PacketHandler) {
 
 type PacketHandlerFunc func(p pk.Packet) error
 type PacketHandler struct {
-	ID       int32
+	ID       packetid.ClientboundPacketID
 	Priority int
 	F        func(p pk.Packet) error
 }

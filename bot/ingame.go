@@ -2,6 +2,8 @@ package bot
 
 import (
 	"fmt"
+
+	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -24,12 +26,12 @@ func (c *Client) HandleGame() error {
 }
 
 type PacketHandlerError struct {
-	ID  int32
+	ID  packetid.ClientboundPacketID
 	Err error
 }
 
 func (d PacketHandlerError) Error() string {
-	return fmt.Sprintf("handle packet 0x%X error: %v", d.ID, d.Err)
+	return fmt.Sprintf("handle packet %v error: %v", d.ID, d.Err)
 }
 
 func (d PacketHandlerError) Unwrap() error {
@@ -37,18 +39,19 @@ func (d PacketHandlerError) Unwrap() error {
 }
 
 func (c *Client) handlePacket(p pk.Packet) (err error) {
+	packetID := packetid.ClientboundPacketID(p.ID)
 	if c.Events.generic != nil {
 		for _, handler := range *c.Events.generic {
 			if err = handler.F(p); err != nil {
-				return PacketHandlerError{ID: p.ID, Err: err}
+				return PacketHandlerError{ID: packetID, Err: err}
 			}
 		}
 	}
-	if listeners := c.Events.handlers[p.ID]; listeners != nil {
+	if listeners := c.Events.handlers[packetID]; listeners != nil {
 		for _, handler := range *listeners {
 			err = handler.F(p)
 			if err != nil {
-				return PacketHandlerError{ID: p.ID, Err: err}
+				return PacketHandlerError{ID: packetID, Err: err}
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/yggdrasil/user"
 	"github.com/google/uuid"
@@ -33,7 +34,7 @@ func (c *Client) Close() error {
 func NewClient() *Client {
 	return &Client{
 		Auth:   Auth{Name: "Steve"},
-		Events: Events{handlers: make(map[int32]*handlerHeap)},
+		Events: Events{handlers: make(map[packetid.ClientboundPacketID]*handlerHeap)},
 	}
 }
 

@@ -17,12 +17,12 @@ type Packet struct {
 }
 
 // Marshal generate Packet with the ID and Fields
-func Marshal(id int32, fields ...FieldEncoder) (pk Packet) {
+func Marshal[ID ~int32 | int](id ID, fields ...FieldEncoder) (pk Packet) {
 	var pb Builder
 	for _, v := range fields {
 		pb.WriteField(v)
 	}
-	return pb.Packet(id)
+	return pb.Packet(int32(id))
 }
 
 // Scan decode the packet and fill data into fields

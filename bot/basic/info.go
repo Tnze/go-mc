@@ -1,6 +1,7 @@
 package basic
 
 import (
+	"github.com/Tnze/go-mc/chat"
 	"unsafe"
 
 	"github.com/Tnze/go-mc/data/packetid"
@@ -46,9 +47,14 @@ type Dimension struct {
 	MonsterSpawnBlockLightLimit int32          `nbt:"monster_spawn_block_light_limit"`
 }
 
+type ChatType struct {
+	Chat      chat.Decoration `nbt:"chat"`
+	Narration chat.Decoration `nbt:"narration"`
+}
+
 type RegistryCodec struct {
 	// What is Below? (wiki.vg)
-	ChatType      Registry[nbt.RawMessage] `nbt:"minecraft:chat_type"`
+	ChatType      Registry[ChatType]       `nbt:"minecraft:chat_type"`
 	DimensionType Registry[Dimension]      `nbt:"minecraft:dimension_type"`
 	WorldGenBiome Registry[nbt.RawMessage] `nbt:"minecraft:worldgen/biome"`
 }
@@ -65,6 +71,18 @@ type Registry[E any] struct {
 func (r *Registry[E]) Find(name string) *E {
 	for i := range r.Value {
 		if r.Value[i].Name == name {
+			return &r.Value[i].Element
+		}
+	}
+	return nil
+}
+
+func (r *Registry[E]) FindByID(id int32) *E {
+	if id >= 0 && id < int32(len(r.Value)) && r.Value[id].ID == id {
+		return &r.Value[id].Element
+	}
+	for i := range r.Value {
+		if r.Value[i].ID == id {
 			return &r.Value[i].Element
 		}
 	}
@@ -106,7 +124,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 		return Error{err}
 	}
 	err = p.c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
-		packetid.ServerboundCustomPayload,
+		int32(packetid.ServerboundCustomPayload),
 		pk.Identifier("minecraft:brand"),
 		pk.String(p.Settings.Brand),
 	))
@@ -115,7 +133,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	}
 
 	err = p.c.Conn.WritePacket(pk.Marshal(
-		packetid.ServerboundClientInformation, // Client settings
+		int32(packetid.ServerboundClientInformation), // Client settings
 		pk.String(p.Settings.Locale),
 		pk.Byte(p.Settings.ViewDistance),
 		pk.VarInt(p.Settings.ChatMode),

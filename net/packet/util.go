@@ -2,6 +2,7 @@ package packet
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"reflect"
 )
@@ -130,10 +131,10 @@ func (t Tuple) WriteTo(w io.Writer) (n int64, err error) {
 
 // ReadFrom read Tuple from io.Reader, panic when any of field don't implement FieldDecoder
 func (t Tuple) ReadFrom(r io.Reader) (n int64, err error) {
-	for _, v := range t {
+	for i, v := range t {
 		nn, err := v.(FieldDecoder).ReadFrom(r)
 		if err != nil {
-			return n, err
+			return n, fmt.Errorf("decode tuple[%d] error: %w", i, err)
 		}
 		n += nn
 	}

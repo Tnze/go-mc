@@ -1,5 +1,11 @@
 package packetid
 
+//go:generate stringer -type ClientboundPacketID
+//go:generate stringer -type ServerboundPacketID
+
+type ClientboundPacketID int32
+type ServerboundPacketID int32
+
 // Login Clientbound
 const (
 	LoginDisconnect = iota
@@ -30,7 +36,7 @@ const (
 
 // Game Clientbound
 const (
-	ClientboundAddEntity = iota
+	ClientboundAddEntity ClientboundPacketID = iota
 	ClientboundAddExperienceOrb
 	ClientboundAddPlayer
 	ClientboundAnimate
@@ -142,7 +148,7 @@ const (
 
 // Game Serverbound
 const (
-	ServerboundAcceptTeleportation = iota
+	ServerboundAcceptTeleportation ServerboundPacketID = iota
 	ServerboundBlockEntityTagQuery
 	ServerboundChangeDifficulty
 	ServerboundChatAck
