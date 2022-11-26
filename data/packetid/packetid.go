@@ -2,9 +2,10 @@ package packetid
 
 //go:generate stringer -type ClientboundPacketID
 //go:generate stringer -type ServerboundPacketID
-
-type ClientboundPacketID int32
-type ServerboundPacketID int32
+type (
+	ClientboundPacketID int32
+	ServerboundPacketID int32
+)
 
 // Login Clientbound
 const (

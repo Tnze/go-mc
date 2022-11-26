@@ -6,7 +6,7 @@ import (
 )
 
 func TestSNBT_checkScanCode(t *testing.T) {
-	//t.SkipNow()
+	// t.SkipNow()
 	var s scanner
 	s.reset()
 	for _, c := range []byte(`{b:[vanilla],c:0D}`) {
@@ -66,6 +66,7 @@ func TestSNBT_compound(t *testing.T) {
 		}
 	}
 }
+
 func TestSNBT_list(t *testing.T) {
 	goods := []string{
 		`[]`, `[a, 'b', "c", d]`, // List of string

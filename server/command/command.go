@@ -70,8 +70,10 @@ type Node struct {
 	Parser          Parser
 	Run             HandlerFunc
 }
-type Literal Node
-type Argument Node
+type (
+	Literal  Node
+	Argument Node
+)
 
 func (n *Node) parse(cmd string) (left string, value ParsedData, err error) {
 	switch n.kind & 0x03 {

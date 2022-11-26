@@ -15,17 +15,17 @@ func TestResp(t *testing.T) {
 	}
 	wantID := uuid.Must(uuid.Parse("853c80ef3c3749fdaa49938b674adae6"))
 
-	//check UUID
+	// check UUID
 	if resp.ID != wantID {
 		t.Errorf("uuid doesn't match: %v, want %s", resp.ID, wantID)
 	}
 
-	//check name
+	// check name
 	if resp.Name != "jeb_" {
 		t.Errorf("name doesn't match: %s, want %s", resp.Name, "jeb_")
 	}
 
-	//check texture
+	// check texture
 	texture, err := resp.Texture()
 	if err != nil {
 		t.Fatal(err)

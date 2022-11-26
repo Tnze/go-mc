@@ -8,8 +8,10 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-const indexOutOfBounds = "index out of bounds"
-const valueOutOfBounds = "value out of bounds"
+const (
+	indexOutOfBounds = "index out of bounds"
+	valueOutOfBounds = "value out of bounds"
+)
 
 // BitStorage implement the compacted data array used in chunk storage and heightmaps.
 // You can think of this as a []intN whose N is called "bits" in NewBitStorage.

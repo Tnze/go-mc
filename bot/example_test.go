@@ -1,9 +1,9 @@
 package bot
 
 import (
+	"encoding/hex"
 	"log"
 
-	"encoding/hex"
 	"github.com/Tnze/go-mc/offline"
 	"github.com/Tnze/go-mc/yggdrasil"
 )
@@ -25,7 +25,7 @@ func ExampleClient_JoinServer_offline() {
 	id := offline.NameToUUID(c.Auth.Name) // optional, get uuid of offline mode game
 	c.Auth.UUID = hex.EncodeToString(id[:])
 
-	//Login
+	// Login
 	err := c.JoinServer("127.0.0.1")
 	if err != nil {
 		log.Fatal(err)
@@ -33,12 +33,9 @@ func ExampleClient_JoinServer_offline() {
 	log.Println("Login success")
 
 	// Register event handlers
-	// 	c.Events.GameStart = onGameStartFunc
-	// 	c.Events.ChatMsg = onChatMsgFunc
-	// 	c.Events.Disconnect = onDisconnectFunc
-	//	...
+	// c.Events.AddListener(...)
 
-	//JoinGame
+	// JoinGame
 	err = c.HandleGame()
 	if err != nil {
 		log.Fatal(err)
@@ -61,7 +58,7 @@ func ExampleClient_JoinServer_online() {
 	c.Auth.UUID, c.Auth.Name = auth.SelectedProfile()
 	c.Auth.AsTk = auth.AccessToken()
 
-	//Connect server
+	// Connect server
 	err = c.JoinServer("127.0.0.1")
 	if err != nil {
 		log.Fatal(err)
@@ -74,7 +71,7 @@ func ExampleClient_JoinServer_online() {
 	// 	c.Events.Disconnect = onDisconnectFunc
 	//	...
 
-	//Join the game
+	// Join the game
 	err = c.HandleGame()
 	if err != nil {
 		log.Fatal(err)

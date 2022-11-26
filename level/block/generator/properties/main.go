@@ -78,7 +78,7 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	err = os.WriteFile("properties_enum.go", formattedSource, 0666)
+	err = os.WriteFile("properties_enum.go", formattedSource, 0o666)
 	if err != nil {
 		log.Panic(err)
 	}

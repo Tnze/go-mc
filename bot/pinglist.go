@@ -79,11 +79,11 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 	}
 
 	const Handshake = 0x00
-	//握手
+	// 握手
 	err = conn.WritePacket(pk.Marshal(
-		Handshake,                  //Handshake packet ID
-		pk.VarInt(ProtocolVersion), //Protocol version
-		pk.String(host),            //Server's address
+		Handshake,                  // Handshake packet ID
+		pk.VarInt(ProtocolVersion), // Protocol version
+		pk.String(host),            // Server's address
 		pk.UnsignedShort(port),
 		pk.Byte(1),
 	))
@@ -91,8 +91,8 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 		return nil, 0, fmt.Errorf("bot: send handshake packect fail: %v", err)
 	}
 
-	//LIST
-	//请求服务器状态
+	// LIST
+	// 请求服务器状态
 	err = conn.WritePacket(pk.Marshal(
 		packetid.StatusRequest,
 	))
@@ -101,7 +101,7 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 	}
 
 	var p pk.Packet
-	//服务器返回状态
+	// 服务器返回状态
 	if err := conn.ReadPacket(&p); err != nil {
 		return nil, 0, fmt.Errorf("bot: recv list packect fail: %v", err)
 	}
@@ -111,7 +111,7 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 		return nil, 0, fmt.Errorf("bot: scan list packect fail: %v", err)
 	}
 
-	//PING
+	// PING
 	startTime := time.Now()
 	err = conn.WritePacket(pk.Marshal(
 		packetid.StatusPingRequest,

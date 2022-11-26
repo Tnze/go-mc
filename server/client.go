@@ -10,8 +10,10 @@ import (
 
 // Packet758 is a packet in protocol 757.
 // We are using type system to force programmers to update packets.
-type Packet758 pk.Packet
-type Packet757 pk.Packet
+type (
+	Packet758 pk.Packet
+	Packet757 pk.Packet
+)
 
 type WritePacketError struct {
 	Err error

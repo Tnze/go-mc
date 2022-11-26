@@ -13,8 +13,10 @@ import (
 	"github.com/Tnze/go-mc/offline"
 )
 
-const ProtocolVersion = 756
-const MaxPlayer = 200
+const (
+	ProtocolVersion = 756
+	MaxPlayer       = 200
+)
 
 // Packet IDs
 const (
@@ -47,11 +49,11 @@ func acceptConn(conn net.Conn) {
 	}
 
 	switch intention {
-	default: //unknown error
+	default: // unknown error
 		log.Printf("Unknown handshake intention: %v", intention)
-	case 1: //for status
+	case 1: // for status
 		acceptListPing(conn)
-	case 2: //for login
+	case 2: // for login
 		handlePlaying(conn, protocol)
 	}
 }
@@ -106,19 +108,19 @@ type PlayerInfo struct {
 
 // acceptLogin check player's account
 func acceptLogin(conn net.Conn) (info PlayerInfo, err error) {
-	//login start
+	// login start
 	var p pk.Packet
 	err = conn.ReadPacket(&p)
 	if err != nil {
 		return
 	}
 
-	err = p.Scan((*pk.String)(&info.Name)) //decode username as pk.String
+	err = p.Scan((*pk.String)(&info.Name)) // decode username as pk.String
 	if err != nil {
 		return
 	}
 
-	//auth
+	// auth
 	const OnlineMode = false
 	if OnlineMode {
 		log.Panic("Not Implement")

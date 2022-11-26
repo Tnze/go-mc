@@ -12,7 +12,8 @@ import (
 func TestEncoder_Encode_intArray(t *testing.T) {
 	// Test marshal pure Int array
 	v := []int32{0, -10, 3}
-	out := []byte{TagIntArray, 0x00, 0x00, 0, 0, 0, 3,
+	out := []byte{
+		TagIntArray, 0x00, 0x00, 0, 0, 0, 3,
 		0x00, 0x00, 0x00, 0x00,
 		0xff, 0xff, 0xff, 0xf6,
 		0x00, 0x00, 0x00, 0x03,
@@ -27,7 +28,8 @@ func TestEncoder_Encode_intArray(t *testing.T) {
 	v2 := struct {
 		Ary []int32 `nbt:"ary"`
 	}{[]int32{0, -10, 3}}
-	out = []byte{TagCompound, 0x00, 0x00,
+	out = []byte{
+		TagCompound, 0x00, 0x00,
 		TagIntArray, 0x00, 0x03, 'a', 'r', 'y', 0, 0, 0, 3,
 		0x00, 0x00, 0x00, 0x00, // 0
 		0xff, 0xff, 0xff, 0xf6, // -10
@@ -72,7 +74,8 @@ func TestEncoder_encodeBool(t *testing.T) {
 func TestEncoder_Encode_floatArray(t *testing.T) {
 	// Test marshal pure Int array
 	v := []float32{0.3, -100, float32(math.NaN())}
-	out := []byte{TagList, 0x00, 0x00, TagFloat, 0, 0, 0, 3,
+	out := []byte{
+		TagList, 0x00, 0x00, TagFloat, 0, 0, 0, 3,
 		0x3e, 0x99, 0x99, 0x9a, // 0.3
 		0xc2, 0xc8, 0x00, 0x00, // -100
 		0x7f, 0xc0, 0x00, 0x00, // NaN
@@ -86,8 +89,10 @@ func TestEncoder_Encode_floatArray(t *testing.T) {
 
 func TestEncoder_Encode_string(t *testing.T) {
 	v := "Test"
-	out := []byte{TagString, 0x00, 0x00, 0, 4,
-		'T', 'e', 's', 't'}
+	out := []byte{
+		TagString, 0x00, 0x00, 0, 4,
+		'T', 'e', 's', 't',
+	}
 
 	if data, err := Marshal(v); err != nil {
 		t.Error(err)

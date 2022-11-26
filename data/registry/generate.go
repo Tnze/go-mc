@@ -71,7 +71,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = os.WriteFile("blockentitytype/blockentitytype.go", formattedSource, 0666)
+	err = os.WriteFile("blockentitytype/blockentitytype.go", formattedSource, 0o666)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -70,7 +70,7 @@ func genSourceFile(states []State) {
 		panic(err)
 	}
 
-	err = os.WriteFile("blocks.go", formattedSource, 0666)
+	err = os.WriteFile("blocks.go", formattedSource, 0o666)
 	if err != nil {
 		panic(err)
 	}

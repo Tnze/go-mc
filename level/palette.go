@@ -13,8 +13,10 @@ import (
 type State interface {
 	~int
 }
-type BlocksState = block.StateID
-type BiomesState int
+type (
+	BlocksState = block.StateID
+	BiomesState int
+)
 
 type PaletteContainer[T State] struct {
 	bits    int
@@ -206,6 +208,7 @@ func (b biomesCfg) bits(bits int) int {
 		return biome.BitsPerBiome
 	}
 }
+
 func (b biomesCfg) create(bits int) palette[BiomesState] {
 	switch bits {
 	case 0:

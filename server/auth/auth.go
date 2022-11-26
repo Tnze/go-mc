@@ -28,7 +28,7 @@ const verifyTokenLen = 16
 
 // Encrypt a connection, with authentication
 func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, error) {
-	//generate keys
+	// generate keys
 	key, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		return nil, err
@@ -39,30 +39,30 @@ func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, 
 		return nil, err
 	}
 
-	//encryption request
+	// encryption request
 	nonce, err := encryptionRequest(conn, publicKey)
 	if err != nil {
 		return nil, err
 	}
 
-	//encryption response
+	// encryption response
 	SharedSecret, err := encryptionResponse(conn, profilePubKey, nonce, key)
 	if err != nil {
 		return nil, err
 	}
 
-	//encryption the connection
+	// encryption the connection
 	block, err := aes.NewCipher(SharedSecret)
 	if err != nil {
 		return nil, errors.New("load aes encryption key fail")
 	}
 
-	conn.SetCipher( //启用加密
+	conn.SetCipher( // 启用加密
 		CFB8.NewCFB8Encrypt(block, SharedSecret),
 		CFB8.NewCFB8Decrypt(block, SharedSecret),
 	)
 	hash := authDigest("", SharedSecret, publicKey)
-	resp, err := authentication(name, hash) //auth
+	resp, err := authentication(name, hash) // auth
 	if err != nil {
 		return nil, errors.New("auth servers down")
 	}
@@ -136,7 +136,7 @@ func encryptionResponse(conn *net.Conn, profilePubKey *rsa.PublicKey, nonce []by
 		}
 	}
 
-	//confirm to verify token
+	// confirm to verify token
 	SharedSecret, err := rsa.DecryptPKCS1v15(rand.Reader, key, ESharedSecret)
 	if err != nil {
 		return nil, err

@@ -406,6 +406,7 @@ type Section struct {
 func (s *Section) GetBlock(i int) BlocksState {
 	return s.States.Get(i)
 }
+
 func (s *Section) SetBlock(i int, v BlocksState) {
 	if block.IsAir(s.States.Get(i)) {
 		s.BlockCount--

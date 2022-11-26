@@ -1,8 +1,9 @@
 package save
 
 import (
-	"github.com/Tnze/go-mc/nbt"
 	"io"
+
+	"github.com/Tnze/go-mc/nbt"
 )
 
 type PlayerData struct {

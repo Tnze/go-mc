@@ -1,7 +1,6 @@
 package main
 
 import (
-	botchat "github.com/Tnze/go-mc/bot/chat"
 	"log"
 	"time"
 
@@ -9,6 +8,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
+	botchat "github.com/Tnze/go-mc/bot/chat"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -26,7 +26,7 @@ var (
 )
 
 func main() {
-	//log.SetOutput(colorable.NewColorableStdout()) // optional for colorable output
+	// log.SetOutput(colorable.NewColorableStdout()) // optional for colorable output
 	c = bot.NewClient()
 	p = basic.NewPlayer(c, basic.DefaultSettings, basic.EventsListener{
 		GameStart:  onGameStart,
@@ -36,18 +36,18 @@ func main() {
 	})
 	bc = botchat.NewChat(c, p, botchat.EventsHandler{PlayerChatMessage: onChatMsg})
 
-	//Register event handlers
+	// Register event handlers
 
 	c.Events.AddListener(soundListener)
 
-	//Login
+	// Login
 	err := c.JoinServer("127.0.0.1")
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
 
-	//JoinGame
+	// JoinGame
 	err = c.HandleGame()
 	if err != nil {
 		log.Fatal(err)
@@ -96,12 +96,12 @@ func UseItem(hand int32) error {
 //goland:noinspection SpellCheckingInspection
 func onSound(id int, category int, x, y, z float64, volume, pitch float32) error {
 	if id == 369 {
-		if err := UseItem(0); err != nil { //retrieve
+		if err := UseItem(0); err != nil { // retrieve
 			return err
 		}
 		log.Println("gra~")
 		time.Sleep(time.Millisecond * 300)
-		if err := UseItem(0); err != nil { //throw
+		if err := UseItem(0); err != nil { // throw
 			return err
 		}
 		watch <- time.Now()

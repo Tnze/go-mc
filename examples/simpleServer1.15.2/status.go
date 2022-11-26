@@ -20,9 +20,9 @@ func acceptListPing(conn net.Conn) {
 		}
 
 		switch p.ID {
-		case 0x00: //List
+		case 0x00: // List
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(listResp())))
-		case 0x01: //Ping
+		case 0x01: // Ping
 			err = conn.WritePacket(p)
 		}
 		if err != nil {

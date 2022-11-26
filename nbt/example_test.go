@@ -62,7 +62,7 @@ func ExampleDecoder_Decode_singleTagString() {
 }
 
 func ExampleEncoder_Encode_tagCompound() {
-	var value = struct {
+	value := struct {
 		Name string `nbt:"name"`
 	}{"Tnze"}
 

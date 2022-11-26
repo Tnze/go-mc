@@ -37,6 +37,7 @@ func TestVarInt_WriteTo(t *testing.T) {
 		}
 	}
 }
+
 func TestVarInt_ReadFrom(t *testing.T) {
 	for i, v := range PackedVarInts {
 		var vi pk.VarInt
@@ -51,7 +52,7 @@ func TestVarInt_ReadFrom(t *testing.T) {
 
 func TestVarInt_ReadFrom_tooLongData(t *testing.T) {
 	var vi pk.VarInt
-	var data = []byte{0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01}
+	data := []byte{0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x01}
 	if _, err := vi.ReadFrom(bytes.NewReader(data)); err != nil {
 		t.Logf("unpack \"% x\" error: %v", data, err)
 	} else {
@@ -87,6 +88,7 @@ func TestVarLong_WriteTo(t *testing.T) {
 		}
 	}
 }
+
 func TestVarLong_ReadFrom(t *testing.T) {
 	for i, v := range PackedVarLongs {
 		var vi pk.VarLong

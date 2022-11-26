@@ -20,8 +20,10 @@ import (
 	"github.com/Tnze/go-mc/chat"
 )
 
-var protocol = flag.Int("p", 578, "The protocol version number sent during ping")
-var favicon = flag.String("f", "", "If specified, the server's icon will be save to")
+var (
+	protocol = flag.Int("p", 578, "The protocol version number sent during ping")
+	favicon  = flag.String("f", "", "If specified, the server's icon will be save to")
+)
 
 type status struct {
 	Description chat.Message

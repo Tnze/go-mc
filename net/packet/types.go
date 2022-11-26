@@ -3,9 +3,10 @@ package packet
 import (
 	"bytes"
 	"errors"
-	"github.com/google/uuid"
 	"io"
 	"math"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/nbt"
 )
@@ -23,62 +24,64 @@ type FieldEncoder io.WriterTo
 type FieldDecoder io.ReaderFrom
 
 type (
-	//Boolean of True is encoded as 0x01, false as 0x00.
+	// Boolean of True is encoded as 0x01, false as 0x00.
 	Boolean bool
-	//Byte is signed 8-bit integer, two's complement
+	// Byte is signed 8-bit integer, two's complement
 	Byte int8
-	//UnsignedByte is unsigned 8-bit integer
+	// UnsignedByte is unsigned 8-bit integer
 	UnsignedByte uint8
-	//Short is signed 16-bit integer, two's complement
+	// Short is signed 16-bit integer, two's complement
 	Short int16
-	//UnsignedShort is unsigned 16-bit integer
+	// UnsignedShort is unsigned 16-bit integer
 	UnsignedShort uint16
-	//Int is signed 32-bit integer, two's complement
+	// Int is signed 32-bit integer, two's complement
 	Int int32
-	//Long is signed 64-bit integer, two's complement
+	// Long is signed 64-bit integer, two's complement
 	Long int64
-	//A Float is a single-precision 32-bit IEEE 754 floating point number
+	// A Float is a single-precision 32-bit IEEE 754 floating point number
 	Float float32
-	//A Double is a double-precision 64-bit IEEE 754 floating point number
+	// A Double is a double-precision 64-bit IEEE 754 floating point number
 	Double float64
-	//String is sequence of Unicode scalar values
+	// String is sequence of Unicode scalar values
 	String string
 
-	//Chat is encoded as a String with max length of 32767.
+	// Chat is encoded as a String with max length of 32767.
 	// Deprecated: Use chat.Message
 	Chat = String
 
-	//Identifier is encoded as a String with max length of 32767.
+	// Identifier is encoded as a String with max length of 32767.
 	Identifier = String
 
-	//VarInt is variable-length data encoding a two's complement signed 32-bit integer
+	// VarInt is variable-length data encoding a two's complement signed 32-bit integer
 	VarInt int32
-	//VarLong is variable-length data encoding a two's complement signed 64-bit integer
+	// VarLong is variable-length data encoding a two's complement signed 64-bit integer
 	VarLong int64
 
-	//Position x as a 26-bit integer, followed by y as a 12-bit integer, followed by z as a 26-bit integer (all signed, two's complement)
+	// Position x as a 26-bit integer, followed by y as a 12-bit integer, followed by z as a 26-bit integer (all signed, two's complement)
 	Position struct {
 		X, Y, Z int
 	}
 
-	//Angle is rotation angle in steps of 1/256 of a full turn
+	// Angle is rotation angle in steps of 1/256 of a full turn
 	Angle Byte
 
-	//UUID encoded as an unsigned 128-bit integer
+	// UUID encoded as an unsigned 128-bit integer
 	UUID uuid.UUID
 
-	//ByteArray is []byte with prefix VarInt as length
+	// ByteArray is []byte with prefix VarInt as length
 	ByteArray []byte
 
-	//PluginMessageData is only used in LoginPlugin,and it will read all left bytes
+	// PluginMessageData is only used in LoginPlugin,and it will read all left bytes
 	PluginMessageData []byte
 
-	//BitSet represents Java's BitSet, a list of bits.
+	// BitSet represents Java's BitSet, a list of bits.
 	BitSet []int64
 )
 
-const MaxVarIntLen = 5
-const MaxVarLongLen = 10
+const (
+	MaxVarIntLen  = 5
+	MaxVarLongLen = 10
+)
 
 func (b Boolean) WriteTo(w io.Writer) (int64, error) {
 	var v byte
@@ -112,7 +115,7 @@ func (s String) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (s *String) ReadFrom(r io.Reader) (n int64, err error) {
-	var l VarInt //String length
+	var l VarInt // String length
 
 	nn, err := l.ReadFrom(r)
 	if err != nil {
@@ -245,7 +248,7 @@ func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
-	var vi = make([]byte, 0, MaxVarIntLen)
+	vi := make([]byte, 0, MaxVarIntLen)
 	num := uint32(v)
 	for {
 		b := num & 0x7F
@@ -282,7 +285,7 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
-	var vi = make([]byte, 0, MaxVarLongLen)
+	vi := make([]byte, 0, MaxVarLongLen)
 	num := uint64(v)
 	for {
 		b := num & 0x7F
@@ -340,7 +343,7 @@ func (p *Position) ReadFrom(r io.Reader) (n int64, err error) {
 	y := int(v & 0xFFF)
 	z := int(v << 26 >> 38)
 
-	//处理负数
+	// 处理负数
 	if x >= 1<<25 {
 		x -= 1 << 26
 	}

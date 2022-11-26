@@ -24,14 +24,14 @@ func DialRCON(addr string, password string) (client RCONClientConn, err error) {
 		return
 	}
 
-	//Login
+	// Login
 	err = c.WritePacket(c.ReqID, 3, password)
 	if err != nil {
 		err = fmt.Errorf("login fail: %v", err)
 		return
 	}
 
-	//Login resp
+	// Login resp
 	r, _, _, err := c.ReadPacket()
 	if err != nil {
 		err = fmt.Errorf("read login resp fail: %v", err)
@@ -55,7 +55,7 @@ type RCONConn struct {
 }
 
 func (r *RCONConn) ReadPacket() (RequestID, Type int32, Payload string, err error) {
-	//read packet length
+	// read packet length
 	var Length int32
 	err = binary.Read(r, binary.LittleEndian, &Length)
 	if err != nil {
@@ -63,7 +63,7 @@ func (r *RCONConn) ReadPacket() (RequestID, Type int32, Payload string, err erro
 		return
 	}
 
-	//check length
+	// check length
 	if Length < 4+4+0+2 {
 		err = errors.New("packet too short")
 		return
@@ -73,7 +73,7 @@ func (r *RCONConn) ReadPacket() (RequestID, Type int32, Payload string, err erro
 		return
 	}
 
-	//read packet data
+	// read packet data
 	buf := make([]byte, Length)
 	err = binary.Read(r, binary.LittleEndian, &buf)
 	if err != nil {
@@ -91,11 +91,11 @@ func (r *RCONConn) WritePacket(RequestID, Type int32, Payload string) error {
 	buf := new(bytes.Buffer)
 
 	for _, v := range []interface{}{
-		int32(4 + 4 + len(Payload) + 2), //Length
-		RequestID,                       //Request ID
-		Type,                            //Type
-		[]byte(Payload),                 //Payload
-		[]byte{0, 0},                    //pad
+		int32(4 + 4 + len(Payload) + 2), // Length
+		RequestID,                       // Request ID
+		Type,                            // Type
+		[]byte(Payload),                 // Payload
+		[]byte{0, 0},                    // pad
 	} {
 		err := binary.Write(buf, binary.LittleEndian, v)
 		if err != nil {
@@ -136,7 +136,7 @@ func (r *RCONConn) AcceptLogin(password string) error {
 
 	r.ReqID = R
 
-	//Check packet type
+	// Check packet type
 	if T != 3 {
 		return fmt.Errorf("not a login packet: %d", T)
 	}
@@ -165,7 +165,7 @@ func (r *RCONConn) AcceptCmd() (string, error) {
 
 	r.ReqID = R
 
-	//Check packet type
+	// Check packet type
 	if T != 2 {
 		return P, fmt.Errorf("not a command packet: %d", T)
 	}

@@ -398,7 +398,7 @@ func (d *decodeState) scanNext() {
 		d.opcode = d.scan.step(&d.scan, d.data[d.off])
 		d.off++
 	} else {
-		//d.opcode = d.scan.eof()
+		// d.opcode = d.scan.eof()
 		d.off = len(d.data) + 1 // mark processed EOF with len+1
 	}
 }

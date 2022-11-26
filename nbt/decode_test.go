@@ -11,12 +11,12 @@ import (
 )
 
 func TestUnmarshal_string(t *testing.T) {
-	var data = []byte{
+	data := []byte{
 		0x08, 0x00, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x09,
 		0x42, 0x61, 0x6e, 0x61, 0x6e, 0x72, 0x61, 0x6d, 0x61,
 	}
 
-	//Unmarshal to string
+	// Unmarshal to string
 	var Name string
 	if err := Unmarshal(data, &Name); err != nil {
 		t.Fatal(err)
@@ -26,7 +26,7 @@ func TestUnmarshal_string(t *testing.T) {
 		t.Errorf("Unmarshal NBT fail: get %q, want %q", Name, "Bananrama")
 	}
 
-	//Unmarshal to interface{}
+	// Unmarshal to interface{}
 	var infName interface{}
 	if err := Unmarshal(data, &infName); err != nil {
 		t.Fatal(err)
@@ -38,7 +38,7 @@ func TestUnmarshal_string(t *testing.T) {
 }
 
 func TestUnmarshal_simple(t *testing.T) {
-	var data = []byte{
+	data := []byte{
 		0x0a, 0x00, 0x0b, 0x68, 0x65, 0x6c, 0x6c, 0x6f,
 		0x20, 0x77, 0x6f, 0x72, 0x6c, 0x64, 0x08, 0x00,
 		0x04, 0x6e, 0x61, 0x6d, 0x65, 0x00, 0x09, 0x42,
@@ -46,7 +46,7 @@ func TestUnmarshal_simple(t *testing.T) {
 		0x00,
 	}
 
-	//test parse
+	// test parse
 	var value struct {
 		Name string `nbt:"name"`
 	}
@@ -57,7 +57,7 @@ func TestUnmarshal_simple(t *testing.T) {
 		t.Errorf("Unmarshal NBT fail: get %q, want %q", value.Name, "Bananrama")
 	}
 
-	//test rawRead
+	// test rawRead
 	var empty struct{}
 	if err := Unmarshal(data, &empty); err != nil {
 		t.Fatal(err)
@@ -184,7 +184,7 @@ func MakeBigTestStruct() BigTestStruct {
 }
 
 func TestDecoder_Decode_bigTest(t *testing.T) {
-	//test parse
+	// test parse
 	var value BigTestStruct
 	r, err := gzip.NewReader(bytes.NewReader(bigTestData[:]))
 	if err != nil {
@@ -199,7 +199,7 @@ func TestDecoder_Decode_bigTest(t *testing.T) {
 		t.Errorf("parse fail, expect %v, get %v", want, value)
 	}
 
-	//test rawRead
+	// test rawRead
 	var empty struct{}
 	r, err = gzip.NewReader(bytes.NewReader(bigTestData[:]))
 	if err != nil {
@@ -345,7 +345,7 @@ func TestDecoder_Decode_ByteArray(t *testing.T) {
 		want     = []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
 	)
 
-	//Unmarshal to []byte
+	// Unmarshal to []byte
 	if err := Unmarshal(data, &value); err != nil {
 		t.Fatal(err)
 	}
@@ -354,7 +354,7 @@ func TestDecoder_Decode_ByteArray(t *testing.T) {
 	}
 	// t.Log(value)
 
-	//Unmarshal to interface{}
+	// Unmarshal to interface{}
 	if err := Unmarshal(data, &infValue); err != nil {
 		t.Fatal(err)
 	}
@@ -377,7 +377,7 @@ func TestDecoder_Decode_bool(t *testing.T) {
 	}
 	var value bool
 	for i, v := range data {
-		//Unmarshal to []byte
+		// Unmarshal to []byte
 		if err := Unmarshal(v, &value); err != nil {
 			t.Fatal(err)
 		}
@@ -388,12 +388,12 @@ func TestDecoder_Decode_bool(t *testing.T) {
 }
 
 func TestDecoder_Decode_ErrorString(t *testing.T) {
-	var data = []byte{
+	data := []byte{
 		0x08, 0x00, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0xFF, 0xFE,
 		0x42, 0x61, 0x6e, 0x61, 0x6e, 0x72, 0x61, 0x6d, 0x61,
 	}
 
-	//Unmarshal to string
+	// Unmarshal to string
 	var Name string
 	err := Unmarshal(data, &Name)
 
@@ -401,7 +401,6 @@ func TestDecoder_Decode_ErrorString(t *testing.T) {
 		t.Error("should return a error if len < 0")
 	}
 	t.Log(err)
-
 }
 
 type TextBool bool
@@ -409,6 +408,7 @@ type TextBool bool
 func (b TextBool) MarshalText() (text []byte, err error) {
 	return []byte(strconv.FormatBool(bool(b))), nil
 }
+
 func (b *TextBool) UnmarshalText(text []byte) (err error) {
 	*((*bool)(b)), err = strconv.ParseBool(string(text))
 	return

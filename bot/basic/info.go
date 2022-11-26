@@ -1,8 +1,9 @@
 package basic
 
 import (
-	"github.com/Tnze/go-mc/chat"
 	"unsafe"
+
+	"github.com/Tnze/go-mc/chat"
 
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/nbt"
@@ -123,7 +124,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	if err != nil {
 		return Error{err}
 	}
-	err = p.c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
+	err = p.c.Conn.WritePacket(pk.Marshal( // PluginMessage packet
 		int32(packetid.ServerboundCustomPayload),
 		pk.Identifier("minecraft:brand"),
 		pk.String(p.Settings.Brand),
@@ -148,6 +149,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	}
 	return nil
 }
+
 func (p *Player) handleRespawnPacket(packet pk.Packet) error {
 	var copyMeta bool
 	err := packet.Scan(

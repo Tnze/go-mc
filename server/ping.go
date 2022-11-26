@@ -50,14 +50,14 @@ func (s *Server) acceptListPing(conn *net.Conn) {
 		}
 
 		switch p.ID {
-		case packetid.StatusResponse: //List
+		case packetid.StatusResponse: // List
 			var resp []byte
 			resp, err = s.listResp()
 			if err != nil {
 				break
 			}
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(resp)))
-		case packetid.StatusPongResponse: //Ping
+		case packetid.StatusPongResponse: // Ping
 			err = conn.WritePacket(p)
 		}
 		if err != nil {

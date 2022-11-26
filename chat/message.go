@@ -57,15 +57,15 @@ const (
 type Message struct {
 	Text string `json:"text"`
 
-	Bold          bool `json:"bold,omitempty"`          //粗体
-	Italic        bool `json:"italic,omitempty"`        //斜体
-	UnderLined    bool `json:"underlined,omitempty"`    //下划线
-	StrikeThrough bool `json:"strikethrough,omitempty"` //删除线
-	Obfuscated    bool `json:"obfuscated,omitempty"`    //随机
+	Bold          bool `json:"bold,omitempty"`          // 粗体
+	Italic        bool `json:"italic,omitempty"`        // 斜体
+	UnderLined    bool `json:"underlined,omitempty"`    // 下划线
+	StrikeThrough bool `json:"strikethrough,omitempty"` // 删除线
+	Obfuscated    bool `json:"obfuscated,omitempty"`    // 随机
 	// Font of the message, could be one of minecraft:uniform, minecraft:alt or minecraft:default
 	// This option is only valid on 1.16+, otherwise the property is ignored.
-	Font  string `json:"font,omitempty"`  //字体
-	Color string `json:"color,omitempty"` //颜色
+	Font  string `json:"font,omitempty"`  // 字体
+	Color string `json:"color,omitempty"` // 颜色
 
 	// Insertion contains text to insert. Only used for messages in chat.
 	// When shift is held, clicking the component inserts the given text
@@ -207,6 +207,7 @@ var fmtCode = map[byte]string{
 	'o': "3",
 	'r': "0",
 }
+
 var colors = map[string]string{
 	Black:       "30",
 	DarkBlue:    "34",
@@ -241,7 +242,7 @@ func (m Message) ClearString() string {
 	text, _ := TransCtrlSeq(m.Text, false)
 	msg.WriteString(text)
 
-	//handle translate
+	// handle translate
 	if m.Translate != "" {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
@@ -286,7 +287,7 @@ func (m Message) String() string {
 	text, ok := TransCtrlSeq(m.Text, true)
 	msg.WriteString(text)
 
-	//handle translate
+	// handle translate
 	if m.Translate != "" {
 		args := make([]interface{}, len(m.With))
 		for i, v := range m.With {
@@ -323,9 +324,9 @@ func TransCtrlSeq(str string, ansi bool) (dst string, change bool) {
 					change = true
 					return "\033[" + f + "m" // enable, add ANSI code
 				}
-				return "" //disable, remove the § code
+				return "" // disable, remove the § code
 			}
-			return str //not a § code
+			return str // not a § code
 		},
 	)
 	return

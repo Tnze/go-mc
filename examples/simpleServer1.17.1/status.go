@@ -2,11 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"log"
+
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
-	"log"
 )
 
 func acceptListPing(conn net.Conn) {
@@ -18,9 +19,9 @@ func acceptListPing(conn net.Conn) {
 		}
 
 		switch p.ID {
-		case 0x00: //List
+		case 0x00: // List
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(listResp())))
-		case 0x01: //Ping
+		case 0x01: // Ping
 			err = conn.WritePacket(p)
 		}
 		if err != nil {

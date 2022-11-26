@@ -390,7 +390,8 @@ func (e *Encoder) writeInt32(n int32) error {
 func (e *Encoder) writeInt64(n int64) error {
 	_, err := e.w.Write([]byte{
 		byte(n >> 56), byte(n >> 48), byte(n >> 40), byte(n >> 32),
-		byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
+		byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n),
+	})
 	return err
 }
 

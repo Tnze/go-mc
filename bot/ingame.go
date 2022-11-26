@@ -12,12 +12,12 @@ import (
 func (c *Client) HandleGame() error {
 	var p pk.Packet
 	for {
-		//Read packets
+		// Read packets
 		if err := c.Conn.ReadPacket(&p); err != nil {
 			return err
 		}
 
-		//handle packets
+		// handle packets
 		err := c.handlePacket(p)
 		if err != nil {
 			return err

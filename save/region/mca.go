@@ -37,7 +37,7 @@ func At(cx, cz int) (int, int) {
 // Open a .mca file and read the head.
 // Close the Region after used.
 func Open(name string) (r *Region, err error) {
-	f, err := os.OpenFile(name, os.O_RDWR, 0666)
+	f, err := os.OpenFile(name, os.O_RDWR, 0o666)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func Load(f io.ReadWriteSeeker) (r *Region, err error) {
 
 // Create open .mca file with os.O_CREATE|os. O_EXCL, and init the region
 func Create(name string) (*Region, error) {
-	f, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR|os.O_EXCL, 0666)
+	f, err := os.OpenFile(name, os.O_CREATE|os.O_RDWR|os.O_EXCL, 0o666)
 	if err != nil {
 		return nil, err
 	}
@@ -206,13 +206,13 @@ func (r *Region) WriteSector(x, z int, data []byte) error {
 	if err != nil {
 		return err
 	}
-	//data length
+	// data length
 	err = binary.Write(r.f, binary.BigEndian, int32(len(data)))
 	if err != nil {
 		return err
 	}
 
-	//data
+	// data
 	_, err = r.f.Write(data)
 	if err != nil {
 		return err

@@ -18,14 +18,16 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-var address = flag.String("address", "127.0.0.1", "The server address")
-var client *bot.Client
-var player *basic.Player
-var screenManager *screen.Manager
+var (
+	address       = flag.String("address", "127.0.0.1", "The server address")
+	client        *bot.Client
+	player        *basic.Player
+	screenManager *screen.Manager
+)
 
 func main() {
 	flag.Parse()
-	//log.SetOutput(colorable.NewColorableStdout())
+	// log.SetOutput(colorable.NewColorableStdout())
 	client = bot.NewClient()
 	client.Auth.Name = "Daze"
 	player = basic.NewPlayer(client, basic.DefaultSettings, basic.EventsListener{})
@@ -35,14 +37,14 @@ func main() {
 		F:        onCommands,
 	})
 
-	//Login
+	// Login
 	err := client.JoinServer(*address)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
 
-	//JoinGame
+	// JoinGame
 	for {
 		if err = client.HandleGame(); err == nil {
 			panic("HandleGame never return nil")
@@ -62,8 +64,7 @@ func onCommands(p pk.Packet) error {
 	return nil
 }
 
-type Node struct {
-}
+type Node struct{}
 
 func (n Node) ReadFrom(r io.Reader) (int64, error) {
 	var Flags pk.Byte
@@ -71,7 +72,7 @@ func (n Node) ReadFrom(r io.Reader) (int64, error) {
 	var Redirect pk.VarInt
 	var Name pk.String
 	var Parser pk.Identifier
-	var Properties = Prop{Type: &Parser}
+	Properties := Prop{Type: &Parser}
 	var SuggestionsType pk.Identifier
 	m, err := pk.Tuple{
 		&Flags,

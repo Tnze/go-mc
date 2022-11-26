@@ -1,5 +1,4 @@
-//From https://play.golang.org/p/LTbId4b6M2
-
+// Package CFB8 is copied from https://play.golang.org/p/LTbId4b6M2
 package CFB8
 
 import "crypto/cipher"

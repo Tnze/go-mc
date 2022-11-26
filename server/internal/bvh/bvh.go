@@ -3,6 +3,7 @@ package bvh
 import (
 	"container/heap"
 	"fmt"
+
 	"golang.org/x/exp/constraints"
 )
 
@@ -194,12 +195,14 @@ func TouchBound[B interface{ Touch(B) bool }](other B) func(bound B) bool {
 	}
 }
 
-type searchHeap[I constraints.Float, V any] []searchItem[I, V]
-type searchItem[I constraints.Float, V any] struct {
-	pointer       *V
-	parentTo      **V
-	inheritedCost I
-}
+type (
+	searchHeap[I constraints.Float, V any] []searchItem[I, V]
+	searchItem[I constraints.Float, V any] struct {
+		pointer       *V
+		parentTo      **V
+		inheritedCost I
+	}
+)
 
 func (h searchHeap[I, V]) Len() int            { return len(h) }
 func (h searchHeap[I, V]) Less(i, j int) bool  { return h[i].inheritedCost < h[j].inheritedCost }

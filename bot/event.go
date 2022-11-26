@@ -35,12 +35,14 @@ func (e *Events) AddGeneric(listeners ...PacketHandler) {
 	}
 }
 
-type PacketHandlerFunc func(p pk.Packet) error
-type PacketHandler struct {
-	ID       packetid.ClientboundPacketID
-	Priority int
-	F        func(p pk.Packet) error
-}
+type (
+	PacketHandlerFunc func(p pk.Packet) error
+	PacketHandler     struct {
+		ID       packetid.ClientboundPacketID
+		Priority int
+		F        func(p pk.Packet) error
+	}
+)
 
 // handlerHeap is PriorityQueue<PacketHandlerFunc>
 type handlerHeap []PacketHandler

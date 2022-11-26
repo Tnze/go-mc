@@ -79,7 +79,9 @@ func (p *PlayerMessage) ReadFrom(r io.Reader) (n int64, err error) {
 	var timestamp pk.Long
 	var unsignedContent chat.Message
 	n, err = pk.Tuple{
-		&hasMsgSign, pk.Opt{Has: &hasMsgSign,
+		&hasMsgSign,
+		pk.Opt{
+			Has:   &hasMsgSign,
 			Field: (*pk.ByteArray)(&p.signature),
 		},
 		(*pk.UUID)(&p.sender),
@@ -88,7 +90,9 @@ func (p *PlayerMessage) ReadFrom(r io.Reader) (n int64, err error) {
 		&timestamp,
 		(*pk.Long)(&p.salt),
 		pk.Array(&p.prevMessages),
-		&hasUnsignedContent, pk.Opt{Has: &hasUnsignedContent,
+		&hasUnsignedContent,
+		pk.Opt{
+			Has:   &hasUnsignedContent,
 			Field: &unsignedContent,
 		},
 		(*pk.VarInt)(&p.filterType),

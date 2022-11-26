@@ -22,8 +22,10 @@ import (
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
-const ProtocolVersion = 760
-const DefaultPort = mcnet.DefaultPort
+const (
+	ProtocolVersion = 760
+	DefaultPort     = mcnet.DefaultPort
+)
 
 // JoinServer connect a Minecraft server for playing the game.
 // Using roughly the same way to parse address as minecraft.
@@ -98,15 +100,15 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		return LoginErr{"login start", err}
 	}
 	for {
-		//Receive Packet
+		// Receive Packet
 		var p pk.Packet
 		if err = c.Conn.ReadPacket(&p); err != nil {
 			return LoginErr{"receive packet", err}
 		}
 
-		//Handle Packet
+		// Handle Packet
 		switch p.ID {
-		case packetid.LoginDisconnect: //LoginDisconnect
+		case packetid.LoginDisconnect: // LoginDisconnect
 			var reason chat.Message
 			err = p.Scan(&reason)
 			if err != nil {
@@ -114,12 +116,12 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			}
 			return LoginErr{"disconnect", DisconnectErr(reason)}
 
-		case packetid.LoginEncryptionRequest: //Encryption Request
+		case packetid.LoginEncryptionRequest: // Encryption Request
 			if err := handleEncryptionRequest(c, p); err != nil {
 				return LoginErr{"encryption", err}
 			}
 
-		case packetid.LoginSuccess: //Login Success
+		case packetid.LoginSuccess: // Login Success
 			err := p.Scan(
 				(*pk.UUID)(&c.UUID),
 				(*pk.String)(&c.Name),
@@ -129,14 +131,14 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			}
 			return nil
 
-		case packetid.LoginCompression: //Set Compression
+		case packetid.LoginCompression: // Set Compression
 			var threshold pk.VarInt
 			if err := p.Scan(&threshold); err != nil {
 				return LoginErr{"compression", err}
 			}
 			c.Conn.SetThreshold(int(threshold))
 
-		case packetid.LoginPluginRequest: //Login Plugin Request
+		case packetid.LoginPluginRequest: // Login Plugin Request
 			var (
 				msgid   pk.VarInt
 				channel pk.Identifier

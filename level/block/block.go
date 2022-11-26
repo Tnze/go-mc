@@ -20,18 +20,22 @@ type Block interface {
 //go:embed block_states.nbt
 var blockStates []byte
 
-var ToStateID map[Block]StateID
-var StateList []Block
+var (
+	ToStateID map[Block]StateID
+	StateList []Block
+)
 
 // BitsPerBlock indicates how many bits are needed to represent all possible
 // block states. This value is used to determine the size of the global palette.
 var BitsPerBlock int
 
-type StateID int
-type State struct {
-	Name       string
-	Properties nbt.RawMessage
-}
+type (
+	StateID int
+	State   struct {
+		Name       string
+		Properties nbt.RawMessage
+	}
+)
 
 func init() {
 	var states []State

@@ -23,7 +23,7 @@ type Server struct {
 	MiniGameID           *int
 	MinigameImage        *string
 	ActiveSlot           int
-	//Slots                interface{}
+	// Slots                interface{}
 	Member bool
 }
 
@@ -49,7 +49,7 @@ func (r *Realms) Worlds() ([]Server, error) {
 // Server returns a single server listing about a server.
 // you must be the owner of the server.
 func (r *Realms) Server(ID int) (s Server, err error) {
-	var resp = struct {
+	resp := struct {
 		*Server
 		*Error
 	}{Server: &s}
@@ -124,7 +124,7 @@ func (r *Realms) Ops(s Server) (ops []string, err error) {
 
 // SubscriptionLife returns the current life of a server subscription.
 func (r *Realms) SubscriptionLife(s Server) (startDate int64, daysLeft int, Type string, err error) {
-	var resp = struct {
+	resp := struct {
 		StartDate        *int64
 		DaysLeft         *int
 		SubscriptionType *string

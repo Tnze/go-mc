@@ -213,8 +213,8 @@ func (c *Conn) WritePacket(p pk.Packet) error {
 
 // SetCipher load the decode/encode stream to this Conn
 func (c *Conn) SetCipher(ecoStream, decoStream cipher.Stream) {
-	//加密连接
-	c.Reader = cipher.StreamReader{ //Set receiver for AES
+	// 加密连接
+	c.Reader = cipher.StreamReader{ // Set receiver for AES
 		S: decoStream,
 		R: c.Socket,
 	}

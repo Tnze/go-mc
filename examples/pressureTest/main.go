@@ -13,12 +13,14 @@ import (
 	"github.com/Tnze/go-mc/chat"
 )
 
-var address = flag.String("address", "127.0.0.1", "The server address")
-var number = flag.Int("number", 1023, "The number of clients")
+var (
+	address = flag.String("address", "127.0.0.1", "The server address")
+	number  = flag.Int("number", 1023, "The number of clients")
+)
 
 func main() {
 	flag.Parse()
-	//log.SetOutput(colorable.NewColorableStdout())
+	// log.SetOutput(colorable.NewColorableStdout())
 
 	for i := 0; i < *number; i++ {
 		go func(i int) {
@@ -52,7 +54,7 @@ func newIndividual(id int, name string) (i *individual) {
 }
 
 func (i *individual) run(address string) {
-	//Login
+	// Login
 	err := i.client.JoinServer(address)
 	if err != nil {
 		log.Printf("[%d]Login fail: %v", i.id, err)
@@ -60,7 +62,7 @@ func (i *individual) run(address string) {
 	}
 	log.Printf("[%d]Login success", i.id)
 
-	//JoinGame
+	// JoinGame
 	if err = i.client.HandleGame(); err == nil {
 		panic("HandleGame never return nil")
 	}

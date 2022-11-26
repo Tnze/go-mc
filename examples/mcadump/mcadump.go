@@ -13,8 +13,10 @@ import (
 	"github.com/Tnze/go-mc/save/region"
 )
 
-var decomp = flag.Bool("x", false, "decompress each chunk to NBT format")
-var repack = flag.Bool("p", false, "repack .mcc file to .mca")
+var (
+	decomp = flag.Bool("x", false, "decompress each chunk to NBT format")
+	repack = flag.Bool("p", false, "repack .mcc file to .mca")
+)
 
 func main() {
 	flag.Usage = usage
@@ -79,7 +81,7 @@ func unpack(f, o string) {
 
 			fn := fmt.Sprintf("c.%d.%d.mcc", x*32+i, z*32+j)
 			if *decomp {
-				fn += ".nbt" //解压后就是一个标准的NBT文件，可以加个.nbt后缀
+				fn += ".nbt" // 解压后就是一个标准的NBT文件，可以加个.nbt后缀
 				switch data[0] {
 				default:
 					err = fmt.Errorf("unknown compression type 0x%02x", data[0])
@@ -91,7 +93,7 @@ func unpack(f, o string) {
 				checkerr(err)
 			}
 
-			cf, err := os.OpenFile(filepath.Join(o, fn), os.O_CREATE|os.O_RDWR|os.O_EXCL, 0666)
+			cf, err := os.OpenFile(filepath.Join(o, fn), os.O_CREATE|os.O_RDWR|os.O_EXCL, 0o666)
 			checkerr(err)
 
 			_, err = io.Copy(cf, r)

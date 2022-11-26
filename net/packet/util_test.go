@@ -3,8 +3,9 @@ package packet_test
 import (
 	"bytes"
 	"fmt"
-	pk "github.com/Tnze/go-mc/net/packet"
 	"testing"
+
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 func ExampleAry_WriteTo() {
@@ -34,12 +35,12 @@ func ExampleAry_ReadFrom() {
 
 func TestAry_ReadFrom(t *testing.T) {
 	var ary []pk.String
-	var bin = []byte{
+	bin := []byte{
 		0, 0, 0, 2,
 		4, 'T', 'n', 'z', 'e',
 		0,
 	}
-	var data = pk.Ary[pk.Int]{Ary: &ary}
+	data := pk.Ary[pk.Int]{Ary: &ary}
 	if _, err := data.ReadFrom(bytes.NewReader(bin)); err != nil {
 		t.Fatal(err)
 	}

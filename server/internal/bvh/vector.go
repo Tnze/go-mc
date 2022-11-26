@@ -1,8 +1,9 @@
 package bvh
 
 import (
-	"golang.org/x/exp/constraints"
 	"math"
+
+	"golang.org/x/exp/constraints"
 )
 
 type Vec2[I constraints.Signed | constraints.Float] [2]I
@@ -22,6 +23,7 @@ type Vec3[I constraints.Signed | constraints.Float] [3]I
 func (v Vec3[I]) Add(other Vec3[I]) Vec3[I] {
 	return Vec3[I]{v[0] + other[0], v[1] + other[1], v[2] + other[2]}
 }
+
 func (v Vec3[I]) Sub(other Vec3[I]) Vec3[I] {
 	return Vec3[I]{v[0] - other[0], v[1] - other[1], v[2] - other[2]}
 }
@@ -29,6 +31,7 @@ func (v Vec3[I]) Mul(i I) Vec3[I] { return Vec3[I]{v[0] * i, v[1] * i, v[2] * i}
 func (v Vec3[I]) Max(other Vec3[I]) Vec3[I] {
 	return Vec3[I]{max(v[0], other[0]), max(v[1], other[1]), max(v[2], other[2])}
 }
+
 func (v Vec3[I]) Min(other Vec3[I]) Vec3[I] {
 	return Vec3[I]{min(v[0], other[0]), min(v[1], other[1]), min(v[2], other[2])}
 }

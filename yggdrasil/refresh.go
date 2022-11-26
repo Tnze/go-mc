@@ -17,7 +17,7 @@ type refreshPayload struct {
 func (a *Access) Refresh(profile *Profile) error {
 	pl := refreshPayload{
 		Tokens:          a.ar.Tokens,
-		SelectedProfile: profile, //used to change profile, don't use now
+		SelectedProfile: profile, // used to change profile, don't use now
 		RequestUser:     true,
 	}
 

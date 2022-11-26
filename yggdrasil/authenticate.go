@@ -59,7 +59,7 @@ type authResp struct {
 type Profile struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	//Legacy bool   `json:"legacy"` // we don't care
+	// Legacy bool   `json:"legacy"` // we don't care
 }
 
 // Authenticate authenticates a user using their password.
@@ -105,6 +105,7 @@ func (a *Access) AvailableProfiles() []Profile {
 func (a *Access) SetTokens(tokens Tokens) {
 	a.ar.Tokens = tokens
 }
+
 func (a *Access) GetTokens() Tokens {
 	return a.ar.Tokens
 }

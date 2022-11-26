@@ -2,12 +2,13 @@ package offline
 
 import (
 	"crypto/md5"
+
 	"github.com/google/uuid"
 )
 
 // NameToUUID return the UUID from player name in offline mode
 func NameToUUID(name string) uuid.UUID {
-	var version = 3
+	version := 3
 	h := md5.New()
 	h.Write([]byte("OfflinePlayer:"))
 	h.Write([]byte(name))

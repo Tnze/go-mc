@@ -21,20 +21,24 @@ import (
 	"github.com/Tnze/go-mc/level"
 )
 
-var address = flag.String("address", "127.0.0.1", "The server address")
-var name = flag.String("name", "Daze", "The player's name")
-var playerID = flag.String("uuid", "", "The player's UUID")
-var accessToken = flag.String("token", "", "AccessToken")
+var (
+	address     = flag.String("address", "127.0.0.1", "The server address")
+	name        = flag.String("name", "Daze", "The player's name")
+	playerID    = flag.String("uuid", "", "The player's UUID")
+	accessToken = flag.String("token", "", "AccessToken")
+)
 
-var client *bot.Client
-var player *basic.Player
-var chatHandler *botchat.Chat
-var worldManager *world.World
-var screenManager *screen.Manager
+var (
+	client        *bot.Client
+	player        *basic.Player
+	chatHandler   *botchat.Chat
+	worldManager  *world.World
+	screenManager *screen.Manager
+)
 
 func main() {
 	flag.Parse()
-	//log.SetOutput(colorable.NewColorableStdout())
+	// log.SetOutput(colorable.NewColorableStdout())
 	client = bot.NewClient()
 	client.Auth = bot.Auth{
 		Name: *name,
@@ -61,14 +65,14 @@ func main() {
 		Close:   nil,
 	})
 
-	//Login
+	// Login
 	err := client.JoinServer(*address)
 	if err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
 
-	//JoinGame
+	// JoinGame
 	for {
 		if err = client.HandleGame(); err == nil {
 			panic("HandleGame never return nil")
@@ -103,7 +107,7 @@ func onDeath() error {
 
 func onGameStart() error {
 	log.Println("Game start")
-	return nil //if err isn't nil, HandleGame() will return it.
+	return nil // if err isn't nil, HandleGame() will return it.
 }
 
 func onPlayerMsg(msg chat.Message) error {

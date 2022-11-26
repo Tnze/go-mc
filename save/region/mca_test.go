@@ -48,10 +48,9 @@ func TestReadRegion(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			//t.Log(b)
+			// t.Log(b)
 		}
 	}
-
 }
 
 func TestFindSpace(t *testing.T) {

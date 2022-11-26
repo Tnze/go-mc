@@ -33,7 +33,7 @@ func (d *Decoder) Decode(v interface{}) (string, error) {
 	if val.Kind() != reflect.Ptr {
 		return "", errors.New("nbt: non-pointer passed to Decode")
 	}
-	//start read NBT
+	// start read NBT
 	tagType, tagName, err := d.readTag()
 	if err != nil {
 		return tagName, fmt.Errorf("nbt: %w", err)
@@ -246,7 +246,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		if err != nil {
 			return err
 		}
-		vt := val.Type() //receiver must be []int or []int32
+		vt := val.Type() // receiver must be []int or []int32
 		if vt.Kind() == reflect.Interface {
 			vt = reflect.TypeOf([]int32{}) // pass
 		} else if vt.Kind() == reflect.Array && vt.Len() != int(aryLen) {
@@ -277,7 +277,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		if err != nil {
 			return err
 		}
-		vt := val.Type() //receiver must be []int or []int64
+		vt := val.Type() // receiver must be []int or []int64
 		if vt.Kind() == reflect.Interface {
 			vt = reflect.TypeOf([]int64{}) // pass
 		} else if vt.Kind() != reflect.Slice {
@@ -591,7 +591,7 @@ func (d *Decoder) readTag() (tagType byte, tagName string, err error) {
 		c := d.checkCompressed(tagType)
 		err = fmt.Errorf("nbt: unknown Tag %#02x, which seems like %s header and you should uncompress it first", tagType, c)
 	case TagEnd:
-	default: //Read Tag
+	default: // Read Tag
 		tagName, err = d.readString()
 	}
 	return

@@ -8,8 +8,10 @@ import (
 	"github.com/Tnze/go-mc/yggdrasil"
 )
 
-var user = flag.String("user", "", "Can be an email address or player name for unmigrated accounts")
-var pswd = flag.String("password", "", "Your password")
+var (
+	user = flag.String("user", "", "Can be an email address or player name for unmigrated accounts")
+	pswd = flag.String("password", "", "Your password")
+)
 
 func main() {
 	flag.Parse()
