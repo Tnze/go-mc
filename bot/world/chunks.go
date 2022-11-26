@@ -18,7 +18,7 @@ func NewWorld() (w *World) {
 }
 
 func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, error) {
-	if int32(pos.Y) < 0 || int32(pos.Y) > 320 {
+	if int32(pos.Y) < 0 || int32(pos.Y) > 256 {
 		return -1, fmt.Errorf("out of range")
 	}
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}

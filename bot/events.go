@@ -6,7 +6,6 @@ import (
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/data/item"
 	"github.com/Tnze/go-mc/level"
-	block2 "github.com/Tnze/go-mc/level/block"
 	"time"
 	"unsafe"
 
@@ -625,9 +624,6 @@ func (e *EventsListener) KeepAlive(c *Client, p pk.Packet) error {
 }
 
 func (e *EventsListener) ChunkData(c *Client, p pk.Packet) error {
-	/*dimension := c.Player.WorldInfo.DimensionName
-	minY := c.Player.DimensionCodec.DimensionType.Find(dimension).MinY
-	maxY := c.Player.DimensionCodec.DimensionType.Find(dimension).Height*/
 	var (
 		ChunkPos level.ChunkPos
 		Chunk    level.Chunk
@@ -937,11 +933,6 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 	} else {
 		c.Player.Position = position
 		c.Player.Rotation = rotation
-	}
-	state, _ := c.World.GetBlock(c.Player.Position)
-	if state != -1 {
-		block := block2.StateList[state]
-		fmt.Println("Block:", block.ID(), "State:", state)
 	}
 	fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
 	return nil
