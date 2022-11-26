@@ -29,6 +29,7 @@ func NewPlayer(c *Client, settings basic.Settings) *Player {
 				Entity: &core.Entity{},
 			},
 		},
+		Manager:  screen.NewManager(),
 		c:        c,
 		Settings: settings,
 		isSpawn:  false,

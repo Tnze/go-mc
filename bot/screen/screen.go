@@ -11,15 +11,13 @@ type Manager struct {
 	CurrentScreen int
 	Inventory     Inventory
 	Cursor        slots.Slot
-	events        EventsListener
 	// The last received State ID from server
 	StateID int32
 }
 
-func NewManager(e EventsListener) *Manager {
+func NewManager() *Manager {
 	m := &Manager{
 		Screens: make(map[int]Container),
-		events:  e,
 	}
 	m.Screens[0] = &m.Inventory
 	return m
