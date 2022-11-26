@@ -2,8 +2,11 @@ package level
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"github.com/Tnze/go-mc/bot/maths"
 	"io"
+	"log"
 	"math/bits"
 	"strings"
 
@@ -44,25 +47,24 @@ type Chunk struct {
 	Status      ChunkStatus
 }
 
-func EmptyChunk(secs int) *Chunk {
-	sections := make([]Section, secs)
-	for i := range sections {
-		sections[i] = Section{
-			BlockCount: 0,
-			States:     NewStatesPaletteContainer(16*16*16, 0),
-			Biomes:     NewBiomesPaletteContainer(4*4*4, 0),
-		}
+func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, error) {
+	X, Y, Z := int(vec3d.X), int(vec3d.Y), int(vec3d.Z)
+	Y += 63 // I'm too lazy to find the real min Y, so let's assume the bot never goes below 0.
+	// This will be fixed in the near future.
+
+	if Y < 0 || Y>>4 >= len(c.Sections) {
+		return -1, errors.New("out of bounds")
 	}
-	return &Chunk{
-		Sections: sections,
-		HeightMaps: HeightMaps{
-			MotionBlocking: NewBitStorage(bits.Len(uint(secs)*16), 16*16, nil),
-		},
-		Status: StatusEmpty,
+	sec := c.Sections[Y>>4]
+	if sec.BlockCount == 0 {
+		return 0, nil
 	}
+	i := Y>>1 | Z&15<<4 | X&15
+	return sec.States.Get(i), nil
 }
 
 var biomesIDs map[string]BiomesState
+var BitsPerBiome int
 
 var biomesNames = []string{
 	"the_void",
@@ -135,6 +137,25 @@ func init() {
 	for i, v := range biomesNames {
 		biomesIDs[v] = BiomesState(i)
 	}
+	BitsPerBiome = bits.Len(uint(len(biomesNames)))
+}
+
+func EmptyChunk(secs int) *Chunk {
+	sections := make([]Section, secs)
+	for i := range sections {
+		sections[i] = Section{
+			BlockCount: 0,
+			States:     NewStatesPaletteContainer(16*16*16, 0),
+			Biomes:     NewBiomesPaletteContainer(4*4*4, 0),
+		}
+	}
+	return &Chunk{
+		Sections: sections,
+		HeightMaps: HeightMaps{
+			MotionBlocking: NewBitStorage(bits.Len(uint(secs)*16), 16*16, nil),
+		},
+		Status: StatusEmpty,
+	}
 }
 
 // ChunkFromSave convert save.Chunk to level.Chunk.
@@ -147,16 +168,21 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 			return nil, fmt.Errorf("section Y value %d out of bounds", v.Y)
 		}
 		var err error
-		sections[i].BlockCount, sections[i].States, err = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
+		BlockCount, States, err := readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
 		if err != nil {
 			return nil, err
 		}
-		sections[i].Biomes, err = readBiomesPalette(v.Biomes.Palette, v.Biomes.Data)
+		Biomes, err := readBiomesPalette(v.Biomes.Palette, v.Biomes.Data)
 		if err != nil {
 			return nil, err
 		}
-		sections[i].SkyLight = v.SkyLight
-		sections[i].BlockLight = v.BlockLight
+		sections[i] = Section{
+			BlockCount: BlockCount,
+			States:     States,
+			Biomes:     Biomes,
+			SkyLight:   v.SkyLight,
+			BlockLight: v.BlockLight,
+		}
 	}
 
 	motionBlocking := c.Heightmaps.MotionBlocking
@@ -276,7 +302,7 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	light := lightData{
+	light := LightData{
 		SkyLightMask:   make(pk.BitSet, (16*16*16-1)>>6+1),
 		BlockLightMask: make(pk.BitSet, (16*16*16-1)>>6+1),
 		SkyLight:       []pk.ByteArray{},
@@ -284,11 +310,11 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 	}
 	for i, v := range c.Sections {
 		if v.SkyLight != nil {
-			light.SkyLightMask.Set(i, true)
+			light.SkyLightMask.Set(int(i), true)
 			light.SkyLight = append(light.SkyLight, v.SkyLight)
 		}
 		if v.BlockLight != nil {
-			light.BlockLightMask.Set(i, true)
+			light.BlockLightMask.Set(int(i), true)
 			light.BlockLight = append(light.BlockLight, v.BlockLight)
 		}
 	}
@@ -309,36 +335,63 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 
 func (c *Chunk) ReadFrom(r io.Reader) (int64, error) {
 	var (
-		heightmaps struct {
-			MotionBlocking []uint64 `nbt:"MOTION_BLOCKING"`
-			WorldSurface   []uint64 `nbt:"WORLD_SURFACE"`
+		HeightMaps struct {
+			MotionBlocking         []uint64 `nbt:"MOTION_BLOCKING"`
+			MotionBlockingNoLeaves []uint64 `nbt:"MOTION_BLOCKING_NO_LEAVES"`
+			OceanFloor             []uint64 `nbt:"OCEAN_FLOOR"`
+			WorldSurface           []uint64 `nbt:"WORLD_SURFACE"`
 		}
-		data pk.ByteArray
+		Sections pk.ByteArray
 	)
 
 	n, err := pk.Tuple{
-		pk.NBT(&heightmaps),
-		&data,
+		pk.NBT(&HeightMaps),
+		&Sections,
 		pk.Array(&c.BlockEntity),
-		&lightData{
+		&LightData{
 			SkyLightMask:   make(pk.BitSet, (16*16*16-1)>>6+1),
 			BlockLightMask: make(pk.BitSet, (16*16*16-1)>>6+1),
 			SkyLight:       []pk.ByteArray{},
 			BlockLight:     []pk.ByteArray{},
 		},
 	}.ReadFrom(r)
-	if err != nil {
-		return n, err
+
+	d := bytes.NewReader(Sections)
+	dl := len(Sections)
+	c.Sections = make([]Section, 0)
+	for {
+		if dl == 0 {
+			break
+		}
+		if dl < 200 { // whole chunk structure is 207 if completely empty?
+			log.Printf("Leaving %d bytes behind while parsing chunk data!", dl)
+			break
+		}
+		ss := &Section{
+			BlockCount: 0,
+			States:     NewStatesPaletteContainer(16*16*16, 0),
+			Biomes:     NewBiomesPaletteContainer(4*4*4, 0),
+		}
+		n, err := ss.ReadFrom(d)
+		if errors.Is(err, io.EOF) || errors.Is(err, io.ErrUnexpectedEOF) {
+			log.Printf("EOF while decoding chunk data while reading section %d", len(Sections))
+			break
+		}
+		if n == 0 {
+			continue
+		}
+		dl -= int(n)
+		c.Sections = append(c.Sections, *ss)
 	}
 
-	err = c.PutData(data)
 	return n, err
 }
 
 func (c *Chunk) Data() ([]byte, error) {
 	var buff bytes.Buffer
 	for i := range c.Sections {
-		_, err := c.Sections[i].WriteTo(&buff)
+		section := c.Sections[i]
+		_, err := section.WriteTo(&buff)
 		if err != nil {
 			return nil, err
 		}
@@ -348,8 +401,8 @@ func (c *Chunk) Data() ([]byte, error) {
 
 func (c *Chunk) PutData(data []byte) error {
 	r := bytes.NewReader(data)
-	for i := range c.Sections {
-		_, err := c.Sections[i].ReadFrom(r)
+	for _, section := range c.Sections {
+		_, err := section.ReadFrom(r)
 		if err != nil {
 			return err
 		}
@@ -432,7 +485,7 @@ func (s *Section) ReadFrom(r io.Reader) (int64, error) {
 	}.ReadFrom(r)
 }
 
-type lightData struct {
+type LightData struct {
 	SkyLightMask   pk.BitSet
 	BlockLightMask pk.BitSet
 	SkyLight       []pk.ByteArray
@@ -447,7 +500,7 @@ func bitSetRev(set pk.BitSet) pk.BitSet {
 	return rev
 }
 
-func (l *lightData) WriteTo(w io.Writer) (int64, error) {
+func (l *LightData) WriteTo(w io.Writer) (int64, error) {
 	return pk.Tuple{
 		pk.Boolean(true), // Trust Edges
 		l.SkyLightMask,
@@ -459,7 +512,7 @@ func (l *lightData) WriteTo(w io.Writer) (int64, error) {
 	}.WriteTo(w)
 }
 
-func (l *lightData) ReadFrom(r io.Reader) (int64, error) {
+func (l *LightData) ReadFrom(r io.Reader) (int64, error) {
 	var TrustEdges pk.Boolean
 	var RevSkyLightMask, RevBlockLightMask pk.BitSet
 	return pk.Tuple{

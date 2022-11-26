@@ -14,6 +14,12 @@ type Item struct {
 }
 
 var (
+	Air = Item{
+		ID:          0,
+		DisplayName: "Air",
+		Name:        "air",
+		StackSize:   64,
+	}
 	Stone = Item{
 		ID:          1,
 		DisplayName: "Stone",
@@ -122,6496 +128,6809 @@ var (
 		Name:        "rooted_dirt",
 		StackSize:   64,
 	}
-	CrimsonNylium = Item{
+	Mud = Item{
 		ID:          19,
+		DisplayName: "Mud",
+		Name:        "mud",
+		StackSize:   64,
+	}
+	CrimsonNylium = Item{
+		ID:          20,
 		DisplayName: "Crimson Nylium",
 		Name:        "crimson_nylium",
 		StackSize:   64,
 	}
 	WarpedNylium = Item{
-		ID:          20,
+		ID:          21,
 		DisplayName: "Warped Nylium",
 		Name:        "warped_nylium",
 		StackSize:   64,
 	}
 	Cobblestone = Item{
-		ID:          21,
+		ID:          22,
 		DisplayName: "Cobblestone",
 		Name:        "cobblestone",
 		StackSize:   64,
 	}
 	OakPlanks = Item{
-		ID:          22,
+		ID:          23,
 		DisplayName: "Oak Planks",
 		Name:        "oak_planks",
 		StackSize:   64,
 	}
 	SprucePlanks = Item{
-		ID:          23,
+		ID:          24,
 		DisplayName: "Spruce Planks",
 		Name:        "spruce_planks",
 		StackSize:   64,
 	}
 	BirchPlanks = Item{
-		ID:          24,
+		ID:          25,
 		DisplayName: "Birch Planks",
 		Name:        "birch_planks",
 		StackSize:   64,
 	}
 	JunglePlanks = Item{
-		ID:          25,
+		ID:          26,
 		DisplayName: "Jungle Planks",
 		Name:        "jungle_planks",
 		StackSize:   64,
 	}
 	AcaciaPlanks = Item{
-		ID:          26,
+		ID:          27,
 		DisplayName: "Acacia Planks",
 		Name:        "acacia_planks",
 		StackSize:   64,
 	}
 	DarkOakPlanks = Item{
-		ID:          27,
+		ID:          28,
 		DisplayName: "Dark Oak Planks",
 		Name:        "dark_oak_planks",
 		StackSize:   64,
 	}
+	MangrovePlanks = Item{
+		ID:          29,
+		DisplayName: "Mangrove Planks",
+		Name:        "mangrove_planks",
+		StackSize:   64,
+	}
 	CrimsonPlanks = Item{
-		ID:          28,
+		ID:          30,
 		DisplayName: "Crimson Planks",
 		Name:        "crimson_planks",
 		StackSize:   64,
 	}
 	WarpedPlanks = Item{
-		ID:          29,
+		ID:          31,
 		DisplayName: "Warped Planks",
 		Name:        "warped_planks",
 		StackSize:   64,
 	}
 	OakSapling = Item{
-		ID:          30,
+		ID:          32,
 		DisplayName: "Oak Sapling",
 		Name:        "oak_sapling",
 		StackSize:   64,
 	}
 	SpruceSapling = Item{
-		ID:          31,
+		ID:          33,
 		DisplayName: "Spruce Sapling",
 		Name:        "spruce_sapling",
 		StackSize:   64,
 	}
 	BirchSapling = Item{
-		ID:          32,
+		ID:          34,
 		DisplayName: "Birch Sapling",
 		Name:        "birch_sapling",
 		StackSize:   64,
 	}
 	JungleSapling = Item{
-		ID:          33,
+		ID:          35,
 		DisplayName: "Jungle Sapling",
 		Name:        "jungle_sapling",
 		StackSize:   64,
 	}
 	AcaciaSapling = Item{
-		ID:          34,
+		ID:          36,
 		DisplayName: "Acacia Sapling",
 		Name:        "acacia_sapling",
 		StackSize:   64,
 	}
 	DarkOakSapling = Item{
-		ID:          35,
+		ID:          37,
 		DisplayName: "Dark Oak Sapling",
 		Name:        "dark_oak_sapling",
 		StackSize:   64,
 	}
+	MangrovePropagule = Item{
+		ID:          38,
+		DisplayName: "Mangrove Propagule",
+		Name:        "mangrove_propagule",
+		StackSize:   64,
+	}
 	Bedrock = Item{
-		ID:          36,
+		ID:          39,
 		DisplayName: "Bedrock",
 		Name:        "bedrock",
 		StackSize:   64,
 	}
 	Sand = Item{
-		ID:          37,
+		ID:          40,
 		DisplayName: "Sand",
 		Name:        "sand",
 		StackSize:   64,
 	}
 	RedSand = Item{
-		ID:          38,
+		ID:          41,
 		DisplayName: "Red Sand",
 		Name:        "red_sand",
 		StackSize:   64,
 	}
 	Gravel = Item{
-		ID:          39,
+		ID:          42,
 		DisplayName: "Gravel",
 		Name:        "gravel",
 		StackSize:   64,
 	}
 	CoalOre = Item{
-		ID:          40,
+		ID:          43,
 		DisplayName: "Coal Ore",
 		Name:        "coal_ore",
 		StackSize:   64,
 	}
 	DeepslateCoalOre = Item{
-		ID:          41,
+		ID:          44,
 		DisplayName: "Deepslate Coal Ore",
 		Name:        "deepslate_coal_ore",
 		StackSize:   64,
 	}
 	IronOre = Item{
-		ID:          42,
+		ID:          45,
 		DisplayName: "Iron Ore",
 		Name:        "iron_ore",
 		StackSize:   64,
 	}
 	DeepslateIronOre = Item{
-		ID:          43,
+		ID:          46,
 		DisplayName: "Deepslate Iron Ore",
 		Name:        "deepslate_iron_ore",
 		StackSize:   64,
 	}
 	CopperOre = Item{
-		ID:          44,
+		ID:          47,
 		DisplayName: "Copper Ore",
 		Name:        "copper_ore",
 		StackSize:   64,
 	}
 	DeepslateCopperOre = Item{
-		ID:          45,
+		ID:          48,
 		DisplayName: "Deepslate Copper Ore",
 		Name:        "deepslate_copper_ore",
 		StackSize:   64,
 	}
 	GoldOre = Item{
-		ID:          46,
+		ID:          49,
 		DisplayName: "Gold Ore",
 		Name:        "gold_ore",
 		StackSize:   64,
 	}
 	DeepslateGoldOre = Item{
-		ID:          47,
+		ID:          50,
 		DisplayName: "Deepslate Gold Ore",
 		Name:        "deepslate_gold_ore",
 		StackSize:   64,
 	}
 	RedstoneOre = Item{
-		ID:          48,
+		ID:          51,
 		DisplayName: "Redstone Ore",
 		Name:        "redstone_ore",
 		StackSize:   64,
 	}
 	DeepslateRedstoneOre = Item{
-		ID:          49,
+		ID:          52,
 		DisplayName: "Deepslate Redstone Ore",
 		Name:        "deepslate_redstone_ore",
 		StackSize:   64,
 	}
 	EmeraldOre = Item{
-		ID:          50,
+		ID:          53,
 		DisplayName: "Emerald Ore",
 		Name:        "emerald_ore",
 		StackSize:   64,
 	}
 	DeepslateEmeraldOre = Item{
-		ID:          51,
+		ID:          54,
 		DisplayName: "Deepslate Emerald Ore",
 		Name:        "deepslate_emerald_ore",
 		StackSize:   64,
 	}
 	LapisOre = Item{
-		ID:          52,
+		ID:          55,
 		DisplayName: "Lapis Lazuli Ore",
 		Name:        "lapis_ore",
 		StackSize:   64,
 	}
 	DeepslateLapisOre = Item{
-		ID:          53,
+		ID:          56,
 		DisplayName: "Deepslate Lapis Lazuli Ore",
 		Name:        "deepslate_lapis_ore",
 		StackSize:   64,
 	}
 	DiamondOre = Item{
-		ID:          54,
+		ID:          57,
 		DisplayName: "Diamond Ore",
 		Name:        "diamond_ore",
 		StackSize:   64,
 	}
 	DeepslateDiamondOre = Item{
-		ID:          55,
+		ID:          58,
 		DisplayName: "Deepslate Diamond Ore",
 		Name:        "deepslate_diamond_ore",
 		StackSize:   64,
 	}
 	NetherGoldOre = Item{
-		ID:          56,
+		ID:          59,
 		DisplayName: "Nether Gold Ore",
 		Name:        "nether_gold_ore",
 		StackSize:   64,
 	}
 	NetherQuartzOre = Item{
-		ID:          57,
+		ID:          60,
 		DisplayName: "Nether Quartz Ore",
 		Name:        "nether_quartz_ore",
 		StackSize:   64,
 	}
 	AncientDebris = Item{
-		ID:          58,
+		ID:          61,
 		DisplayName: "Ancient Debris",
 		Name:        "ancient_debris",
 		StackSize:   64,
 	}
 	CoalBlock = Item{
-		ID:          59,
+		ID:          62,
 		DisplayName: "Block of Coal",
 		Name:        "coal_block",
 		StackSize:   64,
 	}
 	RawIronBlock = Item{
-		ID:          60,
+		ID:          63,
 		DisplayName: "Block of Raw Iron",
 		Name:        "raw_iron_block",
 		StackSize:   64,
 	}
 	RawCopperBlock = Item{
-		ID:          61,
+		ID:          64,
 		DisplayName: "Block of Raw Copper",
 		Name:        "raw_copper_block",
 		StackSize:   64,
 	}
 	RawGoldBlock = Item{
-		ID:          62,
+		ID:          65,
 		DisplayName: "Block of Raw Gold",
 		Name:        "raw_gold_block",
 		StackSize:   64,
 	}
 	AmethystBlock = Item{
-		ID:          63,
+		ID:          66,
 		DisplayName: "Block of Amethyst",
 		Name:        "amethyst_block",
 		StackSize:   64,
 	}
 	BuddingAmethyst = Item{
-		ID:          64,
+		ID:          67,
 		DisplayName: "Budding Amethyst",
 		Name:        "budding_amethyst",
 		StackSize:   64,
 	}
 	IronBlock = Item{
-		ID:          65,
+		ID:          68,
 		DisplayName: "Block of Iron",
 		Name:        "iron_block",
 		StackSize:   64,
 	}
 	CopperBlock = Item{
-		ID:          66,
+		ID:          69,
 		DisplayName: "Block of Copper",
 		Name:        "copper_block",
 		StackSize:   64,
 	}
 	GoldBlock = Item{
-		ID:          67,
+		ID:          70,
 		DisplayName: "Block of Gold",
 		Name:        "gold_block",
 		StackSize:   64,
 	}
 	DiamondBlock = Item{
-		ID:          68,
+		ID:          71,
 		DisplayName: "Block of Diamond",
 		Name:        "diamond_block",
 		StackSize:   64,
 	}
 	NetheriteBlock = Item{
-		ID:          69,
+		ID:          72,
 		DisplayName: "Block of Netherite",
 		Name:        "netherite_block",
 		StackSize:   64,
 	}
 	ExposedCopper = Item{
-		ID:          70,
+		ID:          73,
 		DisplayName: "Exposed Copper",
 		Name:        "exposed_copper",
 		StackSize:   64,
 	}
 	WeatheredCopper = Item{
-		ID:          71,
+		ID:          74,
 		DisplayName: "Weathered Copper",
 		Name:        "weathered_copper",
 		StackSize:   64,
 	}
 	OxidizedCopper = Item{
-		ID:          72,
+		ID:          75,
 		DisplayName: "Oxidized Copper",
 		Name:        "oxidized_copper",
 		StackSize:   64,
 	}
 	CutCopper = Item{
-		ID:          73,
+		ID:          76,
 		DisplayName: "Cut Copper",
 		Name:        "cut_copper",
 		StackSize:   64,
 	}
 	ExposedCutCopper = Item{
-		ID:          74,
+		ID:          77,
 		DisplayName: "Exposed Cut Copper",
 		Name:        "exposed_cut_copper",
 		StackSize:   64,
 	}
 	WeatheredCutCopper = Item{
-		ID:          75,
+		ID:          78,
 		DisplayName: "Weathered Cut Copper",
 		Name:        "weathered_cut_copper",
 		StackSize:   64,
 	}
 	OxidizedCutCopper = Item{
-		ID:          76,
+		ID:          79,
 		DisplayName: "Oxidized Cut Copper",
 		Name:        "oxidized_cut_copper",
 		StackSize:   64,
 	}
 	CutCopperStairs = Item{
-		ID:          77,
+		ID:          80,
 		DisplayName: "Cut Copper Stairs",
 		Name:        "cut_copper_stairs",
 		StackSize:   64,
 	}
 	ExposedCutCopperStairs = Item{
-		ID:          78,
+		ID:          81,
 		DisplayName: "Exposed Cut Copper Stairs",
 		Name:        "exposed_cut_copper_stairs",
 		StackSize:   64,
 	}
 	WeatheredCutCopperStairs = Item{
-		ID:          79,
+		ID:          82,
 		DisplayName: "Weathered Cut Copper Stairs",
 		Name:        "weathered_cut_copper_stairs",
 		StackSize:   64,
 	}
 	OxidizedCutCopperStairs = Item{
-		ID:          80,
+		ID:          83,
 		DisplayName: "Oxidized Cut Copper Stairs",
 		Name:        "oxidized_cut_copper_stairs",
 		StackSize:   64,
 	}
 	CutCopperSlab = Item{
-		ID:          81,
+		ID:          84,
 		DisplayName: "Cut Copper Slab",
 		Name:        "cut_copper_slab",
 		StackSize:   64,
 	}
 	ExposedCutCopperSlab = Item{
-		ID:          82,
+		ID:          85,
 		DisplayName: "Exposed Cut Copper Slab",
 		Name:        "exposed_cut_copper_slab",
 		StackSize:   64,
 	}
 	WeatheredCutCopperSlab = Item{
-		ID:          83,
+		ID:          86,
 		DisplayName: "Weathered Cut Copper Slab",
 		Name:        "weathered_cut_copper_slab",
 		StackSize:   64,
 	}
 	OxidizedCutCopperSlab = Item{
-		ID:          84,
+		ID:          87,
 		DisplayName: "Oxidized Cut Copper Slab",
 		Name:        "oxidized_cut_copper_slab",
 		StackSize:   64,
 	}
 	WaxedCopperBlock = Item{
-		ID:          85,
+		ID:          88,
 		DisplayName: "Waxed Block of Copper",
 		Name:        "waxed_copper_block",
 		StackSize:   64,
 	}
 	WaxedExposedCopper = Item{
-		ID:          86,
+		ID:          89,
 		DisplayName: "Waxed Exposed Copper",
 		Name:        "waxed_exposed_copper",
 		StackSize:   64,
 	}
 	WaxedWeatheredCopper = Item{
-		ID:          87,
+		ID:          90,
 		DisplayName: "Waxed Weathered Copper",
 		Name:        "waxed_weathered_copper",
 		StackSize:   64,
 	}
 	WaxedOxidizedCopper = Item{
-		ID:          88,
+		ID:          91,
 		DisplayName: "Waxed Oxidized Copper",
 		Name:        "waxed_oxidized_copper",
 		StackSize:   64,
 	}
 	WaxedCutCopper = Item{
-		ID:          89,
+		ID:          92,
 		DisplayName: "Waxed Cut Copper",
 		Name:        "waxed_cut_copper",
 		StackSize:   64,
 	}
 	WaxedExposedCutCopper = Item{
-		ID:          90,
+		ID:          93,
 		DisplayName: "Waxed Exposed Cut Copper",
 		Name:        "waxed_exposed_cut_copper",
 		StackSize:   64,
 	}
 	WaxedWeatheredCutCopper = Item{
-		ID:          91,
+		ID:          94,
 		DisplayName: "Waxed Weathered Cut Copper",
 		Name:        "waxed_weathered_cut_copper",
 		StackSize:   64,
 	}
 	WaxedOxidizedCutCopper = Item{
-		ID:          92,
+		ID:          95,
 		DisplayName: "Waxed Oxidized Cut Copper",
 		Name:        "waxed_oxidized_cut_copper",
 		StackSize:   64,
 	}
 	WaxedCutCopperStairs = Item{
-		ID:          93,
+		ID:          96,
 		DisplayName: "Waxed Cut Copper Stairs",
 		Name:        "waxed_cut_copper_stairs",
 		StackSize:   64,
 	}
 	WaxedExposedCutCopperStairs = Item{
-		ID:          94,
+		ID:          97,
 		DisplayName: "Waxed Exposed Cut Copper Stairs",
 		Name:        "waxed_exposed_cut_copper_stairs",
 		StackSize:   64,
 	}
 	WaxedWeatheredCutCopperStairs = Item{
-		ID:          95,
+		ID:          98,
 		DisplayName: "Waxed Weathered Cut Copper Stairs",
 		Name:        "waxed_weathered_cut_copper_stairs",
 		StackSize:   64,
 	}
 	WaxedOxidizedCutCopperStairs = Item{
-		ID:          96,
+		ID:          99,
 		DisplayName: "Waxed Oxidized Cut Copper Stairs",
 		Name:        "waxed_oxidized_cut_copper_stairs",
 		StackSize:   64,
 	}
 	WaxedCutCopperSlab = Item{
-		ID:          97,
+		ID:          100,
 		DisplayName: "Waxed Cut Copper Slab",
 		Name:        "waxed_cut_copper_slab",
 		StackSize:   64,
 	}
 	WaxedExposedCutCopperSlab = Item{
-		ID:          98,
+		ID:          101,
 		DisplayName: "Waxed Exposed Cut Copper Slab",
 		Name:        "waxed_exposed_cut_copper_slab",
 		StackSize:   64,
 	}
 	WaxedWeatheredCutCopperSlab = Item{
-		ID:          99,
+		ID:          102,
 		DisplayName: "Waxed Weathered Cut Copper Slab",
 		Name:        "waxed_weathered_cut_copper_slab",
 		StackSize:   64,
 	}
 	WaxedOxidizedCutCopperSlab = Item{
-		ID:          100,
+		ID:          103,
 		DisplayName: "Waxed Oxidized Cut Copper Slab",
 		Name:        "waxed_oxidized_cut_copper_slab",
 		StackSize:   64,
 	}
 	OakLog = Item{
-		ID:          101,
+		ID:          104,
 		DisplayName: "Oak Log",
 		Name:        "oak_log",
 		StackSize:   64,
 	}
 	SpruceLog = Item{
-		ID:          102,
+		ID:          105,
 		DisplayName: "Spruce Log",
 		Name:        "spruce_log",
 		StackSize:   64,
 	}
 	BirchLog = Item{
-		ID:          103,
+		ID:          106,
 		DisplayName: "Birch Log",
 		Name:        "birch_log",
 		StackSize:   64,
 	}
 	JungleLog = Item{
-		ID:          104,
+		ID:          107,
 		DisplayName: "Jungle Log",
 		Name:        "jungle_log",
 		StackSize:   64,
 	}
 	AcaciaLog = Item{
-		ID:          105,
+		ID:          108,
 		DisplayName: "Acacia Log",
 		Name:        "acacia_log",
 		StackSize:   64,
 	}
 	DarkOakLog = Item{
-		ID:          106,
+		ID:          109,
 		DisplayName: "Dark Oak Log",
 		Name:        "dark_oak_log",
 		StackSize:   64,
 	}
+	MangroveLog = Item{
+		ID:          110,
+		DisplayName: "Mangrove Log",
+		Name:        "mangrove_log",
+		StackSize:   64,
+	}
+	MangroveRoots = Item{
+		ID:          111,
+		DisplayName: "Mangrove Roots",
+		Name:        "mangrove_roots",
+		StackSize:   64,
+	}
+	MuddyMangroveRoots = Item{
+		ID:          112,
+		DisplayName: "Muddy Mangrove Roots",
+		Name:        "muddy_mangrove_roots",
+		StackSize:   64,
+	}
 	CrimsonStem = Item{
-		ID:          107,
+		ID:          113,
 		DisplayName: "Crimson Stem",
 		Name:        "crimson_stem",
 		StackSize:   64,
 	}
 	WarpedStem = Item{
-		ID:          108,
+		ID:          114,
 		DisplayName: "Warped Stem",
 		Name:        "warped_stem",
 		StackSize:   64,
 	}
 	StrippedOakLog = Item{
-		ID:          109,
+		ID:          115,
 		DisplayName: "Stripped Oak Log",
 		Name:        "stripped_oak_log",
 		StackSize:   64,
 	}
 	StrippedSpruceLog = Item{
-		ID:          110,
+		ID:          116,
 		DisplayName: "Stripped Spruce Log",
 		Name:        "stripped_spruce_log",
 		StackSize:   64,
 	}
 	StrippedBirchLog = Item{
-		ID:          111,
+		ID:          117,
 		DisplayName: "Stripped Birch Log",
 		Name:        "stripped_birch_log",
 		StackSize:   64,
 	}
 	StrippedJungleLog = Item{
-		ID:          112,
+		ID:          118,
 		DisplayName: "Stripped Jungle Log",
 		Name:        "stripped_jungle_log",
 		StackSize:   64,
 	}
 	StrippedAcaciaLog = Item{
-		ID:          113,
+		ID:          119,
 		DisplayName: "Stripped Acacia Log",
 		Name:        "stripped_acacia_log",
 		StackSize:   64,
 	}
 	StrippedDarkOakLog = Item{
-		ID:          114,
+		ID:          120,
 		DisplayName: "Stripped Dark Oak Log",
 		Name:        "stripped_dark_oak_log",
 		StackSize:   64,
 	}
+	StrippedMangroveLog = Item{
+		ID:          121,
+		DisplayName: "Stripped Mangrove Log",
+		Name:        "stripped_mangrove_log",
+		StackSize:   64,
+	}
 	StrippedCrimsonStem = Item{
-		ID:          115,
+		ID:          122,
 		DisplayName: "Stripped Crimson Stem",
 		Name:        "stripped_crimson_stem",
 		StackSize:   64,
 	}
 	StrippedWarpedStem = Item{
-		ID:          116,
+		ID:          123,
 		DisplayName: "Stripped Warped Stem",
 		Name:        "stripped_warped_stem",
 		StackSize:   64,
 	}
 	StrippedOakWood = Item{
-		ID:          117,
+		ID:          124,
 		DisplayName: "Stripped Oak Wood",
 		Name:        "stripped_oak_wood",
 		StackSize:   64,
 	}
 	StrippedSpruceWood = Item{
-		ID:          118,
+		ID:          125,
 		DisplayName: "Stripped Spruce Wood",
 		Name:        "stripped_spruce_wood",
 		StackSize:   64,
 	}
 	StrippedBirchWood = Item{
-		ID:          119,
+		ID:          126,
 		DisplayName: "Stripped Birch Wood",
 		Name:        "stripped_birch_wood",
 		StackSize:   64,
 	}
 	StrippedJungleWood = Item{
-		ID:          120,
+		ID:          127,
 		DisplayName: "Stripped Jungle Wood",
 		Name:        "stripped_jungle_wood",
 		StackSize:   64,
 	}
 	StrippedAcaciaWood = Item{
-		ID:          121,
+		ID:          128,
 		DisplayName: "Stripped Acacia Wood",
 		Name:        "stripped_acacia_wood",
 		StackSize:   64,
 	}
 	StrippedDarkOakWood = Item{
-		ID:          122,
+		ID:          129,
 		DisplayName: "Stripped Dark Oak Wood",
 		Name:        "stripped_dark_oak_wood",
 		StackSize:   64,
 	}
+	StrippedMangroveWood = Item{
+		ID:          130,
+		DisplayName: "Stripped Mangrove Wood",
+		Name:        "stripped_mangrove_wood",
+		StackSize:   64,
+	}
 	StrippedCrimsonHyphae = Item{
-		ID:          123,
+		ID:          131,
 		DisplayName: "Stripped Crimson Hyphae",
 		Name:        "stripped_crimson_hyphae",
 		StackSize:   64,
 	}
 	StrippedWarpedHyphae = Item{
-		ID:          124,
+		ID:          132,
 		DisplayName: "Stripped Warped Hyphae",
 		Name:        "stripped_warped_hyphae",
 		StackSize:   64,
 	}
 	OakWood = Item{
-		ID:          125,
+		ID:          133,
 		DisplayName: "Oak Wood",
 		Name:        "oak_wood",
 		StackSize:   64,
 	}
 	SpruceWood = Item{
-		ID:          126,
+		ID:          134,
 		DisplayName: "Spruce Wood",
 		Name:        "spruce_wood",
 		StackSize:   64,
 	}
 	BirchWood = Item{
-		ID:          127,
+		ID:          135,
 		DisplayName: "Birch Wood",
 		Name:        "birch_wood",
 		StackSize:   64,
 	}
 	JungleWood = Item{
-		ID:          128,
+		ID:          136,
 		DisplayName: "Jungle Wood",
 		Name:        "jungle_wood",
 		StackSize:   64,
 	}
 	AcaciaWood = Item{
-		ID:          129,
+		ID:          137,
 		DisplayName: "Acacia Wood",
 		Name:        "acacia_wood",
 		StackSize:   64,
 	}
 	DarkOakWood = Item{
-		ID:          130,
+		ID:          138,
 		DisplayName: "Dark Oak Wood",
 		Name:        "dark_oak_wood",
 		StackSize:   64,
 	}
+	MangroveWood = Item{
+		ID:          139,
+		DisplayName: "Mangrove Wood",
+		Name:        "mangrove_wood",
+		StackSize:   64,
+	}
 	CrimsonHyphae = Item{
-		ID:          131,
+		ID:          140,
 		DisplayName: "Crimson Hyphae",
 		Name:        "crimson_hyphae",
 		StackSize:   64,
 	}
 	WarpedHyphae = Item{
-		ID:          132,
+		ID:          141,
 		DisplayName: "Warped Hyphae",
 		Name:        "warped_hyphae",
 		StackSize:   64,
 	}
 	OakLeaves = Item{
-		ID:          133,
+		ID:          142,
 		DisplayName: "Oak Leaves",
 		Name:        "oak_leaves",
 		StackSize:   64,
 	}
 	SpruceLeaves = Item{
-		ID:          134,
+		ID:          143,
 		DisplayName: "Spruce Leaves",
 		Name:        "spruce_leaves",
 		StackSize:   64,
 	}
 	BirchLeaves = Item{
-		ID:          135,
+		ID:          144,
 		DisplayName: "Birch Leaves",
 		Name:        "birch_leaves",
 		StackSize:   64,
 	}
 	JungleLeaves = Item{
-		ID:          136,
+		ID:          145,
 		DisplayName: "Jungle Leaves",
 		Name:        "jungle_leaves",
 		StackSize:   64,
 	}
 	AcaciaLeaves = Item{
-		ID:          137,
+		ID:          146,
 		DisplayName: "Acacia Leaves",
 		Name:        "acacia_leaves",
 		StackSize:   64,
 	}
 	DarkOakLeaves = Item{
-		ID:          138,
+		ID:          147,
 		DisplayName: "Dark Oak Leaves",
 		Name:        "dark_oak_leaves",
 		StackSize:   64,
 	}
+	MangroveLeaves = Item{
+		ID:          148,
+		DisplayName: "Mangrove Leaves",
+		Name:        "mangrove_leaves",
+		StackSize:   64,
+	}
 	AzaleaLeaves = Item{
-		ID:          139,
+		ID:          149,
 		DisplayName: "Azalea Leaves",
 		Name:        "azalea_leaves",
 		StackSize:   64,
 	}
 	FloweringAzaleaLeaves = Item{
-		ID:          140,
+		ID:          150,
 		DisplayName: "Flowering Azalea Leaves",
 		Name:        "flowering_azalea_leaves",
 		StackSize:   64,
 	}
 	Sponge = Item{
-		ID:          141,
+		ID:          151,
 		DisplayName: "Sponge",
 		Name:        "sponge",
 		StackSize:   64,
 	}
 	WetSponge = Item{
-		ID:          142,
+		ID:          152,
 		DisplayName: "Wet Sponge",
 		Name:        "wet_sponge",
 		StackSize:   64,
 	}
 	Glass = Item{
-		ID:          143,
+		ID:          153,
 		DisplayName: "Glass",
 		Name:        "glass",
 		StackSize:   64,
 	}
 	TintedGlass = Item{
-		ID:          144,
+		ID:          154,
 		DisplayName: "Tinted Glass",
 		Name:        "tinted_glass",
 		StackSize:   64,
 	}
 	LapisBlock = Item{
-		ID:          145,
+		ID:          155,
 		DisplayName: "Block of Lapis Lazuli",
 		Name:        "lapis_block",
 		StackSize:   64,
 	}
 	Sandstone = Item{
-		ID:          146,
+		ID:          156,
 		DisplayName: "Sandstone",
 		Name:        "sandstone",
 		StackSize:   64,
 	}
 	ChiseledSandstone = Item{
-		ID:          147,
+		ID:          157,
 		DisplayName: "Chiseled Sandstone",
 		Name:        "chiseled_sandstone",
 		StackSize:   64,
 	}
 	CutSandstone = Item{
-		ID:          148,
+		ID:          158,
 		DisplayName: "Cut Sandstone",
 		Name:        "cut_sandstone",
 		StackSize:   64,
 	}
 	Cobweb = Item{
-		ID:          149,
+		ID:          159,
 		DisplayName: "Cobweb",
 		Name:        "cobweb",
 		StackSize:   64,
 	}
 	Grass = Item{
-		ID:          150,
+		ID:          160,
 		DisplayName: "Grass",
 		Name:        "grass",
 		StackSize:   64,
 	}
 	Fern = Item{
-		ID:          151,
+		ID:          161,
 		DisplayName: "Fern",
 		Name:        "fern",
 		StackSize:   64,
 	}
 	Azalea = Item{
-		ID:          152,
+		ID:          162,
 		DisplayName: "Azalea",
 		Name:        "azalea",
 		StackSize:   64,
 	}
 	FloweringAzalea = Item{
-		ID:          153,
+		ID:          163,
 		DisplayName: "Flowering Azalea",
 		Name:        "flowering_azalea",
 		StackSize:   64,
 	}
 	DeadBush = Item{
-		ID:          154,
+		ID:          164,
 		DisplayName: "Dead Bush",
 		Name:        "dead_bush",
 		StackSize:   64,
 	}
 	Seagrass = Item{
-		ID:          155,
+		ID:          165,
 		DisplayName: "Seagrass",
 		Name:        "seagrass",
 		StackSize:   64,
 	}
 	SeaPickle = Item{
-		ID:          156,
+		ID:          166,
 		DisplayName: "Sea Pickle",
 		Name:        "sea_pickle",
 		StackSize:   64,
 	}
 	WhiteWool = Item{
-		ID:          157,
+		ID:          167,
 		DisplayName: "White Wool",
 		Name:        "white_wool",
 		StackSize:   64,
 	}
 	OrangeWool = Item{
-		ID:          158,
+		ID:          168,
 		DisplayName: "Orange Wool",
 		Name:        "orange_wool",
 		StackSize:   64,
 	}
 	MagentaWool = Item{
-		ID:          159,
+		ID:          169,
 		DisplayName: "Magenta Wool",
 		Name:        "magenta_wool",
 		StackSize:   64,
 	}
 	LightBlueWool = Item{
-		ID:          160,
+		ID:          170,
 		DisplayName: "Light Blue Wool",
 		Name:        "light_blue_wool",
 		StackSize:   64,
 	}
 	YellowWool = Item{
-		ID:          161,
+		ID:          171,
 		DisplayName: "Yellow Wool",
 		Name:        "yellow_wool",
 		StackSize:   64,
 	}
 	LimeWool = Item{
-		ID:          162,
+		ID:          172,
 		DisplayName: "Lime Wool",
 		Name:        "lime_wool",
 		StackSize:   64,
 	}
 	PinkWool = Item{
-		ID:          163,
+		ID:          173,
 		DisplayName: "Pink Wool",
 		Name:        "pink_wool",
 		StackSize:   64,
 	}
 	GrayWool = Item{
-		ID:          164,
+		ID:          174,
 		DisplayName: "Gray Wool",
 		Name:        "gray_wool",
 		StackSize:   64,
 	}
 	LightGrayWool = Item{
-		ID:          165,
+		ID:          175,
 		DisplayName: "Light Gray Wool",
 		Name:        "light_gray_wool",
 		StackSize:   64,
 	}
 	CyanWool = Item{
-		ID:          166,
+		ID:          176,
 		DisplayName: "Cyan Wool",
 		Name:        "cyan_wool",
 		StackSize:   64,
 	}
 	PurpleWool = Item{
-		ID:          167,
+		ID:          177,
 		DisplayName: "Purple Wool",
 		Name:        "purple_wool",
 		StackSize:   64,
 	}
 	BlueWool = Item{
-		ID:          168,
+		ID:          178,
 		DisplayName: "Blue Wool",
 		Name:        "blue_wool",
 		StackSize:   64,
 	}
 	BrownWool = Item{
-		ID:          169,
+		ID:          179,
 		DisplayName: "Brown Wool",
 		Name:        "brown_wool",
 		StackSize:   64,
 	}
 	GreenWool = Item{
-		ID:          170,
+		ID:          180,
 		DisplayName: "Green Wool",
 		Name:        "green_wool",
 		StackSize:   64,
 	}
 	RedWool = Item{
-		ID:          171,
+		ID:          181,
 		DisplayName: "Red Wool",
 		Name:        "red_wool",
 		StackSize:   64,
 	}
 	BlackWool = Item{
-		ID:          172,
+		ID:          182,
 		DisplayName: "Black Wool",
 		Name:        "black_wool",
 		StackSize:   64,
 	}
 	Dandelion = Item{
-		ID:          173,
+		ID:          183,
 		DisplayName: "Dandelion",
 		Name:        "dandelion",
 		StackSize:   64,
 	}
 	Poppy = Item{
-		ID:          174,
+		ID:          184,
 		DisplayName: "Poppy",
 		Name:        "poppy",
 		StackSize:   64,
 	}
 	BlueOrchid = Item{
-		ID:          175,
+		ID:          185,
 		DisplayName: "Blue Orchid",
 		Name:        "blue_orchid",
 		StackSize:   64,
 	}
 	Allium = Item{
-		ID:          176,
+		ID:          186,
 		DisplayName: "Allium",
 		Name:        "allium",
 		StackSize:   64,
 	}
 	AzureBluet = Item{
-		ID:          177,
+		ID:          187,
 		DisplayName: "Azure Bluet",
 		Name:        "azure_bluet",
 		StackSize:   64,
 	}
 	RedTulip = Item{
-		ID:          178,
+		ID:          188,
 		DisplayName: "Red Tulip",
 		Name:        "red_tulip",
 		StackSize:   64,
 	}
 	OrangeTulip = Item{
-		ID:          179,
+		ID:          189,
 		DisplayName: "Orange Tulip",
 		Name:        "orange_tulip",
 		StackSize:   64,
 	}
 	WhiteTulip = Item{
-		ID:          180,
+		ID:          190,
 		DisplayName: "White Tulip",
 		Name:        "white_tulip",
 		StackSize:   64,
 	}
 	PinkTulip = Item{
-		ID:          181,
+		ID:          191,
 		DisplayName: "Pink Tulip",
 		Name:        "pink_tulip",
 		StackSize:   64,
 	}
 	OxeyeDaisy = Item{
-		ID:          182,
+		ID:          192,
 		DisplayName: "Oxeye Daisy",
 		Name:        "oxeye_daisy",
 		StackSize:   64,
 	}
 	Cornflower = Item{
-		ID:          183,
+		ID:          193,
 		DisplayName: "Cornflower",
 		Name:        "cornflower",
 		StackSize:   64,
 	}
 	LilyOfTheValley = Item{
-		ID:          184,
+		ID:          194,
 		DisplayName: "Lily of the Valley",
 		Name:        "lily_of_the_valley",
 		StackSize:   64,
 	}
 	WitherRose = Item{
-		ID:          185,
+		ID:          195,
 		DisplayName: "Wither Rose",
 		Name:        "wither_rose",
 		StackSize:   64,
 	}
 	SporeBlossom = Item{
-		ID:          186,
+		ID:          196,
 		DisplayName: "Spore Blossom",
 		Name:        "spore_blossom",
 		StackSize:   64,
 	}
 	BrownMushroom = Item{
-		ID:          187,
+		ID:          197,
 		DisplayName: "Brown Mushroom",
 		Name:        "brown_mushroom",
 		StackSize:   64,
 	}
 	RedMushroom = Item{
-		ID:          188,
+		ID:          198,
 		DisplayName: "Red Mushroom",
 		Name:        "red_mushroom",
 		StackSize:   64,
 	}
 	CrimsonFungus = Item{
-		ID:          189,
+		ID:          199,
 		DisplayName: "Crimson Fungus",
 		Name:        "crimson_fungus",
 		StackSize:   64,
 	}
 	WarpedFungus = Item{
-		ID:          190,
+		ID:          200,
 		DisplayName: "Warped Fungus",
 		Name:        "warped_fungus",
 		StackSize:   64,
 	}
 	CrimsonRoots = Item{
-		ID:          191,
+		ID:          201,
 		DisplayName: "Crimson Roots",
 		Name:        "crimson_roots",
 		StackSize:   64,
 	}
 	WarpedRoots = Item{
-		ID:          192,
+		ID:          202,
 		DisplayName: "Warped Roots",
 		Name:        "warped_roots",
 		StackSize:   64,
 	}
 	NetherSprouts = Item{
-		ID:          193,
+		ID:          203,
 		DisplayName: "Nether Sprouts",
 		Name:        "nether_sprouts",
 		StackSize:   64,
 	}
 	WeepingVines = Item{
-		ID:          194,
+		ID:          204,
 		DisplayName: "Weeping Vines",
 		Name:        "weeping_vines",
 		StackSize:   64,
 	}
 	TwistingVines = Item{
-		ID:          195,
+		ID:          205,
 		DisplayName: "Twisting Vines",
 		Name:        "twisting_vines",
 		StackSize:   64,
 	}
 	SugarCane = Item{
-		ID:          196,
+		ID:          206,
 		DisplayName: "Sugar Cane",
 		Name:        "sugar_cane",
 		StackSize:   64,
 	}
 	Kelp = Item{
-		ID:          197,
+		ID:          207,
 		DisplayName: "Kelp",
 		Name:        "kelp",
 		StackSize:   64,
 	}
 	MossCarpet = Item{
-		ID:          198,
+		ID:          208,
 		DisplayName: "Moss Carpet",
 		Name:        "moss_carpet",
 		StackSize:   64,
 	}
 	MossBlock = Item{
-		ID:          199,
+		ID:          209,
 		DisplayName: "Moss Block",
 		Name:        "moss_block",
 		StackSize:   64,
 	}
 	HangingRoots = Item{
-		ID:          200,
+		ID:          210,
 		DisplayName: "Hanging Roots",
 		Name:        "hanging_roots",
 		StackSize:   64,
 	}
 	BigDripleaf = Item{
-		ID:          201,
+		ID:          211,
 		DisplayName: "Big Dripleaf",
 		Name:        "big_dripleaf",
 		StackSize:   64,
 	}
 	SmallDripleaf = Item{
-		ID:          202,
+		ID:          212,
 		DisplayName: "Small Dripleaf",
 		Name:        "small_dripleaf",
 		StackSize:   64,
 	}
 	Bamboo = Item{
-		ID:          203,
+		ID:          213,
 		DisplayName: "Bamboo",
 		Name:        "bamboo",
 		StackSize:   64,
 	}
 	OakSlab = Item{
-		ID:          204,
+		ID:          214,
 		DisplayName: "Oak Slab",
 		Name:        "oak_slab",
 		StackSize:   64,
 	}
 	SpruceSlab = Item{
-		ID:          205,
+		ID:          215,
 		DisplayName: "Spruce Slab",
 		Name:        "spruce_slab",
 		StackSize:   64,
 	}
 	BirchSlab = Item{
-		ID:          206,
+		ID:          216,
 		DisplayName: "Birch Slab",
 		Name:        "birch_slab",
 		StackSize:   64,
 	}
 	JungleSlab = Item{
-		ID:          207,
+		ID:          217,
 		DisplayName: "Jungle Slab",
 		Name:        "jungle_slab",
 		StackSize:   64,
 	}
 	AcaciaSlab = Item{
-		ID:          208,
+		ID:          218,
 		DisplayName: "Acacia Slab",
 		Name:        "acacia_slab",
 		StackSize:   64,
 	}
 	DarkOakSlab = Item{
-		ID:          209,
+		ID:          219,
 		DisplayName: "Dark Oak Slab",
 		Name:        "dark_oak_slab",
 		StackSize:   64,
 	}
+	MangroveSlab = Item{
+		ID:          220,
+		DisplayName: "Mangrove Slab",
+		Name:        "mangrove_slab",
+		StackSize:   64,
+	}
 	CrimsonSlab = Item{
-		ID:          210,
+		ID:          221,
 		DisplayName: "Crimson Slab",
 		Name:        "crimson_slab",
 		StackSize:   64,
 	}
 	WarpedSlab = Item{
-		ID:          211,
+		ID:          222,
 		DisplayName: "Warped Slab",
 		Name:        "warped_slab",
 		StackSize:   64,
 	}
 	StoneSlab = Item{
-		ID:          212,
+		ID:          223,
 		DisplayName: "Stone Slab",
 		Name:        "stone_slab",
 		StackSize:   64,
 	}
 	SmoothStoneSlab = Item{
-		ID:          213,
+		ID:          224,
 		DisplayName: "Smooth Stone Slab",
 		Name:        "smooth_stone_slab",
 		StackSize:   64,
 	}
 	SandstoneSlab = Item{
-		ID:          214,
+		ID:          225,
 		DisplayName: "Sandstone Slab",
 		Name:        "sandstone_slab",
 		StackSize:   64,
 	}
 	CutSandstoneSlab = Item{
-		ID:          215,
+		ID:          226,
 		DisplayName: "Cut Sandstone Slab",
 		Name:        "cut_sandstone_slab",
 		StackSize:   64,
 	}
 	PetrifiedOakSlab = Item{
-		ID:          216,
+		ID:          227,
 		DisplayName: "Petrified Oak Slab",
 		Name:        "petrified_oak_slab",
 		StackSize:   64,
 	}
 	CobblestoneSlab = Item{
-		ID:          217,
+		ID:          228,
 		DisplayName: "Cobblestone Slab",
 		Name:        "cobblestone_slab",
 		StackSize:   64,
 	}
 	BrickSlab = Item{
-		ID:          218,
+		ID:          229,
 		DisplayName: "Brick Slab",
 		Name:        "brick_slab",
 		StackSize:   64,
 	}
 	StoneBrickSlab = Item{
-		ID:          219,
+		ID:          230,
 		DisplayName: "Stone Brick Slab",
 		Name:        "stone_brick_slab",
 		StackSize:   64,
 	}
+	MudBrickSlab = Item{
+		ID:          231,
+		DisplayName: "Mud Brick Slab",
+		Name:        "mud_brick_slab",
+		StackSize:   64,
+	}
 	NetherBrickSlab = Item{
-		ID:          220,
+		ID:          232,
 		DisplayName: "Nether Brick Slab",
 		Name:        "nether_brick_slab",
 		StackSize:   64,
 	}
 	QuartzSlab = Item{
-		ID:          221,
+		ID:          233,
 		DisplayName: "Quartz Slab",
 		Name:        "quartz_slab",
 		StackSize:   64,
 	}
 	RedSandstoneSlab = Item{
-		ID:          222,
+		ID:          234,
 		DisplayName: "Red Sandstone Slab",
 		Name:        "red_sandstone_slab",
 		StackSize:   64,
 	}
 	CutRedSandstoneSlab = Item{
-		ID:          223,
+		ID:          235,
 		DisplayName: "Cut Red Sandstone Slab",
 		Name:        "cut_red_sandstone_slab",
 		StackSize:   64,
 	}
 	PurpurSlab = Item{
-		ID:          224,
+		ID:          236,
 		DisplayName: "Purpur Slab",
 		Name:        "purpur_slab",
 		StackSize:   64,
 	}
 	PrismarineSlab = Item{
-		ID:          225,
+		ID:          237,
 		DisplayName: "Prismarine Slab",
 		Name:        "prismarine_slab",
 		StackSize:   64,
 	}
 	PrismarineBrickSlab = Item{
-		ID:          226,
+		ID:          238,
 		DisplayName: "Prismarine Brick Slab",
 		Name:        "prismarine_brick_slab",
 		StackSize:   64,
 	}
 	DarkPrismarineSlab = Item{
-		ID:          227,
+		ID:          239,
 		DisplayName: "Dark Prismarine Slab",
 		Name:        "dark_prismarine_slab",
 		StackSize:   64,
 	}
 	SmoothQuartz = Item{
-		ID:          228,
+		ID:          240,
 		DisplayName: "Smooth Quartz Block",
 		Name:        "smooth_quartz",
 		StackSize:   64,
 	}
 	SmoothRedSandstone = Item{
-		ID:          229,
+		ID:          241,
 		DisplayName: "Smooth Red Sandstone",
 		Name:        "smooth_red_sandstone",
 		StackSize:   64,
 	}
 	SmoothSandstone = Item{
-		ID:          230,
+		ID:          242,
 		DisplayName: "Smooth Sandstone",
 		Name:        "smooth_sandstone",
 		StackSize:   64,
 	}
 	SmoothStone = Item{
-		ID:          231,
+		ID:          243,
 		DisplayName: "Smooth Stone",
 		Name:        "smooth_stone",
 		StackSize:   64,
 	}
 	Bricks = Item{
-		ID:          232,
+		ID:          244,
 		DisplayName: "Bricks",
 		Name:        "bricks",
 		StackSize:   64,
 	}
 	Bookshelf = Item{
-		ID:          233,
+		ID:          245,
 		DisplayName: "Bookshelf",
 		Name:        "bookshelf",
 		StackSize:   64,
 	}
 	MossyCobblestone = Item{
-		ID:          234,
+		ID:          246,
 		DisplayName: "Mossy Cobblestone",
 		Name:        "mossy_cobblestone",
 		StackSize:   64,
 	}
 	Obsidian = Item{
-		ID:          235,
+		ID:          247,
 		DisplayName: "Obsidian",
 		Name:        "obsidian",
 		StackSize:   64,
 	}
 	Torch = Item{
-		ID:          236,
+		ID:          248,
 		DisplayName: "Torch",
 		Name:        "torch",
 		StackSize:   64,
 	}
 	EndRod = Item{
-		ID:          237,
+		ID:          249,
 		DisplayName: "End Rod",
 		Name:        "end_rod",
 		StackSize:   64,
 	}
 	ChorusPlant = Item{
-		ID:          238,
+		ID:          250,
 		DisplayName: "Chorus Plant",
 		Name:        "chorus_plant",
 		StackSize:   64,
 	}
 	ChorusFlower = Item{
-		ID:          239,
+		ID:          251,
 		DisplayName: "Chorus Flower",
 		Name:        "chorus_flower",
 		StackSize:   64,
 	}
 	PurpurBlock = Item{
-		ID:          240,
+		ID:          252,
 		DisplayName: "Purpur Block",
 		Name:        "purpur_block",
 		StackSize:   64,
 	}
 	PurpurPillar = Item{
-		ID:          241,
+		ID:          253,
 		DisplayName: "Purpur Pillar",
 		Name:        "purpur_pillar",
 		StackSize:   64,
 	}
 	PurpurStairs = Item{
-		ID:          242,
+		ID:          254,
 		DisplayName: "Purpur Stairs",
 		Name:        "purpur_stairs",
 		StackSize:   64,
 	}
 	Spawner = Item{
-		ID:          243,
+		ID:          255,
 		DisplayName: "Spawner",
 		Name:        "spawner",
 		StackSize:   64,
 	}
-	OakStairs = Item{
-		ID:          244,
-		DisplayName: "Oak Stairs",
-		Name:        "oak_stairs",
-		StackSize:   64,
-	}
 	Chest = Item{
-		ID:          245,
+		ID:          256,
 		DisplayName: "Chest",
 		Name:        "chest",
 		StackSize:   64,
 	}
 	CraftingTable = Item{
-		ID:          246,
+		ID:          257,
 		DisplayName: "Crafting Table",
 		Name:        "crafting_table",
 		StackSize:   64,
 	}
 	Farmland = Item{
-		ID:          247,
+		ID:          258,
 		DisplayName: "Farmland",
 		Name:        "farmland",
 		StackSize:   64,
 	}
 	Furnace = Item{
-		ID:          248,
+		ID:          259,
 		DisplayName: "Furnace",
 		Name:        "furnace",
 		StackSize:   64,
 	}
 	Ladder = Item{
-		ID:          249,
+		ID:          260,
 		DisplayName: "Ladder",
 		Name:        "ladder",
 		StackSize:   64,
 	}
 	CobblestoneStairs = Item{
-		ID:          250,
+		ID:          261,
 		DisplayName: "Cobblestone Stairs",
 		Name:        "cobblestone_stairs",
 		StackSize:   64,
 	}
 	Snow = Item{
-		ID:          251,
+		ID:          262,
 		DisplayName: "Snow",
 		Name:        "snow",
 		StackSize:   64,
 	}
 	Ice = Item{
-		ID:          252,
+		ID:          263,
 		DisplayName: "Ice",
 		Name:        "ice",
 		StackSize:   64,
 	}
 	SnowBlock = Item{
-		ID:          253,
+		ID:          264,
 		DisplayName: "Snow Block",
 		Name:        "snow_block",
 		StackSize:   64,
 	}
 	Cactus = Item{
-		ID:          254,
+		ID:          265,
 		DisplayName: "Cactus",
 		Name:        "cactus",
 		StackSize:   64,
 	}
 	Clay = Item{
-		ID:          255,
+		ID:          266,
 		DisplayName: "Clay",
 		Name:        "clay",
 		StackSize:   64,
 	}
 	Jukebox = Item{
-		ID:          256,
+		ID:          267,
 		DisplayName: "Jukebox",
 		Name:        "jukebox",
 		StackSize:   64,
 	}
 	OakFence = Item{
-		ID:          257,
+		ID:          268,
 		DisplayName: "Oak Fence",
 		Name:        "oak_fence",
 		StackSize:   64,
 	}
 	SpruceFence = Item{
-		ID:          258,
+		ID:          269,
 		DisplayName: "Spruce Fence",
 		Name:        "spruce_fence",
 		StackSize:   64,
 	}
 	BirchFence = Item{
-		ID:          259,
+		ID:          270,
 		DisplayName: "Birch Fence",
 		Name:        "birch_fence",
 		StackSize:   64,
 	}
 	JungleFence = Item{
-		ID:          260,
+		ID:          271,
 		DisplayName: "Jungle Fence",
 		Name:        "jungle_fence",
 		StackSize:   64,
 	}
 	AcaciaFence = Item{
-		ID:          261,
+		ID:          272,
 		DisplayName: "Acacia Fence",
 		Name:        "acacia_fence",
 		StackSize:   64,
 	}
 	DarkOakFence = Item{
-		ID:          262,
+		ID:          273,
 		DisplayName: "Dark Oak Fence",
 		Name:        "dark_oak_fence",
 		StackSize:   64,
 	}
+	MangroveFence = Item{
+		ID:          274,
+		DisplayName: "Mangrove Fence",
+		Name:        "mangrove_fence",
+		StackSize:   64,
+	}
 	CrimsonFence = Item{
-		ID:          263,
+		ID:          275,
 		DisplayName: "Crimson Fence",
 		Name:        "crimson_fence",
 		StackSize:   64,
 	}
 	WarpedFence = Item{
-		ID:          264,
+		ID:          276,
 		DisplayName: "Warped Fence",
 		Name:        "warped_fence",
 		StackSize:   64,
 	}
 	Pumpkin = Item{
-		ID:          265,
+		ID:          277,
 		DisplayName: "Pumpkin",
 		Name:        "pumpkin",
 		StackSize:   64,
 	}
 	CarvedPumpkin = Item{
-		ID:          266,
+		ID:          278,
 		DisplayName: "Carved Pumpkin",
 		Name:        "carved_pumpkin",
 		StackSize:   64,
 	}
 	JackOLantern = Item{
-		ID:          267,
+		ID:          279,
 		DisplayName: "Jack o'Lantern",
 		Name:        "jack_o_lantern",
 		StackSize:   64,
 	}
 	Netherrack = Item{
-		ID:          268,
+		ID:          280,
 		DisplayName: "Netherrack",
 		Name:        "netherrack",
 		StackSize:   64,
 	}
 	SoulSand = Item{
-		ID:          269,
+		ID:          281,
 		DisplayName: "Soul Sand",
 		Name:        "soul_sand",
 		StackSize:   64,
 	}
 	SoulSoil = Item{
-		ID:          270,
+		ID:          282,
 		DisplayName: "Soul Soil",
 		Name:        "soul_soil",
 		StackSize:   64,
 	}
 	Basalt = Item{
-		ID:          271,
+		ID:          283,
 		DisplayName: "Basalt",
 		Name:        "basalt",
 		StackSize:   64,
 	}
 	PolishedBasalt = Item{
-		ID:          272,
+		ID:          284,
 		DisplayName: "Polished Basalt",
 		Name:        "polished_basalt",
 		StackSize:   64,
 	}
 	SmoothBasalt = Item{
-		ID:          273,
+		ID:          285,
 		DisplayName: "Smooth Basalt",
 		Name:        "smooth_basalt",
 		StackSize:   64,
 	}
 	SoulTorch = Item{
-		ID:          274,
+		ID:          286,
 		DisplayName: "Soul Torch",
 		Name:        "soul_torch",
 		StackSize:   64,
 	}
 	Glowstone = Item{
-		ID:          275,
+		ID:          287,
 		DisplayName: "Glowstone",
 		Name:        "glowstone",
 		StackSize:   64,
 	}
 	InfestedStone = Item{
-		ID:          276,
+		ID:          288,
 		DisplayName: "Infested Stone",
 		Name:        "infested_stone",
 		StackSize:   64,
 	}
 	InfestedCobblestone = Item{
-		ID:          277,
+		ID:          289,
 		DisplayName: "Infested Cobblestone",
 		Name:        "infested_cobblestone",
 		StackSize:   64,
 	}
 	InfestedStoneBricks = Item{
-		ID:          278,
+		ID:          290,
 		DisplayName: "Infested Stone Bricks",
 		Name:        "infested_stone_bricks",
 		StackSize:   64,
 	}
 	InfestedMossyStoneBricks = Item{
-		ID:          279,
+		ID:          291,
 		DisplayName: "Infested Mossy Stone Bricks",
 		Name:        "infested_mossy_stone_bricks",
 		StackSize:   64,
 	}
 	InfestedCrackedStoneBricks = Item{
-		ID:          280,
+		ID:          292,
 		DisplayName: "Infested Cracked Stone Bricks",
 		Name:        "infested_cracked_stone_bricks",
 		StackSize:   64,
 	}
 	InfestedChiseledStoneBricks = Item{
-		ID:          281,
+		ID:          293,
 		DisplayName: "Infested Chiseled Stone Bricks",
 		Name:        "infested_chiseled_stone_bricks",
 		StackSize:   64,
 	}
 	InfestedDeepslate = Item{
-		ID:          282,
+		ID:          294,
 		DisplayName: "Infested Deepslate",
 		Name:        "infested_deepslate",
 		StackSize:   64,
 	}
 	StoneBricks = Item{
-		ID:          283,
+		ID:          295,
 		DisplayName: "Stone Bricks",
 		Name:        "stone_bricks",
 		StackSize:   64,
 	}
 	MossyStoneBricks = Item{
-		ID:          284,
+		ID:          296,
 		DisplayName: "Mossy Stone Bricks",
 		Name:        "mossy_stone_bricks",
 		StackSize:   64,
 	}
 	CrackedStoneBricks = Item{
-		ID:          285,
+		ID:          297,
 		DisplayName: "Cracked Stone Bricks",
 		Name:        "cracked_stone_bricks",
 		StackSize:   64,
 	}
 	ChiseledStoneBricks = Item{
-		ID:          286,
+		ID:          298,
 		DisplayName: "Chiseled Stone Bricks",
 		Name:        "chiseled_stone_bricks",
 		StackSize:   64,
 	}
+	PackedMud = Item{
+		ID:          299,
+		DisplayName: "Packed Mud",
+		Name:        "packed_mud",
+		StackSize:   64,
+	}
+	MudBricks = Item{
+		ID:          300,
+		DisplayName: "Mud Bricks",
+		Name:        "mud_bricks",
+		StackSize:   64,
+	}
 	DeepslateBricks = Item{
-		ID:          287,
+		ID:          301,
 		DisplayName: "Deepslate Bricks",
 		Name:        "deepslate_bricks",
 		StackSize:   64,
 	}
 	CrackedDeepslateBricks = Item{
-		ID:          288,
+		ID:          302,
 		DisplayName: "Cracked Deepslate Bricks",
 		Name:        "cracked_deepslate_bricks",
 		StackSize:   64,
 	}
 	DeepslateTiles = Item{
-		ID:          289,
+		ID:          303,
 		DisplayName: "Deepslate Tiles",
 		Name:        "deepslate_tiles",
 		StackSize:   64,
 	}
 	CrackedDeepslateTiles = Item{
-		ID:          290,
+		ID:          304,
 		DisplayName: "Cracked Deepslate Tiles",
 		Name:        "cracked_deepslate_tiles",
 		StackSize:   64,
 	}
 	ChiseledDeepslate = Item{
-		ID:          291,
+		ID:          305,
 		DisplayName: "Chiseled Deepslate",
 		Name:        "chiseled_deepslate",
 		StackSize:   64,
 	}
+	ReinforcedDeepslate = Item{
+		ID:          306,
+		DisplayName: "Reinforced Deepslate",
+		Name:        "reinforced_deepslate",
+		StackSize:   64,
+	}
 	BrownMushroomBlock = Item{
-		ID:          292,
+		ID:          307,
 		DisplayName: "Brown Mushroom Block",
 		Name:        "brown_mushroom_block",
 		StackSize:   64,
 	}
 	RedMushroomBlock = Item{
-		ID:          293,
+		ID:          308,
 		DisplayName: "Red Mushroom Block",
 		Name:        "red_mushroom_block",
 		StackSize:   64,
 	}
 	MushroomStem = Item{
-		ID:          294,
+		ID:          309,
 		DisplayName: "Mushroom Stem",
 		Name:        "mushroom_stem",
 		StackSize:   64,
 	}
 	IronBars = Item{
-		ID:          295,
+		ID:          310,
 		DisplayName: "Iron Bars",
 		Name:        "iron_bars",
 		StackSize:   64,
 	}
 	Chain = Item{
-		ID:          296,
+		ID:          311,
 		DisplayName: "Chain",
 		Name:        "chain",
 		StackSize:   64,
 	}
 	GlassPane = Item{
-		ID:          297,
+		ID:          312,
 		DisplayName: "Glass Pane",
 		Name:        "glass_pane",
 		StackSize:   64,
 	}
 	Melon = Item{
-		ID:          298,
+		ID:          313,
 		DisplayName: "Melon",
 		Name:        "melon",
 		StackSize:   64,
 	}
 	Vine = Item{
-		ID:          299,
+		ID:          314,
 		DisplayName: "Vines",
 		Name:        "vine",
 		StackSize:   64,
 	}
 	GlowLichen = Item{
-		ID:          300,
+		ID:          315,
 		DisplayName: "Glow Lichen",
 		Name:        "glow_lichen",
 		StackSize:   64,
 	}
 	BrickStairs = Item{
-		ID:          301,
+		ID:          316,
 		DisplayName: "Brick Stairs",
 		Name:        "brick_stairs",
 		StackSize:   64,
 	}
 	StoneBrickStairs = Item{
-		ID:          302,
+		ID:          317,
 		DisplayName: "Stone Brick Stairs",
 		Name:        "stone_brick_stairs",
 		StackSize:   64,
 	}
+	MudBrickStairs = Item{
+		ID:          318,
+		DisplayName: "Mud Brick Stairs",
+		Name:        "mud_brick_stairs",
+		StackSize:   64,
+	}
 	Mycelium = Item{
-		ID:          303,
+		ID:          319,
 		DisplayName: "Mycelium",
 		Name:        "mycelium",
 		StackSize:   64,
 	}
 	LilyPad = Item{
-		ID:          304,
+		ID:          320,
 		DisplayName: "Lily Pad",
 		Name:        "lily_pad",
 		StackSize:   64,
 	}
 	NetherBricks = Item{
-		ID:          305,
+		ID:          321,
 		DisplayName: "Nether Bricks",
 		Name:        "nether_bricks",
 		StackSize:   64,
 	}
 	CrackedNetherBricks = Item{
-		ID:          306,
+		ID:          322,
 		DisplayName: "Cracked Nether Bricks",
 		Name:        "cracked_nether_bricks",
 		StackSize:   64,
 	}
 	ChiseledNetherBricks = Item{
-		ID:          307,
+		ID:          323,
 		DisplayName: "Chiseled Nether Bricks",
 		Name:        "chiseled_nether_bricks",
 		StackSize:   64,
 	}
 	NetherBrickFence = Item{
-		ID:          308,
+		ID:          324,
 		DisplayName: "Nether Brick Fence",
 		Name:        "nether_brick_fence",
 		StackSize:   64,
 	}
 	NetherBrickStairs = Item{
-		ID:          309,
+		ID:          325,
 		DisplayName: "Nether Brick Stairs",
 		Name:        "nether_brick_stairs",
 		StackSize:   64,
 	}
+	Sculk = Item{
+		ID:          326,
+		DisplayName: "Sculk",
+		Name:        "sculk",
+		StackSize:   64,
+	}
+	SculkVein = Item{
+		ID:          327,
+		DisplayName: "Sculk Vein",
+		Name:        "sculk_vein",
+		StackSize:   64,
+	}
+	SculkCatalyst = Item{
+		ID:          328,
+		DisplayName: "Sculk Catalyst",
+		Name:        "sculk_catalyst",
+		StackSize:   64,
+	}
+	SculkShrieker = Item{
+		ID:          329,
+		DisplayName: "Sculk Shrieker",
+		Name:        "sculk_shrieker",
+		StackSize:   64,
+	}
 	EnchantingTable = Item{
-		ID:          310,
+		ID:          330,
 		DisplayName: "Enchanting Table",
 		Name:        "enchanting_table",
 		StackSize:   64,
 	}
 	EndPortalFrame = Item{
-		ID:          311,
+		ID:          331,
 		DisplayName: "End Portal Frame",
 		Name:        "end_portal_frame",
 		StackSize:   64,
 	}
 	EndStone = Item{
-		ID:          312,
+		ID:          332,
 		DisplayName: "End Stone",
 		Name:        "end_stone",
 		StackSize:   64,
 	}
 	EndStoneBricks = Item{
-		ID:          313,
+		ID:          333,
 		DisplayName: "End Stone Bricks",
 		Name:        "end_stone_bricks",
 		StackSize:   64,
 	}
 	DragonEgg = Item{
-		ID:          314,
+		ID:          334,
 		DisplayName: "Dragon Egg",
 		Name:        "dragon_egg",
 		StackSize:   64,
 	}
 	SandstoneStairs = Item{
-		ID:          315,
+		ID:          335,
 		DisplayName: "Sandstone Stairs",
 		Name:        "sandstone_stairs",
 		StackSize:   64,
 	}
 	EnderChest = Item{
-		ID:          316,
+		ID:          336,
 		DisplayName: "Ender Chest",
 		Name:        "ender_chest",
 		StackSize:   64,
 	}
 	EmeraldBlock = Item{
-		ID:          317,
+		ID:          337,
 		DisplayName: "Block of Emerald",
 		Name:        "emerald_block",
 		StackSize:   64,
 	}
+	OakStairs = Item{
+		ID:          338,
+		DisplayName: "Oak Stairs",
+		Name:        "oak_stairs",
+		StackSize:   64,
+	}
 	SpruceStairs = Item{
-		ID:          318,
+		ID:          339,
 		DisplayName: "Spruce Stairs",
 		Name:        "spruce_stairs",
 		StackSize:   64,
 	}
 	BirchStairs = Item{
-		ID:          319,
+		ID:          340,
 		DisplayName: "Birch Stairs",
 		Name:        "birch_stairs",
 		StackSize:   64,
 	}
 	JungleStairs = Item{
-		ID:          320,
+		ID:          341,
 		DisplayName: "Jungle Stairs",
 		Name:        "jungle_stairs",
 		StackSize:   64,
 	}
-	CrimsonStairs = Item{
-		ID:          321,
-		DisplayName: "Crimson Stairs",
-		Name:        "crimson_stairs",
-		StackSize:   64,
-	}
-	WarpedStairs = Item{
-		ID:          322,
-		DisplayName: "Warped Stairs",
-		Name:        "warped_stairs",
-		StackSize:   64,
-	}
-	CommandBlock = Item{
-		ID:          323,
-		DisplayName: "Command Block",
-		Name:        "command_block",
-		StackSize:   64,
-	}
-	Beacon = Item{
-		ID:          324,
-		DisplayName: "Beacon",
-		Name:        "beacon",
-		StackSize:   64,
-	}
-	CobblestoneWall = Item{
-		ID:          325,
-		DisplayName: "Cobblestone Wall",
-		Name:        "cobblestone_wall",
-		StackSize:   64,
-	}
-	MossyCobblestoneWall = Item{
-		ID:          326,
-		DisplayName: "Mossy Cobblestone Wall",
-		Name:        "mossy_cobblestone_wall",
-		StackSize:   64,
-	}
-	BrickWall = Item{
-		ID:          327,
-		DisplayName: "Brick Wall",
-		Name:        "brick_wall",
-		StackSize:   64,
-	}
-	PrismarineWall = Item{
-		ID:          328,
-		DisplayName: "Prismarine Wall",
-		Name:        "prismarine_wall",
-		StackSize:   64,
-	}
-	RedSandstoneWall = Item{
-		ID:          329,
-		DisplayName: "Red Sandstone Wall",
-		Name:        "red_sandstone_wall",
-		StackSize:   64,
-	}
-	MossyStoneBrickWall = Item{
-		ID:          330,
-		DisplayName: "Mossy Stone Brick Wall",
-		Name:        "mossy_stone_brick_wall",
-		StackSize:   64,
-	}
-	GraniteWall = Item{
-		ID:          331,
-		DisplayName: "Granite Wall",
-		Name:        "granite_wall",
-		StackSize:   64,
-	}
-	StoneBrickWall = Item{
-		ID:          332,
-		DisplayName: "Stone Brick Wall",
-		Name:        "stone_brick_wall",
-		StackSize:   64,
-	}
-	NetherBrickWall = Item{
-		ID:          333,
-		DisplayName: "Nether Brick Wall",
-		Name:        "nether_brick_wall",
-		StackSize:   64,
-	}
-	AndesiteWall = Item{
-		ID:          334,
-		DisplayName: "Andesite Wall",
-		Name:        "andesite_wall",
-		StackSize:   64,
-	}
-	RedNetherBrickWall = Item{
-		ID:          335,
-		DisplayName: "Red Nether Brick Wall",
-		Name:        "red_nether_brick_wall",
-		StackSize:   64,
-	}
-	SandstoneWall = Item{
-		ID:          336,
-		DisplayName: "Sandstone Wall",
-		Name:        "sandstone_wall",
-		StackSize:   64,
-	}
-	EndStoneBrickWall = Item{
-		ID:          337,
-		DisplayName: "End Stone Brick Wall",
-		Name:        "end_stone_brick_wall",
-		StackSize:   64,
-	}
-	DioriteWall = Item{
-		ID:          338,
-		DisplayName: "Diorite Wall",
-		Name:        "diorite_wall",
-		StackSize:   64,
-	}
-	BlackstoneWall = Item{
-		ID:          339,
-		DisplayName: "Blackstone Wall",
-		Name:        "blackstone_wall",
-		StackSize:   64,
-	}
-	PolishedBlackstoneWall = Item{
-		ID:          340,
-		DisplayName: "Polished Blackstone Wall",
-		Name:        "polished_blackstone_wall",
-		StackSize:   64,
-	}
-	PolishedBlackstoneBrickWall = Item{
-		ID:          341,
-		DisplayName: "Polished Blackstone Brick Wall",
-		Name:        "polished_blackstone_brick_wall",
-		StackSize:   64,
-	}
-	CobbledDeepslateWall = Item{
-		ID:          342,
-		DisplayName: "Cobbled Deepslate Wall",
-		Name:        "cobbled_deepslate_wall",
-		StackSize:   64,
-	}
-	PolishedDeepslateWall = Item{
-		ID:          343,
-		DisplayName: "Polished Deepslate Wall",
-		Name:        "polished_deepslate_wall",
-		StackSize:   64,
-	}
-	DeepslateBrickWall = Item{
-		ID:          344,
-		DisplayName: "Deepslate Brick Wall",
-		Name:        "deepslate_brick_wall",
-		StackSize:   64,
-	}
-	DeepslateTileWall = Item{
-		ID:          345,
-		DisplayName: "Deepslate Tile Wall",
-		Name:        "deepslate_tile_wall",
-		StackSize:   64,
-	}
-	Anvil = Item{
-		ID:          346,
-		DisplayName: "Anvil",
-		Name:        "anvil",
-		StackSize:   64,
-	}
-	ChippedAnvil = Item{
-		ID:          347,
-		DisplayName: "Chipped Anvil",
-		Name:        "chipped_anvil",
-		StackSize:   64,
-	}
-	DamagedAnvil = Item{
-		ID:          348,
-		DisplayName: "Damaged Anvil",
-		Name:        "damaged_anvil",
-		StackSize:   64,
-	}
-	ChiseledQuartzBlock = Item{
-		ID:          349,
-		DisplayName: "Chiseled Quartz Block",
-		Name:        "chiseled_quartz_block",
-		StackSize:   64,
-	}
-	QuartzBlock = Item{
-		ID:          350,
-		DisplayName: "Block of Quartz",
-		Name:        "quartz_block",
-		StackSize:   64,
-	}
-	QuartzBricks = Item{
-		ID:          351,
-		DisplayName: "Quartz Bricks",
-		Name:        "quartz_bricks",
-		StackSize:   64,
-	}
-	QuartzPillar = Item{
-		ID:          352,
-		DisplayName: "Quartz Pillar",
-		Name:        "quartz_pillar",
-		StackSize:   64,
-	}
-	QuartzStairs = Item{
-		ID:          353,
-		DisplayName: "Quartz Stairs",
-		Name:        "quartz_stairs",
-		StackSize:   64,
-	}
-	WhiteTerracotta = Item{
-		ID:          354,
-		DisplayName: "White Terracotta",
-		Name:        "white_terracotta",
-		StackSize:   64,
-	}
-	OrangeTerracotta = Item{
-		ID:          355,
-		DisplayName: "Orange Terracotta",
-		Name:        "orange_terracotta",
-		StackSize:   64,
-	}
-	MagentaTerracotta = Item{
-		ID:          356,
-		DisplayName: "Magenta Terracotta",
-		Name:        "magenta_terracotta",
-		StackSize:   64,
-	}
-	LightBlueTerracotta = Item{
-		ID:          357,
-		DisplayName: "Light Blue Terracotta",
-		Name:        "light_blue_terracotta",
-		StackSize:   64,
-	}
-	YellowTerracotta = Item{
-		ID:          358,
-		DisplayName: "Yellow Terracotta",
-		Name:        "yellow_terracotta",
-		StackSize:   64,
-	}
-	LimeTerracotta = Item{
-		ID:          359,
-		DisplayName: "Lime Terracotta",
-		Name:        "lime_terracotta",
-		StackSize:   64,
-	}
-	PinkTerracotta = Item{
-		ID:          360,
-		DisplayName: "Pink Terracotta",
-		Name:        "pink_terracotta",
-		StackSize:   64,
-	}
-	GrayTerracotta = Item{
-		ID:          361,
-		DisplayName: "Gray Terracotta",
-		Name:        "gray_terracotta",
-		StackSize:   64,
-	}
-	LightGrayTerracotta = Item{
-		ID:          362,
-		DisplayName: "Light Gray Terracotta",
-		Name:        "light_gray_terracotta",
-		StackSize:   64,
-	}
-	CyanTerracotta = Item{
-		ID:          363,
-		DisplayName: "Cyan Terracotta",
-		Name:        "cyan_terracotta",
-		StackSize:   64,
-	}
-	PurpleTerracotta = Item{
-		ID:          364,
-		DisplayName: "Purple Terracotta",
-		Name:        "purple_terracotta",
-		StackSize:   64,
-	}
-	BlueTerracotta = Item{
-		ID:          365,
-		DisplayName: "Blue Terracotta",
-		Name:        "blue_terracotta",
-		StackSize:   64,
-	}
-	BrownTerracotta = Item{
-		ID:          366,
-		DisplayName: "Brown Terracotta",
-		Name:        "brown_terracotta",
-		StackSize:   64,
-	}
-	GreenTerracotta = Item{
-		ID:          367,
-		DisplayName: "Green Terracotta",
-		Name:        "green_terracotta",
-		StackSize:   64,
-	}
-	RedTerracotta = Item{
-		ID:          368,
-		DisplayName: "Red Terracotta",
-		Name:        "red_terracotta",
-		StackSize:   64,
-	}
-	BlackTerracotta = Item{
-		ID:          369,
-		DisplayName: "Black Terracotta",
-		Name:        "black_terracotta",
-		StackSize:   64,
-	}
-	Barrier = Item{
-		ID:          370,
-		DisplayName: "Barrier",
-		Name:        "barrier",
-		StackSize:   64,
-	}
-	Light = Item{
-		ID:          371,
-		DisplayName: "Light",
-		Name:        "light",
-		StackSize:   64,
-	}
-	HayBlock = Item{
-		ID:          372,
-		DisplayName: "Hay Bale",
-		Name:        "hay_block",
-		StackSize:   64,
-	}
-	WhiteCarpet = Item{
-		ID:          373,
-		DisplayName: "White Carpet",
-		Name:        "white_carpet",
-		StackSize:   64,
-	}
-	OrangeCarpet = Item{
-		ID:          374,
-		DisplayName: "Orange Carpet",
-		Name:        "orange_carpet",
-		StackSize:   64,
-	}
-	MagentaCarpet = Item{
-		ID:          375,
-		DisplayName: "Magenta Carpet",
-		Name:        "magenta_carpet",
-		StackSize:   64,
-	}
-	LightBlueCarpet = Item{
-		ID:          376,
-		DisplayName: "Light Blue Carpet",
-		Name:        "light_blue_carpet",
-		StackSize:   64,
-	}
-	YellowCarpet = Item{
-		ID:          377,
-		DisplayName: "Yellow Carpet",
-		Name:        "yellow_carpet",
-		StackSize:   64,
-	}
-	LimeCarpet = Item{
-		ID:          378,
-		DisplayName: "Lime Carpet",
-		Name:        "lime_carpet",
-		StackSize:   64,
-	}
-	PinkCarpet = Item{
-		ID:          379,
-		DisplayName: "Pink Carpet",
-		Name:        "pink_carpet",
-		StackSize:   64,
-	}
-	GrayCarpet = Item{
-		ID:          380,
-		DisplayName: "Gray Carpet",
-		Name:        "gray_carpet",
-		StackSize:   64,
-	}
-	LightGrayCarpet = Item{
-		ID:          381,
-		DisplayName: "Light Gray Carpet",
-		Name:        "light_gray_carpet",
-		StackSize:   64,
-	}
-	CyanCarpet = Item{
-		ID:          382,
-		DisplayName: "Cyan Carpet",
-		Name:        "cyan_carpet",
-		StackSize:   64,
-	}
-	PurpleCarpet = Item{
-		ID:          383,
-		DisplayName: "Purple Carpet",
-		Name:        "purple_carpet",
-		StackSize:   64,
-	}
-	BlueCarpet = Item{
-		ID:          384,
-		DisplayName: "Blue Carpet",
-		Name:        "blue_carpet",
-		StackSize:   64,
-	}
-	BrownCarpet = Item{
-		ID:          385,
-		DisplayName: "Brown Carpet",
-		Name:        "brown_carpet",
-		StackSize:   64,
-	}
-	GreenCarpet = Item{
-		ID:          386,
-		DisplayName: "Green Carpet",
-		Name:        "green_carpet",
-		StackSize:   64,
-	}
-	RedCarpet = Item{
-		ID:          387,
-		DisplayName: "Red Carpet",
-		Name:        "red_carpet",
-		StackSize:   64,
-	}
-	BlackCarpet = Item{
-		ID:          388,
-		DisplayName: "Black Carpet",
-		Name:        "black_carpet",
-		StackSize:   64,
-	}
-	Terracotta = Item{
-		ID:          389,
-		DisplayName: "Terracotta",
-		Name:        "terracotta",
-		StackSize:   64,
-	}
-	PackedIce = Item{
-		ID:          390,
-		DisplayName: "Packed Ice",
-		Name:        "packed_ice",
-		StackSize:   64,
-	}
 	AcaciaStairs = Item{
-		ID:          391,
+		ID:          342,
 		DisplayName: "Acacia Stairs",
 		Name:        "acacia_stairs",
 		StackSize:   64,
 	}
 	DarkOakStairs = Item{
-		ID:          392,
+		ID:          343,
 		DisplayName: "Dark Oak Stairs",
 		Name:        "dark_oak_stairs",
 		StackSize:   64,
 	}
-	DirtPath = Item{
+	MangroveStairs = Item{
+		ID:          344,
+		DisplayName: "Mangrove Stairs",
+		Name:        "mangrove_stairs",
+		StackSize:   64,
+	}
+	CrimsonStairs = Item{
+		ID:          345,
+		DisplayName: "Crimson Stairs",
+		Name:        "crimson_stairs",
+		StackSize:   64,
+	}
+	WarpedStairs = Item{
+		ID:          346,
+		DisplayName: "Warped Stairs",
+		Name:        "warped_stairs",
+		StackSize:   64,
+	}
+	CommandBlock = Item{
+		ID:          347,
+		DisplayName: "Command Block",
+		Name:        "command_block",
+		StackSize:   64,
+	}
+	Beacon = Item{
+		ID:          348,
+		DisplayName: "Beacon",
+		Name:        "beacon",
+		StackSize:   64,
+	}
+	CobblestoneWall = Item{
+		ID:          349,
+		DisplayName: "Cobblestone Wall",
+		Name:        "cobblestone_wall",
+		StackSize:   64,
+	}
+	MossyCobblestoneWall = Item{
+		ID:          350,
+		DisplayName: "Mossy Cobblestone Wall",
+		Name:        "mossy_cobblestone_wall",
+		StackSize:   64,
+	}
+	BrickWall = Item{
+		ID:          351,
+		DisplayName: "Brick Wall",
+		Name:        "brick_wall",
+		StackSize:   64,
+	}
+	PrismarineWall = Item{
+		ID:          352,
+		DisplayName: "Prismarine Wall",
+		Name:        "prismarine_wall",
+		StackSize:   64,
+	}
+	RedSandstoneWall = Item{
+		ID:          353,
+		DisplayName: "Red Sandstone Wall",
+		Name:        "red_sandstone_wall",
+		StackSize:   64,
+	}
+	MossyStoneBrickWall = Item{
+		ID:          354,
+		DisplayName: "Mossy Stone Brick Wall",
+		Name:        "mossy_stone_brick_wall",
+		StackSize:   64,
+	}
+	GraniteWall = Item{
+		ID:          355,
+		DisplayName: "Granite Wall",
+		Name:        "granite_wall",
+		StackSize:   64,
+	}
+	StoneBrickWall = Item{
+		ID:          356,
+		DisplayName: "Stone Brick Wall",
+		Name:        "stone_brick_wall",
+		StackSize:   64,
+	}
+	MudBrickWall = Item{
+		ID:          357,
+		DisplayName: "Mud Brick Wall",
+		Name:        "mud_brick_wall",
+		StackSize:   64,
+	}
+	NetherBrickWall = Item{
+		ID:          358,
+		DisplayName: "Nether Brick Wall",
+		Name:        "nether_brick_wall",
+		StackSize:   64,
+	}
+	AndesiteWall = Item{
+		ID:          359,
+		DisplayName: "Andesite Wall",
+		Name:        "andesite_wall",
+		StackSize:   64,
+	}
+	RedNetherBrickWall = Item{
+		ID:          360,
+		DisplayName: "Red Nether Brick Wall",
+		Name:        "red_nether_brick_wall",
+		StackSize:   64,
+	}
+	SandstoneWall = Item{
+		ID:          361,
+		DisplayName: "Sandstone Wall",
+		Name:        "sandstone_wall",
+		StackSize:   64,
+	}
+	EndStoneBrickWall = Item{
+		ID:          362,
+		DisplayName: "End Stone Brick Wall",
+		Name:        "end_stone_brick_wall",
+		StackSize:   64,
+	}
+	DioriteWall = Item{
+		ID:          363,
+		DisplayName: "Diorite Wall",
+		Name:        "diorite_wall",
+		StackSize:   64,
+	}
+	BlackstoneWall = Item{
+		ID:          364,
+		DisplayName: "Blackstone Wall",
+		Name:        "blackstone_wall",
+		StackSize:   64,
+	}
+	PolishedBlackstoneWall = Item{
+		ID:          365,
+		DisplayName: "Polished Blackstone Wall",
+		Name:        "polished_blackstone_wall",
+		StackSize:   64,
+	}
+	PolishedBlackstoneBrickWall = Item{
+		ID:          366,
+		DisplayName: "Polished Blackstone Brick Wall",
+		Name:        "polished_blackstone_brick_wall",
+		StackSize:   64,
+	}
+	CobbledDeepslateWall = Item{
+		ID:          367,
+		DisplayName: "Cobbled Deepslate Wall",
+		Name:        "cobbled_deepslate_wall",
+		StackSize:   64,
+	}
+	PolishedDeepslateWall = Item{
+		ID:          368,
+		DisplayName: "Polished Deepslate Wall",
+		Name:        "polished_deepslate_wall",
+		StackSize:   64,
+	}
+	DeepslateBrickWall = Item{
+		ID:          369,
+		DisplayName: "Deepslate Brick Wall",
+		Name:        "deepslate_brick_wall",
+		StackSize:   64,
+	}
+	DeepslateTileWall = Item{
+		ID:          370,
+		DisplayName: "Deepslate Tile Wall",
+		Name:        "deepslate_tile_wall",
+		StackSize:   64,
+	}
+	Anvil = Item{
+		ID:          371,
+		DisplayName: "Anvil",
+		Name:        "anvil",
+		StackSize:   64,
+	}
+	ChippedAnvil = Item{
+		ID:          372,
+		DisplayName: "Chipped Anvil",
+		Name:        "chipped_anvil",
+		StackSize:   64,
+	}
+	DamagedAnvil = Item{
+		ID:          373,
+		DisplayName: "Damaged Anvil",
+		Name:        "damaged_anvil",
+		StackSize:   64,
+	}
+	ChiseledQuartzBlock = Item{
+		ID:          374,
+		DisplayName: "Chiseled Quartz Block",
+		Name:        "chiseled_quartz_block",
+		StackSize:   64,
+	}
+	QuartzBlock = Item{
+		ID:          375,
+		DisplayName: "Block of Quartz",
+		Name:        "quartz_block",
+		StackSize:   64,
+	}
+	QuartzBricks = Item{
+		ID:          376,
+		DisplayName: "Quartz Bricks",
+		Name:        "quartz_bricks",
+		StackSize:   64,
+	}
+	QuartzPillar = Item{
+		ID:          377,
+		DisplayName: "Quartz Pillar",
+		Name:        "quartz_pillar",
+		StackSize:   64,
+	}
+	QuartzStairs = Item{
+		ID:          378,
+		DisplayName: "Quartz Stairs",
+		Name:        "quartz_stairs",
+		StackSize:   64,
+	}
+	WhiteTerracotta = Item{
+		ID:          379,
+		DisplayName: "White Terracotta",
+		Name:        "white_terracotta",
+		StackSize:   64,
+	}
+	OrangeTerracotta = Item{
+		ID:          380,
+		DisplayName: "Orange Terracotta",
+		Name:        "orange_terracotta",
+		StackSize:   64,
+	}
+	MagentaTerracotta = Item{
+		ID:          381,
+		DisplayName: "Magenta Terracotta",
+		Name:        "magenta_terracotta",
+		StackSize:   64,
+	}
+	LightBlueTerracotta = Item{
+		ID:          382,
+		DisplayName: "Light Blue Terracotta",
+		Name:        "light_blue_terracotta",
+		StackSize:   64,
+	}
+	YellowTerracotta = Item{
+		ID:          383,
+		DisplayName: "Yellow Terracotta",
+		Name:        "yellow_terracotta",
+		StackSize:   64,
+	}
+	LimeTerracotta = Item{
+		ID:          384,
+		DisplayName: "Lime Terracotta",
+		Name:        "lime_terracotta",
+		StackSize:   64,
+	}
+	PinkTerracotta = Item{
+		ID:          385,
+		DisplayName: "Pink Terracotta",
+		Name:        "pink_terracotta",
+		StackSize:   64,
+	}
+	GrayTerracotta = Item{
+		ID:          386,
+		DisplayName: "Gray Terracotta",
+		Name:        "gray_terracotta",
+		StackSize:   64,
+	}
+	LightGrayTerracotta = Item{
+		ID:          387,
+		DisplayName: "Light Gray Terracotta",
+		Name:        "light_gray_terracotta",
+		StackSize:   64,
+	}
+	CyanTerracotta = Item{
+		ID:          388,
+		DisplayName: "Cyan Terracotta",
+		Name:        "cyan_terracotta",
+		StackSize:   64,
+	}
+	PurpleTerracotta = Item{
+		ID:          389,
+		DisplayName: "Purple Terracotta",
+		Name:        "purple_terracotta",
+		StackSize:   64,
+	}
+	BlueTerracotta = Item{
+		ID:          390,
+		DisplayName: "Blue Terracotta",
+		Name:        "blue_terracotta",
+		StackSize:   64,
+	}
+	BrownTerracotta = Item{
+		ID:          391,
+		DisplayName: "Brown Terracotta",
+		Name:        "brown_terracotta",
+		StackSize:   64,
+	}
+	GreenTerracotta = Item{
+		ID:          392,
+		DisplayName: "Green Terracotta",
+		Name:        "green_terracotta",
+		StackSize:   64,
+	}
+	RedTerracotta = Item{
 		ID:          393,
+		DisplayName: "Red Terracotta",
+		Name:        "red_terracotta",
+		StackSize:   64,
+	}
+	BlackTerracotta = Item{
+		ID:          394,
+		DisplayName: "Black Terracotta",
+		Name:        "black_terracotta",
+		StackSize:   64,
+	}
+	Barrier = Item{
+		ID:          395,
+		DisplayName: "Barrier",
+		Name:        "barrier",
+		StackSize:   64,
+	}
+	Light = Item{
+		ID:          396,
+		DisplayName: "Light",
+		Name:        "light",
+		StackSize:   64,
+	}
+	HayBlock = Item{
+		ID:          397,
+		DisplayName: "Hay Bale",
+		Name:        "hay_block",
+		StackSize:   64,
+	}
+	WhiteCarpet = Item{
+		ID:          398,
+		DisplayName: "White Carpet",
+		Name:        "white_carpet",
+		StackSize:   64,
+	}
+	OrangeCarpet = Item{
+		ID:          399,
+		DisplayName: "Orange Carpet",
+		Name:        "orange_carpet",
+		StackSize:   64,
+	}
+	MagentaCarpet = Item{
+		ID:          400,
+		DisplayName: "Magenta Carpet",
+		Name:        "magenta_carpet",
+		StackSize:   64,
+	}
+	LightBlueCarpet = Item{
+		ID:          401,
+		DisplayName: "Light Blue Carpet",
+		Name:        "light_blue_carpet",
+		StackSize:   64,
+	}
+	YellowCarpet = Item{
+		ID:          402,
+		DisplayName: "Yellow Carpet",
+		Name:        "yellow_carpet",
+		StackSize:   64,
+	}
+	LimeCarpet = Item{
+		ID:          403,
+		DisplayName: "Lime Carpet",
+		Name:        "lime_carpet",
+		StackSize:   64,
+	}
+	PinkCarpet = Item{
+		ID:          404,
+		DisplayName: "Pink Carpet",
+		Name:        "pink_carpet",
+		StackSize:   64,
+	}
+	GrayCarpet = Item{
+		ID:          405,
+		DisplayName: "Gray Carpet",
+		Name:        "gray_carpet",
+		StackSize:   64,
+	}
+	LightGrayCarpet = Item{
+		ID:          406,
+		DisplayName: "Light Gray Carpet",
+		Name:        "light_gray_carpet",
+		StackSize:   64,
+	}
+	CyanCarpet = Item{
+		ID:          407,
+		DisplayName: "Cyan Carpet",
+		Name:        "cyan_carpet",
+		StackSize:   64,
+	}
+	PurpleCarpet = Item{
+		ID:          408,
+		DisplayName: "Purple Carpet",
+		Name:        "purple_carpet",
+		StackSize:   64,
+	}
+	BlueCarpet = Item{
+		ID:          409,
+		DisplayName: "Blue Carpet",
+		Name:        "blue_carpet",
+		StackSize:   64,
+	}
+	BrownCarpet = Item{
+		ID:          410,
+		DisplayName: "Brown Carpet",
+		Name:        "brown_carpet",
+		StackSize:   64,
+	}
+	GreenCarpet = Item{
+		ID:          411,
+		DisplayName: "Green Carpet",
+		Name:        "green_carpet",
+		StackSize:   64,
+	}
+	RedCarpet = Item{
+		ID:          412,
+		DisplayName: "Red Carpet",
+		Name:        "red_carpet",
+		StackSize:   64,
+	}
+	BlackCarpet = Item{
+		ID:          413,
+		DisplayName: "Black Carpet",
+		Name:        "black_carpet",
+		StackSize:   64,
+	}
+	Terracotta = Item{
+		ID:          414,
+		DisplayName: "Terracotta",
+		Name:        "terracotta",
+		StackSize:   64,
+	}
+	PackedIce = Item{
+		ID:          415,
+		DisplayName: "Packed Ice",
+		Name:        "packed_ice",
+		StackSize:   64,
+	}
+	DirtPath = Item{
+		ID:          416,
 		DisplayName: "Dirt Path",
 		Name:        "dirt_path",
 		StackSize:   64,
 	}
 	Sunflower = Item{
-		ID:          394,
+		ID:          417,
 		DisplayName: "Sunflower",
 		Name:        "sunflower",
 		StackSize:   64,
 	}
 	Lilac = Item{
-		ID:          395,
+		ID:          418,
 		DisplayName: "Lilac",
 		Name:        "lilac",
 		StackSize:   64,
 	}
 	RoseBush = Item{
-		ID:          396,
+		ID:          419,
 		DisplayName: "Rose Bush",
 		Name:        "rose_bush",
 		StackSize:   64,
 	}
 	Peony = Item{
-		ID:          397,
+		ID:          420,
 		DisplayName: "Peony",
 		Name:        "peony",
 		StackSize:   64,
 	}
 	TallGrass = Item{
-		ID:          398,
+		ID:          421,
 		DisplayName: "Tall Grass",
 		Name:        "tall_grass",
 		StackSize:   64,
 	}
 	LargeFern = Item{
-		ID:          399,
+		ID:          422,
 		DisplayName: "Large Fern",
 		Name:        "large_fern",
 		StackSize:   64,
 	}
 	WhiteStainedGlass = Item{
-		ID:          400,
+		ID:          423,
 		DisplayName: "White Stained Glass",
 		Name:        "white_stained_glass",
 		StackSize:   64,
 	}
 	OrangeStainedGlass = Item{
-		ID:          401,
+		ID:          424,
 		DisplayName: "Orange Stained Glass",
 		Name:        "orange_stained_glass",
 		StackSize:   64,
 	}
 	MagentaStainedGlass = Item{
-		ID:          402,
+		ID:          425,
 		DisplayName: "Magenta Stained Glass",
 		Name:        "magenta_stained_glass",
 		StackSize:   64,
 	}
 	LightBlueStainedGlass = Item{
-		ID:          403,
+		ID:          426,
 		DisplayName: "Light Blue Stained Glass",
 		Name:        "light_blue_stained_glass",
 		StackSize:   64,
 	}
 	YellowStainedGlass = Item{
-		ID:          404,
+		ID:          427,
 		DisplayName: "Yellow Stained Glass",
 		Name:        "yellow_stained_glass",
 		StackSize:   64,
 	}
 	LimeStainedGlass = Item{
-		ID:          405,
+		ID:          428,
 		DisplayName: "Lime Stained Glass",
 		Name:        "lime_stained_glass",
 		StackSize:   64,
 	}
 	PinkStainedGlass = Item{
-		ID:          406,
+		ID:          429,
 		DisplayName: "Pink Stained Glass",
 		Name:        "pink_stained_glass",
 		StackSize:   64,
 	}
 	GrayStainedGlass = Item{
-		ID:          407,
+		ID:          430,
 		DisplayName: "Gray Stained Glass",
 		Name:        "gray_stained_glass",
 		StackSize:   64,
 	}
 	LightGrayStainedGlass = Item{
-		ID:          408,
+		ID:          431,
 		DisplayName: "Light Gray Stained Glass",
 		Name:        "light_gray_stained_glass",
 		StackSize:   64,
 	}
 	CyanStainedGlass = Item{
-		ID:          409,
+		ID:          432,
 		DisplayName: "Cyan Stained Glass",
 		Name:        "cyan_stained_glass",
 		StackSize:   64,
 	}
 	PurpleStainedGlass = Item{
-		ID:          410,
+		ID:          433,
 		DisplayName: "Purple Stained Glass",
 		Name:        "purple_stained_glass",
 		StackSize:   64,
 	}
 	BlueStainedGlass = Item{
-		ID:          411,
+		ID:          434,
 		DisplayName: "Blue Stained Glass",
 		Name:        "blue_stained_glass",
 		StackSize:   64,
 	}
 	BrownStainedGlass = Item{
-		ID:          412,
+		ID:          435,
 		DisplayName: "Brown Stained Glass",
 		Name:        "brown_stained_glass",
 		StackSize:   64,
 	}
 	GreenStainedGlass = Item{
-		ID:          413,
+		ID:          436,
 		DisplayName: "Green Stained Glass",
 		Name:        "green_stained_glass",
 		StackSize:   64,
 	}
 	RedStainedGlass = Item{
-		ID:          414,
+		ID:          437,
 		DisplayName: "Red Stained Glass",
 		Name:        "red_stained_glass",
 		StackSize:   64,
 	}
 	BlackStainedGlass = Item{
-		ID:          415,
+		ID:          438,
 		DisplayName: "Black Stained Glass",
 		Name:        "black_stained_glass",
 		StackSize:   64,
 	}
 	WhiteStainedGlassPane = Item{
-		ID:          416,
+		ID:          439,
 		DisplayName: "White Stained Glass Pane",
 		Name:        "white_stained_glass_pane",
 		StackSize:   64,
 	}
 	OrangeStainedGlassPane = Item{
-		ID:          417,
+		ID:          440,
 		DisplayName: "Orange Stained Glass Pane",
 		Name:        "orange_stained_glass_pane",
 		StackSize:   64,
 	}
 	MagentaStainedGlassPane = Item{
-		ID:          418,
+		ID:          441,
 		DisplayName: "Magenta Stained Glass Pane",
 		Name:        "magenta_stained_glass_pane",
 		StackSize:   64,
 	}
 	LightBlueStainedGlassPane = Item{
-		ID:          419,
+		ID:          442,
 		DisplayName: "Light Blue Stained Glass Pane",
 		Name:        "light_blue_stained_glass_pane",
 		StackSize:   64,
 	}
 	YellowStainedGlassPane = Item{
-		ID:          420,
+		ID:          443,
 		DisplayName: "Yellow Stained Glass Pane",
 		Name:        "yellow_stained_glass_pane",
 		StackSize:   64,
 	}
 	LimeStainedGlassPane = Item{
-		ID:          421,
+		ID:          444,
 		DisplayName: "Lime Stained Glass Pane",
 		Name:        "lime_stained_glass_pane",
 		StackSize:   64,
 	}
 	PinkStainedGlassPane = Item{
-		ID:          422,
+		ID:          445,
 		DisplayName: "Pink Stained Glass Pane",
 		Name:        "pink_stained_glass_pane",
 		StackSize:   64,
 	}
 	GrayStainedGlassPane = Item{
-		ID:          423,
+		ID:          446,
 		DisplayName: "Gray Stained Glass Pane",
 		Name:        "gray_stained_glass_pane",
 		StackSize:   64,
 	}
 	LightGrayStainedGlassPane = Item{
-		ID:          424,
+		ID:          447,
 		DisplayName: "Light Gray Stained Glass Pane",
 		Name:        "light_gray_stained_glass_pane",
 		StackSize:   64,
 	}
 	CyanStainedGlassPane = Item{
-		ID:          425,
+		ID:          448,
 		DisplayName: "Cyan Stained Glass Pane",
 		Name:        "cyan_stained_glass_pane",
 		StackSize:   64,
 	}
 	PurpleStainedGlassPane = Item{
-		ID:          426,
+		ID:          449,
 		DisplayName: "Purple Stained Glass Pane",
 		Name:        "purple_stained_glass_pane",
 		StackSize:   64,
 	}
 	BlueStainedGlassPane = Item{
-		ID:          427,
+		ID:          450,
 		DisplayName: "Blue Stained Glass Pane",
 		Name:        "blue_stained_glass_pane",
 		StackSize:   64,
 	}
 	BrownStainedGlassPane = Item{
-		ID:          428,
+		ID:          451,
 		DisplayName: "Brown Stained Glass Pane",
 		Name:        "brown_stained_glass_pane",
 		StackSize:   64,
 	}
 	GreenStainedGlassPane = Item{
-		ID:          429,
+		ID:          452,
 		DisplayName: "Green Stained Glass Pane",
 		Name:        "green_stained_glass_pane",
 		StackSize:   64,
 	}
 	RedStainedGlassPane = Item{
-		ID:          430,
+		ID:          453,
 		DisplayName: "Red Stained Glass Pane",
 		Name:        "red_stained_glass_pane",
 		StackSize:   64,
 	}
 	BlackStainedGlassPane = Item{
-		ID:          431,
+		ID:          454,
 		DisplayName: "Black Stained Glass Pane",
 		Name:        "black_stained_glass_pane",
 		StackSize:   64,
 	}
 	Prismarine = Item{
-		ID:          432,
+		ID:          455,
 		DisplayName: "Prismarine",
 		Name:        "prismarine",
 		StackSize:   64,
 	}
 	PrismarineBricks = Item{
-		ID:          433,
+		ID:          456,
 		DisplayName: "Prismarine Bricks",
 		Name:        "prismarine_bricks",
 		StackSize:   64,
 	}
 	DarkPrismarine = Item{
-		ID:          434,
+		ID:          457,
 		DisplayName: "Dark Prismarine",
 		Name:        "dark_prismarine",
 		StackSize:   64,
 	}
 	PrismarineStairs = Item{
-		ID:          435,
+		ID:          458,
 		DisplayName: "Prismarine Stairs",
 		Name:        "prismarine_stairs",
 		StackSize:   64,
 	}
 	PrismarineBrickStairs = Item{
-		ID:          436,
+		ID:          459,
 		DisplayName: "Prismarine Brick Stairs",
 		Name:        "prismarine_brick_stairs",
 		StackSize:   64,
 	}
 	DarkPrismarineStairs = Item{
-		ID:          437,
+		ID:          460,
 		DisplayName: "Dark Prismarine Stairs",
 		Name:        "dark_prismarine_stairs",
 		StackSize:   64,
 	}
 	SeaLantern = Item{
-		ID:          438,
+		ID:          461,
 		DisplayName: "Sea Lantern",
 		Name:        "sea_lantern",
 		StackSize:   64,
 	}
 	RedSandstone = Item{
-		ID:          439,
+		ID:          462,
 		DisplayName: "Red Sandstone",
 		Name:        "red_sandstone",
 		StackSize:   64,
 	}
 	ChiseledRedSandstone = Item{
-		ID:          440,
+		ID:          463,
 		DisplayName: "Chiseled Red Sandstone",
 		Name:        "chiseled_red_sandstone",
 		StackSize:   64,
 	}
 	CutRedSandstone = Item{
-		ID:          441,
+		ID:          464,
 		DisplayName: "Cut Red Sandstone",
 		Name:        "cut_red_sandstone",
 		StackSize:   64,
 	}
 	RedSandstoneStairs = Item{
-		ID:          442,
+		ID:          465,
 		DisplayName: "Red Sandstone Stairs",
 		Name:        "red_sandstone_stairs",
 		StackSize:   64,
 	}
 	RepeatingCommandBlock = Item{
-		ID:          443,
+		ID:          466,
 		DisplayName: "Repeating Command Block",
 		Name:        "repeating_command_block",
 		StackSize:   64,
 	}
 	ChainCommandBlock = Item{
-		ID:          444,
+		ID:          467,
 		DisplayName: "Chain Command Block",
 		Name:        "chain_command_block",
 		StackSize:   64,
 	}
 	MagmaBlock = Item{
-		ID:          445,
+		ID:          468,
 		DisplayName: "Magma Block",
 		Name:        "magma_block",
 		StackSize:   64,
 	}
 	NetherWartBlock = Item{
-		ID:          446,
+		ID:          469,
 		DisplayName: "Nether Wart Block",
 		Name:        "nether_wart_block",
 		StackSize:   64,
 	}
 	WarpedWartBlock = Item{
-		ID:          447,
+		ID:          470,
 		DisplayName: "Warped Wart Block",
 		Name:        "warped_wart_block",
 		StackSize:   64,
 	}
 	RedNetherBricks = Item{
-		ID:          448,
+		ID:          471,
 		DisplayName: "Red Nether Bricks",
 		Name:        "red_nether_bricks",
 		StackSize:   64,
 	}
 	BoneBlock = Item{
-		ID:          449,
+		ID:          472,
 		DisplayName: "Bone Block",
 		Name:        "bone_block",
 		StackSize:   64,
 	}
 	StructureVoid = Item{
-		ID:          450,
+		ID:          473,
 		DisplayName: "Structure Void",
 		Name:        "structure_void",
 		StackSize:   64,
 	}
 	ShulkerBox = Item{
-		ID:          451,
+		ID:          474,
 		DisplayName: "Shulker Box",
 		Name:        "shulker_box",
 		StackSize:   1,
 	}
 	WhiteShulkerBox = Item{
-		ID:          452,
+		ID:          475,
 		DisplayName: "White Shulker Box",
 		Name:        "white_shulker_box",
 		StackSize:   1,
 	}
 	OrangeShulkerBox = Item{
-		ID:          453,
+		ID:          476,
 		DisplayName: "Orange Shulker Box",
 		Name:        "orange_shulker_box",
 		StackSize:   1,
 	}
 	MagentaShulkerBox = Item{
-		ID:          454,
+		ID:          477,
 		DisplayName: "Magenta Shulker Box",
 		Name:        "magenta_shulker_box",
 		StackSize:   1,
 	}
 	LightBlueShulkerBox = Item{
-		ID:          455,
+		ID:          478,
 		DisplayName: "Light Blue Shulker Box",
 		Name:        "light_blue_shulker_box",
 		StackSize:   1,
 	}
 	YellowShulkerBox = Item{
-		ID:          456,
+		ID:          479,
 		DisplayName: "Yellow Shulker Box",
 		Name:        "yellow_shulker_box",
 		StackSize:   1,
 	}
 	LimeShulkerBox = Item{
-		ID:          457,
+		ID:          480,
 		DisplayName: "Lime Shulker Box",
 		Name:        "lime_shulker_box",
 		StackSize:   1,
 	}
 	PinkShulkerBox = Item{
-		ID:          458,
+		ID:          481,
 		DisplayName: "Pink Shulker Box",
 		Name:        "pink_shulker_box",
 		StackSize:   1,
 	}
 	GrayShulkerBox = Item{
-		ID:          459,
+		ID:          482,
 		DisplayName: "Gray Shulker Box",
 		Name:        "gray_shulker_box",
 		StackSize:   1,
 	}
 	LightGrayShulkerBox = Item{
-		ID:          460,
+		ID:          483,
 		DisplayName: "Light Gray Shulker Box",
 		Name:        "light_gray_shulker_box",
 		StackSize:   1,
 	}
 	CyanShulkerBox = Item{
-		ID:          461,
+		ID:          484,
 		DisplayName: "Cyan Shulker Box",
 		Name:        "cyan_shulker_box",
 		StackSize:   1,
 	}
 	PurpleShulkerBox = Item{
-		ID:          462,
+		ID:          485,
 		DisplayName: "Purple Shulker Box",
 		Name:        "purple_shulker_box",
 		StackSize:   1,
 	}
 	BlueShulkerBox = Item{
-		ID:          463,
+		ID:          486,
 		DisplayName: "Blue Shulker Box",
 		Name:        "blue_shulker_box",
 		StackSize:   1,
 	}
 	BrownShulkerBox = Item{
-		ID:          464,
+		ID:          487,
 		DisplayName: "Brown Shulker Box",
 		Name:        "brown_shulker_box",
 		StackSize:   1,
 	}
 	GreenShulkerBox = Item{
-		ID:          465,
+		ID:          488,
 		DisplayName: "Green Shulker Box",
 		Name:        "green_shulker_box",
 		StackSize:   1,
 	}
 	RedShulkerBox = Item{
-		ID:          466,
+		ID:          489,
 		DisplayName: "Red Shulker Box",
 		Name:        "red_shulker_box",
 		StackSize:   1,
 	}
 	BlackShulkerBox = Item{
-		ID:          467,
+		ID:          490,
 		DisplayName: "Black Shulker Box",
 		Name:        "black_shulker_box",
 		StackSize:   1,
 	}
 	WhiteGlazedTerracotta = Item{
-		ID:          468,
+		ID:          491,
 		DisplayName: "White Glazed Terracotta",
 		Name:        "white_glazed_terracotta",
 		StackSize:   64,
 	}
 	OrangeGlazedTerracotta = Item{
-		ID:          469,
+		ID:          492,
 		DisplayName: "Orange Glazed Terracotta",
 		Name:        "orange_glazed_terracotta",
 		StackSize:   64,
 	}
 	MagentaGlazedTerracotta = Item{
-		ID:          470,
+		ID:          493,
 		DisplayName: "Magenta Glazed Terracotta",
 		Name:        "magenta_glazed_terracotta",
 		StackSize:   64,
 	}
 	LightBlueGlazedTerracotta = Item{
-		ID:          471,
+		ID:          494,
 		DisplayName: "Light Blue Glazed Terracotta",
 		Name:        "light_blue_glazed_terracotta",
 		StackSize:   64,
 	}
 	YellowGlazedTerracotta = Item{
-		ID:          472,
+		ID:          495,
 		DisplayName: "Yellow Glazed Terracotta",
 		Name:        "yellow_glazed_terracotta",
 		StackSize:   64,
 	}
 	LimeGlazedTerracotta = Item{
-		ID:          473,
+		ID:          496,
 		DisplayName: "Lime Glazed Terracotta",
 		Name:        "lime_glazed_terracotta",
 		StackSize:   64,
 	}
 	PinkGlazedTerracotta = Item{
-		ID:          474,
+		ID:          497,
 		DisplayName: "Pink Glazed Terracotta",
 		Name:        "pink_glazed_terracotta",
 		StackSize:   64,
 	}
 	GrayGlazedTerracotta = Item{
-		ID:          475,
+		ID:          498,
 		DisplayName: "Gray Glazed Terracotta",
 		Name:        "gray_glazed_terracotta",
 		StackSize:   64,
 	}
 	LightGrayGlazedTerracotta = Item{
-		ID:          476,
+		ID:          499,
 		DisplayName: "Light Gray Glazed Terracotta",
 		Name:        "light_gray_glazed_terracotta",
 		StackSize:   64,
 	}
 	CyanGlazedTerracotta = Item{
-		ID:          477,
+		ID:          500,
 		DisplayName: "Cyan Glazed Terracotta",
 		Name:        "cyan_glazed_terracotta",
 		StackSize:   64,
 	}
 	PurpleGlazedTerracotta = Item{
-		ID:          478,
+		ID:          501,
 		DisplayName: "Purple Glazed Terracotta",
 		Name:        "purple_glazed_terracotta",
 		StackSize:   64,
 	}
 	BlueGlazedTerracotta = Item{
-		ID:          479,
+		ID:          502,
 		DisplayName: "Blue Glazed Terracotta",
 		Name:        "blue_glazed_terracotta",
 		StackSize:   64,
 	}
 	BrownGlazedTerracotta = Item{
-		ID:          480,
+		ID:          503,
 		DisplayName: "Brown Glazed Terracotta",
 		Name:        "brown_glazed_terracotta",
 		StackSize:   64,
 	}
 	GreenGlazedTerracotta = Item{
-		ID:          481,
+		ID:          504,
 		DisplayName: "Green Glazed Terracotta",
 		Name:        "green_glazed_terracotta",
 		StackSize:   64,
 	}
 	RedGlazedTerracotta = Item{
-		ID:          482,
+		ID:          505,
 		DisplayName: "Red Glazed Terracotta",
 		Name:        "red_glazed_terracotta",
 		StackSize:   64,
 	}
 	BlackGlazedTerracotta = Item{
-		ID:          483,
+		ID:          506,
 		DisplayName: "Black Glazed Terracotta",
 		Name:        "black_glazed_terracotta",
 		StackSize:   64,
 	}
 	WhiteConcrete = Item{
-		ID:          484,
+		ID:          507,
 		DisplayName: "White Concrete",
 		Name:        "white_concrete",
 		StackSize:   64,
 	}
 	OrangeConcrete = Item{
-		ID:          485,
+		ID:          508,
 		DisplayName: "Orange Concrete",
 		Name:        "orange_concrete",
 		StackSize:   64,
 	}
 	MagentaConcrete = Item{
-		ID:          486,
+		ID:          509,
 		DisplayName: "Magenta Concrete",
 		Name:        "magenta_concrete",
 		StackSize:   64,
 	}
 	LightBlueConcrete = Item{
-		ID:          487,
+		ID:          510,
 		DisplayName: "Light Blue Concrete",
 		Name:        "light_blue_concrete",
 		StackSize:   64,
 	}
 	YellowConcrete = Item{
-		ID:          488,
+		ID:          511,
 		DisplayName: "Yellow Concrete",
 		Name:        "yellow_concrete",
 		StackSize:   64,
 	}
 	LimeConcrete = Item{
-		ID:          489,
+		ID:          512,
 		DisplayName: "Lime Concrete",
 		Name:        "lime_concrete",
 		StackSize:   64,
 	}
 	PinkConcrete = Item{
-		ID:          490,
+		ID:          513,
 		DisplayName: "Pink Concrete",
 		Name:        "pink_concrete",
 		StackSize:   64,
 	}
 	GrayConcrete = Item{
-		ID:          491,
+		ID:          514,
 		DisplayName: "Gray Concrete",
 		Name:        "gray_concrete",
 		StackSize:   64,
 	}
 	LightGrayConcrete = Item{
-		ID:          492,
+		ID:          515,
 		DisplayName: "Light Gray Concrete",
 		Name:        "light_gray_concrete",
 		StackSize:   64,
 	}
 	CyanConcrete = Item{
-		ID:          493,
+		ID:          516,
 		DisplayName: "Cyan Concrete",
 		Name:        "cyan_concrete",
 		StackSize:   64,
 	}
 	PurpleConcrete = Item{
-		ID:          494,
+		ID:          517,
 		DisplayName: "Purple Concrete",
 		Name:        "purple_concrete",
 		StackSize:   64,
 	}
 	BlueConcrete = Item{
-		ID:          495,
+		ID:          518,
 		DisplayName: "Blue Concrete",
 		Name:        "blue_concrete",
 		StackSize:   64,
 	}
 	BrownConcrete = Item{
-		ID:          496,
+		ID:          519,
 		DisplayName: "Brown Concrete",
 		Name:        "brown_concrete",
 		StackSize:   64,
 	}
 	GreenConcrete = Item{
-		ID:          497,
+		ID:          520,
 		DisplayName: "Green Concrete",
 		Name:        "green_concrete",
 		StackSize:   64,
 	}
 	RedConcrete = Item{
-		ID:          498,
+		ID:          521,
 		DisplayName: "Red Concrete",
 		Name:        "red_concrete",
 		StackSize:   64,
 	}
 	BlackConcrete = Item{
-		ID:          499,
+		ID:          522,
 		DisplayName: "Black Concrete",
 		Name:        "black_concrete",
 		StackSize:   64,
 	}
 	WhiteConcretePowder = Item{
-		ID:          500,
+		ID:          523,
 		DisplayName: "White Concrete Powder",
 		Name:        "white_concrete_powder",
 		StackSize:   64,
 	}
 	OrangeConcretePowder = Item{
-		ID:          501,
+		ID:          524,
 		DisplayName: "Orange Concrete Powder",
 		Name:        "orange_concrete_powder",
 		StackSize:   64,
 	}
 	MagentaConcretePowder = Item{
-		ID:          502,
+		ID:          525,
 		DisplayName: "Magenta Concrete Powder",
 		Name:        "magenta_concrete_powder",
 		StackSize:   64,
 	}
 	LightBlueConcretePowder = Item{
-		ID:          503,
+		ID:          526,
 		DisplayName: "Light Blue Concrete Powder",
 		Name:        "light_blue_concrete_powder",
 		StackSize:   64,
 	}
 	YellowConcretePowder = Item{
-		ID:          504,
+		ID:          527,
 		DisplayName: "Yellow Concrete Powder",
 		Name:        "yellow_concrete_powder",
 		StackSize:   64,
 	}
 	LimeConcretePowder = Item{
-		ID:          505,
+		ID:          528,
 		DisplayName: "Lime Concrete Powder",
 		Name:        "lime_concrete_powder",
 		StackSize:   64,
 	}
 	PinkConcretePowder = Item{
-		ID:          506,
+		ID:          529,
 		DisplayName: "Pink Concrete Powder",
 		Name:        "pink_concrete_powder",
 		StackSize:   64,
 	}
 	GrayConcretePowder = Item{
-		ID:          507,
+		ID:          530,
 		DisplayName: "Gray Concrete Powder",
 		Name:        "gray_concrete_powder",
 		StackSize:   64,
 	}
 	LightGrayConcretePowder = Item{
-		ID:          508,
+		ID:          531,
 		DisplayName: "Light Gray Concrete Powder",
 		Name:        "light_gray_concrete_powder",
 		StackSize:   64,
 	}
 	CyanConcretePowder = Item{
-		ID:          509,
+		ID:          532,
 		DisplayName: "Cyan Concrete Powder",
 		Name:        "cyan_concrete_powder",
 		StackSize:   64,
 	}
 	PurpleConcretePowder = Item{
-		ID:          510,
+		ID:          533,
 		DisplayName: "Purple Concrete Powder",
 		Name:        "purple_concrete_powder",
 		StackSize:   64,
 	}
 	BlueConcretePowder = Item{
-		ID:          511,
+		ID:          534,
 		DisplayName: "Blue Concrete Powder",
 		Name:        "blue_concrete_powder",
 		StackSize:   64,
 	}
 	BrownConcretePowder = Item{
-		ID:          512,
+		ID:          535,
 		DisplayName: "Brown Concrete Powder",
 		Name:        "brown_concrete_powder",
 		StackSize:   64,
 	}
 	GreenConcretePowder = Item{
-		ID:          513,
+		ID:          536,
 		DisplayName: "Green Concrete Powder",
 		Name:        "green_concrete_powder",
 		StackSize:   64,
 	}
 	RedConcretePowder = Item{
-		ID:          514,
+		ID:          537,
 		DisplayName: "Red Concrete Powder",
 		Name:        "red_concrete_powder",
 		StackSize:   64,
 	}
 	BlackConcretePowder = Item{
-		ID:          515,
+		ID:          538,
 		DisplayName: "Black Concrete Powder",
 		Name:        "black_concrete_powder",
 		StackSize:   64,
 	}
 	TurtleEgg = Item{
-		ID:          516,
+		ID:          539,
 		DisplayName: "Turtle Egg",
 		Name:        "turtle_egg",
 		StackSize:   64,
 	}
 	DeadTubeCoralBlock = Item{
-		ID:          517,
+		ID:          540,
 		DisplayName: "Dead Tube Coral Block",
 		Name:        "dead_tube_coral_block",
 		StackSize:   64,
 	}
 	DeadBrainCoralBlock = Item{
-		ID:          518,
+		ID:          541,
 		DisplayName: "Dead Brain Coral Block",
 		Name:        "dead_brain_coral_block",
 		StackSize:   64,
 	}
 	DeadBubbleCoralBlock = Item{
-		ID:          519,
+		ID:          542,
 		DisplayName: "Dead Bubble Coral Block",
 		Name:        "dead_bubble_coral_block",
 		StackSize:   64,
 	}
 	DeadFireCoralBlock = Item{
-		ID:          520,
+		ID:          543,
 		DisplayName: "Dead Fire Coral Block",
 		Name:        "dead_fire_coral_block",
 		StackSize:   64,
 	}
 	DeadHornCoralBlock = Item{
-		ID:          521,
+		ID:          544,
 		DisplayName: "Dead Horn Coral Block",
 		Name:        "dead_horn_coral_block",
 		StackSize:   64,
 	}
 	TubeCoralBlock = Item{
-		ID:          522,
+		ID:          545,
 		DisplayName: "Tube Coral Block",
 		Name:        "tube_coral_block",
 		StackSize:   64,
 	}
 	BrainCoralBlock = Item{
-		ID:          523,
+		ID:          546,
 		DisplayName: "Brain Coral Block",
 		Name:        "brain_coral_block",
 		StackSize:   64,
 	}
 	BubbleCoralBlock = Item{
-		ID:          524,
+		ID:          547,
 		DisplayName: "Bubble Coral Block",
 		Name:        "bubble_coral_block",
 		StackSize:   64,
 	}
 	FireCoralBlock = Item{
-		ID:          525,
+		ID:          548,
 		DisplayName: "Fire Coral Block",
 		Name:        "fire_coral_block",
 		StackSize:   64,
 	}
 	HornCoralBlock = Item{
-		ID:          526,
+		ID:          549,
 		DisplayName: "Horn Coral Block",
 		Name:        "horn_coral_block",
 		StackSize:   64,
 	}
 	TubeCoral = Item{
-		ID:          527,
+		ID:          550,
 		DisplayName: "Tube Coral",
 		Name:        "tube_coral",
 		StackSize:   64,
 	}
 	BrainCoral = Item{
-		ID:          528,
+		ID:          551,
 		DisplayName: "Brain Coral",
 		Name:        "brain_coral",
 		StackSize:   64,
 	}
 	BubbleCoral = Item{
-		ID:          529,
+		ID:          552,
 		DisplayName: "Bubble Coral",
 		Name:        "bubble_coral",
 		StackSize:   64,
 	}
 	FireCoral = Item{
-		ID:          530,
+		ID:          553,
 		DisplayName: "Fire Coral",
 		Name:        "fire_coral",
 		StackSize:   64,
 	}
 	HornCoral = Item{
-		ID:          531,
+		ID:          554,
 		DisplayName: "Horn Coral",
 		Name:        "horn_coral",
 		StackSize:   64,
 	}
 	DeadBrainCoral = Item{
-		ID:          532,
+		ID:          555,
 		DisplayName: "Dead Brain Coral",
 		Name:        "dead_brain_coral",
 		StackSize:   64,
 	}
 	DeadBubbleCoral = Item{
-		ID:          533,
+		ID:          556,
 		DisplayName: "Dead Bubble Coral",
 		Name:        "dead_bubble_coral",
 		StackSize:   64,
 	}
 	DeadFireCoral = Item{
-		ID:          534,
+		ID:          557,
 		DisplayName: "Dead Fire Coral",
 		Name:        "dead_fire_coral",
 		StackSize:   64,
 	}
 	DeadHornCoral = Item{
-		ID:          535,
+		ID:          558,
 		DisplayName: "Dead Horn Coral",
 		Name:        "dead_horn_coral",
 		StackSize:   64,
 	}
 	DeadTubeCoral = Item{
-		ID:          536,
+		ID:          559,
 		DisplayName: "Dead Tube Coral",
 		Name:        "dead_tube_coral",
 		StackSize:   64,
 	}
 	TubeCoralFan = Item{
-		ID:          537,
+		ID:          560,
 		DisplayName: "Tube Coral Fan",
 		Name:        "tube_coral_fan",
 		StackSize:   64,
 	}
 	BrainCoralFan = Item{
-		ID:          538,
+		ID:          561,
 		DisplayName: "Brain Coral Fan",
 		Name:        "brain_coral_fan",
 		StackSize:   64,
 	}
 	BubbleCoralFan = Item{
-		ID:          539,
+		ID:          562,
 		DisplayName: "Bubble Coral Fan",
 		Name:        "bubble_coral_fan",
 		StackSize:   64,
 	}
 	FireCoralFan = Item{
-		ID:          540,
+		ID:          563,
 		DisplayName: "Fire Coral Fan",
 		Name:        "fire_coral_fan",
 		StackSize:   64,
 	}
 	HornCoralFan = Item{
-		ID:          541,
+		ID:          564,
 		DisplayName: "Horn Coral Fan",
 		Name:        "horn_coral_fan",
 		StackSize:   64,
 	}
 	DeadTubeCoralFan = Item{
-		ID:          542,
+		ID:          565,
 		DisplayName: "Dead Tube Coral Fan",
 		Name:        "dead_tube_coral_fan",
 		StackSize:   64,
 	}
 	DeadBrainCoralFan = Item{
-		ID:          543,
+		ID:          566,
 		DisplayName: "Dead Brain Coral Fan",
 		Name:        "dead_brain_coral_fan",
 		StackSize:   64,
 	}
 	DeadBubbleCoralFan = Item{
-		ID:          544,
+		ID:          567,
 		DisplayName: "Dead Bubble Coral Fan",
 		Name:        "dead_bubble_coral_fan",
 		StackSize:   64,
 	}
 	DeadFireCoralFan = Item{
-		ID:          545,
+		ID:          568,
 		DisplayName: "Dead Fire Coral Fan",
 		Name:        "dead_fire_coral_fan",
 		StackSize:   64,
 	}
 	DeadHornCoralFan = Item{
-		ID:          546,
+		ID:          569,
 		DisplayName: "Dead Horn Coral Fan",
 		Name:        "dead_horn_coral_fan",
 		StackSize:   64,
 	}
 	BlueIce = Item{
-		ID:          547,
+		ID:          570,
 		DisplayName: "Blue Ice",
 		Name:        "blue_ice",
 		StackSize:   64,
 	}
 	Conduit = Item{
-		ID:          548,
+		ID:          571,
 		DisplayName: "Conduit",
 		Name:        "conduit",
 		StackSize:   64,
 	}
 	PolishedGraniteStairs = Item{
-		ID:          549,
+		ID:          572,
 		DisplayName: "Polished Granite Stairs",
 		Name:        "polished_granite_stairs",
 		StackSize:   64,
 	}
 	SmoothRedSandstoneStairs = Item{
-		ID:          550,
+		ID:          573,
 		DisplayName: "Smooth Red Sandstone Stairs",
 		Name:        "smooth_red_sandstone_stairs",
 		StackSize:   64,
 	}
 	MossyStoneBrickStairs = Item{
-		ID:          551,
+		ID:          574,
 		DisplayName: "Mossy Stone Brick Stairs",
 		Name:        "mossy_stone_brick_stairs",
 		StackSize:   64,
 	}
 	PolishedDioriteStairs = Item{
-		ID:          552,
+		ID:          575,
 		DisplayName: "Polished Diorite Stairs",
 		Name:        "polished_diorite_stairs",
 		StackSize:   64,
 	}
 	MossyCobblestoneStairs = Item{
-		ID:          553,
+		ID:          576,
 		DisplayName: "Mossy Cobblestone Stairs",
 		Name:        "mossy_cobblestone_stairs",
 		StackSize:   64,
 	}
 	EndStoneBrickStairs = Item{
-		ID:          554,
+		ID:          577,
 		DisplayName: "End Stone Brick Stairs",
 		Name:        "end_stone_brick_stairs",
 		StackSize:   64,
 	}
 	StoneStairs = Item{
-		ID:          555,
+		ID:          578,
 		DisplayName: "Stone Stairs",
 		Name:        "stone_stairs",
 		StackSize:   64,
 	}
 	SmoothSandstoneStairs = Item{
-		ID:          556,
+		ID:          579,
 		DisplayName: "Smooth Sandstone Stairs",
 		Name:        "smooth_sandstone_stairs",
 		StackSize:   64,
 	}
 	SmoothQuartzStairs = Item{
-		ID:          557,
+		ID:          580,
 		DisplayName: "Smooth Quartz Stairs",
 		Name:        "smooth_quartz_stairs",
 		StackSize:   64,
 	}
 	GraniteStairs = Item{
-		ID:          558,
+		ID:          581,
 		DisplayName: "Granite Stairs",
 		Name:        "granite_stairs",
 		StackSize:   64,
 	}
 	AndesiteStairs = Item{
-		ID:          559,
+		ID:          582,
 		DisplayName: "Andesite Stairs",
 		Name:        "andesite_stairs",
 		StackSize:   64,
 	}
 	RedNetherBrickStairs = Item{
-		ID:          560,
+		ID:          583,
 		DisplayName: "Red Nether Brick Stairs",
 		Name:        "red_nether_brick_stairs",
 		StackSize:   64,
 	}
 	PolishedAndesiteStairs = Item{
-		ID:          561,
+		ID:          584,
 		DisplayName: "Polished Andesite Stairs",
 		Name:        "polished_andesite_stairs",
 		StackSize:   64,
 	}
 	DioriteStairs = Item{
-		ID:          562,
+		ID:          585,
 		DisplayName: "Diorite Stairs",
 		Name:        "diorite_stairs",
 		StackSize:   64,
 	}
 	CobbledDeepslateStairs = Item{
-		ID:          563,
+		ID:          586,
 		DisplayName: "Cobbled Deepslate Stairs",
 		Name:        "cobbled_deepslate_stairs",
 		StackSize:   64,
 	}
 	PolishedDeepslateStairs = Item{
-		ID:          564,
+		ID:          587,
 		DisplayName: "Polished Deepslate Stairs",
 		Name:        "polished_deepslate_stairs",
 		StackSize:   64,
 	}
 	DeepslateBrickStairs = Item{
-		ID:          565,
+		ID:          588,
 		DisplayName: "Deepslate Brick Stairs",
 		Name:        "deepslate_brick_stairs",
 		StackSize:   64,
 	}
 	DeepslateTileStairs = Item{
-		ID:          566,
+		ID:          589,
 		DisplayName: "Deepslate Tile Stairs",
 		Name:        "deepslate_tile_stairs",
 		StackSize:   64,
 	}
 	PolishedGraniteSlab = Item{
-		ID:          567,
+		ID:          590,
 		DisplayName: "Polished Granite Slab",
 		Name:        "polished_granite_slab",
 		StackSize:   64,
 	}
 	SmoothRedSandstoneSlab = Item{
-		ID:          568,
+		ID:          591,
 		DisplayName: "Smooth Red Sandstone Slab",
 		Name:        "smooth_red_sandstone_slab",
 		StackSize:   64,
 	}
 	MossyStoneBrickSlab = Item{
-		ID:          569,
+		ID:          592,
 		DisplayName: "Mossy Stone Brick Slab",
 		Name:        "mossy_stone_brick_slab",
 		StackSize:   64,
 	}
 	PolishedDioriteSlab = Item{
-		ID:          570,
+		ID:          593,
 		DisplayName: "Polished Diorite Slab",
 		Name:        "polished_diorite_slab",
 		StackSize:   64,
 	}
 	MossyCobblestoneSlab = Item{
-		ID:          571,
+		ID:          594,
 		DisplayName: "Mossy Cobblestone Slab",
 		Name:        "mossy_cobblestone_slab",
 		StackSize:   64,
 	}
 	EndStoneBrickSlab = Item{
-		ID:          572,
+		ID:          595,
 		DisplayName: "End Stone Brick Slab",
 		Name:        "end_stone_brick_slab",
 		StackSize:   64,
 	}
 	SmoothSandstoneSlab = Item{
-		ID:          573,
+		ID:          596,
 		DisplayName: "Smooth Sandstone Slab",
 		Name:        "smooth_sandstone_slab",
 		StackSize:   64,
 	}
 	SmoothQuartzSlab = Item{
-		ID:          574,
+		ID:          597,
 		DisplayName: "Smooth Quartz Slab",
 		Name:        "smooth_quartz_slab",
 		StackSize:   64,
 	}
 	GraniteSlab = Item{
-		ID:          575,
+		ID:          598,
 		DisplayName: "Granite Slab",
 		Name:        "granite_slab",
 		StackSize:   64,
 	}
 	AndesiteSlab = Item{
-		ID:          576,
+		ID:          599,
 		DisplayName: "Andesite Slab",
 		Name:        "andesite_slab",
 		StackSize:   64,
 	}
 	RedNetherBrickSlab = Item{
-		ID:          577,
+		ID:          600,
 		DisplayName: "Red Nether Brick Slab",
 		Name:        "red_nether_brick_slab",
 		StackSize:   64,
 	}
 	PolishedAndesiteSlab = Item{
-		ID:          578,
+		ID:          601,
 		DisplayName: "Polished Andesite Slab",
 		Name:        "polished_andesite_slab",
 		StackSize:   64,
 	}
 	DioriteSlab = Item{
-		ID:          579,
+		ID:          602,
 		DisplayName: "Diorite Slab",
 		Name:        "diorite_slab",
 		StackSize:   64,
 	}
 	CobbledDeepslateSlab = Item{
-		ID:          580,
+		ID:          603,
 		DisplayName: "Cobbled Deepslate Slab",
 		Name:        "cobbled_deepslate_slab",
 		StackSize:   64,
 	}
 	PolishedDeepslateSlab = Item{
-		ID:          581,
+		ID:          604,
 		DisplayName: "Polished Deepslate Slab",
 		Name:        "polished_deepslate_slab",
 		StackSize:   64,
 	}
 	DeepslateBrickSlab = Item{
-		ID:          582,
+		ID:          605,
 		DisplayName: "Deepslate Brick Slab",
 		Name:        "deepslate_brick_slab",
 		StackSize:   64,
 	}
 	DeepslateTileSlab = Item{
-		ID:          583,
+		ID:          606,
 		DisplayName: "Deepslate Tile Slab",
 		Name:        "deepslate_tile_slab",
 		StackSize:   64,
 	}
 	Scaffolding = Item{
-		ID:          584,
+		ID:          607,
 		DisplayName: "Scaffolding",
 		Name:        "scaffolding",
 		StackSize:   64,
 	}
 	Redstone = Item{
-		ID:          585,
+		ID:          608,
 		DisplayName: "Redstone Dust",
 		Name:        "redstone",
 		StackSize:   64,
 	}
 	RedstoneTorch = Item{
-		ID:          586,
+		ID:          609,
 		DisplayName: "Redstone Torch",
 		Name:        "redstone_torch",
 		StackSize:   64,
 	}
 	RedstoneBlock = Item{
-		ID:          587,
+		ID:          610,
 		DisplayName: "Block of Redstone",
 		Name:        "redstone_block",
 		StackSize:   64,
 	}
 	Repeater = Item{
-		ID:          588,
+		ID:          611,
 		DisplayName: "Redstone Repeater",
 		Name:        "repeater",
 		StackSize:   64,
 	}
 	Comparator = Item{
-		ID:          589,
+		ID:          612,
 		DisplayName: "Redstone Comparator",
 		Name:        "comparator",
 		StackSize:   64,
 	}
 	Piston = Item{
-		ID:          590,
+		ID:          613,
 		DisplayName: "Piston",
 		Name:        "piston",
 		StackSize:   64,
 	}
 	StickyPiston = Item{
-		ID:          591,
+		ID:          614,
 		DisplayName: "Sticky Piston",
 		Name:        "sticky_piston",
 		StackSize:   64,
 	}
 	SlimeBlock = Item{
-		ID:          592,
+		ID:          615,
 		DisplayName: "Slime Block",
 		Name:        "slime_block",
 		StackSize:   64,
 	}
 	HoneyBlock = Item{
-		ID:          593,
+		ID:          616,
 		DisplayName: "Honey Block",
 		Name:        "honey_block",
 		StackSize:   64,
 	}
 	Observer = Item{
-		ID:          594,
+		ID:          617,
 		DisplayName: "Observer",
 		Name:        "observer",
 		StackSize:   64,
 	}
 	Hopper = Item{
-		ID:          595,
+		ID:          618,
 		DisplayName: "Hopper",
 		Name:        "hopper",
 		StackSize:   64,
 	}
 	Dispenser = Item{
-		ID:          596,
+		ID:          619,
 		DisplayName: "Dispenser",
 		Name:        "dispenser",
 		StackSize:   64,
 	}
 	Dropper = Item{
-		ID:          597,
+		ID:          620,
 		DisplayName: "Dropper",
 		Name:        "dropper",
 		StackSize:   64,
 	}
 	Lectern = Item{
-		ID:          598,
+		ID:          621,
 		DisplayName: "Lectern",
 		Name:        "lectern",
 		StackSize:   64,
 	}
 	Target = Item{
-		ID:          599,
+		ID:          622,
 		DisplayName: "Target",
 		Name:        "target",
 		StackSize:   64,
 	}
 	Lever = Item{
-		ID:          600,
+		ID:          623,
 		DisplayName: "Lever",
 		Name:        "lever",
 		StackSize:   64,
 	}
 	LightningRod = Item{
-		ID:          601,
+		ID:          624,
 		DisplayName: "Lightning Rod",
 		Name:        "lightning_rod",
 		StackSize:   64,
 	}
 	DaylightDetector = Item{
-		ID:          602,
+		ID:          625,
 		DisplayName: "Daylight Detector",
 		Name:        "daylight_detector",
 		StackSize:   64,
 	}
 	SculkSensor = Item{
-		ID:          603,
+		ID:          626,
 		DisplayName: "Sculk Sensor",
 		Name:        "sculk_sensor",
 		StackSize:   64,
 	}
 	TripwireHook = Item{
-		ID:          604,
+		ID:          627,
 		DisplayName: "Tripwire Hook",
 		Name:        "tripwire_hook",
 		StackSize:   64,
 	}
 	TrappedChest = Item{
-		ID:          605,
+		ID:          628,
 		DisplayName: "Trapped Chest",
 		Name:        "trapped_chest",
 		StackSize:   64,
 	}
 	Tnt = Item{
-		ID:          606,
+		ID:          629,
 		DisplayName: "TNT",
 		Name:        "tnt",
 		StackSize:   64,
 	}
 	RedstoneLamp = Item{
-		ID:          607,
+		ID:          630,
 		DisplayName: "Redstone Lamp",
 		Name:        "redstone_lamp",
 		StackSize:   64,
 	}
 	NoteBlock = Item{
-		ID:          608,
+		ID:          631,
 		DisplayName: "Note Block",
 		Name:        "note_block",
 		StackSize:   64,
 	}
 	StoneButton = Item{
-		ID:          609,
+		ID:          632,
 		DisplayName: "Stone Button",
 		Name:        "stone_button",
 		StackSize:   64,
 	}
 	PolishedBlackstoneButton = Item{
-		ID:          610,
+		ID:          633,
 		DisplayName: "Polished Blackstone Button",
 		Name:        "polished_blackstone_button",
 		StackSize:   64,
 	}
 	OakButton = Item{
-		ID:          611,
+		ID:          634,
 		DisplayName: "Oak Button",
 		Name:        "oak_button",
 		StackSize:   64,
 	}
 	SpruceButton = Item{
-		ID:          612,
+		ID:          635,
 		DisplayName: "Spruce Button",
 		Name:        "spruce_button",
 		StackSize:   64,
 	}
 	BirchButton = Item{
-		ID:          613,
+		ID:          636,
 		DisplayName: "Birch Button",
 		Name:        "birch_button",
 		StackSize:   64,
 	}
 	JungleButton = Item{
-		ID:          614,
+		ID:          637,
 		DisplayName: "Jungle Button",
 		Name:        "jungle_button",
 		StackSize:   64,
 	}
 	AcaciaButton = Item{
-		ID:          615,
+		ID:          638,
 		DisplayName: "Acacia Button",
 		Name:        "acacia_button",
 		StackSize:   64,
 	}
 	DarkOakButton = Item{
-		ID:          616,
+		ID:          639,
 		DisplayName: "Dark Oak Button",
 		Name:        "dark_oak_button",
 		StackSize:   64,
 	}
+	MangroveButton = Item{
+		ID:          640,
+		DisplayName: "Mangrove Button",
+		Name:        "mangrove_button",
+		StackSize:   64,
+	}
 	CrimsonButton = Item{
-		ID:          617,
+		ID:          641,
 		DisplayName: "Crimson Button",
 		Name:        "crimson_button",
 		StackSize:   64,
 	}
 	WarpedButton = Item{
-		ID:          618,
+		ID:          642,
 		DisplayName: "Warped Button",
 		Name:        "warped_button",
 		StackSize:   64,
 	}
 	StonePressurePlate = Item{
-		ID:          619,
+		ID:          643,
 		DisplayName: "Stone Pressure Plate",
 		Name:        "stone_pressure_plate",
 		StackSize:   64,
 	}
 	PolishedBlackstonePressurePlate = Item{
-		ID:          620,
+		ID:          644,
 		DisplayName: "Polished Blackstone Pressure Plate",
 		Name:        "polished_blackstone_pressure_plate",
 		StackSize:   64,
 	}
 	LightWeightedPressurePlate = Item{
-		ID:          621,
+		ID:          645,
 		DisplayName: "Light Weighted Pressure Plate",
 		Name:        "light_weighted_pressure_plate",
 		StackSize:   64,
 	}
 	HeavyWeightedPressurePlate = Item{
-		ID:          622,
+		ID:          646,
 		DisplayName: "Heavy Weighted Pressure Plate",
 		Name:        "heavy_weighted_pressure_plate",
 		StackSize:   64,
 	}
 	OakPressurePlate = Item{
-		ID:          623,
+		ID:          647,
 		DisplayName: "Oak Pressure Plate",
 		Name:        "oak_pressure_plate",
 		StackSize:   64,
 	}
 	SprucePressurePlate = Item{
-		ID:          624,
+		ID:          648,
 		DisplayName: "Spruce Pressure Plate",
 		Name:        "spruce_pressure_plate",
 		StackSize:   64,
 	}
 	BirchPressurePlate = Item{
-		ID:          625,
+		ID:          649,
 		DisplayName: "Birch Pressure Plate",
 		Name:        "birch_pressure_plate",
 		StackSize:   64,
 	}
 	JunglePressurePlate = Item{
-		ID:          626,
+		ID:          650,
 		DisplayName: "Jungle Pressure Plate",
 		Name:        "jungle_pressure_plate",
 		StackSize:   64,
 	}
 	AcaciaPressurePlate = Item{
-		ID:          627,
+		ID:          651,
 		DisplayName: "Acacia Pressure Plate",
 		Name:        "acacia_pressure_plate",
 		StackSize:   64,
 	}
 	DarkOakPressurePlate = Item{
-		ID:          628,
+		ID:          652,
 		DisplayName: "Dark Oak Pressure Plate",
 		Name:        "dark_oak_pressure_plate",
 		StackSize:   64,
 	}
+	MangrovePressurePlate = Item{
+		ID:          653,
+		DisplayName: "Mangrove Pressure Plate",
+		Name:        "mangrove_pressure_plate",
+		StackSize:   64,
+	}
 	CrimsonPressurePlate = Item{
-		ID:          629,
+		ID:          654,
 		DisplayName: "Crimson Pressure Plate",
 		Name:        "crimson_pressure_plate",
 		StackSize:   64,
 	}
 	WarpedPressurePlate = Item{
-		ID:          630,
+		ID:          655,
 		DisplayName: "Warped Pressure Plate",
 		Name:        "warped_pressure_plate",
 		StackSize:   64,
 	}
 	IronDoor = Item{
-		ID:          631,
+		ID:          656,
 		DisplayName: "Iron Door",
 		Name:        "iron_door",
 		StackSize:   64,
 	}
 	OakDoor = Item{
-		ID:          632,
+		ID:          657,
 		DisplayName: "Oak Door",
 		Name:        "oak_door",
 		StackSize:   64,
 	}
 	SpruceDoor = Item{
-		ID:          633,
+		ID:          658,
 		DisplayName: "Spruce Door",
 		Name:        "spruce_door",
 		StackSize:   64,
 	}
 	BirchDoor = Item{
-		ID:          634,
+		ID:          659,
 		DisplayName: "Birch Door",
 		Name:        "birch_door",
 		StackSize:   64,
 	}
 	JungleDoor = Item{
-		ID:          635,
+		ID:          660,
 		DisplayName: "Jungle Door",
 		Name:        "jungle_door",
 		StackSize:   64,
 	}
 	AcaciaDoor = Item{
-		ID:          636,
+		ID:          661,
 		DisplayName: "Acacia Door",
 		Name:        "acacia_door",
 		StackSize:   64,
 	}
 	DarkOakDoor = Item{
-		ID:          637,
+		ID:          662,
 		DisplayName: "Dark Oak Door",
 		Name:        "dark_oak_door",
 		StackSize:   64,
 	}
+	MangroveDoor = Item{
+		ID:          663,
+		DisplayName: "Mangrove Door",
+		Name:        "mangrove_door",
+		StackSize:   64,
+	}
 	CrimsonDoor = Item{
-		ID:          638,
+		ID:          664,
 		DisplayName: "Crimson Door",
 		Name:        "crimson_door",
 		StackSize:   64,
 	}
 	WarpedDoor = Item{
-		ID:          639,
+		ID:          665,
 		DisplayName: "Warped Door",
 		Name:        "warped_door",
 		StackSize:   64,
 	}
 	IronTrapdoor = Item{
-		ID:          640,
+		ID:          666,
 		DisplayName: "Iron Trapdoor",
 		Name:        "iron_trapdoor",
 		StackSize:   64,
 	}
 	OakTrapdoor = Item{
-		ID:          641,
+		ID:          667,
 		DisplayName: "Oak Trapdoor",
 		Name:        "oak_trapdoor",
 		StackSize:   64,
 	}
 	SpruceTrapdoor = Item{
-		ID:          642,
+		ID:          668,
 		DisplayName: "Spruce Trapdoor",
 		Name:        "spruce_trapdoor",
 		StackSize:   64,
 	}
 	BirchTrapdoor = Item{
-		ID:          643,
+		ID:          669,
 		DisplayName: "Birch Trapdoor",
 		Name:        "birch_trapdoor",
 		StackSize:   64,
 	}
 	JungleTrapdoor = Item{
-		ID:          644,
+		ID:          670,
 		DisplayName: "Jungle Trapdoor",
 		Name:        "jungle_trapdoor",
 		StackSize:   64,
 	}
 	AcaciaTrapdoor = Item{
-		ID:          645,
+		ID:          671,
 		DisplayName: "Acacia Trapdoor",
 		Name:        "acacia_trapdoor",
 		StackSize:   64,
 	}
 	DarkOakTrapdoor = Item{
-		ID:          646,
+		ID:          672,
 		DisplayName: "Dark Oak Trapdoor",
 		Name:        "dark_oak_trapdoor",
 		StackSize:   64,
 	}
+	MangroveTrapdoor = Item{
+		ID:          673,
+		DisplayName: "Mangrove Trapdoor",
+		Name:        "mangrove_trapdoor",
+		StackSize:   64,
+	}
 	CrimsonTrapdoor = Item{
-		ID:          647,
+		ID:          674,
 		DisplayName: "Crimson Trapdoor",
 		Name:        "crimson_trapdoor",
 		StackSize:   64,
 	}
 	WarpedTrapdoor = Item{
-		ID:          648,
+		ID:          675,
 		DisplayName: "Warped Trapdoor",
 		Name:        "warped_trapdoor",
 		StackSize:   64,
 	}
 	OakFenceGate = Item{
-		ID:          649,
+		ID:          676,
 		DisplayName: "Oak Fence Gate",
 		Name:        "oak_fence_gate",
 		StackSize:   64,
 	}
 	SpruceFenceGate = Item{
-		ID:          650,
+		ID:          677,
 		DisplayName: "Spruce Fence Gate",
 		Name:        "spruce_fence_gate",
 		StackSize:   64,
 	}
 	BirchFenceGate = Item{
-		ID:          651,
+		ID:          678,
 		DisplayName: "Birch Fence Gate",
 		Name:        "birch_fence_gate",
 		StackSize:   64,
 	}
 	JungleFenceGate = Item{
-		ID:          652,
+		ID:          679,
 		DisplayName: "Jungle Fence Gate",
 		Name:        "jungle_fence_gate",
 		StackSize:   64,
 	}
 	AcaciaFenceGate = Item{
-		ID:          653,
+		ID:          680,
 		DisplayName: "Acacia Fence Gate",
 		Name:        "acacia_fence_gate",
 		StackSize:   64,
 	}
 	DarkOakFenceGate = Item{
-		ID:          654,
+		ID:          681,
 		DisplayName: "Dark Oak Fence Gate",
 		Name:        "dark_oak_fence_gate",
 		StackSize:   64,
 	}
+	MangroveFenceGate = Item{
+		ID:          682,
+		DisplayName: "Mangrove Fence Gate",
+		Name:        "mangrove_fence_gate",
+		StackSize:   64,
+	}
 	CrimsonFenceGate = Item{
-		ID:          655,
+		ID:          683,
 		DisplayName: "Crimson Fence Gate",
 		Name:        "crimson_fence_gate",
 		StackSize:   64,
 	}
 	WarpedFenceGate = Item{
-		ID:          656,
+		ID:          684,
 		DisplayName: "Warped Fence Gate",
 		Name:        "warped_fence_gate",
 		StackSize:   64,
 	}
 	PoweredRail = Item{
-		ID:          657,
+		ID:          685,
 		DisplayName: "Powered Rail",
 		Name:        "powered_rail",
 		StackSize:   64,
 	}
 	DetectorRail = Item{
-		ID:          658,
+		ID:          686,
 		DisplayName: "Detector Rail",
 		Name:        "detector_rail",
 		StackSize:   64,
 	}
 	Rail = Item{
-		ID:          659,
+		ID:          687,
 		DisplayName: "Rail",
 		Name:        "rail",
 		StackSize:   64,
 	}
 	ActivatorRail = Item{
-		ID:          660,
+		ID:          688,
 		DisplayName: "Activator Rail",
 		Name:        "activator_rail",
 		StackSize:   64,
 	}
 	Saddle = Item{
-		ID:          661,
+		ID:          689,
 		DisplayName: "Saddle",
 		Name:        "saddle",
 		StackSize:   1,
 	}
 	Minecart = Item{
-		ID:          662,
+		ID:          690,
 		DisplayName: "Minecart",
 		Name:        "minecart",
 		StackSize:   1,
 	}
 	ChestMinecart = Item{
-		ID:          663,
+		ID:          691,
 		DisplayName: "Minecart with Chest",
 		Name:        "chest_minecart",
 		StackSize:   1,
 	}
 	FurnaceMinecart = Item{
-		ID:          664,
+		ID:          692,
 		DisplayName: "Minecart with Furnace",
 		Name:        "furnace_minecart",
 		StackSize:   1,
 	}
 	TntMinecart = Item{
-		ID:          665,
+		ID:          693,
 		DisplayName: "Minecart with TNT",
 		Name:        "tnt_minecart",
 		StackSize:   1,
 	}
 	HopperMinecart = Item{
-		ID:          666,
+		ID:          694,
 		DisplayName: "Minecart with Hopper",
 		Name:        "hopper_minecart",
 		StackSize:   1,
 	}
 	CarrotOnAStick = Item{
-		ID:          667,
+		ID:          695,
 		DisplayName: "Carrot on a Stick",
 		Name:        "carrot_on_a_stick",
 		StackSize:   1,
 	}
 	WarpedFungusOnAStick = Item{
-		ID:          668,
+		ID:          696,
 		DisplayName: "Warped Fungus on a Stick",
 		Name:        "warped_fungus_on_a_stick",
-		StackSize:   64,
+		StackSize:   1,
 	}
 	Elytra = Item{
-		ID:          669,
+		ID:          697,
 		DisplayName: "Elytra",
 		Name:        "elytra",
 		StackSize:   1,
 	}
 	OakBoat = Item{
-		ID:          670,
+		ID:          698,
 		DisplayName: "Oak Boat",
 		Name:        "oak_boat",
 		StackSize:   1,
 	}
+	OakChestBoat = Item{
+		ID:          699,
+		DisplayName: "Oak Boat with Chest",
+		Name:        "oak_chest_boat",
+		StackSize:   1,
+	}
 	SpruceBoat = Item{
-		ID:          671,
+		ID:          700,
 		DisplayName: "Spruce Boat",
 		Name:        "spruce_boat",
 		StackSize:   1,
 	}
+	SpruceChestBoat = Item{
+		ID:          701,
+		DisplayName: "Spruce Boat with Chest",
+		Name:        "spruce_chest_boat",
+		StackSize:   1,
+	}
 	BirchBoat = Item{
-		ID:          672,
+		ID:          702,
 		DisplayName: "Birch Boat",
 		Name:        "birch_boat",
 		StackSize:   1,
 	}
+	BirchChestBoat = Item{
+		ID:          703,
+		DisplayName: "Birch Boat with Chest",
+		Name:        "birch_chest_boat",
+		StackSize:   1,
+	}
 	JungleBoat = Item{
-		ID:          673,
+		ID:          704,
 		DisplayName: "Jungle Boat",
 		Name:        "jungle_boat",
 		StackSize:   1,
 	}
+	JungleChestBoat = Item{
+		ID:          705,
+		DisplayName: "Jungle Boat with Chest",
+		Name:        "jungle_chest_boat",
+		StackSize:   1,
+	}
 	AcaciaBoat = Item{
-		ID:          674,
+		ID:          706,
 		DisplayName: "Acacia Boat",
 		Name:        "acacia_boat",
 		StackSize:   1,
 	}
+	AcaciaChestBoat = Item{
+		ID:          707,
+		DisplayName: "Acacia Boat with Chest",
+		Name:        "acacia_chest_boat",
+		StackSize:   1,
+	}
 	DarkOakBoat = Item{
-		ID:          675,
+		ID:          708,
 		DisplayName: "Dark Oak Boat",
 		Name:        "dark_oak_boat",
 		StackSize:   1,
 	}
+	DarkOakChestBoat = Item{
+		ID:          709,
+		DisplayName: "Dark Oak Boat with Chest",
+		Name:        "dark_oak_chest_boat",
+		StackSize:   1,
+	}
+	MangroveBoat = Item{
+		ID:          710,
+		DisplayName: "Mangrove Boat",
+		Name:        "mangrove_boat",
+		StackSize:   1,
+	}
+	MangroveChestBoat = Item{
+		ID:          711,
+		DisplayName: "Mangrove Boat with Chest",
+		Name:        "mangrove_chest_boat",
+		StackSize:   1,
+	}
 	StructureBlock = Item{
-		ID:          676,
+		ID:          712,
 		DisplayName: "Structure Block",
 		Name:        "structure_block",
 		StackSize:   64,
 	}
 	Jigsaw = Item{
-		ID:          677,
+		ID:          713,
 		DisplayName: "Jigsaw Block",
 		Name:        "jigsaw",
 		StackSize:   64,
 	}
 	TurtleHelmet = Item{
-		ID:          678,
+		ID:          714,
 		DisplayName: "Turtle Shell",
 		Name:        "turtle_helmet",
 		StackSize:   1,
 	}
 	Scute = Item{
-		ID:          679,
+		ID:          715,
 		DisplayName: "Scute",
 		Name:        "scute",
 		StackSize:   64,
 	}
 	FlintAndSteel = Item{
-		ID:          680,
+		ID:          716,
 		DisplayName: "Flint and Steel",
 		Name:        "flint_and_steel",
 		StackSize:   1,
 	}
 	Apple = Item{
-		ID:          681,
+		ID:          717,
 		DisplayName: "Apple",
 		Name:        "apple",
 		StackSize:   64,
 	}
 	Bow = Item{
-		ID:          682,
+		ID:          718,
 		DisplayName: "Bow",
 		Name:        "bow",
 		StackSize:   1,
 	}
 	Arrow = Item{
-		ID:          683,
+		ID:          719,
 		DisplayName: "Arrow",
 		Name:        "arrow",
 		StackSize:   64,
 	}
 	Coal = Item{
-		ID:          684,
+		ID:          720,
 		DisplayName: "Coal",
 		Name:        "coal",
 		StackSize:   64,
 	}
 	Charcoal = Item{
-		ID:          685,
+		ID:          721,
 		DisplayName: "Charcoal",
 		Name:        "charcoal",
 		StackSize:   64,
 	}
 	Diamond = Item{
-		ID:          686,
+		ID:          722,
 		DisplayName: "Diamond",
 		Name:        "diamond",
 		StackSize:   64,
 	}
 	Emerald = Item{
-		ID:          687,
+		ID:          723,
 		DisplayName: "Emerald",
 		Name:        "emerald",
 		StackSize:   64,
 	}
 	LapisLazuli = Item{
-		ID:          688,
+		ID:          724,
 		DisplayName: "Lapis Lazuli",
 		Name:        "lapis_lazuli",
 		StackSize:   64,
 	}
 	Quartz = Item{
-		ID:          689,
+		ID:          725,
 		DisplayName: "Nether Quartz",
 		Name:        "quartz",
 		StackSize:   64,
 	}
 	AmethystShard = Item{
-		ID:          690,
+		ID:          726,
 		DisplayName: "Amethyst Shard",
 		Name:        "amethyst_shard",
 		StackSize:   64,
 	}
 	RawIron = Item{
-		ID:          691,
+		ID:          727,
 		DisplayName: "Raw Iron",
 		Name:        "raw_iron",
 		StackSize:   64,
 	}
 	IronIngot = Item{
-		ID:          692,
+		ID:          728,
 		DisplayName: "Iron Ingot",
 		Name:        "iron_ingot",
 		StackSize:   64,
 	}
 	RawCopper = Item{
-		ID:          693,
+		ID:          729,
 		DisplayName: "Raw Copper",
 		Name:        "raw_copper",
 		StackSize:   64,
 	}
 	CopperIngot = Item{
-		ID:          694,
+		ID:          730,
 		DisplayName: "Copper Ingot",
 		Name:        "copper_ingot",
 		StackSize:   64,
 	}
 	RawGold = Item{
-		ID:          695,
+		ID:          731,
 		DisplayName: "Raw Gold",
 		Name:        "raw_gold",
 		StackSize:   64,
 	}
 	GoldIngot = Item{
-		ID:          696,
+		ID:          732,
 		DisplayName: "Gold Ingot",
 		Name:        "gold_ingot",
 		StackSize:   64,
 	}
 	NetheriteIngot = Item{
-		ID:          697,
+		ID:          733,
 		DisplayName: "Netherite Ingot",
 		Name:        "netherite_ingot",
 		StackSize:   64,
 	}
 	NetheriteScrap = Item{
-		ID:          698,
+		ID:          734,
 		DisplayName: "Netherite Scrap",
 		Name:        "netherite_scrap",
 		StackSize:   64,
 	}
 	WoodenSword = Item{
-		ID:          699,
+		ID:          735,
 		DisplayName: "Wooden Sword",
 		Name:        "wooden_sword",
 		StackSize:   1,
 	}
 	WoodenShovel = Item{
-		ID:          700,
+		ID:          736,
 		DisplayName: "Wooden Shovel",
 		Name:        "wooden_shovel",
 		StackSize:   1,
 	}
 	WoodenPickaxe = Item{
-		ID:          701,
+		ID:          737,
 		DisplayName: "Wooden Pickaxe",
 		Name:        "wooden_pickaxe",
 		StackSize:   1,
 	}
 	WoodenAxe = Item{
-		ID:          702,
+		ID:          738,
 		DisplayName: "Wooden Axe",
 		Name:        "wooden_axe",
 		StackSize:   1,
 	}
 	WoodenHoe = Item{
-		ID:          703,
+		ID:          739,
 		DisplayName: "Wooden Hoe",
 		Name:        "wooden_hoe",
 		StackSize:   1,
 	}
 	StoneSword = Item{
-		ID:          704,
+		ID:          740,
 		DisplayName: "Stone Sword",
 		Name:        "stone_sword",
 		StackSize:   1,
 	}
 	StoneShovel = Item{
-		ID:          705,
+		ID:          741,
 		DisplayName: "Stone Shovel",
 		Name:        "stone_shovel",
 		StackSize:   1,
 	}
 	StonePickaxe = Item{
-		ID:          706,
+		ID:          742,
 		DisplayName: "Stone Pickaxe",
 		Name:        "stone_pickaxe",
 		StackSize:   1,
 	}
 	StoneAxe = Item{
-		ID:          707,
+		ID:          743,
 		DisplayName: "Stone Axe",
 		Name:        "stone_axe",
 		StackSize:   1,
 	}
 	StoneHoe = Item{
-		ID:          708,
+		ID:          744,
 		DisplayName: "Stone Hoe",
 		Name:        "stone_hoe",
 		StackSize:   1,
 	}
 	GoldenSword = Item{
-		ID:          709,
+		ID:          745,
 		DisplayName: "Golden Sword",
 		Name:        "golden_sword",
 		StackSize:   1,
 	}
 	GoldenShovel = Item{
-		ID:          710,
+		ID:          746,
 		DisplayName: "Golden Shovel",
 		Name:        "golden_shovel",
 		StackSize:   1,
 	}
 	GoldenPickaxe = Item{
-		ID:          711,
+		ID:          747,
 		DisplayName: "Golden Pickaxe",
 		Name:        "golden_pickaxe",
 		StackSize:   1,
 	}
 	GoldenAxe = Item{
-		ID:          712,
+		ID:          748,
 		DisplayName: "Golden Axe",
 		Name:        "golden_axe",
 		StackSize:   1,
 	}
 	GoldenHoe = Item{
-		ID:          713,
+		ID:          749,
 		DisplayName: "Golden Hoe",
 		Name:        "golden_hoe",
 		StackSize:   1,
 	}
 	IronSword = Item{
-		ID:          714,
+		ID:          750,
 		DisplayName: "Iron Sword",
 		Name:        "iron_sword",
 		StackSize:   1,
 	}
 	IronShovel = Item{
-		ID:          715,
+		ID:          751,
 		DisplayName: "Iron Shovel",
 		Name:        "iron_shovel",
 		StackSize:   1,
 	}
 	IronPickaxe = Item{
-		ID:          716,
+		ID:          752,
 		DisplayName: "Iron Pickaxe",
 		Name:        "iron_pickaxe",
 		StackSize:   1,
 	}
 	IronAxe = Item{
-		ID:          717,
+		ID:          753,
 		DisplayName: "Iron Axe",
 		Name:        "iron_axe",
 		StackSize:   1,
 	}
 	IronHoe = Item{
-		ID:          718,
+		ID:          754,
 		DisplayName: "Iron Hoe",
 		Name:        "iron_hoe",
 		StackSize:   1,
 	}
 	DiamondSword = Item{
-		ID:          719,
+		ID:          755,
 		DisplayName: "Diamond Sword",
 		Name:        "diamond_sword",
 		StackSize:   1,
 	}
 	DiamondShovel = Item{
-		ID:          720,
+		ID:          756,
 		DisplayName: "Diamond Shovel",
 		Name:        "diamond_shovel",
 		StackSize:   1,
 	}
 	DiamondPickaxe = Item{
-		ID:          721,
+		ID:          757,
 		DisplayName: "Diamond Pickaxe",
 		Name:        "diamond_pickaxe",
 		StackSize:   1,
 	}
 	DiamondAxe = Item{
-		ID:          722,
+		ID:          758,
 		DisplayName: "Diamond Axe",
 		Name:        "diamond_axe",
 		StackSize:   1,
 	}
 	DiamondHoe = Item{
-		ID:          723,
+		ID:          759,
 		DisplayName: "Diamond Hoe",
 		Name:        "diamond_hoe",
 		StackSize:   1,
 	}
 	NetheriteSword = Item{
-		ID:          724,
+		ID:          760,
 		DisplayName: "Netherite Sword",
 		Name:        "netherite_sword",
 		StackSize:   1,
 	}
 	NetheriteShovel = Item{
-		ID:          725,
+		ID:          761,
 		DisplayName: "Netherite Shovel",
 		Name:        "netherite_shovel",
 		StackSize:   1,
 	}
 	NetheritePickaxe = Item{
-		ID:          726,
+		ID:          762,
 		DisplayName: "Netherite Pickaxe",
 		Name:        "netherite_pickaxe",
 		StackSize:   1,
 	}
 	NetheriteAxe = Item{
-		ID:          727,
+		ID:          763,
 		DisplayName: "Netherite Axe",
 		Name:        "netherite_axe",
 		StackSize:   1,
 	}
 	NetheriteHoe = Item{
-		ID:          728,
+		ID:          764,
 		DisplayName: "Netherite Hoe",
 		Name:        "netherite_hoe",
 		StackSize:   1,
 	}
 	Stick = Item{
-		ID:          729,
+		ID:          765,
 		DisplayName: "Stick",
 		Name:        "stick",
 		StackSize:   64,
 	}
 	Bowl = Item{
-		ID:          730,
+		ID:          766,
 		DisplayName: "Bowl",
 		Name:        "bowl",
 		StackSize:   64,
 	}
 	MushroomStew = Item{
-		ID:          731,
+		ID:          767,
 		DisplayName: "Mushroom Stew",
 		Name:        "mushroom_stew",
 		StackSize:   1,
 	}
 	String = Item{
-		ID:          732,
+		ID:          768,
 		DisplayName: "String",
 		Name:        "string",
 		StackSize:   64,
 	}
 	Feather = Item{
-		ID:          733,
+		ID:          769,
 		DisplayName: "Feather",
 		Name:        "feather",
 		StackSize:   64,
 	}
 	Gunpowder = Item{
-		ID:          734,
+		ID:          770,
 		DisplayName: "Gunpowder",
 		Name:        "gunpowder",
 		StackSize:   64,
 	}
 	WheatSeeds = Item{
-		ID:          735,
+		ID:          771,
 		DisplayName: "Wheat Seeds",
 		Name:        "wheat_seeds",
 		StackSize:   64,
 	}
 	Wheat = Item{
-		ID:          736,
+		ID:          772,
 		DisplayName: "Wheat",
 		Name:        "wheat",
 		StackSize:   64,
 	}
 	Bread = Item{
-		ID:          737,
+		ID:          773,
 		DisplayName: "Bread",
 		Name:        "bread",
 		StackSize:   64,
 	}
 	LeatherHelmet = Item{
-		ID:          738,
+		ID:          774,
 		DisplayName: "Leather Cap",
 		Name:        "leather_helmet",
 		StackSize:   1,
 	}
 	LeatherChestplate = Item{
-		ID:          739,
+		ID:          775,
 		DisplayName: "Leather Tunic",
 		Name:        "leather_chestplate",
 		StackSize:   1,
 	}
 	LeatherLeggings = Item{
-		ID:          740,
+		ID:          776,
 		DisplayName: "Leather Pants",
 		Name:        "leather_leggings",
 		StackSize:   1,
 	}
 	LeatherBoots = Item{
-		ID:          741,
+		ID:          777,
 		DisplayName: "Leather Boots",
 		Name:        "leather_boots",
 		StackSize:   1,
 	}
 	ChainmailHelmet = Item{
-		ID:          742,
+		ID:          778,
 		DisplayName: "Chainmail Helmet",
 		Name:        "chainmail_helmet",
 		StackSize:   1,
 	}
 	ChainmailChestplate = Item{
-		ID:          743,
+		ID:          779,
 		DisplayName: "Chainmail Chestplate",
 		Name:        "chainmail_chestplate",
 		StackSize:   1,
 	}
 	ChainmailLeggings = Item{
-		ID:          744,
+		ID:          780,
 		DisplayName: "Chainmail Leggings",
 		Name:        "chainmail_leggings",
 		StackSize:   1,
 	}
 	ChainmailBoots = Item{
-		ID:          745,
+		ID:          781,
 		DisplayName: "Chainmail Boots",
 		Name:        "chainmail_boots",
 		StackSize:   1,
 	}
 	IronHelmet = Item{
-		ID:          746,
+		ID:          782,
 		DisplayName: "Iron Helmet",
 		Name:        "iron_helmet",
 		StackSize:   1,
 	}
 	IronChestplate = Item{
-		ID:          747,
+		ID:          783,
 		DisplayName: "Iron Chestplate",
 		Name:        "iron_chestplate",
 		StackSize:   1,
 	}
 	IronLeggings = Item{
-		ID:          748,
+		ID:          784,
 		DisplayName: "Iron Leggings",
 		Name:        "iron_leggings",
 		StackSize:   1,
 	}
 	IronBoots = Item{
-		ID:          749,
+		ID:          785,
 		DisplayName: "Iron Boots",
 		Name:        "iron_boots",
 		StackSize:   1,
 	}
 	DiamondHelmet = Item{
-		ID:          750,
+		ID:          786,
 		DisplayName: "Diamond Helmet",
 		Name:        "diamond_helmet",
 		StackSize:   1,
 	}
 	DiamondChestplate = Item{
-		ID:          751,
+		ID:          787,
 		DisplayName: "Diamond Chestplate",
 		Name:        "diamond_chestplate",
 		StackSize:   1,
 	}
 	DiamondLeggings = Item{
-		ID:          752,
+		ID:          788,
 		DisplayName: "Diamond Leggings",
 		Name:        "diamond_leggings",
 		StackSize:   1,
 	}
 	DiamondBoots = Item{
-		ID:          753,
+		ID:          789,
 		DisplayName: "Diamond Boots",
 		Name:        "diamond_boots",
 		StackSize:   1,
 	}
 	GoldenHelmet = Item{
-		ID:          754,
+		ID:          790,
 		DisplayName: "Golden Helmet",
 		Name:        "golden_helmet",
 		StackSize:   1,
 	}
 	GoldenChestplate = Item{
-		ID:          755,
+		ID:          791,
 		DisplayName: "Golden Chestplate",
 		Name:        "golden_chestplate",
 		StackSize:   1,
 	}
 	GoldenLeggings = Item{
-		ID:          756,
+		ID:          792,
 		DisplayName: "Golden Leggings",
 		Name:        "golden_leggings",
 		StackSize:   1,
 	}
 	GoldenBoots = Item{
-		ID:          757,
+		ID:          793,
 		DisplayName: "Golden Boots",
 		Name:        "golden_boots",
 		StackSize:   1,
 	}
 	NetheriteHelmet = Item{
-		ID:          758,
+		ID:          794,
 		DisplayName: "Netherite Helmet",
 		Name:        "netherite_helmet",
 		StackSize:   1,
 	}
 	NetheriteChestplate = Item{
-		ID:          759,
+		ID:          795,
 		DisplayName: "Netherite Chestplate",
 		Name:        "netherite_chestplate",
 		StackSize:   1,
 	}
 	NetheriteLeggings = Item{
-		ID:          760,
+		ID:          796,
 		DisplayName: "Netherite Leggings",
 		Name:        "netherite_leggings",
 		StackSize:   1,
 	}
 	NetheriteBoots = Item{
-		ID:          761,
+		ID:          797,
 		DisplayName: "Netherite Boots",
 		Name:        "netherite_boots",
 		StackSize:   1,
 	}
 	Flint = Item{
-		ID:          762,
+		ID:          798,
 		DisplayName: "Flint",
 		Name:        "flint",
 		StackSize:   64,
 	}
 	Porkchop = Item{
-		ID:          763,
+		ID:          799,
 		DisplayName: "Raw Porkchop",
 		Name:        "porkchop",
 		StackSize:   64,
 	}
 	CookedPorkchop = Item{
-		ID:          764,
+		ID:          800,
 		DisplayName: "Cooked Porkchop",
 		Name:        "cooked_porkchop",
 		StackSize:   64,
 	}
 	Painting = Item{
-		ID:          765,
+		ID:          801,
 		DisplayName: "Painting",
 		Name:        "painting",
 		StackSize:   64,
 	}
 	GoldenApple = Item{
-		ID:          766,
+		ID:          802,
 		DisplayName: "Golden Apple",
 		Name:        "golden_apple",
 		StackSize:   64,
 	}
 	EnchantedGoldenApple = Item{
-		ID:          767,
+		ID:          803,
 		DisplayName: "Enchanted Golden Apple",
 		Name:        "enchanted_golden_apple",
 		StackSize:   64,
 	}
 	OakSign = Item{
-		ID:          768,
+		ID:          804,
 		DisplayName: "Oak Sign",
 		Name:        "oak_sign",
 		StackSize:   16,
 	}
 	SpruceSign = Item{
-		ID:          769,
+		ID:          805,
 		DisplayName: "Spruce Sign",
 		Name:        "spruce_sign",
 		StackSize:   16,
 	}
 	BirchSign = Item{
-		ID:          770,
+		ID:          806,
 		DisplayName: "Birch Sign",
 		Name:        "birch_sign",
 		StackSize:   16,
 	}
 	JungleSign = Item{
-		ID:          771,
+		ID:          807,
 		DisplayName: "Jungle Sign",
 		Name:        "jungle_sign",
 		StackSize:   16,
 	}
 	AcaciaSign = Item{
-		ID:          772,
+		ID:          808,
 		DisplayName: "Acacia Sign",
 		Name:        "acacia_sign",
 		StackSize:   16,
 	}
 	DarkOakSign = Item{
-		ID:          773,
+		ID:          809,
 		DisplayName: "Dark Oak Sign",
 		Name:        "dark_oak_sign",
 		StackSize:   16,
 	}
+	MangroveSign = Item{
+		ID:          810,
+		DisplayName: "Mangrove Sign",
+		Name:        "mangrove_sign",
+		StackSize:   16,
+	}
 	CrimsonSign = Item{
-		ID:          774,
+		ID:          811,
 		DisplayName: "Crimson Sign",
 		Name:        "crimson_sign",
 		StackSize:   16,
 	}
 	WarpedSign = Item{
-		ID:          775,
+		ID:          812,
 		DisplayName: "Warped Sign",
 		Name:        "warped_sign",
 		StackSize:   16,
 	}
 	Bucket = Item{
-		ID:          776,
+		ID:          813,
 		DisplayName: "Bucket",
 		Name:        "bucket",
 		StackSize:   16,
 	}
 	WaterBucket = Item{
-		ID:          777,
+		ID:          814,
 		DisplayName: "Water Bucket",
 		Name:        "water_bucket",
 		StackSize:   1,
 	}
 	LavaBucket = Item{
-		ID:          778,
+		ID:          815,
 		DisplayName: "Lava Bucket",
 		Name:        "lava_bucket",
 		StackSize:   1,
 	}
 	PowderSnowBucket = Item{
-		ID:          779,
+		ID:          816,
 		DisplayName: "Powder Snow Bucket",
 		Name:        "powder_snow_bucket",
 		StackSize:   1,
 	}
 	Snowball = Item{
-		ID:          780,
+		ID:          817,
 		DisplayName: "Snowball",
 		Name:        "snowball",
 		StackSize:   16,
 	}
 	Leather = Item{
-		ID:          781,
+		ID:          818,
 		DisplayName: "Leather",
 		Name:        "leather",
 		StackSize:   64,
 	}
 	MilkBucket = Item{
-		ID:          782,
+		ID:          819,
 		DisplayName: "Milk Bucket",
 		Name:        "milk_bucket",
 		StackSize:   1,
 	}
 	PufferfishBucket = Item{
-		ID:          783,
+		ID:          820,
 		DisplayName: "Bucket of Pufferfish",
 		Name:        "pufferfish_bucket",
 		StackSize:   1,
 	}
 	SalmonBucket = Item{
-		ID:          784,
+		ID:          821,
 		DisplayName: "Bucket of Salmon",
 		Name:        "salmon_bucket",
 		StackSize:   1,
 	}
 	CodBucket = Item{
-		ID:          785,
+		ID:          822,
 		DisplayName: "Bucket of Cod",
 		Name:        "cod_bucket",
 		StackSize:   1,
 	}
 	TropicalFishBucket = Item{
-		ID:          786,
+		ID:          823,
 		DisplayName: "Bucket of Tropical Fish",
 		Name:        "tropical_fish_bucket",
 		StackSize:   1,
 	}
 	AxolotlBucket = Item{
-		ID:          787,
+		ID:          824,
 		DisplayName: "Bucket of Axolotl",
 		Name:        "axolotl_bucket",
 		StackSize:   1,
 	}
+	TadpoleBucket = Item{
+		ID:          825,
+		DisplayName: "Bucket of Tadpole",
+		Name:        "tadpole_bucket",
+		StackSize:   1,
+	}
 	Brick = Item{
-		ID:          788,
+		ID:          826,
 		DisplayName: "Brick",
 		Name:        "brick",
 		StackSize:   64,
 	}
 	ClayBall = Item{
-		ID:          789,
+		ID:          827,
 		DisplayName: "Clay Ball",
 		Name:        "clay_ball",
 		StackSize:   64,
 	}
 	DriedKelpBlock = Item{
-		ID:          790,
+		ID:          828,
 		DisplayName: "Dried Kelp Block",
 		Name:        "dried_kelp_block",
 		StackSize:   64,
 	}
 	Paper = Item{
-		ID:          791,
+		ID:          829,
 		DisplayName: "Paper",
 		Name:        "paper",
 		StackSize:   64,
 	}
 	Book = Item{
-		ID:          792,
+		ID:          830,
 		DisplayName: "Book",
 		Name:        "book",
 		StackSize:   64,
 	}
 	SlimeBall = Item{
-		ID:          793,
+		ID:          831,
 		DisplayName: "Slimeball",
 		Name:        "slime_ball",
 		StackSize:   64,
 	}
 	Egg = Item{
-		ID:          794,
+		ID:          832,
 		DisplayName: "Egg",
 		Name:        "egg",
 		StackSize:   16,
 	}
 	Compass = Item{
-		ID:          795,
+		ID:          833,
 		DisplayName: "Compass",
 		Name:        "compass",
 		StackSize:   64,
 	}
+	RecoveryCompass = Item{
+		ID:          834,
+		DisplayName: "Recovery Compass",
+		Name:        "recovery_compass",
+		StackSize:   64,
+	}
 	Bundle = Item{
-		ID:          796,
+		ID:          835,
 		DisplayName: "Bundle",
 		Name:        "bundle",
 		StackSize:   1,
 	}
 	FishingRod = Item{
-		ID:          797,
+		ID:          836,
 		DisplayName: "Fishing Rod",
 		Name:        "fishing_rod",
 		StackSize:   1,
 	}
 	Clock = Item{
-		ID:          798,
+		ID:          837,
 		DisplayName: "Clock",
 		Name:        "clock",
 		StackSize:   64,
 	}
 	Spyglass = Item{
-		ID:          799,
+		ID:          838,
 		DisplayName: "Spyglass",
 		Name:        "spyglass",
 		StackSize:   1,
 	}
 	GlowstoneDust = Item{
-		ID:          800,
+		ID:          839,
 		DisplayName: "Glowstone Dust",
 		Name:        "glowstone_dust",
 		StackSize:   64,
 	}
 	Cod = Item{
-		ID:          801,
+		ID:          840,
 		DisplayName: "Raw Cod",
 		Name:        "cod",
 		StackSize:   64,
 	}
 	Salmon = Item{
-		ID:          802,
+		ID:          841,
 		DisplayName: "Raw Salmon",
 		Name:        "salmon",
 		StackSize:   64,
 	}
 	TropicalFish = Item{
-		ID:          803,
+		ID:          842,
 		DisplayName: "Tropical Fish",
 		Name:        "tropical_fish",
 		StackSize:   64,
 	}
 	Pufferfish = Item{
-		ID:          804,
+		ID:          843,
 		DisplayName: "Pufferfish",
 		Name:        "pufferfish",
 		StackSize:   64,
 	}
 	CookedCod = Item{
-		ID:          805,
+		ID:          844,
 		DisplayName: "Cooked Cod",
 		Name:        "cooked_cod",
 		StackSize:   64,
 	}
 	CookedSalmon = Item{
-		ID:          806,
+		ID:          845,
 		DisplayName: "Cooked Salmon",
 		Name:        "cooked_salmon",
 		StackSize:   64,
 	}
 	InkSac = Item{
-		ID:          807,
+		ID:          846,
 		DisplayName: "Ink Sac",
 		Name:        "ink_sac",
 		StackSize:   64,
 	}
 	GlowInkSac = Item{
-		ID:          808,
+		ID:          847,
 		DisplayName: "Glow Ink Sac",
 		Name:        "glow_ink_sac",
 		StackSize:   64,
 	}
 	CocoaBeans = Item{
-		ID:          809,
+		ID:          848,
 		DisplayName: "Cocoa Beans",
 		Name:        "cocoa_beans",
 		StackSize:   64,
 	}
 	WhiteDye = Item{
-		ID:          810,
+		ID:          849,
 		DisplayName: "White Dye",
 		Name:        "white_dye",
 		StackSize:   64,
 	}
 	OrangeDye = Item{
-		ID:          811,
+		ID:          850,
 		DisplayName: "Orange Dye",
 		Name:        "orange_dye",
 		StackSize:   64,
 	}
 	MagentaDye = Item{
-		ID:          812,
+		ID:          851,
 		DisplayName: "Magenta Dye",
 		Name:        "magenta_dye",
 		StackSize:   64,
 	}
 	LightBlueDye = Item{
-		ID:          813,
+		ID:          852,
 		DisplayName: "Light Blue Dye",
 		Name:        "light_blue_dye",
 		StackSize:   64,
 	}
 	YellowDye = Item{
-		ID:          814,
+		ID:          853,
 		DisplayName: "Yellow Dye",
 		Name:        "yellow_dye",
 		StackSize:   64,
 	}
 	LimeDye = Item{
-		ID:          815,
+		ID:          854,
 		DisplayName: "Lime Dye",
 		Name:        "lime_dye",
 		StackSize:   64,
 	}
 	PinkDye = Item{
-		ID:          816,
+		ID:          855,
 		DisplayName: "Pink Dye",
 		Name:        "pink_dye",
 		StackSize:   64,
 	}
 	GrayDye = Item{
-		ID:          817,
+		ID:          856,
 		DisplayName: "Gray Dye",
 		Name:        "gray_dye",
 		StackSize:   64,
 	}
 	LightGrayDye = Item{
-		ID:          818,
+		ID:          857,
 		DisplayName: "Light Gray Dye",
 		Name:        "light_gray_dye",
 		StackSize:   64,
 	}
 	CyanDye = Item{
-		ID:          819,
+		ID:          858,
 		DisplayName: "Cyan Dye",
 		Name:        "cyan_dye",
 		StackSize:   64,
 	}
 	PurpleDye = Item{
-		ID:          820,
+		ID:          859,
 		DisplayName: "Purple Dye",
 		Name:        "purple_dye",
 		StackSize:   64,
 	}
 	BlueDye = Item{
-		ID:          821,
+		ID:          860,
 		DisplayName: "Blue Dye",
 		Name:        "blue_dye",
 		StackSize:   64,
 	}
 	BrownDye = Item{
-		ID:          822,
+		ID:          861,
 		DisplayName: "Brown Dye",
 		Name:        "brown_dye",
 		StackSize:   64,
 	}
 	GreenDye = Item{
-		ID:          823,
+		ID:          862,
 		DisplayName: "Green Dye",
 		Name:        "green_dye",
 		StackSize:   64,
 	}
 	RedDye = Item{
-		ID:          824,
+		ID:          863,
 		DisplayName: "Red Dye",
 		Name:        "red_dye",
 		StackSize:   64,
 	}
 	BlackDye = Item{
-		ID:          825,
+		ID:          864,
 		DisplayName: "Black Dye",
 		Name:        "black_dye",
 		StackSize:   64,
 	}
 	BoneMeal = Item{
-		ID:          826,
+		ID:          865,
 		DisplayName: "Bone Meal",
 		Name:        "bone_meal",
 		StackSize:   64,
 	}
 	Bone = Item{
-		ID:          827,
+		ID:          866,
 		DisplayName: "Bone",
 		Name:        "bone",
 		StackSize:   64,
 	}
 	Sugar = Item{
-		ID:          828,
+		ID:          867,
 		DisplayName: "Sugar",
 		Name:        "sugar",
 		StackSize:   64,
 	}
 	Cake = Item{
-		ID:          829,
+		ID:          868,
 		DisplayName: "Cake",
 		Name:        "cake",
 		StackSize:   1,
 	}
 	WhiteBed = Item{
-		ID:          830,
+		ID:          869,
 		DisplayName: "White Bed",
 		Name:        "white_bed",
 		StackSize:   1,
 	}
 	OrangeBed = Item{
-		ID:          831,
+		ID:          870,
 		DisplayName: "Orange Bed",
 		Name:        "orange_bed",
 		StackSize:   1,
 	}
 	MagentaBed = Item{
-		ID:          832,
+		ID:          871,
 		DisplayName: "Magenta Bed",
 		Name:        "magenta_bed",
 		StackSize:   1,
 	}
 	LightBlueBed = Item{
-		ID:          833,
+		ID:          872,
 		DisplayName: "Light Blue Bed",
 		Name:        "light_blue_bed",
 		StackSize:   1,
 	}
 	YellowBed = Item{
-		ID:          834,
+		ID:          873,
 		DisplayName: "Yellow Bed",
 		Name:        "yellow_bed",
 		StackSize:   1,
 	}
 	LimeBed = Item{
-		ID:          835,
+		ID:          874,
 		DisplayName: "Lime Bed",
 		Name:        "lime_bed",
 		StackSize:   1,
 	}
 	PinkBed = Item{
-		ID:          836,
+		ID:          875,
 		DisplayName: "Pink Bed",
 		Name:        "pink_bed",
 		StackSize:   1,
 	}
 	GrayBed = Item{
-		ID:          837,
+		ID:          876,
 		DisplayName: "Gray Bed",
 		Name:        "gray_bed",
 		StackSize:   1,
 	}
 	LightGrayBed = Item{
-		ID:          838,
+		ID:          877,
 		DisplayName: "Light Gray Bed",
 		Name:        "light_gray_bed",
 		StackSize:   1,
 	}
 	CyanBed = Item{
-		ID:          839,
+		ID:          878,
 		DisplayName: "Cyan Bed",
 		Name:        "cyan_bed",
 		StackSize:   1,
 	}
 	PurpleBed = Item{
-		ID:          840,
+		ID:          879,
 		DisplayName: "Purple Bed",
 		Name:        "purple_bed",
 		StackSize:   1,
 	}
 	BlueBed = Item{
-		ID:          841,
+		ID:          880,
 		DisplayName: "Blue Bed",
 		Name:        "blue_bed",
 		StackSize:   1,
 	}
 	BrownBed = Item{
-		ID:          842,
+		ID:          881,
 		DisplayName: "Brown Bed",
 		Name:        "brown_bed",
 		StackSize:   1,
 	}
 	GreenBed = Item{
-		ID:          843,
+		ID:          882,
 		DisplayName: "Green Bed",
 		Name:        "green_bed",
 		StackSize:   1,
 	}
 	RedBed = Item{
-		ID:          844,
+		ID:          883,
 		DisplayName: "Red Bed",
 		Name:        "red_bed",
 		StackSize:   1,
 	}
 	BlackBed = Item{
-		ID:          845,
+		ID:          884,
 		DisplayName: "Black Bed",
 		Name:        "black_bed",
 		StackSize:   1,
 	}
 	Cookie = Item{
-		ID:          846,
+		ID:          885,
 		DisplayName: "Cookie",
 		Name:        "cookie",
 		StackSize:   64,
 	}
 	FilledMap = Item{
-		ID:          847,
+		ID:          886,
 		DisplayName: "Map",
 		Name:        "filled_map",
 		StackSize:   64,
 	}
 	Shears = Item{
-		ID:          848,
+		ID:          887,
 		DisplayName: "Shears",
 		Name:        "shears",
 		StackSize:   1,
 	}
 	MelonSlice = Item{
-		ID:          849,
+		ID:          888,
 		DisplayName: "Melon Slice",
 		Name:        "melon_slice",
 		StackSize:   64,
 	}
 	DriedKelp = Item{
-		ID:          850,
+		ID:          889,
 		DisplayName: "Dried Kelp",
 		Name:        "dried_kelp",
 		StackSize:   64,
 	}
 	PumpkinSeeds = Item{
-		ID:          851,
+		ID:          890,
 		DisplayName: "Pumpkin Seeds",
 		Name:        "pumpkin_seeds",
 		StackSize:   64,
 	}
 	MelonSeeds = Item{
-		ID:          852,
+		ID:          891,
 		DisplayName: "Melon Seeds",
 		Name:        "melon_seeds",
 		StackSize:   64,
 	}
 	Beef = Item{
-		ID:          853,
+		ID:          892,
 		DisplayName: "Raw Beef",
 		Name:        "beef",
 		StackSize:   64,
 	}
 	CookedBeef = Item{
-		ID:          854,
+		ID:          893,
 		DisplayName: "Steak",
 		Name:        "cooked_beef",
 		StackSize:   64,
 	}
 	Chicken = Item{
-		ID:          855,
+		ID:          894,
 		DisplayName: "Raw Chicken",
 		Name:        "chicken",
 		StackSize:   64,
 	}
 	CookedChicken = Item{
-		ID:          856,
+		ID:          895,
 		DisplayName: "Cooked Chicken",
 		Name:        "cooked_chicken",
 		StackSize:   64,
 	}
 	RottenFlesh = Item{
-		ID:          857,
+		ID:          896,
 		DisplayName: "Rotten Flesh",
 		Name:        "rotten_flesh",
 		StackSize:   64,
 	}
 	EnderPearl = Item{
-		ID:          858,
+		ID:          897,
 		DisplayName: "Ender Pearl",
 		Name:        "ender_pearl",
 		StackSize:   16,
 	}
 	BlazeRod = Item{
-		ID:          859,
+		ID:          898,
 		DisplayName: "Blaze Rod",
 		Name:        "blaze_rod",
 		StackSize:   64,
 	}
 	GhastTear = Item{
-		ID:          860,
+		ID:          899,
 		DisplayName: "Ghast Tear",
 		Name:        "ghast_tear",
 		StackSize:   64,
 	}
 	GoldNugget = Item{
-		ID:          861,
+		ID:          900,
 		DisplayName: "Gold Nugget",
 		Name:        "gold_nugget",
 		StackSize:   64,
 	}
 	NetherWart = Item{
-		ID:          862,
+		ID:          901,
 		DisplayName: "Nether Wart",
 		Name:        "nether_wart",
 		StackSize:   64,
 	}
 	Potion = Item{
-		ID:          863,
+		ID:          902,
 		DisplayName: "Potion",
 		Name:        "potion",
 		StackSize:   1,
 	}
 	GlassBottle = Item{
-		ID:          864,
+		ID:          903,
 		DisplayName: "Glass Bottle",
 		Name:        "glass_bottle",
 		StackSize:   64,
 	}
 	SpiderEye = Item{
-		ID:          865,
+		ID:          904,
 		DisplayName: "Spider Eye",
 		Name:        "spider_eye",
 		StackSize:   64,
 	}
 	FermentedSpiderEye = Item{
-		ID:          866,
+		ID:          905,
 		DisplayName: "Fermented Spider Eye",
 		Name:        "fermented_spider_eye",
 		StackSize:   64,
 	}
 	BlazePowder = Item{
-		ID:          867,
+		ID:          906,
 		DisplayName: "Blaze Powder",
 		Name:        "blaze_powder",
 		StackSize:   64,
 	}
 	MagmaCream = Item{
-		ID:          868,
+		ID:          907,
 		DisplayName: "Magma Cream",
 		Name:        "magma_cream",
 		StackSize:   64,
 	}
 	BrewingStand = Item{
-		ID:          869,
+		ID:          908,
 		DisplayName: "Brewing Stand",
 		Name:        "brewing_stand",
 		StackSize:   64,
 	}
 	Cauldron = Item{
-		ID:          870,
+		ID:          909,
 		DisplayName: "Cauldron",
 		Name:        "cauldron",
 		StackSize:   64,
 	}
 	EnderEye = Item{
-		ID:          871,
+		ID:          910,
 		DisplayName: "Eye of Ender",
 		Name:        "ender_eye",
 		StackSize:   64,
 	}
 	GlisteringMelonSlice = Item{
-		ID:          872,
+		ID:          911,
 		DisplayName: "Glistering Melon Slice",
 		Name:        "glistering_melon_slice",
 		StackSize:   64,
 	}
+	AllaySpawnEgg = Item{
+		ID:          912,
+		DisplayName: "Allay Spawn Egg",
+		Name:        "allay_spawn_egg",
+		StackSize:   64,
+	}
 	AxolotlSpawnEgg = Item{
-		ID:          873,
+		ID:          913,
 		DisplayName: "Axolotl Spawn Egg",
 		Name:        "axolotl_spawn_egg",
 		StackSize:   64,
 	}
 	BatSpawnEgg = Item{
-		ID:          874,
+		ID:          914,
 		DisplayName: "Bat Spawn Egg",
 		Name:        "bat_spawn_egg",
 		StackSize:   64,
 	}
 	BeeSpawnEgg = Item{
-		ID:          875,
+		ID:          915,
 		DisplayName: "Bee Spawn Egg",
 		Name:        "bee_spawn_egg",
 		StackSize:   64,
 	}
 	BlazeSpawnEgg = Item{
-		ID:          876,
+		ID:          916,
 		DisplayName: "Blaze Spawn Egg",
 		Name:        "blaze_spawn_egg",
 		StackSize:   64,
 	}
 	CatSpawnEgg = Item{
-		ID:          877,
+		ID:          917,
 		DisplayName: "Cat Spawn Egg",
 		Name:        "cat_spawn_egg",
 		StackSize:   64,
 	}
 	CaveSpiderSpawnEgg = Item{
-		ID:          878,
+		ID:          918,
 		DisplayName: "Cave Spider Spawn Egg",
 		Name:        "cave_spider_spawn_egg",
 		StackSize:   64,
 	}
 	ChickenSpawnEgg = Item{
-		ID:          879,
+		ID:          919,
 		DisplayName: "Chicken Spawn Egg",
 		Name:        "chicken_spawn_egg",
 		StackSize:   64,
 	}
 	CodSpawnEgg = Item{
-		ID:          880,
+		ID:          920,
 		DisplayName: "Cod Spawn Egg",
 		Name:        "cod_spawn_egg",
 		StackSize:   64,
 	}
 	CowSpawnEgg = Item{
-		ID:          881,
+		ID:          921,
 		DisplayName: "Cow Spawn Egg",
 		Name:        "cow_spawn_egg",
 		StackSize:   64,
 	}
 	CreeperSpawnEgg = Item{
-		ID:          882,
+		ID:          922,
 		DisplayName: "Creeper Spawn Egg",
 		Name:        "creeper_spawn_egg",
 		StackSize:   64,
 	}
 	DolphinSpawnEgg = Item{
-		ID:          883,
+		ID:          923,
 		DisplayName: "Dolphin Spawn Egg",
 		Name:        "dolphin_spawn_egg",
 		StackSize:   64,
 	}
 	DonkeySpawnEgg = Item{
-		ID:          884,
+		ID:          924,
 		DisplayName: "Donkey Spawn Egg",
 		Name:        "donkey_spawn_egg",
 		StackSize:   64,
 	}
 	DrownedSpawnEgg = Item{
-		ID:          885,
+		ID:          925,
 		DisplayName: "Drowned Spawn Egg",
 		Name:        "drowned_spawn_egg",
 		StackSize:   64,
 	}
 	ElderGuardianSpawnEgg = Item{
-		ID:          886,
+		ID:          926,
 		DisplayName: "Elder Guardian Spawn Egg",
 		Name:        "elder_guardian_spawn_egg",
 		StackSize:   64,
 	}
 	EndermanSpawnEgg = Item{
-		ID:          887,
+		ID:          927,
 		DisplayName: "Enderman Spawn Egg",
 		Name:        "enderman_spawn_egg",
 		StackSize:   64,
 	}
 	EndermiteSpawnEgg = Item{
-		ID:          888,
+		ID:          928,
 		DisplayName: "Endermite Spawn Egg",
 		Name:        "endermite_spawn_egg",
 		StackSize:   64,
 	}
 	EvokerSpawnEgg = Item{
-		ID:          889,
+		ID:          929,
 		DisplayName: "Evoker Spawn Egg",
 		Name:        "evoker_spawn_egg",
 		StackSize:   64,
 	}
 	FoxSpawnEgg = Item{
-		ID:          890,
+		ID:          930,
 		DisplayName: "Fox Spawn Egg",
 		Name:        "fox_spawn_egg",
 		StackSize:   64,
 	}
+	FrogSpawnEgg = Item{
+		ID:          931,
+		DisplayName: "Frog Spawn Egg",
+		Name:        "frog_spawn_egg",
+		StackSize:   64,
+	}
 	GhastSpawnEgg = Item{
-		ID:          891,
+		ID:          932,
 		DisplayName: "Ghast Spawn Egg",
 		Name:        "ghast_spawn_egg",
 		StackSize:   64,
 	}
 	GlowSquidSpawnEgg = Item{
-		ID:          892,
+		ID:          933,
 		DisplayName: "Glow Squid Spawn Egg",
 		Name:        "glow_squid_spawn_egg",
 		StackSize:   64,
 	}
 	GoatSpawnEgg = Item{
-		ID:          893,
+		ID:          934,
 		DisplayName: "Goat Spawn Egg",
 		Name:        "goat_spawn_egg",
 		StackSize:   64,
 	}
 	GuardianSpawnEgg = Item{
-		ID:          894,
+		ID:          935,
 		DisplayName: "Guardian Spawn Egg",
 		Name:        "guardian_spawn_egg",
 		StackSize:   64,
 	}
 	HoglinSpawnEgg = Item{
-		ID:          895,
+		ID:          936,
 		DisplayName: "Hoglin Spawn Egg",
 		Name:        "hoglin_spawn_egg",
 		StackSize:   64,
 	}
 	HorseSpawnEgg = Item{
-		ID:          896,
+		ID:          937,
 		DisplayName: "Horse Spawn Egg",
 		Name:        "horse_spawn_egg",
 		StackSize:   64,
 	}
 	HuskSpawnEgg = Item{
-		ID:          897,
+		ID:          938,
 		DisplayName: "Husk Spawn Egg",
 		Name:        "husk_spawn_egg",
 		StackSize:   64,
 	}
 	LlamaSpawnEgg = Item{
-		ID:          898,
+		ID:          939,
 		DisplayName: "Llama Spawn Egg",
 		Name:        "llama_spawn_egg",
 		StackSize:   64,
 	}
 	MagmaCubeSpawnEgg = Item{
-		ID:          899,
+		ID:          940,
 		DisplayName: "Magma Cube Spawn Egg",
 		Name:        "magma_cube_spawn_egg",
 		StackSize:   64,
 	}
 	MooshroomSpawnEgg = Item{
-		ID:          900,
+		ID:          941,
 		DisplayName: "Mooshroom Spawn Egg",
 		Name:        "mooshroom_spawn_egg",
 		StackSize:   64,
 	}
 	MuleSpawnEgg = Item{
-		ID:          901,
+		ID:          942,
 		DisplayName: "Mule Spawn Egg",
 		Name:        "mule_spawn_egg",
 		StackSize:   64,
 	}
 	OcelotSpawnEgg = Item{
-		ID:          902,
+		ID:          943,
 		DisplayName: "Ocelot Spawn Egg",
 		Name:        "ocelot_spawn_egg",
 		StackSize:   64,
 	}
 	PandaSpawnEgg = Item{
-		ID:          903,
+		ID:          944,
 		DisplayName: "Panda Spawn Egg",
 		Name:        "panda_spawn_egg",
 		StackSize:   64,
 	}
 	ParrotSpawnEgg = Item{
-		ID:          904,
+		ID:          945,
 		DisplayName: "Parrot Spawn Egg",
 		Name:        "parrot_spawn_egg",
 		StackSize:   64,
 	}
 	PhantomSpawnEgg = Item{
-		ID:          905,
+		ID:          946,
 		DisplayName: "Phantom Spawn Egg",
 		Name:        "phantom_spawn_egg",
 		StackSize:   64,
 	}
 	PigSpawnEgg = Item{
-		ID:          906,
+		ID:          947,
 		DisplayName: "Pig Spawn Egg",
 		Name:        "pig_spawn_egg",
 		StackSize:   64,
 	}
 	PiglinSpawnEgg = Item{
-		ID:          907,
+		ID:          948,
 		DisplayName: "Piglin Spawn Egg",
 		Name:        "piglin_spawn_egg",
 		StackSize:   64,
 	}
 	PiglinBruteSpawnEgg = Item{
-		ID:          908,
+		ID:          949,
 		DisplayName: "Piglin Brute Spawn Egg",
 		Name:        "piglin_brute_spawn_egg",
 		StackSize:   64,
 	}
 	PillagerSpawnEgg = Item{
-		ID:          909,
+		ID:          950,
 		DisplayName: "Pillager Spawn Egg",
 		Name:        "pillager_spawn_egg",
 		StackSize:   64,
 	}
 	PolarBearSpawnEgg = Item{
-		ID:          910,
+		ID:          951,
 		DisplayName: "Polar Bear Spawn Egg",
 		Name:        "polar_bear_spawn_egg",
 		StackSize:   64,
 	}
 	PufferfishSpawnEgg = Item{
-		ID:          911,
+		ID:          952,
 		DisplayName: "Pufferfish Spawn Egg",
 		Name:        "pufferfish_spawn_egg",
 		StackSize:   64,
 	}
 	RabbitSpawnEgg = Item{
-		ID:          912,
+		ID:          953,
 		DisplayName: "Rabbit Spawn Egg",
 		Name:        "rabbit_spawn_egg",
 		StackSize:   64,
 	}
 	RavagerSpawnEgg = Item{
-		ID:          913,
+		ID:          954,
 		DisplayName: "Ravager Spawn Egg",
 		Name:        "ravager_spawn_egg",
 		StackSize:   64,
 	}
 	SalmonSpawnEgg = Item{
-		ID:          914,
+		ID:          955,
 		DisplayName: "Salmon Spawn Egg",
 		Name:        "salmon_spawn_egg",
 		StackSize:   64,
 	}
 	SheepSpawnEgg = Item{
-		ID:          915,
+		ID:          956,
 		DisplayName: "Sheep Spawn Egg",
 		Name:        "sheep_spawn_egg",
 		StackSize:   64,
 	}
 	ShulkerSpawnEgg = Item{
-		ID:          916,
+		ID:          957,
 		DisplayName: "Shulker Spawn Egg",
 		Name:        "shulker_spawn_egg",
 		StackSize:   64,
 	}
 	SilverfishSpawnEgg = Item{
-		ID:          917,
+		ID:          958,
 		DisplayName: "Silverfish Spawn Egg",
 		Name:        "silverfish_spawn_egg",
 		StackSize:   64,
 	}
 	SkeletonSpawnEgg = Item{
-		ID:          918,
+		ID:          959,
 		DisplayName: "Skeleton Spawn Egg",
 		Name:        "skeleton_spawn_egg",
 		StackSize:   64,
 	}
 	SkeletonHorseSpawnEgg = Item{
-		ID:          919,
+		ID:          960,
 		DisplayName: "Skeleton Horse Spawn Egg",
 		Name:        "skeleton_horse_spawn_egg",
 		StackSize:   64,
 	}
 	SlimeSpawnEgg = Item{
-		ID:          920,
+		ID:          961,
 		DisplayName: "Slime Spawn Egg",
 		Name:        "slime_spawn_egg",
 		StackSize:   64,
 	}
 	SpiderSpawnEgg = Item{
-		ID:          921,
+		ID:          962,
 		DisplayName: "Spider Spawn Egg",
 		Name:        "spider_spawn_egg",
 		StackSize:   64,
 	}
 	SquidSpawnEgg = Item{
-		ID:          922,
+		ID:          963,
 		DisplayName: "Squid Spawn Egg",
 		Name:        "squid_spawn_egg",
 		StackSize:   64,
 	}
 	StraySpawnEgg = Item{
-		ID:          923,
+		ID:          964,
 		DisplayName: "Stray Spawn Egg",
 		Name:        "stray_spawn_egg",
 		StackSize:   64,
 	}
 	StriderSpawnEgg = Item{
-		ID:          924,
+		ID:          965,
 		DisplayName: "Strider Spawn Egg",
 		Name:        "strider_spawn_egg",
 		StackSize:   64,
 	}
+	TadpoleSpawnEgg = Item{
+		ID:          966,
+		DisplayName: "Tadpole Spawn Egg",
+		Name:        "tadpole_spawn_egg",
+		StackSize:   64,
+	}
 	TraderLlamaSpawnEgg = Item{
-		ID:          925,
+		ID:          967,
 		DisplayName: "Trader Llama Spawn Egg",
 		Name:        "trader_llama_spawn_egg",
 		StackSize:   64,
 	}
 	TropicalFishSpawnEgg = Item{
-		ID:          926,
+		ID:          968,
 		DisplayName: "Tropical Fish Spawn Egg",
 		Name:        "tropical_fish_spawn_egg",
 		StackSize:   64,
 	}
 	TurtleSpawnEgg = Item{
-		ID:          927,
+		ID:          969,
 		DisplayName: "Turtle Spawn Egg",
 		Name:        "turtle_spawn_egg",
 		StackSize:   64,
 	}
 	VexSpawnEgg = Item{
-		ID:          928,
+		ID:          970,
 		DisplayName: "Vex Spawn Egg",
 		Name:        "vex_spawn_egg",
 		StackSize:   64,
 	}
 	VillagerSpawnEgg = Item{
-		ID:          929,
+		ID:          971,
 		DisplayName: "Villager Spawn Egg",
 		Name:        "villager_spawn_egg",
 		StackSize:   64,
 	}
 	VindicatorSpawnEgg = Item{
-		ID:          930,
+		ID:          972,
 		DisplayName: "Vindicator Spawn Egg",
 		Name:        "vindicator_spawn_egg",
 		StackSize:   64,
 	}
 	WanderingTraderSpawnEgg = Item{
-		ID:          931,
+		ID:          973,
 		DisplayName: "Wandering Trader Spawn Egg",
 		Name:        "wandering_trader_spawn_egg",
 		StackSize:   64,
 	}
+	WardenSpawnEgg = Item{
+		ID:          974,
+		DisplayName: "Warden Spawn Egg",
+		Name:        "warden_spawn_egg",
+		StackSize:   64,
+	}
 	WitchSpawnEgg = Item{
-		ID:          932,
+		ID:          975,
 		DisplayName: "Witch Spawn Egg",
 		Name:        "witch_spawn_egg",
 		StackSize:   64,
 	}
 	WitherSkeletonSpawnEgg = Item{
-		ID:          933,
+		ID:          976,
 		DisplayName: "Wither Skeleton Spawn Egg",
 		Name:        "wither_skeleton_spawn_egg",
 		StackSize:   64,
 	}
 	WolfSpawnEgg = Item{
-		ID:          934,
+		ID:          977,
 		DisplayName: "Wolf Spawn Egg",
 		Name:        "wolf_spawn_egg",
 		StackSize:   64,
 	}
 	ZoglinSpawnEgg = Item{
-		ID:          935,
+		ID:          978,
 		DisplayName: "Zoglin Spawn Egg",
 		Name:        "zoglin_spawn_egg",
 		StackSize:   64,
 	}
 	ZombieSpawnEgg = Item{
-		ID:          936,
+		ID:          979,
 		DisplayName: "Zombie Spawn Egg",
 		Name:        "zombie_spawn_egg",
 		StackSize:   64,
 	}
 	ZombieHorseSpawnEgg = Item{
-		ID:          937,
+		ID:          980,
 		DisplayName: "Zombie Horse Spawn Egg",
 		Name:        "zombie_horse_spawn_egg",
 		StackSize:   64,
 	}
 	ZombieVillagerSpawnEgg = Item{
-		ID:          938,
+		ID:          981,
 		DisplayName: "Zombie Villager Spawn Egg",
 		Name:        "zombie_villager_spawn_egg",
 		StackSize:   64,
 	}
 	ZombifiedPiglinSpawnEgg = Item{
-		ID:          939,
+		ID:          982,
 		DisplayName: "Zombified Piglin Spawn Egg",
 		Name:        "zombified_piglin_spawn_egg",
 		StackSize:   64,
 	}
 	ExperienceBottle = Item{
-		ID:          940,
+		ID:          983,
 		DisplayName: "Bottle o' Enchanting",
 		Name:        "experience_bottle",
 		StackSize:   64,
 	}
 	FireCharge = Item{
-		ID:          941,
+		ID:          984,
 		DisplayName: "Fire Charge",
 		Name:        "fire_charge",
 		StackSize:   64,
 	}
 	WritableBook = Item{
-		ID:          942,
+		ID:          985,
 		DisplayName: "Book and Quill",
 		Name:        "writable_book",
 		StackSize:   1,
 	}
 	WrittenBook = Item{
-		ID:          943,
+		ID:          986,
 		DisplayName: "Written Book",
 		Name:        "written_book",
 		StackSize:   16,
 	}
 	ItemFrame = Item{
-		ID:          944,
+		ID:          987,
 		DisplayName: "Item Frame",
 		Name:        "item_frame",
 		StackSize:   64,
 	}
 	GlowItemFrame = Item{
-		ID:          945,
+		ID:          988,
 		DisplayName: "Glow Item Frame",
 		Name:        "glow_item_frame",
 		StackSize:   64,
 	}
 	FlowerPot = Item{
-		ID:          946,
+		ID:          989,
 		DisplayName: "Flower Pot",
 		Name:        "flower_pot",
 		StackSize:   64,
 	}
 	Carrot = Item{
-		ID:          947,
+		ID:          990,
 		DisplayName: "Carrot",
 		Name:        "carrot",
 		StackSize:   64,
 	}
 	Potato = Item{
-		ID:          948,
+		ID:          991,
 		DisplayName: "Potato",
 		Name:        "potato",
 		StackSize:   64,
 	}
 	BakedPotato = Item{
-		ID:          949,
+		ID:          992,
 		DisplayName: "Baked Potato",
 		Name:        "baked_potato",
 		StackSize:   64,
 	}
 	PoisonousPotato = Item{
-		ID:          950,
+		ID:          993,
 		DisplayName: "Poisonous Potato",
 		Name:        "poisonous_potato",
 		StackSize:   64,
 	}
 	Map = Item{
-		ID:          951,
+		ID:          994,
 		DisplayName: "Empty Map",
 		Name:        "map",
 		StackSize:   64,
 	}
 	GoldenCarrot = Item{
-		ID:          952,
+		ID:          995,
 		DisplayName: "Golden Carrot",
 		Name:        "golden_carrot",
 		StackSize:   64,
 	}
 	SkeletonSkull = Item{
-		ID:          953,
+		ID:          996,
 		DisplayName: "Skeleton Skull",
 		Name:        "skeleton_skull",
 		StackSize:   64,
 	}
 	WitherSkeletonSkull = Item{
-		ID:          954,
+		ID:          997,
 		DisplayName: "Wither Skeleton Skull",
 		Name:        "wither_skeleton_skull",
 		StackSize:   64,
 	}
 	PlayerHead = Item{
-		ID:          955,
+		ID:          998,
 		DisplayName: "Player Head",
 		Name:        "player_head",
 		StackSize:   64,
 	}
 	ZombieHead = Item{
-		ID:          956,
+		ID:          999,
 		DisplayName: "Zombie Head",
 		Name:        "zombie_head",
 		StackSize:   64,
 	}
 	CreeperHead = Item{
-		ID:          957,
+		ID:          1000,
 		DisplayName: "Creeper Head",
 		Name:        "creeper_head",
 		StackSize:   64,
 	}
 	DragonHead = Item{
-		ID:          958,
+		ID:          1001,
 		DisplayName: "Dragon Head",
 		Name:        "dragon_head",
 		StackSize:   64,
 	}
 	NetherStar = Item{
-		ID:          959,
+		ID:          1002,
 		DisplayName: "Nether Star",
 		Name:        "nether_star",
 		StackSize:   64,
 	}
 	PumpkinPie = Item{
-		ID:          960,
+		ID:          1003,
 		DisplayName: "Pumpkin Pie",
 		Name:        "pumpkin_pie",
 		StackSize:   64,
 	}
 	FireworkRocket = Item{
-		ID:          961,
+		ID:          1004,
 		DisplayName: "Firework Rocket",
 		Name:        "firework_rocket",
 		StackSize:   64,
 	}
 	FireworkStar = Item{
-		ID:          962,
+		ID:          1005,
 		DisplayName: "Firework Star",
 		Name:        "firework_star",
 		StackSize:   64,
 	}
 	EnchantedBook = Item{
-		ID:          963,
+		ID:          1006,
 		DisplayName: "Enchanted Book",
 		Name:        "enchanted_book",
 		StackSize:   1,
 	}
 	NetherBrick = Item{
-		ID:          964,
+		ID:          1007,
 		DisplayName: "Nether Brick",
 		Name:        "nether_brick",
 		StackSize:   64,
 	}
 	PrismarineShard = Item{
-		ID:          965,
+		ID:          1008,
 		DisplayName: "Prismarine Shard",
 		Name:        "prismarine_shard",
 		StackSize:   64,
 	}
 	PrismarineCrystals = Item{
-		ID:          966,
+		ID:          1009,
 		DisplayName: "Prismarine Crystals",
 		Name:        "prismarine_crystals",
 		StackSize:   64,
 	}
 	Rabbit = Item{
-		ID:          967,
+		ID:          1010,
 		DisplayName: "Raw Rabbit",
 		Name:        "rabbit",
 		StackSize:   64,
 	}
 	CookedRabbit = Item{
-		ID:          968,
+		ID:          1011,
 		DisplayName: "Cooked Rabbit",
 		Name:        "cooked_rabbit",
 		StackSize:   64,
 	}
 	RabbitStew = Item{
-		ID:          969,
+		ID:          1012,
 		DisplayName: "Rabbit Stew",
 		Name:        "rabbit_stew",
 		StackSize:   1,
 	}
 	RabbitFoot = Item{
-		ID:          970,
+		ID:          1013,
 		DisplayName: "Rabbit's Foot",
 		Name:        "rabbit_foot",
 		StackSize:   64,
 	}
 	RabbitHide = Item{
-		ID:          971,
+		ID:          1014,
 		DisplayName: "Rabbit Hide",
 		Name:        "rabbit_hide",
 		StackSize:   64,
 	}
 	ArmorStand = Item{
-		ID:          972,
+		ID:          1015,
 		DisplayName: "Armor Stand",
 		Name:        "armor_stand",
 		StackSize:   16,
 	}
 	IronHorseArmor = Item{
-		ID:          973,
+		ID:          1016,
 		DisplayName: "Iron Horse Armor",
 		Name:        "iron_horse_armor",
 		StackSize:   1,
 	}
 	GoldenHorseArmor = Item{
-		ID:          974,
+		ID:          1017,
 		DisplayName: "Golden Horse Armor",
 		Name:        "golden_horse_armor",
 		StackSize:   1,
 	}
 	DiamondHorseArmor = Item{
-		ID:          975,
+		ID:          1018,
 		DisplayName: "Diamond Horse Armor",
 		Name:        "diamond_horse_armor",
 		StackSize:   1,
 	}
 	LeatherHorseArmor = Item{
-		ID:          976,
+		ID:          1019,
 		DisplayName: "Leather Horse Armor",
 		Name:        "leather_horse_armor",
 		StackSize:   1,
 	}
 	Lead = Item{
-		ID:          977,
+		ID:          1020,
 		DisplayName: "Lead",
 		Name:        "lead",
 		StackSize:   64,
 	}
 	NameTag = Item{
-		ID:          978,
+		ID:          1021,
 		DisplayName: "Name Tag",
 		Name:        "name_tag",
 		StackSize:   64,
 	}
 	CommandBlockMinecart = Item{
-		ID:          979,
+		ID:          1022,
 		DisplayName: "Minecart with Command Block",
 		Name:        "command_block_minecart",
 		StackSize:   1,
 	}
 	Mutton = Item{
-		ID:          980,
+		ID:          1023,
 		DisplayName: "Raw Mutton",
 		Name:        "mutton",
 		StackSize:   64,
 	}
 	CookedMutton = Item{
-		ID:          981,
+		ID:          1024,
 		DisplayName: "Cooked Mutton",
 		Name:        "cooked_mutton",
 		StackSize:   64,
 	}
 	WhiteBanner = Item{
-		ID:          982,
+		ID:          1025,
 		DisplayName: "White Banner",
 		Name:        "white_banner",
 		StackSize:   16,
 	}
 	OrangeBanner = Item{
-		ID:          983,
+		ID:          1026,
 		DisplayName: "Orange Banner",
 		Name:        "orange_banner",
 		StackSize:   16,
 	}
 	MagentaBanner = Item{
-		ID:          984,
+		ID:          1027,
 		DisplayName: "Magenta Banner",
 		Name:        "magenta_banner",
 		StackSize:   16,
 	}
 	LightBlueBanner = Item{
-		ID:          985,
+		ID:          1028,
 		DisplayName: "Light Blue Banner",
 		Name:        "light_blue_banner",
 		StackSize:   16,
 	}
 	YellowBanner = Item{
-		ID:          986,
+		ID:          1029,
 		DisplayName: "Yellow Banner",
 		Name:        "yellow_banner",
 		StackSize:   16,
 	}
 	LimeBanner = Item{
-		ID:          987,
+		ID:          1030,
 		DisplayName: "Lime Banner",
 		Name:        "lime_banner",
 		StackSize:   16,
 	}
 	PinkBanner = Item{
-		ID:          988,
+		ID:          1031,
 		DisplayName: "Pink Banner",
 		Name:        "pink_banner",
 		StackSize:   16,
 	}
 	GrayBanner = Item{
-		ID:          989,
+		ID:          1032,
 		DisplayName: "Gray Banner",
 		Name:        "gray_banner",
 		StackSize:   16,
 	}
 	LightGrayBanner = Item{
-		ID:          990,
+		ID:          1033,
 		DisplayName: "Light Gray Banner",
 		Name:        "light_gray_banner",
 		StackSize:   16,
 	}
 	CyanBanner = Item{
-		ID:          991,
+		ID:          1034,
 		DisplayName: "Cyan Banner",
 		Name:        "cyan_banner",
 		StackSize:   16,
 	}
 	PurpleBanner = Item{
-		ID:          992,
+		ID:          1035,
 		DisplayName: "Purple Banner",
 		Name:        "purple_banner",
 		StackSize:   16,
 	}
 	BlueBanner = Item{
-		ID:          993,
+		ID:          1036,
 		DisplayName: "Blue Banner",
 		Name:        "blue_banner",
 		StackSize:   16,
 	}
 	BrownBanner = Item{
-		ID:          994,
+		ID:          1037,
 		DisplayName: "Brown Banner",
 		Name:        "brown_banner",
 		StackSize:   16,
 	}
 	GreenBanner = Item{
-		ID:          995,
+		ID:          1038,
 		DisplayName: "Green Banner",
 		Name:        "green_banner",
 		StackSize:   16,
 	}
 	RedBanner = Item{
-		ID:          996,
+		ID:          1039,
 		DisplayName: "Red Banner",
 		Name:        "red_banner",
 		StackSize:   16,
 	}
 	BlackBanner = Item{
-		ID:          997,
+		ID:          1040,
 		DisplayName: "Black Banner",
 		Name:        "black_banner",
 		StackSize:   16,
 	}
 	EndCrystal = Item{
-		ID:          998,
+		ID:          1041,
 		DisplayName: "End Crystal",
 		Name:        "end_crystal",
 		StackSize:   64,
 	}
 	ChorusFruit = Item{
-		ID:          999,
+		ID:          1042,
 		DisplayName: "Chorus Fruit",
 		Name:        "chorus_fruit",
 		StackSize:   64,
 	}
 	PoppedChorusFruit = Item{
-		ID:          1000,
+		ID:          1043,
 		DisplayName: "Popped Chorus Fruit",
 		Name:        "popped_chorus_fruit",
 		StackSize:   64,
 	}
 	Beetroot = Item{
-		ID:          1001,
+		ID:          1044,
 		DisplayName: "Beetroot",
 		Name:        "beetroot",
 		StackSize:   64,
 	}
 	BeetrootSeeds = Item{
-		ID:          1002,
+		ID:          1045,
 		DisplayName: "Beetroot Seeds",
 		Name:        "beetroot_seeds",
 		StackSize:   64,
 	}
 	BeetrootSoup = Item{
-		ID:          1003,
+		ID:          1046,
 		DisplayName: "Beetroot Soup",
 		Name:        "beetroot_soup",
 		StackSize:   1,
 	}
 	DragonBreath = Item{
-		ID:          1004,
+		ID:          1047,
 		DisplayName: "Dragon's Breath",
 		Name:        "dragon_breath",
 		StackSize:   64,
 	}
 	SplashPotion = Item{
-		ID:          1005,
+		ID:          1048,
 		DisplayName: "Splash Potion",
 		Name:        "splash_potion",
 		StackSize:   1,
 	}
 	SpectralArrow = Item{
-		ID:          1006,
+		ID:          1049,
 		DisplayName: "Spectral Arrow",
 		Name:        "spectral_arrow",
 		StackSize:   64,
 	}
 	TippedArrow = Item{
-		ID:          1007,
+		ID:          1050,
 		DisplayName: "Tipped Arrow",
 		Name:        "tipped_arrow",
 		StackSize:   64,
 	}
 	LingeringPotion = Item{
-		ID:          1008,
+		ID:          1051,
 		DisplayName: "Lingering Potion",
 		Name:        "lingering_potion",
 		StackSize:   1,
 	}
 	Shield = Item{
-		ID:          1009,
+		ID:          1052,
 		DisplayName: "Shield",
 		Name:        "shield",
 		StackSize:   1,
 	}
 	TotemOfUndying = Item{
-		ID:          1010,
+		ID:          1053,
 		DisplayName: "Totem of Undying",
 		Name:        "totem_of_undying",
 		StackSize:   1,
 	}
 	ShulkerShell = Item{
-		ID:          1011,
+		ID:          1054,
 		DisplayName: "Shulker Shell",
 		Name:        "shulker_shell",
 		StackSize:   64,
 	}
 	IronNugget = Item{
-		ID:          1012,
+		ID:          1055,
 		DisplayName: "Iron Nugget",
 		Name:        "iron_nugget",
 		StackSize:   64,
 	}
 	KnowledgeBook = Item{
-		ID:          1013,
+		ID:          1056,
 		DisplayName: "Knowledge Book",
 		Name:        "knowledge_book",
 		StackSize:   1,
 	}
 	DebugStick = Item{
-		ID:          1014,
+		ID:          1057,
 		DisplayName: "Debug Stick",
 		Name:        "debug_stick",
 		StackSize:   1,
 	}
 	MusicDisc13 = Item{
-		ID:          1015,
-		DisplayName: "13 Disc",
+		ID:          1058,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_13",
 		StackSize:   1,
 	}
 	MusicDiscCat = Item{
-		ID:          1016,
-		DisplayName: "Cat Disc",
+		ID:          1059,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_cat",
 		StackSize:   1,
 	}
 	MusicDiscBlocks = Item{
-		ID:          1017,
-		DisplayName: "Blocks Disc",
+		ID:          1060,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_blocks",
 		StackSize:   1,
 	}
 	MusicDiscChirp = Item{
-		ID:          1018,
-		DisplayName: "Chirp Disc",
+		ID:          1061,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_chirp",
 		StackSize:   1,
 	}
 	MusicDiscFar = Item{
-		ID:          1019,
-		DisplayName: "Far Disc",
+		ID:          1062,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_far",
 		StackSize:   1,
 	}
 	MusicDiscMall = Item{
-		ID:          1020,
-		DisplayName: "Mall Disc",
+		ID:          1063,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_mall",
 		StackSize:   1,
 	}
 	MusicDiscMellohi = Item{
-		ID:          1021,
-		DisplayName: "Mellohi Disc",
+		ID:          1064,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_mellohi",
 		StackSize:   1,
 	}
 	MusicDiscStal = Item{
-		ID:          1022,
-		DisplayName: "Stal Disc",
+		ID:          1065,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_stal",
 		StackSize:   1,
 	}
 	MusicDiscStrad = Item{
-		ID:          1023,
-		DisplayName: "Strad Disc",
+		ID:          1066,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_strad",
 		StackSize:   1,
 	}
 	MusicDiscWard = Item{
-		ID:          1024,
-		DisplayName: "Ward Disc",
+		ID:          1067,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_ward",
 		StackSize:   1,
 	}
 	MusicDisc11 = Item{
-		ID:          1025,
-		DisplayName: "11 Disc",
+		ID:          1068,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_11",
 		StackSize:   1,
 	}
 	MusicDiscWait = Item{
-		ID:          1026,
-		DisplayName: "Wait Disc",
+		ID:          1069,
+		DisplayName: "Music Disc",
 		Name:        "music_disc_wait",
 		StackSize:   1,
 	}
+	MusicDiscOtherside = Item{
+		ID:          1070,
+		DisplayName: "Music Disc",
+		Name:        "music_disc_otherside",
+		StackSize:   1,
+	}
+	MusicDisc5 = Item{
+		ID:          1071,
+		DisplayName: "Music Disc",
+		Name:        "music_disc_5",
+		StackSize:   1,
+	}
 	MusicDiscPigstep = Item{
-		ID:          1027,
+		ID:          1072,
 		DisplayName: "Music Disc",
 		Name:        "music_disc_pigstep",
 		StackSize:   1,
 	}
+	DiscFragment5 = Item{
+		ID:          1073,
+		DisplayName: "Disc Fragment",
+		Name:        "disc_fragment_5",
+		StackSize:   64,
+	}
 	Trident = Item{
-		ID:          1028,
+		ID:          1074,
 		DisplayName: "Trident",
 		Name:        "trident",
 		StackSize:   1,
 	}
 	PhantomMembrane = Item{
-		ID:          1029,
+		ID:          1075,
 		DisplayName: "Phantom Membrane",
 		Name:        "phantom_membrane",
 		StackSize:   64,
 	}
 	NautilusShell = Item{
-		ID:          1030,
+		ID:          1076,
 		DisplayName: "Nautilus Shell",
 		Name:        "nautilus_shell",
 		StackSize:   64,
 	}
 	HeartOfTheSea = Item{
-		ID:          1031,
+		ID:          1077,
 		DisplayName: "Heart of the Sea",
 		Name:        "heart_of_the_sea",
 		StackSize:   64,
 	}
 	Crossbow = Item{
-		ID:          1032,
+		ID:          1078,
 		DisplayName: "Crossbow",
 		Name:        "crossbow",
 		StackSize:   1,
 	}
 	SuspiciousStew = Item{
-		ID:          1033,
+		ID:          1079,
 		DisplayName: "Suspicious Stew",
 		Name:        "suspicious_stew",
 		StackSize:   1,
 	}
 	Loom = Item{
-		ID:          1034,
+		ID:          1080,
 		DisplayName: "Loom",
 		Name:        "loom",
 		StackSize:   64,
 	}
 	FlowerBannerPattern = Item{
-		ID:          1035,
+		ID:          1081,
 		DisplayName: "Banner Pattern",
 		Name:        "flower_banner_pattern",
 		StackSize:   1,
 	}
 	CreeperBannerPattern = Item{
-		ID:          1036,
+		ID:          1082,
 		DisplayName: "Banner Pattern",
 		Name:        "creeper_banner_pattern",
 		StackSize:   1,
 	}
 	SkullBannerPattern = Item{
-		ID:          1037,
+		ID:          1083,
 		DisplayName: "Banner Pattern",
 		Name:        "skull_banner_pattern",
 		StackSize:   1,
 	}
 	MojangBannerPattern = Item{
-		ID:          1038,
+		ID:          1084,
 		DisplayName: "Banner Pattern",
 		Name:        "mojang_banner_pattern",
 		StackSize:   1,
 	}
 	GlobeBannerPattern = Item{
-		ID:          1039,
+		ID:          1085,
 		DisplayName: "Banner Pattern",
 		Name:        "globe_banner_pattern",
 		StackSize:   1,
 	}
 	PiglinBannerPattern = Item{
-		ID:          1040,
+		ID:          1086,
 		DisplayName: "Banner Pattern",
 		Name:        "piglin_banner_pattern",
 		StackSize:   1,
 	}
+	GoatHorn = Item{
+		ID:          1087,
+		DisplayName: "Goat Horn",
+		Name:        "goat_horn",
+		StackSize:   1,
+	}
 	Composter = Item{
-		ID:          1041,
+		ID:          1088,
 		DisplayName: "Composter",
 		Name:        "composter",
 		StackSize:   64,
 	}
 	Barrel = Item{
-		ID:          1042,
+		ID:          1089,
 		DisplayName: "Barrel",
 		Name:        "barrel",
 		StackSize:   64,
 	}
 	Smoker = Item{
-		ID:          1043,
+		ID:          1090,
 		DisplayName: "Smoker",
 		Name:        "smoker",
 		StackSize:   64,
 	}
 	BlastFurnace = Item{
-		ID:          1044,
+		ID:          1091,
 		DisplayName: "Blast Furnace",
 		Name:        "blast_furnace",
 		StackSize:   64,
 	}
 	CartographyTable = Item{
-		ID:          1045,
+		ID:          1092,
 		DisplayName: "Cartography Table",
 		Name:        "cartography_table",
 		StackSize:   64,
 	}
 	FletchingTable = Item{
-		ID:          1046,
+		ID:          1093,
 		DisplayName: "Fletching Table",
 		Name:        "fletching_table",
 		StackSize:   64,
 	}
 	Grindstone = Item{
-		ID:          1047,
+		ID:          1094,
 		DisplayName: "Grindstone",
 		Name:        "grindstone",
 		StackSize:   64,
 	}
 	SmithingTable = Item{
-		ID:          1048,
+		ID:          1095,
 		DisplayName: "Smithing Table",
 		Name:        "smithing_table",
 		StackSize:   64,
 	}
 	Stonecutter = Item{
-		ID:          1049,
+		ID:          1096,
 		DisplayName: "Stonecutter",
 		Name:        "stonecutter",
 		StackSize:   64,
 	}
 	Bell = Item{
-		ID:          1050,
+		ID:          1097,
 		DisplayName: "Bell",
 		Name:        "bell",
 		StackSize:   64,
 	}
 	Lantern = Item{
-		ID:          1051,
+		ID:          1098,
 		DisplayName: "Lantern",
 		Name:        "lantern",
 		StackSize:   64,
 	}
 	SoulLantern = Item{
-		ID:          1052,
+		ID:          1099,
 		DisplayName: "Soul Lantern",
 		Name:        "soul_lantern",
 		StackSize:   64,
 	}
 	SweetBerries = Item{
-		ID:          1053,
+		ID:          1100,
 		DisplayName: "Sweet Berries",
 		Name:        "sweet_berries",
 		StackSize:   64,
 	}
 	GlowBerries = Item{
-		ID:          1054,
+		ID:          1101,
 		DisplayName: "Glow Berries",
 		Name:        "glow_berries",
 		StackSize:   64,
 	}
 	Campfire = Item{
-		ID:          1055,
+		ID:          1102,
 		DisplayName: "Campfire",
 		Name:        "campfire",
 		StackSize:   64,
 	}
 	SoulCampfire = Item{
-		ID:          1056,
+		ID:          1103,
 		DisplayName: "Soul Campfire",
 		Name:        "soul_campfire",
 		StackSize:   64,
 	}
 	Shroomlight = Item{
-		ID:          1057,
+		ID:          1104,
 		DisplayName: "Shroomlight",
 		Name:        "shroomlight",
 		StackSize:   64,
 	}
 	Honeycomb = Item{
-		ID:          1058,
+		ID:          1105,
 		DisplayName: "Honeycomb",
 		Name:        "honeycomb",
 		StackSize:   64,
 	}
 	BeeNest = Item{
-		ID:          1059,
+		ID:          1106,
 		DisplayName: "Bee Nest",
 		Name:        "bee_nest",
 		StackSize:   64,
 	}
 	Beehive = Item{
-		ID:          1060,
+		ID:          1107,
 		DisplayName: "Beehive",
 		Name:        "beehive",
 		StackSize:   64,
 	}
 	HoneyBottle = Item{
-		ID:          1061,
+		ID:          1108,
 		DisplayName: "Honey Bottle",
 		Name:        "honey_bottle",
 		StackSize:   16,
 	}
 	HoneycombBlock = Item{
-		ID:          1062,
+		ID:          1109,
 		DisplayName: "Honeycomb Block",
 		Name:        "honeycomb_block",
 		StackSize:   64,
 	}
 	Lodestone = Item{
-		ID:          1063,
+		ID:          1110,
 		DisplayName: "Lodestone",
 		Name:        "lodestone",
 		StackSize:   64,
 	}
 	CryingObsidian = Item{
-		ID:          1064,
+		ID:          1111,
 		DisplayName: "Crying Obsidian",
 		Name:        "crying_obsidian",
 		StackSize:   64,
 	}
 	Blackstone = Item{
-		ID:          1065,
+		ID:          1112,
 		DisplayName: "Blackstone",
 		Name:        "blackstone",
 		StackSize:   64,
 	}
 	BlackstoneSlab = Item{
-		ID:          1066,
+		ID:          1113,
 		DisplayName: "Blackstone Slab",
 		Name:        "blackstone_slab",
 		StackSize:   64,
 	}
 	BlackstoneStairs = Item{
-		ID:          1067,
+		ID:          1114,
 		DisplayName: "Blackstone Stairs",
 		Name:        "blackstone_stairs",
 		StackSize:   64,
 	}
 	GildedBlackstone = Item{
-		ID:          1068,
+		ID:          1115,
 		DisplayName: "Gilded Blackstone",
 		Name:        "gilded_blackstone",
 		StackSize:   64,
 	}
 	PolishedBlackstone = Item{
-		ID:          1069,
+		ID:          1116,
 		DisplayName: "Polished Blackstone",
 		Name:        "polished_blackstone",
 		StackSize:   64,
 	}
 	PolishedBlackstoneSlab = Item{
-		ID:          1070,
+		ID:          1117,
 		DisplayName: "Polished Blackstone Slab",
 		Name:        "polished_blackstone_slab",
 		StackSize:   64,
 	}
 	PolishedBlackstoneStairs = Item{
-		ID:          1071,
+		ID:          1118,
 		DisplayName: "Polished Blackstone Stairs",
 		Name:        "polished_blackstone_stairs",
 		StackSize:   64,
 	}
 	ChiseledPolishedBlackstone = Item{
-		ID:          1072,
+		ID:          1119,
 		DisplayName: "Chiseled Polished Blackstone",
 		Name:        "chiseled_polished_blackstone",
 		StackSize:   64,
 	}
 	PolishedBlackstoneBricks = Item{
-		ID:          1073,
+		ID:          1120,
 		DisplayName: "Polished Blackstone Bricks",
 		Name:        "polished_blackstone_bricks",
 		StackSize:   64,
 	}
 	PolishedBlackstoneBrickSlab = Item{
-		ID:          1074,
+		ID:          1121,
 		DisplayName: "Polished Blackstone Brick Slab",
 		Name:        "polished_blackstone_brick_slab",
 		StackSize:   64,
 	}
 	PolishedBlackstoneBrickStairs = Item{
-		ID:          1075,
+		ID:          1122,
 		DisplayName: "Polished Blackstone Brick Stairs",
 		Name:        "polished_blackstone_brick_stairs",
 		StackSize:   64,
 	}
 	CrackedPolishedBlackstoneBricks = Item{
-		ID:          1076,
+		ID:          1123,
 		DisplayName: "Cracked Polished Blackstone Bricks",
 		Name:        "cracked_polished_blackstone_bricks",
 		StackSize:   64,
 	}
 	RespawnAnchor = Item{
-		ID:          1077,
+		ID:          1124,
 		DisplayName: "Respawn Anchor",
 		Name:        "respawn_anchor",
 		StackSize:   64,
 	}
 	Candle = Item{
-		ID:          1078,
+		ID:          1125,
 		DisplayName: "Candle",
 		Name:        "candle",
 		StackSize:   64,
 	}
 	WhiteCandle = Item{
-		ID:          1079,
+		ID:          1126,
 		DisplayName: "White Candle",
 		Name:        "white_candle",
 		StackSize:   64,
 	}
 	OrangeCandle = Item{
-		ID:          1080,
+		ID:          1127,
 		DisplayName: "Orange Candle",
 		Name:        "orange_candle",
 		StackSize:   64,
 	}
 	MagentaCandle = Item{
-		ID:          1081,
+		ID:          1128,
 		DisplayName: "Magenta Candle",
 		Name:        "magenta_candle",
 		StackSize:   64,
 	}
 	LightBlueCandle = Item{
-		ID:          1082,
+		ID:          1129,
 		DisplayName: "Light Blue Candle",
 		Name:        "light_blue_candle",
 		StackSize:   64,
 	}
 	YellowCandle = Item{
-		ID:          1083,
+		ID:          1130,
 		DisplayName: "Yellow Candle",
 		Name:        "yellow_candle",
 		StackSize:   64,
 	}
 	LimeCandle = Item{
-		ID:          1084,
+		ID:          1131,
 		DisplayName: "Lime Candle",
 		Name:        "lime_candle",
 		StackSize:   64,
 	}
 	PinkCandle = Item{
-		ID:          1085,
+		ID:          1132,
 		DisplayName: "Pink Candle",
 		Name:        "pink_candle",
 		StackSize:   64,
 	}
 	GrayCandle = Item{
-		ID:          1086,
+		ID:          1133,
 		DisplayName: "Gray Candle",
 		Name:        "gray_candle",
 		StackSize:   64,
 	}
 	LightGrayCandle = Item{
-		ID:          1087,
+		ID:          1134,
 		DisplayName: "Light Gray Candle",
 		Name:        "light_gray_candle",
 		StackSize:   64,
 	}
 	CyanCandle = Item{
-		ID:          1088,
+		ID:          1135,
 		DisplayName: "Cyan Candle",
 		Name:        "cyan_candle",
 		StackSize:   64,
 	}
 	PurpleCandle = Item{
-		ID:          1089,
+		ID:          1136,
 		DisplayName: "Purple Candle",
 		Name:        "purple_candle",
 		StackSize:   64,
 	}
 	BlueCandle = Item{
-		ID:          1090,
+		ID:          1137,
 		DisplayName: "Blue Candle",
 		Name:        "blue_candle",
 		StackSize:   64,
 	}
 	BrownCandle = Item{
-		ID:          1091,
+		ID:          1138,
 		DisplayName: "Brown Candle",
 		Name:        "brown_candle",
 		StackSize:   64,
 	}
 	GreenCandle = Item{
-		ID:          1092,
+		ID:          1139,
 		DisplayName: "Green Candle",
 		Name:        "green_candle",
 		StackSize:   64,
 	}
 	RedCandle = Item{
-		ID:          1093,
+		ID:          1140,
 		DisplayName: "Red Candle",
 		Name:        "red_candle",
 		StackSize:   64,
 	}
 	BlackCandle = Item{
-		ID:          1094,
+		ID:          1141,
 		DisplayName: "Black Candle",
 		Name:        "black_candle",
 		StackSize:   64,
 	}
 	SmallAmethystBud = Item{
-		ID:          1095,
+		ID:          1142,
 		DisplayName: "Small Amethyst Bud",
 		Name:        "small_amethyst_bud",
 		StackSize:   64,
 	}
 	MediumAmethystBud = Item{
-		ID:          1096,
+		ID:          1143,
 		DisplayName: "Medium Amethyst Bud",
 		Name:        "medium_amethyst_bud",
 		StackSize:   64,
 	}
 	LargeAmethystBud = Item{
-		ID:          1097,
+		ID:          1144,
 		DisplayName: "Large Amethyst Bud",
 		Name:        "large_amethyst_bud",
 		StackSize:   64,
 	}
 	AmethystCluster = Item{
-		ID:          1098,
+		ID:          1145,
 		DisplayName: "Amethyst Cluster",
 		Name:        "amethyst_cluster",
 		StackSize:   64,
 	}
 	PointedDripstone = Item{
-		ID:          1099,
+		ID:          1146,
 		DisplayName: "Pointed Dripstone",
 		Name:        "pointed_dripstone",
+		StackSize:   64,
+	}
+	OchreFroglight = Item{
+		ID:          1147,
+		DisplayName: "Ochre Froglight",
+		Name:        "ochre_froglight",
+		StackSize:   64,
+	}
+	VerdantFroglight = Item{
+		ID:          1148,
+		DisplayName: "Verdant Froglight",
+		Name:        "verdant_froglight",
+		StackSize:   64,
+	}
+	PearlescentFroglight = Item{
+		ID:          1149,
+		DisplayName: "Pearlescent Froglight",
+		Name:        "pearlescent_froglight",
+		StackSize:   64,
+	}
+	Frogspawn = Item{
+		ID:          1150,
+		DisplayName: "Frogspawn",
+		Name:        "frogspawn",
+		StackSize:   64,
+	}
+	EchoShard = Item{
+		ID:          1151,
+		DisplayName: "Echo Shard",
+		Name:        "echo_shard",
 		StackSize:   64,
 	}
 )
 
 // ByID is an index of minecraft items by their ID.
 var ByID = map[ID]*Item{
+	0:    &Air,
 	1:    &Stone,
 	2:    &Granite,
 	3:    &PolishedGranite,
@@ -6630,1085 +6949,2293 @@ var ByID = map[ID]*Item{
 	16:   &CoarseDirt,
 	17:   &Podzol,
 	18:   &RootedDirt,
-	19:   &CrimsonNylium,
-	20:   &WarpedNylium,
-	21:   &Cobblestone,
-	22:   &OakPlanks,
-	23:   &SprucePlanks,
-	24:   &BirchPlanks,
-	25:   &JunglePlanks,
-	26:   &AcaciaPlanks,
-	27:   &DarkOakPlanks,
-	28:   &CrimsonPlanks,
-	29:   &WarpedPlanks,
-	30:   &OakSapling,
-	31:   &SpruceSapling,
-	32:   &BirchSapling,
-	33:   &JungleSapling,
-	34:   &AcaciaSapling,
-	35:   &DarkOakSapling,
-	36:   &Bedrock,
-	37:   &Sand,
-	38:   &RedSand,
-	39:   &Gravel,
-	40:   &CoalOre,
-	41:   &DeepslateCoalOre,
-	42:   &IronOre,
-	43:   &DeepslateIronOre,
-	44:   &CopperOre,
-	45:   &DeepslateCopperOre,
-	46:   &GoldOre,
-	47:   &DeepslateGoldOre,
-	48:   &RedstoneOre,
-	49:   &DeepslateRedstoneOre,
-	50:   &EmeraldOre,
-	51:   &DeepslateEmeraldOre,
-	52:   &LapisOre,
-	53:   &DeepslateLapisOre,
-	54:   &DiamondOre,
-	55:   &DeepslateDiamondOre,
-	56:   &NetherGoldOre,
-	57:   &NetherQuartzOre,
-	58:   &AncientDebris,
-	59:   &CoalBlock,
-	60:   &RawIronBlock,
-	61:   &RawCopperBlock,
-	62:   &RawGoldBlock,
-	63:   &AmethystBlock,
-	64:   &BuddingAmethyst,
-	65:   &IronBlock,
-	66:   &CopperBlock,
-	67:   &GoldBlock,
-	68:   &DiamondBlock,
-	69:   &NetheriteBlock,
-	70:   &ExposedCopper,
-	71:   &WeatheredCopper,
-	72:   &OxidizedCopper,
-	73:   &CutCopper,
-	74:   &ExposedCutCopper,
-	75:   &WeatheredCutCopper,
-	76:   &OxidizedCutCopper,
-	77:   &CutCopperStairs,
-	78:   &ExposedCutCopperStairs,
-	79:   &WeatheredCutCopperStairs,
-	80:   &OxidizedCutCopperStairs,
-	81:   &CutCopperSlab,
-	82:   &ExposedCutCopperSlab,
-	83:   &WeatheredCutCopperSlab,
-	84:   &OxidizedCutCopperSlab,
-	85:   &WaxedCopperBlock,
-	86:   &WaxedExposedCopper,
-	87:   &WaxedWeatheredCopper,
-	88:   &WaxedOxidizedCopper,
-	89:   &WaxedCutCopper,
-	90:   &WaxedExposedCutCopper,
-	91:   &WaxedWeatheredCutCopper,
-	92:   &WaxedOxidizedCutCopper,
-	93:   &WaxedCutCopperStairs,
-	94:   &WaxedExposedCutCopperStairs,
-	95:   &WaxedWeatheredCutCopperStairs,
-	96:   &WaxedOxidizedCutCopperStairs,
-	97:   &WaxedCutCopperSlab,
-	98:   &WaxedExposedCutCopperSlab,
-	99:   &WaxedWeatheredCutCopperSlab,
-	100:  &WaxedOxidizedCutCopperSlab,
-	101:  &OakLog,
-	102:  &SpruceLog,
-	103:  &BirchLog,
-	104:  &JungleLog,
-	105:  &AcaciaLog,
-	106:  &DarkOakLog,
-	107:  &CrimsonStem,
-	108:  &WarpedStem,
-	109:  &StrippedOakLog,
-	110:  &StrippedSpruceLog,
-	111:  &StrippedBirchLog,
-	112:  &StrippedJungleLog,
-	113:  &StrippedAcaciaLog,
-	114:  &StrippedDarkOakLog,
-	115:  &StrippedCrimsonStem,
-	116:  &StrippedWarpedStem,
-	117:  &StrippedOakWood,
-	118:  &StrippedSpruceWood,
-	119:  &StrippedBirchWood,
-	120:  &StrippedJungleWood,
-	121:  &StrippedAcaciaWood,
-	122:  &StrippedDarkOakWood,
-	123:  &StrippedCrimsonHyphae,
-	124:  &StrippedWarpedHyphae,
-	125:  &OakWood,
-	126:  &SpruceWood,
-	127:  &BirchWood,
-	128:  &JungleWood,
-	129:  &AcaciaWood,
-	130:  &DarkOakWood,
-	131:  &CrimsonHyphae,
-	132:  &WarpedHyphae,
-	133:  &OakLeaves,
-	134:  &SpruceLeaves,
-	135:  &BirchLeaves,
-	136:  &JungleLeaves,
-	137:  &AcaciaLeaves,
-	138:  &DarkOakLeaves,
-	139:  &AzaleaLeaves,
-	140:  &FloweringAzaleaLeaves,
-	141:  &Sponge,
-	142:  &WetSponge,
-	143:  &Glass,
-	144:  &TintedGlass,
-	145:  &LapisBlock,
-	146:  &Sandstone,
-	147:  &ChiseledSandstone,
-	148:  &CutSandstone,
-	149:  &Cobweb,
-	150:  &Grass,
-	151:  &Fern,
-	152:  &Azalea,
-	153:  &FloweringAzalea,
-	154:  &DeadBush,
-	155:  &Seagrass,
-	156:  &SeaPickle,
-	157:  &WhiteWool,
-	158:  &OrangeWool,
-	159:  &MagentaWool,
-	160:  &LightBlueWool,
-	161:  &YellowWool,
-	162:  &LimeWool,
-	163:  &PinkWool,
-	164:  &GrayWool,
-	165:  &LightGrayWool,
-	166:  &CyanWool,
-	167:  &PurpleWool,
-	168:  &BlueWool,
-	169:  &BrownWool,
-	170:  &GreenWool,
-	171:  &RedWool,
-	172:  &BlackWool,
-	173:  &Dandelion,
-	174:  &Poppy,
-	175:  &BlueOrchid,
-	176:  &Allium,
-	177:  &AzureBluet,
-	178:  &RedTulip,
-	179:  &OrangeTulip,
-	180:  &WhiteTulip,
-	181:  &PinkTulip,
-	182:  &OxeyeDaisy,
-	183:  &Cornflower,
-	184:  &LilyOfTheValley,
-	185:  &WitherRose,
-	186:  &SporeBlossom,
-	187:  &BrownMushroom,
-	188:  &RedMushroom,
-	189:  &CrimsonFungus,
-	190:  &WarpedFungus,
-	191:  &CrimsonRoots,
-	192:  &WarpedRoots,
-	193:  &NetherSprouts,
-	194:  &WeepingVines,
-	195:  &TwistingVines,
-	196:  &SugarCane,
-	197:  &Kelp,
-	198:  &MossCarpet,
-	199:  &MossBlock,
-	200:  &HangingRoots,
-	201:  &BigDripleaf,
-	202:  &SmallDripleaf,
-	203:  &Bamboo,
-	204:  &OakSlab,
-	205:  &SpruceSlab,
-	206:  &BirchSlab,
-	207:  &JungleSlab,
-	208:  &AcaciaSlab,
-	209:  &DarkOakSlab,
-	210:  &CrimsonSlab,
-	211:  &WarpedSlab,
-	212:  &StoneSlab,
-	213:  &SmoothStoneSlab,
-	214:  &SandstoneSlab,
-	215:  &CutSandstoneSlab,
-	216:  &PetrifiedOakSlab,
-	217:  &CobblestoneSlab,
-	218:  &BrickSlab,
-	219:  &StoneBrickSlab,
-	220:  &NetherBrickSlab,
-	221:  &QuartzSlab,
-	222:  &RedSandstoneSlab,
-	223:  &CutRedSandstoneSlab,
-	224:  &PurpurSlab,
-	225:  &PrismarineSlab,
-	226:  &PrismarineBrickSlab,
-	227:  &DarkPrismarineSlab,
-	228:  &SmoothQuartz,
-	229:  &SmoothRedSandstone,
-	230:  &SmoothSandstone,
-	231:  &SmoothStone,
-	232:  &Bricks,
-	233:  &Bookshelf,
-	234:  &MossyCobblestone,
-	235:  &Obsidian,
-	236:  &Torch,
-	237:  &EndRod,
-	238:  &ChorusPlant,
-	239:  &ChorusFlower,
-	240:  &PurpurBlock,
-	241:  &PurpurPillar,
-	242:  &PurpurStairs,
-	243:  &Spawner,
-	244:  &OakStairs,
-	245:  &Chest,
-	246:  &CraftingTable,
-	247:  &Farmland,
-	248:  &Furnace,
-	249:  &Ladder,
-	250:  &CobblestoneStairs,
-	251:  &Snow,
-	252:  &Ice,
-	253:  &SnowBlock,
-	254:  &Cactus,
-	255:  &Clay,
-	256:  &Jukebox,
-	257:  &OakFence,
-	258:  &SpruceFence,
-	259:  &BirchFence,
-	260:  &JungleFence,
-	261:  &AcaciaFence,
-	262:  &DarkOakFence,
-	263:  &CrimsonFence,
-	264:  &WarpedFence,
-	265:  &Pumpkin,
-	266:  &CarvedPumpkin,
-	267:  &JackOLantern,
-	268:  &Netherrack,
-	269:  &SoulSand,
-	270:  &SoulSoil,
-	271:  &Basalt,
-	272:  &PolishedBasalt,
-	273:  &SmoothBasalt,
-	274:  &SoulTorch,
-	275:  &Glowstone,
-	276:  &InfestedStone,
-	277:  &InfestedCobblestone,
-	278:  &InfestedStoneBricks,
-	279:  &InfestedMossyStoneBricks,
-	280:  &InfestedCrackedStoneBricks,
-	281:  &InfestedChiseledStoneBricks,
-	282:  &InfestedDeepslate,
-	283:  &StoneBricks,
-	284:  &MossyStoneBricks,
-	285:  &CrackedStoneBricks,
-	286:  &ChiseledStoneBricks,
-	287:  &DeepslateBricks,
-	288:  &CrackedDeepslateBricks,
-	289:  &DeepslateTiles,
-	290:  &CrackedDeepslateTiles,
-	291:  &ChiseledDeepslate,
-	292:  &BrownMushroomBlock,
-	293:  &RedMushroomBlock,
-	294:  &MushroomStem,
-	295:  &IronBars,
-	296:  &Chain,
-	297:  &GlassPane,
-	298:  &Melon,
-	299:  &Vine,
-	300:  &GlowLichen,
-	301:  &BrickStairs,
-	302:  &StoneBrickStairs,
-	303:  &Mycelium,
-	304:  &LilyPad,
-	305:  &NetherBricks,
-	306:  &CrackedNetherBricks,
-	307:  &ChiseledNetherBricks,
-	308:  &NetherBrickFence,
-	309:  &NetherBrickStairs,
-	310:  &EnchantingTable,
-	311:  &EndPortalFrame,
-	312:  &EndStone,
-	313:  &EndStoneBricks,
-	314:  &DragonEgg,
-	315:  &SandstoneStairs,
-	316:  &EnderChest,
-	317:  &EmeraldBlock,
-	318:  &SpruceStairs,
-	319:  &BirchStairs,
-	320:  &JungleStairs,
-	321:  &CrimsonStairs,
-	322:  &WarpedStairs,
-	323:  &CommandBlock,
-	324:  &Beacon,
-	325:  &CobblestoneWall,
-	326:  &MossyCobblestoneWall,
-	327:  &BrickWall,
-	328:  &PrismarineWall,
-	329:  &RedSandstoneWall,
-	330:  &MossyStoneBrickWall,
-	331:  &GraniteWall,
-	332:  &StoneBrickWall,
-	333:  &NetherBrickWall,
-	334:  &AndesiteWall,
-	335:  &RedNetherBrickWall,
-	336:  &SandstoneWall,
-	337:  &EndStoneBrickWall,
-	338:  &DioriteWall,
-	339:  &BlackstoneWall,
-	340:  &PolishedBlackstoneWall,
-	341:  &PolishedBlackstoneBrickWall,
-	342:  &CobbledDeepslateWall,
-	343:  &PolishedDeepslateWall,
-	344:  &DeepslateBrickWall,
-	345:  &DeepslateTileWall,
-	346:  &Anvil,
-	347:  &ChippedAnvil,
-	348:  &DamagedAnvil,
-	349:  &ChiseledQuartzBlock,
-	350:  &QuartzBlock,
-	351:  &QuartzBricks,
-	352:  &QuartzPillar,
-	353:  &QuartzStairs,
-	354:  &WhiteTerracotta,
-	355:  &OrangeTerracotta,
-	356:  &MagentaTerracotta,
-	357:  &LightBlueTerracotta,
-	358:  &YellowTerracotta,
-	359:  &LimeTerracotta,
-	360:  &PinkTerracotta,
-	361:  &GrayTerracotta,
-	362:  &LightGrayTerracotta,
-	363:  &CyanTerracotta,
-	364:  &PurpleTerracotta,
-	365:  &BlueTerracotta,
-	366:  &BrownTerracotta,
-	367:  &GreenTerracotta,
-	368:  &RedTerracotta,
-	369:  &BlackTerracotta,
-	370:  &Barrier,
-	371:  &Light,
-	372:  &HayBlock,
-	373:  &WhiteCarpet,
-	374:  &OrangeCarpet,
-	375:  &MagentaCarpet,
-	376:  &LightBlueCarpet,
-	377:  &YellowCarpet,
-	378:  &LimeCarpet,
-	379:  &PinkCarpet,
-	380:  &GrayCarpet,
-	381:  &LightGrayCarpet,
-	382:  &CyanCarpet,
-	383:  &PurpleCarpet,
-	384:  &BlueCarpet,
-	385:  &BrownCarpet,
-	386:  &GreenCarpet,
-	387:  &RedCarpet,
-	388:  &BlackCarpet,
-	389:  &Terracotta,
-	390:  &PackedIce,
-	391:  &AcaciaStairs,
-	392:  &DarkOakStairs,
-	393:  &DirtPath,
-	394:  &Sunflower,
-	395:  &Lilac,
-	396:  &RoseBush,
-	397:  &Peony,
-	398:  &TallGrass,
-	399:  &LargeFern,
-	400:  &WhiteStainedGlass,
-	401:  &OrangeStainedGlass,
-	402:  &MagentaStainedGlass,
-	403:  &LightBlueStainedGlass,
-	404:  &YellowStainedGlass,
-	405:  &LimeStainedGlass,
-	406:  &PinkStainedGlass,
-	407:  &GrayStainedGlass,
-	408:  &LightGrayStainedGlass,
-	409:  &CyanStainedGlass,
-	410:  &PurpleStainedGlass,
-	411:  &BlueStainedGlass,
-	412:  &BrownStainedGlass,
-	413:  &GreenStainedGlass,
-	414:  &RedStainedGlass,
-	415:  &BlackStainedGlass,
-	416:  &WhiteStainedGlassPane,
-	417:  &OrangeStainedGlassPane,
-	418:  &MagentaStainedGlassPane,
-	419:  &LightBlueStainedGlassPane,
-	420:  &YellowStainedGlassPane,
-	421:  &LimeStainedGlassPane,
-	422:  &PinkStainedGlassPane,
-	423:  &GrayStainedGlassPane,
-	424:  &LightGrayStainedGlassPane,
-	425:  &CyanStainedGlassPane,
-	426:  &PurpleStainedGlassPane,
-	427:  &BlueStainedGlassPane,
-	428:  &BrownStainedGlassPane,
-	429:  &GreenStainedGlassPane,
-	430:  &RedStainedGlassPane,
-	431:  &BlackStainedGlassPane,
-	432:  &Prismarine,
-	433:  &PrismarineBricks,
-	434:  &DarkPrismarine,
-	435:  &PrismarineStairs,
-	436:  &PrismarineBrickStairs,
-	437:  &DarkPrismarineStairs,
-	438:  &SeaLantern,
-	439:  &RedSandstone,
-	440:  &ChiseledRedSandstone,
-	441:  &CutRedSandstone,
-	442:  &RedSandstoneStairs,
-	443:  &RepeatingCommandBlock,
-	444:  &ChainCommandBlock,
-	445:  &MagmaBlock,
-	446:  &NetherWartBlock,
-	447:  &WarpedWartBlock,
-	448:  &RedNetherBricks,
-	449:  &BoneBlock,
-	450:  &StructureVoid,
-	451:  &ShulkerBox,
-	452:  &WhiteShulkerBox,
-	453:  &OrangeShulkerBox,
-	454:  &MagentaShulkerBox,
-	455:  &LightBlueShulkerBox,
-	456:  &YellowShulkerBox,
-	457:  &LimeShulkerBox,
-	458:  &PinkShulkerBox,
-	459:  &GrayShulkerBox,
-	460:  &LightGrayShulkerBox,
-	461:  &CyanShulkerBox,
-	462:  &PurpleShulkerBox,
-	463:  &BlueShulkerBox,
-	464:  &BrownShulkerBox,
-	465:  &GreenShulkerBox,
-	466:  &RedShulkerBox,
-	467:  &BlackShulkerBox,
-	468:  &WhiteGlazedTerracotta,
-	469:  &OrangeGlazedTerracotta,
-	470:  &MagentaGlazedTerracotta,
-	471:  &LightBlueGlazedTerracotta,
-	472:  &YellowGlazedTerracotta,
-	473:  &LimeGlazedTerracotta,
-	474:  &PinkGlazedTerracotta,
-	475:  &GrayGlazedTerracotta,
-	476:  &LightGrayGlazedTerracotta,
-	477:  &CyanGlazedTerracotta,
-	478:  &PurpleGlazedTerracotta,
-	479:  &BlueGlazedTerracotta,
-	480:  &BrownGlazedTerracotta,
-	481:  &GreenGlazedTerracotta,
-	482:  &RedGlazedTerracotta,
-	483:  &BlackGlazedTerracotta,
-	484:  &WhiteConcrete,
-	485:  &OrangeConcrete,
-	486:  &MagentaConcrete,
-	487:  &LightBlueConcrete,
-	488:  &YellowConcrete,
-	489:  &LimeConcrete,
-	490:  &PinkConcrete,
-	491:  &GrayConcrete,
-	492:  &LightGrayConcrete,
-	493:  &CyanConcrete,
-	494:  &PurpleConcrete,
-	495:  &BlueConcrete,
-	496:  &BrownConcrete,
-	497:  &GreenConcrete,
-	498:  &RedConcrete,
-	499:  &BlackConcrete,
-	500:  &WhiteConcretePowder,
-	501:  &OrangeConcretePowder,
-	502:  &MagentaConcretePowder,
-	503:  &LightBlueConcretePowder,
-	504:  &YellowConcretePowder,
-	505:  &LimeConcretePowder,
-	506:  &PinkConcretePowder,
-	507:  &GrayConcretePowder,
-	508:  &LightGrayConcretePowder,
-	509:  &CyanConcretePowder,
-	510:  &PurpleConcretePowder,
-	511:  &BlueConcretePowder,
-	512:  &BrownConcretePowder,
-	513:  &GreenConcretePowder,
-	514:  &RedConcretePowder,
-	515:  &BlackConcretePowder,
-	516:  &TurtleEgg,
-	517:  &DeadTubeCoralBlock,
-	518:  &DeadBrainCoralBlock,
-	519:  &DeadBubbleCoralBlock,
-	520:  &DeadFireCoralBlock,
-	521:  &DeadHornCoralBlock,
-	522:  &TubeCoralBlock,
-	523:  &BrainCoralBlock,
-	524:  &BubbleCoralBlock,
-	525:  &FireCoralBlock,
-	526:  &HornCoralBlock,
-	527:  &TubeCoral,
-	528:  &BrainCoral,
-	529:  &BubbleCoral,
-	530:  &FireCoral,
-	531:  &HornCoral,
-	532:  &DeadBrainCoral,
-	533:  &DeadBubbleCoral,
-	534:  &DeadFireCoral,
-	535:  &DeadHornCoral,
-	536:  &DeadTubeCoral,
-	537:  &TubeCoralFan,
-	538:  &BrainCoralFan,
-	539:  &BubbleCoralFan,
-	540:  &FireCoralFan,
-	541:  &HornCoralFan,
-	542:  &DeadTubeCoralFan,
-	543:  &DeadBrainCoralFan,
-	544:  &DeadBubbleCoralFan,
-	545:  &DeadFireCoralFan,
-	546:  &DeadHornCoralFan,
-	547:  &BlueIce,
-	548:  &Conduit,
-	549:  &PolishedGraniteStairs,
-	550:  &SmoothRedSandstoneStairs,
-	551:  &MossyStoneBrickStairs,
-	552:  &PolishedDioriteStairs,
-	553:  &MossyCobblestoneStairs,
-	554:  &EndStoneBrickStairs,
-	555:  &StoneStairs,
-	556:  &SmoothSandstoneStairs,
-	557:  &SmoothQuartzStairs,
-	558:  &GraniteStairs,
-	559:  &AndesiteStairs,
-	560:  &RedNetherBrickStairs,
-	561:  &PolishedAndesiteStairs,
-	562:  &DioriteStairs,
-	563:  &CobbledDeepslateStairs,
-	564:  &PolishedDeepslateStairs,
-	565:  &DeepslateBrickStairs,
-	566:  &DeepslateTileStairs,
-	567:  &PolishedGraniteSlab,
-	568:  &SmoothRedSandstoneSlab,
-	569:  &MossyStoneBrickSlab,
-	570:  &PolishedDioriteSlab,
-	571:  &MossyCobblestoneSlab,
-	572:  &EndStoneBrickSlab,
-	573:  &SmoothSandstoneSlab,
-	574:  &SmoothQuartzSlab,
-	575:  &GraniteSlab,
-	576:  &AndesiteSlab,
-	577:  &RedNetherBrickSlab,
-	578:  &PolishedAndesiteSlab,
-	579:  &DioriteSlab,
-	580:  &CobbledDeepslateSlab,
-	581:  &PolishedDeepslateSlab,
-	582:  &DeepslateBrickSlab,
-	583:  &DeepslateTileSlab,
-	584:  &Scaffolding,
-	585:  &Redstone,
-	586:  &RedstoneTorch,
-	587:  &RedstoneBlock,
-	588:  &Repeater,
-	589:  &Comparator,
-	590:  &Piston,
-	591:  &StickyPiston,
-	592:  &SlimeBlock,
-	593:  &HoneyBlock,
-	594:  &Observer,
-	595:  &Hopper,
-	596:  &Dispenser,
-	597:  &Dropper,
-	598:  &Lectern,
-	599:  &Target,
-	600:  &Lever,
-	601:  &LightningRod,
-	602:  &DaylightDetector,
-	603:  &SculkSensor,
-	604:  &TripwireHook,
-	605:  &TrappedChest,
-	606:  &Tnt,
-	607:  &RedstoneLamp,
-	608:  &NoteBlock,
-	609:  &StoneButton,
-	610:  &PolishedBlackstoneButton,
-	611:  &OakButton,
-	612:  &SpruceButton,
-	613:  &BirchButton,
-	614:  &JungleButton,
-	615:  &AcaciaButton,
-	616:  &DarkOakButton,
-	617:  &CrimsonButton,
-	618:  &WarpedButton,
-	619:  &StonePressurePlate,
-	620:  &PolishedBlackstonePressurePlate,
-	621:  &LightWeightedPressurePlate,
-	622:  &HeavyWeightedPressurePlate,
-	623:  &OakPressurePlate,
-	624:  &SprucePressurePlate,
-	625:  &BirchPressurePlate,
-	626:  &JunglePressurePlate,
-	627:  &AcaciaPressurePlate,
-	628:  &DarkOakPressurePlate,
-	629:  &CrimsonPressurePlate,
-	630:  &WarpedPressurePlate,
-	631:  &IronDoor,
-	632:  &OakDoor,
-	633:  &SpruceDoor,
-	634:  &BirchDoor,
-	635:  &JungleDoor,
-	636:  &AcaciaDoor,
-	637:  &DarkOakDoor,
-	638:  &CrimsonDoor,
-	639:  &WarpedDoor,
-	640:  &IronTrapdoor,
-	641:  &OakTrapdoor,
-	642:  &SpruceTrapdoor,
-	643:  &BirchTrapdoor,
-	644:  &JungleTrapdoor,
-	645:  &AcaciaTrapdoor,
-	646:  &DarkOakTrapdoor,
-	647:  &CrimsonTrapdoor,
-	648:  &WarpedTrapdoor,
-	649:  &OakFenceGate,
-	650:  &SpruceFenceGate,
-	651:  &BirchFenceGate,
-	652:  &JungleFenceGate,
-	653:  &AcaciaFenceGate,
-	654:  &DarkOakFenceGate,
-	655:  &CrimsonFenceGate,
-	656:  &WarpedFenceGate,
-	657:  &PoweredRail,
-	658:  &DetectorRail,
-	659:  &Rail,
-	660:  &ActivatorRail,
-	661:  &Saddle,
-	662:  &Minecart,
-	663:  &ChestMinecart,
-	664:  &FurnaceMinecart,
-	665:  &TntMinecart,
-	666:  &HopperMinecart,
-	667:  &CarrotOnAStick,
-	668:  &WarpedFungusOnAStick,
-	669:  &Elytra,
-	670:  &OakBoat,
-	671:  &SpruceBoat,
-	672:  &BirchBoat,
-	673:  &JungleBoat,
-	674:  &AcaciaBoat,
-	675:  &DarkOakBoat,
-	676:  &StructureBlock,
-	677:  &Jigsaw,
-	678:  &TurtleHelmet,
-	679:  &Scute,
-	680:  &FlintAndSteel,
-	681:  &Apple,
-	682:  &Bow,
-	683:  &Arrow,
-	684:  &Coal,
-	685:  &Charcoal,
-	686:  &Diamond,
-	687:  &Emerald,
-	688:  &LapisLazuli,
-	689:  &Quartz,
-	690:  &AmethystShard,
-	691:  &RawIron,
-	692:  &IronIngot,
-	693:  &RawCopper,
-	694:  &CopperIngot,
-	695:  &RawGold,
-	696:  &GoldIngot,
-	697:  &NetheriteIngot,
-	698:  &NetheriteScrap,
-	699:  &WoodenSword,
-	700:  &WoodenShovel,
-	701:  &WoodenPickaxe,
-	702:  &WoodenAxe,
-	703:  &WoodenHoe,
-	704:  &StoneSword,
-	705:  &StoneShovel,
-	706:  &StonePickaxe,
-	707:  &StoneAxe,
-	708:  &StoneHoe,
-	709:  &GoldenSword,
-	710:  &GoldenShovel,
-	711:  &GoldenPickaxe,
-	712:  &GoldenAxe,
-	713:  &GoldenHoe,
-	714:  &IronSword,
-	715:  &IronShovel,
-	716:  &IronPickaxe,
-	717:  &IronAxe,
-	718:  &IronHoe,
-	719:  &DiamondSword,
-	720:  &DiamondShovel,
-	721:  &DiamondPickaxe,
-	722:  &DiamondAxe,
-	723:  &DiamondHoe,
-	724:  &NetheriteSword,
-	725:  &NetheriteShovel,
-	726:  &NetheritePickaxe,
-	727:  &NetheriteAxe,
-	728:  &NetheriteHoe,
-	729:  &Stick,
-	730:  &Bowl,
-	731:  &MushroomStew,
-	732:  &String,
-	733:  &Feather,
-	734:  &Gunpowder,
-	735:  &WheatSeeds,
-	736:  &Wheat,
-	737:  &Bread,
-	738:  &LeatherHelmet,
-	739:  &LeatherChestplate,
-	740:  &LeatherLeggings,
-	741:  &LeatherBoots,
-	742:  &ChainmailHelmet,
-	743:  &ChainmailChestplate,
-	744:  &ChainmailLeggings,
-	745:  &ChainmailBoots,
-	746:  &IronHelmet,
-	747:  &IronChestplate,
-	748:  &IronLeggings,
-	749:  &IronBoots,
-	750:  &DiamondHelmet,
-	751:  &DiamondChestplate,
-	752:  &DiamondLeggings,
-	753:  &DiamondBoots,
-	754:  &GoldenHelmet,
-	755:  &GoldenChestplate,
-	756:  &GoldenLeggings,
-	757:  &GoldenBoots,
-	758:  &NetheriteHelmet,
-	759:  &NetheriteChestplate,
-	760:  &NetheriteLeggings,
-	761:  &NetheriteBoots,
-	762:  &Flint,
-	763:  &Porkchop,
-	764:  &CookedPorkchop,
-	765:  &Painting,
-	766:  &GoldenApple,
-	767:  &EnchantedGoldenApple,
-	768:  &OakSign,
-	769:  &SpruceSign,
-	770:  &BirchSign,
-	771:  &JungleSign,
-	772:  &AcaciaSign,
-	773:  &DarkOakSign,
-	774:  &CrimsonSign,
-	775:  &WarpedSign,
-	776:  &Bucket,
-	777:  &WaterBucket,
-	778:  &LavaBucket,
-	779:  &PowderSnowBucket,
-	780:  &Snowball,
-	781:  &Leather,
-	782:  &MilkBucket,
-	783:  &PufferfishBucket,
-	784:  &SalmonBucket,
-	785:  &CodBucket,
-	786:  &TropicalFishBucket,
-	787:  &AxolotlBucket,
-	788:  &Brick,
-	789:  &ClayBall,
-	790:  &DriedKelpBlock,
-	791:  &Paper,
-	792:  &Book,
-	793:  &SlimeBall,
-	794:  &Egg,
-	795:  &Compass,
-	796:  &Bundle,
-	797:  &FishingRod,
-	798:  &Clock,
-	799:  &Spyglass,
-	800:  &GlowstoneDust,
-	801:  &Cod,
-	802:  &Salmon,
-	803:  &TropicalFish,
-	804:  &Pufferfish,
-	805:  &CookedCod,
-	806:  &CookedSalmon,
-	807:  &InkSac,
-	808:  &GlowInkSac,
-	809:  &CocoaBeans,
-	810:  &WhiteDye,
-	811:  &OrangeDye,
-	812:  &MagentaDye,
-	813:  &LightBlueDye,
-	814:  &YellowDye,
-	815:  &LimeDye,
-	816:  &PinkDye,
-	817:  &GrayDye,
-	818:  &LightGrayDye,
-	819:  &CyanDye,
-	820:  &PurpleDye,
-	821:  &BlueDye,
-	822:  &BrownDye,
-	823:  &GreenDye,
-	824:  &RedDye,
-	825:  &BlackDye,
-	826:  &BoneMeal,
-	827:  &Bone,
-	828:  &Sugar,
-	829:  &Cake,
-	830:  &WhiteBed,
-	831:  &OrangeBed,
-	832:  &MagentaBed,
-	833:  &LightBlueBed,
-	834:  &YellowBed,
-	835:  &LimeBed,
-	836:  &PinkBed,
-	837:  &GrayBed,
-	838:  &LightGrayBed,
-	839:  &CyanBed,
-	840:  &PurpleBed,
-	841:  &BlueBed,
-	842:  &BrownBed,
-	843:  &GreenBed,
-	844:  &RedBed,
-	845:  &BlackBed,
-	846:  &Cookie,
-	847:  &FilledMap,
-	848:  &Shears,
-	849:  &MelonSlice,
-	850:  &DriedKelp,
-	851:  &PumpkinSeeds,
-	852:  &MelonSeeds,
-	853:  &Beef,
-	854:  &CookedBeef,
-	855:  &Chicken,
-	856:  &CookedChicken,
-	857:  &RottenFlesh,
-	858:  &EnderPearl,
-	859:  &BlazeRod,
-	860:  &GhastTear,
-	861:  &GoldNugget,
-	862:  &NetherWart,
-	863:  &Potion,
-	864:  &GlassBottle,
-	865:  &SpiderEye,
-	866:  &FermentedSpiderEye,
-	867:  &BlazePowder,
-	868:  &MagmaCream,
-	869:  &BrewingStand,
-	870:  &Cauldron,
-	871:  &EnderEye,
-	872:  &GlisteringMelonSlice,
-	873:  &AxolotlSpawnEgg,
-	874:  &BatSpawnEgg,
-	875:  &BeeSpawnEgg,
-	876:  &BlazeSpawnEgg,
-	877:  &CatSpawnEgg,
-	878:  &CaveSpiderSpawnEgg,
-	879:  &ChickenSpawnEgg,
-	880:  &CodSpawnEgg,
-	881:  &CowSpawnEgg,
-	882:  &CreeperSpawnEgg,
-	883:  &DolphinSpawnEgg,
-	884:  &DonkeySpawnEgg,
-	885:  &DrownedSpawnEgg,
-	886:  &ElderGuardianSpawnEgg,
-	887:  &EndermanSpawnEgg,
-	888:  &EndermiteSpawnEgg,
-	889:  &EvokerSpawnEgg,
-	890:  &FoxSpawnEgg,
-	891:  &GhastSpawnEgg,
-	892:  &GlowSquidSpawnEgg,
-	893:  &GoatSpawnEgg,
-	894:  &GuardianSpawnEgg,
-	895:  &HoglinSpawnEgg,
-	896:  &HorseSpawnEgg,
-	897:  &HuskSpawnEgg,
-	898:  &LlamaSpawnEgg,
-	899:  &MagmaCubeSpawnEgg,
-	900:  &MooshroomSpawnEgg,
-	901:  &MuleSpawnEgg,
-	902:  &OcelotSpawnEgg,
-	903:  &PandaSpawnEgg,
-	904:  &ParrotSpawnEgg,
-	905:  &PhantomSpawnEgg,
-	906:  &PigSpawnEgg,
-	907:  &PiglinSpawnEgg,
-	908:  &PiglinBruteSpawnEgg,
-	909:  &PillagerSpawnEgg,
-	910:  &PolarBearSpawnEgg,
-	911:  &PufferfishSpawnEgg,
-	912:  &RabbitSpawnEgg,
-	913:  &RavagerSpawnEgg,
-	914:  &SalmonSpawnEgg,
-	915:  &SheepSpawnEgg,
-	916:  &ShulkerSpawnEgg,
-	917:  &SilverfishSpawnEgg,
-	918:  &SkeletonSpawnEgg,
-	919:  &SkeletonHorseSpawnEgg,
-	920:  &SlimeSpawnEgg,
-	921:  &SpiderSpawnEgg,
-	922:  &SquidSpawnEgg,
-	923:  &StraySpawnEgg,
-	924:  &StriderSpawnEgg,
-	925:  &TraderLlamaSpawnEgg,
-	926:  &TropicalFishSpawnEgg,
-	927:  &TurtleSpawnEgg,
-	928:  &VexSpawnEgg,
-	929:  &VillagerSpawnEgg,
-	930:  &VindicatorSpawnEgg,
-	931:  &WanderingTraderSpawnEgg,
-	932:  &WitchSpawnEgg,
-	933:  &WitherSkeletonSpawnEgg,
-	934:  &WolfSpawnEgg,
-	935:  &ZoglinSpawnEgg,
-	936:  &ZombieSpawnEgg,
-	937:  &ZombieHorseSpawnEgg,
-	938:  &ZombieVillagerSpawnEgg,
-	939:  &ZombifiedPiglinSpawnEgg,
-	940:  &ExperienceBottle,
-	941:  &FireCharge,
-	942:  &WritableBook,
-	943:  &WrittenBook,
-	944:  &ItemFrame,
-	945:  &GlowItemFrame,
-	946:  &FlowerPot,
-	947:  &Carrot,
-	948:  &Potato,
-	949:  &BakedPotato,
-	950:  &PoisonousPotato,
-	951:  &Map,
-	952:  &GoldenCarrot,
-	953:  &SkeletonSkull,
-	954:  &WitherSkeletonSkull,
-	955:  &PlayerHead,
-	956:  &ZombieHead,
-	957:  &CreeperHead,
-	958:  &DragonHead,
-	959:  &NetherStar,
-	960:  &PumpkinPie,
-	961:  &FireworkRocket,
-	962:  &FireworkStar,
-	963:  &EnchantedBook,
-	964:  &NetherBrick,
-	965:  &PrismarineShard,
-	966:  &PrismarineCrystals,
-	967:  &Rabbit,
-	968:  &CookedRabbit,
-	969:  &RabbitStew,
-	970:  &RabbitFoot,
-	971:  &RabbitHide,
-	972:  &ArmorStand,
-	973:  &IronHorseArmor,
-	974:  &GoldenHorseArmor,
-	975:  &DiamondHorseArmor,
-	976:  &LeatherHorseArmor,
-	977:  &Lead,
-	978:  &NameTag,
-	979:  &CommandBlockMinecart,
-	980:  &Mutton,
-	981:  &CookedMutton,
-	982:  &WhiteBanner,
-	983:  &OrangeBanner,
-	984:  &MagentaBanner,
-	985:  &LightBlueBanner,
-	986:  &YellowBanner,
-	987:  &LimeBanner,
-	988:  &PinkBanner,
-	989:  &GrayBanner,
-	990:  &LightGrayBanner,
-	991:  &CyanBanner,
-	992:  &PurpleBanner,
-	993:  &BlueBanner,
-	994:  &BrownBanner,
-	995:  &GreenBanner,
-	996:  &RedBanner,
-	997:  &BlackBanner,
-	998:  &EndCrystal,
-	999:  &ChorusFruit,
-	1000: &PoppedChorusFruit,
-	1001: &Beetroot,
-	1002: &BeetrootSeeds,
-	1003: &BeetrootSoup,
-	1004: &DragonBreath,
-	1005: &SplashPotion,
-	1006: &SpectralArrow,
-	1007: &TippedArrow,
-	1008: &LingeringPotion,
-	1009: &Shield,
-	1010: &TotemOfUndying,
-	1011: &ShulkerShell,
-	1012: &IronNugget,
-	1013: &KnowledgeBook,
-	1014: &DebugStick,
-	1015: &MusicDisc13,
-	1016: &MusicDiscCat,
-	1017: &MusicDiscBlocks,
-	1018: &MusicDiscChirp,
-	1019: &MusicDiscFar,
-	1020: &MusicDiscMall,
-	1021: &MusicDiscMellohi,
-	1022: &MusicDiscStal,
-	1023: &MusicDiscStrad,
-	1024: &MusicDiscWard,
-	1025: &MusicDisc11,
-	1026: &MusicDiscWait,
-	1027: &MusicDiscPigstep,
-	1028: &Trident,
-	1029: &PhantomMembrane,
-	1030: &NautilusShell,
-	1031: &HeartOfTheSea,
-	1032: &Crossbow,
-	1033: &SuspiciousStew,
-	1034: &Loom,
-	1035: &FlowerBannerPattern,
-	1036: &CreeperBannerPattern,
-	1037: &SkullBannerPattern,
-	1038: &MojangBannerPattern,
-	1039: &GlobeBannerPattern,
-	1040: &PiglinBannerPattern,
-	1041: &Composter,
-	1042: &Barrel,
-	1043: &Smoker,
-	1044: &BlastFurnace,
-	1045: &CartographyTable,
-	1046: &FletchingTable,
-	1047: &Grindstone,
-	1048: &SmithingTable,
-	1049: &Stonecutter,
-	1050: &Bell,
-	1051: &Lantern,
-	1052: &SoulLantern,
-	1053: &SweetBerries,
-	1054: &GlowBerries,
-	1055: &Campfire,
-	1056: &SoulCampfire,
-	1057: &Shroomlight,
-	1058: &Honeycomb,
-	1059: &BeeNest,
-	1060: &Beehive,
-	1061: &HoneyBottle,
-	1062: &HoneycombBlock,
-	1063: &Lodestone,
-	1064: &CryingObsidian,
-	1065: &Blackstone,
-	1066: &BlackstoneSlab,
-	1067: &BlackstoneStairs,
-	1068: &GildedBlackstone,
-	1069: &PolishedBlackstone,
-	1070: &PolishedBlackstoneSlab,
-	1071: &PolishedBlackstoneStairs,
-	1072: &ChiseledPolishedBlackstone,
-	1073: &PolishedBlackstoneBricks,
-	1074: &PolishedBlackstoneBrickSlab,
-	1075: &PolishedBlackstoneBrickStairs,
-	1076: &CrackedPolishedBlackstoneBricks,
-	1077: &RespawnAnchor,
-	1078: &Candle,
-	1079: &WhiteCandle,
-	1080: &OrangeCandle,
-	1081: &MagentaCandle,
-	1082: &LightBlueCandle,
-	1083: &YellowCandle,
-	1084: &LimeCandle,
-	1085: &PinkCandle,
-	1086: &GrayCandle,
-	1087: &LightGrayCandle,
-	1088: &CyanCandle,
-	1089: &PurpleCandle,
-	1090: &BlueCandle,
-	1091: &BrownCandle,
-	1092: &GreenCandle,
-	1093: &RedCandle,
-	1094: &BlackCandle,
-	1095: &SmallAmethystBud,
-	1096: &MediumAmethystBud,
-	1097: &LargeAmethystBud,
-	1098: &AmethystCluster,
-	1099: &PointedDripstone,
+	19:   &Mud,
+	20:   &CrimsonNylium,
+	21:   &WarpedNylium,
+	22:   &Cobblestone,
+	23:   &OakPlanks,
+	24:   &SprucePlanks,
+	25:   &BirchPlanks,
+	26:   &JunglePlanks,
+	27:   &AcaciaPlanks,
+	28:   &DarkOakPlanks,
+	29:   &MangrovePlanks,
+	30:   &CrimsonPlanks,
+	31:   &WarpedPlanks,
+	32:   &OakSapling,
+	33:   &SpruceSapling,
+	34:   &BirchSapling,
+	35:   &JungleSapling,
+	36:   &AcaciaSapling,
+	37:   &DarkOakSapling,
+	38:   &MangrovePropagule,
+	39:   &Bedrock,
+	40:   &Sand,
+	41:   &RedSand,
+	42:   &Gravel,
+	43:   &CoalOre,
+	44:   &DeepslateCoalOre,
+	45:   &IronOre,
+	46:   &DeepslateIronOre,
+	47:   &CopperOre,
+	48:   &DeepslateCopperOre,
+	49:   &GoldOre,
+	50:   &DeepslateGoldOre,
+	51:   &RedstoneOre,
+	52:   &DeepslateRedstoneOre,
+	53:   &EmeraldOre,
+	54:   &DeepslateEmeraldOre,
+	55:   &LapisOre,
+	56:   &DeepslateLapisOre,
+	57:   &DiamondOre,
+	58:   &DeepslateDiamondOre,
+	59:   &NetherGoldOre,
+	60:   &NetherQuartzOre,
+	61:   &AncientDebris,
+	62:   &CoalBlock,
+	63:   &RawIronBlock,
+	64:   &RawCopperBlock,
+	65:   &RawGoldBlock,
+	66:   &AmethystBlock,
+	67:   &BuddingAmethyst,
+	68:   &IronBlock,
+	69:   &CopperBlock,
+	70:   &GoldBlock,
+	71:   &DiamondBlock,
+	72:   &NetheriteBlock,
+	73:   &ExposedCopper,
+	74:   &WeatheredCopper,
+	75:   &OxidizedCopper,
+	76:   &CutCopper,
+	77:   &ExposedCutCopper,
+	78:   &WeatheredCutCopper,
+	79:   &OxidizedCutCopper,
+	80:   &CutCopperStairs,
+	81:   &ExposedCutCopperStairs,
+	82:   &WeatheredCutCopperStairs,
+	83:   &OxidizedCutCopperStairs,
+	84:   &CutCopperSlab,
+	85:   &ExposedCutCopperSlab,
+	86:   &WeatheredCutCopperSlab,
+	87:   &OxidizedCutCopperSlab,
+	88:   &WaxedCopperBlock,
+	89:   &WaxedExposedCopper,
+	90:   &WaxedWeatheredCopper,
+	91:   &WaxedOxidizedCopper,
+	92:   &WaxedCutCopper,
+	93:   &WaxedExposedCutCopper,
+	94:   &WaxedWeatheredCutCopper,
+	95:   &WaxedOxidizedCutCopper,
+	96:   &WaxedCutCopperStairs,
+	97:   &WaxedExposedCutCopperStairs,
+	98:   &WaxedWeatheredCutCopperStairs,
+	99:   &WaxedOxidizedCutCopperStairs,
+	100:  &WaxedCutCopperSlab,
+	101:  &WaxedExposedCutCopperSlab,
+	102:  &WaxedWeatheredCutCopperSlab,
+	103:  &WaxedOxidizedCutCopperSlab,
+	104:  &OakLog,
+	105:  &SpruceLog,
+	106:  &BirchLog,
+	107:  &JungleLog,
+	108:  &AcaciaLog,
+	109:  &DarkOakLog,
+	110:  &MangroveLog,
+	111:  &MangroveRoots,
+	112:  &MuddyMangroveRoots,
+	113:  &CrimsonStem,
+	114:  &WarpedStem,
+	115:  &StrippedOakLog,
+	116:  &StrippedSpruceLog,
+	117:  &StrippedBirchLog,
+	118:  &StrippedJungleLog,
+	119:  &StrippedAcaciaLog,
+	120:  &StrippedDarkOakLog,
+	121:  &StrippedMangroveLog,
+	122:  &StrippedCrimsonStem,
+	123:  &StrippedWarpedStem,
+	124:  &StrippedOakWood,
+	125:  &StrippedSpruceWood,
+	126:  &StrippedBirchWood,
+	127:  &StrippedJungleWood,
+	128:  &StrippedAcaciaWood,
+	129:  &StrippedDarkOakWood,
+	130:  &StrippedMangroveWood,
+	131:  &StrippedCrimsonHyphae,
+	132:  &StrippedWarpedHyphae,
+	133:  &OakWood,
+	134:  &SpruceWood,
+	135:  &BirchWood,
+	136:  &JungleWood,
+	137:  &AcaciaWood,
+	138:  &DarkOakWood,
+	139:  &MangroveWood,
+	140:  &CrimsonHyphae,
+	141:  &WarpedHyphae,
+	142:  &OakLeaves,
+	143:  &SpruceLeaves,
+	144:  &BirchLeaves,
+	145:  &JungleLeaves,
+	146:  &AcaciaLeaves,
+	147:  &DarkOakLeaves,
+	148:  &MangroveLeaves,
+	149:  &AzaleaLeaves,
+	150:  &FloweringAzaleaLeaves,
+	151:  &Sponge,
+	152:  &WetSponge,
+	153:  &Glass,
+	154:  &TintedGlass,
+	155:  &LapisBlock,
+	156:  &Sandstone,
+	157:  &ChiseledSandstone,
+	158:  &CutSandstone,
+	159:  &Cobweb,
+	160:  &Grass,
+	161:  &Fern,
+	162:  &Azalea,
+	163:  &FloweringAzalea,
+	164:  &DeadBush,
+	165:  &Seagrass,
+	166:  &SeaPickle,
+	167:  &WhiteWool,
+	168:  &OrangeWool,
+	169:  &MagentaWool,
+	170:  &LightBlueWool,
+	171:  &YellowWool,
+	172:  &LimeWool,
+	173:  &PinkWool,
+	174:  &GrayWool,
+	175:  &LightGrayWool,
+	176:  &CyanWool,
+	177:  &PurpleWool,
+	178:  &BlueWool,
+	179:  &BrownWool,
+	180:  &GreenWool,
+	181:  &RedWool,
+	182:  &BlackWool,
+	183:  &Dandelion,
+	184:  &Poppy,
+	185:  &BlueOrchid,
+	186:  &Allium,
+	187:  &AzureBluet,
+	188:  &RedTulip,
+	189:  &OrangeTulip,
+	190:  &WhiteTulip,
+	191:  &PinkTulip,
+	192:  &OxeyeDaisy,
+	193:  &Cornflower,
+	194:  &LilyOfTheValley,
+	195:  &WitherRose,
+	196:  &SporeBlossom,
+	197:  &BrownMushroom,
+	198:  &RedMushroom,
+	199:  &CrimsonFungus,
+	200:  &WarpedFungus,
+	201:  &CrimsonRoots,
+	202:  &WarpedRoots,
+	203:  &NetherSprouts,
+	204:  &WeepingVines,
+	205:  &TwistingVines,
+	206:  &SugarCane,
+	207:  &Kelp,
+	208:  &MossCarpet,
+	209:  &MossBlock,
+	210:  &HangingRoots,
+	211:  &BigDripleaf,
+	212:  &SmallDripleaf,
+	213:  &Bamboo,
+	214:  &OakSlab,
+	215:  &SpruceSlab,
+	216:  &BirchSlab,
+	217:  &JungleSlab,
+	218:  &AcaciaSlab,
+	219:  &DarkOakSlab,
+	220:  &MangroveSlab,
+	221:  &CrimsonSlab,
+	222:  &WarpedSlab,
+	223:  &StoneSlab,
+	224:  &SmoothStoneSlab,
+	225:  &SandstoneSlab,
+	226:  &CutSandstoneSlab,
+	227:  &PetrifiedOakSlab,
+	228:  &CobblestoneSlab,
+	229:  &BrickSlab,
+	230:  &StoneBrickSlab,
+	231:  &MudBrickSlab,
+	232:  &NetherBrickSlab,
+	233:  &QuartzSlab,
+	234:  &RedSandstoneSlab,
+	235:  &CutRedSandstoneSlab,
+	236:  &PurpurSlab,
+	237:  &PrismarineSlab,
+	238:  &PrismarineBrickSlab,
+	239:  &DarkPrismarineSlab,
+	240:  &SmoothQuartz,
+	241:  &SmoothRedSandstone,
+	242:  &SmoothSandstone,
+	243:  &SmoothStone,
+	244:  &Bricks,
+	245:  &Bookshelf,
+	246:  &MossyCobblestone,
+	247:  &Obsidian,
+	248:  &Torch,
+	249:  &EndRod,
+	250:  &ChorusPlant,
+	251:  &ChorusFlower,
+	252:  &PurpurBlock,
+	253:  &PurpurPillar,
+	254:  &PurpurStairs,
+	255:  &Spawner,
+	256:  &Chest,
+	257:  &CraftingTable,
+	258:  &Farmland,
+	259:  &Furnace,
+	260:  &Ladder,
+	261:  &CobblestoneStairs,
+	262:  &Snow,
+	263:  &Ice,
+	264:  &SnowBlock,
+	265:  &Cactus,
+	266:  &Clay,
+	267:  &Jukebox,
+	268:  &OakFence,
+	269:  &SpruceFence,
+	270:  &BirchFence,
+	271:  &JungleFence,
+	272:  &AcaciaFence,
+	273:  &DarkOakFence,
+	274:  &MangroveFence,
+	275:  &CrimsonFence,
+	276:  &WarpedFence,
+	277:  &Pumpkin,
+	278:  &CarvedPumpkin,
+	279:  &JackOLantern,
+	280:  &Netherrack,
+	281:  &SoulSand,
+	282:  &SoulSoil,
+	283:  &Basalt,
+	284:  &PolishedBasalt,
+	285:  &SmoothBasalt,
+	286:  &SoulTorch,
+	287:  &Glowstone,
+	288:  &InfestedStone,
+	289:  &InfestedCobblestone,
+	290:  &InfestedStoneBricks,
+	291:  &InfestedMossyStoneBricks,
+	292:  &InfestedCrackedStoneBricks,
+	293:  &InfestedChiseledStoneBricks,
+	294:  &InfestedDeepslate,
+	295:  &StoneBricks,
+	296:  &MossyStoneBricks,
+	297:  &CrackedStoneBricks,
+	298:  &ChiseledStoneBricks,
+	299:  &PackedMud,
+	300:  &MudBricks,
+	301:  &DeepslateBricks,
+	302:  &CrackedDeepslateBricks,
+	303:  &DeepslateTiles,
+	304:  &CrackedDeepslateTiles,
+	305:  &ChiseledDeepslate,
+	306:  &ReinforcedDeepslate,
+	307:  &BrownMushroomBlock,
+	308:  &RedMushroomBlock,
+	309:  &MushroomStem,
+	310:  &IronBars,
+	311:  &Chain,
+	312:  &GlassPane,
+	313:  &Melon,
+	314:  &Vine,
+	315:  &GlowLichen,
+	316:  &BrickStairs,
+	317:  &StoneBrickStairs,
+	318:  &MudBrickStairs,
+	319:  &Mycelium,
+	320:  &LilyPad,
+	321:  &NetherBricks,
+	322:  &CrackedNetherBricks,
+	323:  &ChiseledNetherBricks,
+	324:  &NetherBrickFence,
+	325:  &NetherBrickStairs,
+	326:  &Sculk,
+	327:  &SculkVein,
+	328:  &SculkCatalyst,
+	329:  &SculkShrieker,
+	330:  &EnchantingTable,
+	331:  &EndPortalFrame,
+	332:  &EndStone,
+	333:  &EndStoneBricks,
+	334:  &DragonEgg,
+	335:  &SandstoneStairs,
+	336:  &EnderChest,
+	337:  &EmeraldBlock,
+	338:  &OakStairs,
+	339:  &SpruceStairs,
+	340:  &BirchStairs,
+	341:  &JungleStairs,
+	342:  &AcaciaStairs,
+	343:  &DarkOakStairs,
+	344:  &MangroveStairs,
+	345:  &CrimsonStairs,
+	346:  &WarpedStairs,
+	347:  &CommandBlock,
+	348:  &Beacon,
+	349:  &CobblestoneWall,
+	350:  &MossyCobblestoneWall,
+	351:  &BrickWall,
+	352:  &PrismarineWall,
+	353:  &RedSandstoneWall,
+	354:  &MossyStoneBrickWall,
+	355:  &GraniteWall,
+	356:  &StoneBrickWall,
+	357:  &MudBrickWall,
+	358:  &NetherBrickWall,
+	359:  &AndesiteWall,
+	360:  &RedNetherBrickWall,
+	361:  &SandstoneWall,
+	362:  &EndStoneBrickWall,
+	363:  &DioriteWall,
+	364:  &BlackstoneWall,
+	365:  &PolishedBlackstoneWall,
+	366:  &PolishedBlackstoneBrickWall,
+	367:  &CobbledDeepslateWall,
+	368:  &PolishedDeepslateWall,
+	369:  &DeepslateBrickWall,
+	370:  &DeepslateTileWall,
+	371:  &Anvil,
+	372:  &ChippedAnvil,
+	373:  &DamagedAnvil,
+	374:  &ChiseledQuartzBlock,
+	375:  &QuartzBlock,
+	376:  &QuartzBricks,
+	377:  &QuartzPillar,
+	378:  &QuartzStairs,
+	379:  &WhiteTerracotta,
+	380:  &OrangeTerracotta,
+	381:  &MagentaTerracotta,
+	382:  &LightBlueTerracotta,
+	383:  &YellowTerracotta,
+	384:  &LimeTerracotta,
+	385:  &PinkTerracotta,
+	386:  &GrayTerracotta,
+	387:  &LightGrayTerracotta,
+	388:  &CyanTerracotta,
+	389:  &PurpleTerracotta,
+	390:  &BlueTerracotta,
+	391:  &BrownTerracotta,
+	392:  &GreenTerracotta,
+	393:  &RedTerracotta,
+	394:  &BlackTerracotta,
+	395:  &Barrier,
+	396:  &Light,
+	397:  &HayBlock,
+	398:  &WhiteCarpet,
+	399:  &OrangeCarpet,
+	400:  &MagentaCarpet,
+	401:  &LightBlueCarpet,
+	402:  &YellowCarpet,
+	403:  &LimeCarpet,
+	404:  &PinkCarpet,
+	405:  &GrayCarpet,
+	406:  &LightGrayCarpet,
+	407:  &CyanCarpet,
+	408:  &PurpleCarpet,
+	409:  &BlueCarpet,
+	410:  &BrownCarpet,
+	411:  &GreenCarpet,
+	412:  &RedCarpet,
+	413:  &BlackCarpet,
+	414:  &Terracotta,
+	415:  &PackedIce,
+	416:  &DirtPath,
+	417:  &Sunflower,
+	418:  &Lilac,
+	419:  &RoseBush,
+	420:  &Peony,
+	421:  &TallGrass,
+	422:  &LargeFern,
+	423:  &WhiteStainedGlass,
+	424:  &OrangeStainedGlass,
+	425:  &MagentaStainedGlass,
+	426:  &LightBlueStainedGlass,
+	427:  &YellowStainedGlass,
+	428:  &LimeStainedGlass,
+	429:  &PinkStainedGlass,
+	430:  &GrayStainedGlass,
+	431:  &LightGrayStainedGlass,
+	432:  &CyanStainedGlass,
+	433:  &PurpleStainedGlass,
+	434:  &BlueStainedGlass,
+	435:  &BrownStainedGlass,
+	436:  &GreenStainedGlass,
+	437:  &RedStainedGlass,
+	438:  &BlackStainedGlass,
+	439:  &WhiteStainedGlassPane,
+	440:  &OrangeStainedGlassPane,
+	441:  &MagentaStainedGlassPane,
+	442:  &LightBlueStainedGlassPane,
+	443:  &YellowStainedGlassPane,
+	444:  &LimeStainedGlassPane,
+	445:  &PinkStainedGlassPane,
+	446:  &GrayStainedGlassPane,
+	447:  &LightGrayStainedGlassPane,
+	448:  &CyanStainedGlassPane,
+	449:  &PurpleStainedGlassPane,
+	450:  &BlueStainedGlassPane,
+	451:  &BrownStainedGlassPane,
+	452:  &GreenStainedGlassPane,
+	453:  &RedStainedGlassPane,
+	454:  &BlackStainedGlassPane,
+	455:  &Prismarine,
+	456:  &PrismarineBricks,
+	457:  &DarkPrismarine,
+	458:  &PrismarineStairs,
+	459:  &PrismarineBrickStairs,
+	460:  &DarkPrismarineStairs,
+	461:  &SeaLantern,
+	462:  &RedSandstone,
+	463:  &ChiseledRedSandstone,
+	464:  &CutRedSandstone,
+	465:  &RedSandstoneStairs,
+	466:  &RepeatingCommandBlock,
+	467:  &ChainCommandBlock,
+	468:  &MagmaBlock,
+	469:  &NetherWartBlock,
+	470:  &WarpedWartBlock,
+	471:  &RedNetherBricks,
+	472:  &BoneBlock,
+	473:  &StructureVoid,
+	474:  &ShulkerBox,
+	475:  &WhiteShulkerBox,
+	476:  &OrangeShulkerBox,
+	477:  &MagentaShulkerBox,
+	478:  &LightBlueShulkerBox,
+	479:  &YellowShulkerBox,
+	480:  &LimeShulkerBox,
+	481:  &PinkShulkerBox,
+	482:  &GrayShulkerBox,
+	483:  &LightGrayShulkerBox,
+	484:  &CyanShulkerBox,
+	485:  &PurpleShulkerBox,
+	486:  &BlueShulkerBox,
+	487:  &BrownShulkerBox,
+	488:  &GreenShulkerBox,
+	489:  &RedShulkerBox,
+	490:  &BlackShulkerBox,
+	491:  &WhiteGlazedTerracotta,
+	492:  &OrangeGlazedTerracotta,
+	493:  &MagentaGlazedTerracotta,
+	494:  &LightBlueGlazedTerracotta,
+	495:  &YellowGlazedTerracotta,
+	496:  &LimeGlazedTerracotta,
+	497:  &PinkGlazedTerracotta,
+	498:  &GrayGlazedTerracotta,
+	499:  &LightGrayGlazedTerracotta,
+	500:  &CyanGlazedTerracotta,
+	501:  &PurpleGlazedTerracotta,
+	502:  &BlueGlazedTerracotta,
+	503:  &BrownGlazedTerracotta,
+	504:  &GreenGlazedTerracotta,
+	505:  &RedGlazedTerracotta,
+	506:  &BlackGlazedTerracotta,
+	507:  &WhiteConcrete,
+	508:  &OrangeConcrete,
+	509:  &MagentaConcrete,
+	510:  &LightBlueConcrete,
+	511:  &YellowConcrete,
+	512:  &LimeConcrete,
+	513:  &PinkConcrete,
+	514:  &GrayConcrete,
+	515:  &LightGrayConcrete,
+	516:  &CyanConcrete,
+	517:  &PurpleConcrete,
+	518:  &BlueConcrete,
+	519:  &BrownConcrete,
+	520:  &GreenConcrete,
+	521:  &RedConcrete,
+	522:  &BlackConcrete,
+	523:  &WhiteConcretePowder,
+	524:  &OrangeConcretePowder,
+	525:  &MagentaConcretePowder,
+	526:  &LightBlueConcretePowder,
+	527:  &YellowConcretePowder,
+	528:  &LimeConcretePowder,
+	529:  &PinkConcretePowder,
+	530:  &GrayConcretePowder,
+	531:  &LightGrayConcretePowder,
+	532:  &CyanConcretePowder,
+	533:  &PurpleConcretePowder,
+	534:  &BlueConcretePowder,
+	535:  &BrownConcretePowder,
+	536:  &GreenConcretePowder,
+	537:  &RedConcretePowder,
+	538:  &BlackConcretePowder,
+	539:  &TurtleEgg,
+	540:  &DeadTubeCoralBlock,
+	541:  &DeadBrainCoralBlock,
+	542:  &DeadBubbleCoralBlock,
+	543:  &DeadFireCoralBlock,
+	544:  &DeadHornCoralBlock,
+	545:  &TubeCoralBlock,
+	546:  &BrainCoralBlock,
+	547:  &BubbleCoralBlock,
+	548:  &FireCoralBlock,
+	549:  &HornCoralBlock,
+	550:  &TubeCoral,
+	551:  &BrainCoral,
+	552:  &BubbleCoral,
+	553:  &FireCoral,
+	554:  &HornCoral,
+	555:  &DeadBrainCoral,
+	556:  &DeadBubbleCoral,
+	557:  &DeadFireCoral,
+	558:  &DeadHornCoral,
+	559:  &DeadTubeCoral,
+	560:  &TubeCoralFan,
+	561:  &BrainCoralFan,
+	562:  &BubbleCoralFan,
+	563:  &FireCoralFan,
+	564:  &HornCoralFan,
+	565:  &DeadTubeCoralFan,
+	566:  &DeadBrainCoralFan,
+	567:  &DeadBubbleCoralFan,
+	568:  &DeadFireCoralFan,
+	569:  &DeadHornCoralFan,
+	570:  &BlueIce,
+	571:  &Conduit,
+	572:  &PolishedGraniteStairs,
+	573:  &SmoothRedSandstoneStairs,
+	574:  &MossyStoneBrickStairs,
+	575:  &PolishedDioriteStairs,
+	576:  &MossyCobblestoneStairs,
+	577:  &EndStoneBrickStairs,
+	578:  &StoneStairs,
+	579:  &SmoothSandstoneStairs,
+	580:  &SmoothQuartzStairs,
+	581:  &GraniteStairs,
+	582:  &AndesiteStairs,
+	583:  &RedNetherBrickStairs,
+	584:  &PolishedAndesiteStairs,
+	585:  &DioriteStairs,
+	586:  &CobbledDeepslateStairs,
+	587:  &PolishedDeepslateStairs,
+	588:  &DeepslateBrickStairs,
+	589:  &DeepslateTileStairs,
+	590:  &PolishedGraniteSlab,
+	591:  &SmoothRedSandstoneSlab,
+	592:  &MossyStoneBrickSlab,
+	593:  &PolishedDioriteSlab,
+	594:  &MossyCobblestoneSlab,
+	595:  &EndStoneBrickSlab,
+	596:  &SmoothSandstoneSlab,
+	597:  &SmoothQuartzSlab,
+	598:  &GraniteSlab,
+	599:  &AndesiteSlab,
+	600:  &RedNetherBrickSlab,
+	601:  &PolishedAndesiteSlab,
+	602:  &DioriteSlab,
+	603:  &CobbledDeepslateSlab,
+	604:  &PolishedDeepslateSlab,
+	605:  &DeepslateBrickSlab,
+	606:  &DeepslateTileSlab,
+	607:  &Scaffolding,
+	608:  &Redstone,
+	609:  &RedstoneTorch,
+	610:  &RedstoneBlock,
+	611:  &Repeater,
+	612:  &Comparator,
+	613:  &Piston,
+	614:  &StickyPiston,
+	615:  &SlimeBlock,
+	616:  &HoneyBlock,
+	617:  &Observer,
+	618:  &Hopper,
+	619:  &Dispenser,
+	620:  &Dropper,
+	621:  &Lectern,
+	622:  &Target,
+	623:  &Lever,
+	624:  &LightningRod,
+	625:  &DaylightDetector,
+	626:  &SculkSensor,
+	627:  &TripwireHook,
+	628:  &TrappedChest,
+	629:  &Tnt,
+	630:  &RedstoneLamp,
+	631:  &NoteBlock,
+	632:  &StoneButton,
+	633:  &PolishedBlackstoneButton,
+	634:  &OakButton,
+	635:  &SpruceButton,
+	636:  &BirchButton,
+	637:  &JungleButton,
+	638:  &AcaciaButton,
+	639:  &DarkOakButton,
+	640:  &MangroveButton,
+	641:  &CrimsonButton,
+	642:  &WarpedButton,
+	643:  &StonePressurePlate,
+	644:  &PolishedBlackstonePressurePlate,
+	645:  &LightWeightedPressurePlate,
+	646:  &HeavyWeightedPressurePlate,
+	647:  &OakPressurePlate,
+	648:  &SprucePressurePlate,
+	649:  &BirchPressurePlate,
+	650:  &JunglePressurePlate,
+	651:  &AcaciaPressurePlate,
+	652:  &DarkOakPressurePlate,
+	653:  &MangrovePressurePlate,
+	654:  &CrimsonPressurePlate,
+	655:  &WarpedPressurePlate,
+	656:  &IronDoor,
+	657:  &OakDoor,
+	658:  &SpruceDoor,
+	659:  &BirchDoor,
+	660:  &JungleDoor,
+	661:  &AcaciaDoor,
+	662:  &DarkOakDoor,
+	663:  &MangroveDoor,
+	664:  &CrimsonDoor,
+	665:  &WarpedDoor,
+	666:  &IronTrapdoor,
+	667:  &OakTrapdoor,
+	668:  &SpruceTrapdoor,
+	669:  &BirchTrapdoor,
+	670:  &JungleTrapdoor,
+	671:  &AcaciaTrapdoor,
+	672:  &DarkOakTrapdoor,
+	673:  &MangroveTrapdoor,
+	674:  &CrimsonTrapdoor,
+	675:  &WarpedTrapdoor,
+	676:  &OakFenceGate,
+	677:  &SpruceFenceGate,
+	678:  &BirchFenceGate,
+	679:  &JungleFenceGate,
+	680:  &AcaciaFenceGate,
+	681:  &DarkOakFenceGate,
+	682:  &MangroveFenceGate,
+	683:  &CrimsonFenceGate,
+	684:  &WarpedFenceGate,
+	685:  &PoweredRail,
+	686:  &DetectorRail,
+	687:  &Rail,
+	688:  &ActivatorRail,
+	689:  &Saddle,
+	690:  &Minecart,
+	691:  &ChestMinecart,
+	692:  &FurnaceMinecart,
+	693:  &TntMinecart,
+	694:  &HopperMinecart,
+	695:  &CarrotOnAStick,
+	696:  &WarpedFungusOnAStick,
+	697:  &Elytra,
+	698:  &OakBoat,
+	699:  &OakChestBoat,
+	700:  &SpruceBoat,
+	701:  &SpruceChestBoat,
+	702:  &BirchBoat,
+	703:  &BirchChestBoat,
+	704:  &JungleBoat,
+	705:  &JungleChestBoat,
+	706:  &AcaciaBoat,
+	707:  &AcaciaChestBoat,
+	708:  &DarkOakBoat,
+	709:  &DarkOakChestBoat,
+	710:  &MangroveBoat,
+	711:  &MangroveChestBoat,
+	712:  &StructureBlock,
+	713:  &Jigsaw,
+	714:  &TurtleHelmet,
+	715:  &Scute,
+	716:  &FlintAndSteel,
+	717:  &Apple,
+	718:  &Bow,
+	719:  &Arrow,
+	720:  &Coal,
+	721:  &Charcoal,
+	722:  &Diamond,
+	723:  &Emerald,
+	724:  &LapisLazuli,
+	725:  &Quartz,
+	726:  &AmethystShard,
+	727:  &RawIron,
+	728:  &IronIngot,
+	729:  &RawCopper,
+	730:  &CopperIngot,
+	731:  &RawGold,
+	732:  &GoldIngot,
+	733:  &NetheriteIngot,
+	734:  &NetheriteScrap,
+	735:  &WoodenSword,
+	736:  &WoodenShovel,
+	737:  &WoodenPickaxe,
+	738:  &WoodenAxe,
+	739:  &WoodenHoe,
+	740:  &StoneSword,
+	741:  &StoneShovel,
+	742:  &StonePickaxe,
+	743:  &StoneAxe,
+	744:  &StoneHoe,
+	745:  &GoldenSword,
+	746:  &GoldenShovel,
+	747:  &GoldenPickaxe,
+	748:  &GoldenAxe,
+	749:  &GoldenHoe,
+	750:  &IronSword,
+	751:  &IronShovel,
+	752:  &IronPickaxe,
+	753:  &IronAxe,
+	754:  &IronHoe,
+	755:  &DiamondSword,
+	756:  &DiamondShovel,
+	757:  &DiamondPickaxe,
+	758:  &DiamondAxe,
+	759:  &DiamondHoe,
+	760:  &NetheriteSword,
+	761:  &NetheriteShovel,
+	762:  &NetheritePickaxe,
+	763:  &NetheriteAxe,
+	764:  &NetheriteHoe,
+	765:  &Stick,
+	766:  &Bowl,
+	767:  &MushroomStew,
+	768:  &String,
+	769:  &Feather,
+	770:  &Gunpowder,
+	771:  &WheatSeeds,
+	772:  &Wheat,
+	773:  &Bread,
+	774:  &LeatherHelmet,
+	775:  &LeatherChestplate,
+	776:  &LeatherLeggings,
+	777:  &LeatherBoots,
+	778:  &ChainmailHelmet,
+	779:  &ChainmailChestplate,
+	780:  &ChainmailLeggings,
+	781:  &ChainmailBoots,
+	782:  &IronHelmet,
+	783:  &IronChestplate,
+	784:  &IronLeggings,
+	785:  &IronBoots,
+	786:  &DiamondHelmet,
+	787:  &DiamondChestplate,
+	788:  &DiamondLeggings,
+	789:  &DiamondBoots,
+	790:  &GoldenHelmet,
+	791:  &GoldenChestplate,
+	792:  &GoldenLeggings,
+	793:  &GoldenBoots,
+	794:  &NetheriteHelmet,
+	795:  &NetheriteChestplate,
+	796:  &NetheriteLeggings,
+	797:  &NetheriteBoots,
+	798:  &Flint,
+	799:  &Porkchop,
+	800:  &CookedPorkchop,
+	801:  &Painting,
+	802:  &GoldenApple,
+	803:  &EnchantedGoldenApple,
+	804:  &OakSign,
+	805:  &SpruceSign,
+	806:  &BirchSign,
+	807:  &JungleSign,
+	808:  &AcaciaSign,
+	809:  &DarkOakSign,
+	810:  &MangroveSign,
+	811:  &CrimsonSign,
+	812:  &WarpedSign,
+	813:  &Bucket,
+	814:  &WaterBucket,
+	815:  &LavaBucket,
+	816:  &PowderSnowBucket,
+	817:  &Snowball,
+	818:  &Leather,
+	819:  &MilkBucket,
+	820:  &PufferfishBucket,
+	821:  &SalmonBucket,
+	822:  &CodBucket,
+	823:  &TropicalFishBucket,
+	824:  &AxolotlBucket,
+	825:  &TadpoleBucket,
+	826:  &Brick,
+	827:  &ClayBall,
+	828:  &DriedKelpBlock,
+	829:  &Paper,
+	830:  &Book,
+	831:  &SlimeBall,
+	832:  &Egg,
+	833:  &Compass,
+	834:  &RecoveryCompass,
+	835:  &Bundle,
+	836:  &FishingRod,
+	837:  &Clock,
+	838:  &Spyglass,
+	839:  &GlowstoneDust,
+	840:  &Cod,
+	841:  &Salmon,
+	842:  &TropicalFish,
+	843:  &Pufferfish,
+	844:  &CookedCod,
+	845:  &CookedSalmon,
+	846:  &InkSac,
+	847:  &GlowInkSac,
+	848:  &CocoaBeans,
+	849:  &WhiteDye,
+	850:  &OrangeDye,
+	851:  &MagentaDye,
+	852:  &LightBlueDye,
+	853:  &YellowDye,
+	854:  &LimeDye,
+	855:  &PinkDye,
+	856:  &GrayDye,
+	857:  &LightGrayDye,
+	858:  &CyanDye,
+	859:  &PurpleDye,
+	860:  &BlueDye,
+	861:  &BrownDye,
+	862:  &GreenDye,
+	863:  &RedDye,
+	864:  &BlackDye,
+	865:  &BoneMeal,
+	866:  &Bone,
+	867:  &Sugar,
+	868:  &Cake,
+	869:  &WhiteBed,
+	870:  &OrangeBed,
+	871:  &MagentaBed,
+	872:  &LightBlueBed,
+	873:  &YellowBed,
+	874:  &LimeBed,
+	875:  &PinkBed,
+	876:  &GrayBed,
+	877:  &LightGrayBed,
+	878:  &CyanBed,
+	879:  &PurpleBed,
+	880:  &BlueBed,
+	881:  &BrownBed,
+	882:  &GreenBed,
+	883:  &RedBed,
+	884:  &BlackBed,
+	885:  &Cookie,
+	886:  &FilledMap,
+	887:  &Shears,
+	888:  &MelonSlice,
+	889:  &DriedKelp,
+	890:  &PumpkinSeeds,
+	891:  &MelonSeeds,
+	892:  &Beef,
+	893:  &CookedBeef,
+	894:  &Chicken,
+	895:  &CookedChicken,
+	896:  &RottenFlesh,
+	897:  &EnderPearl,
+	898:  &BlazeRod,
+	899:  &GhastTear,
+	900:  &GoldNugget,
+	901:  &NetherWart,
+	902:  &Potion,
+	903:  &GlassBottle,
+	904:  &SpiderEye,
+	905:  &FermentedSpiderEye,
+	906:  &BlazePowder,
+	907:  &MagmaCream,
+	908:  &BrewingStand,
+	909:  &Cauldron,
+	910:  &EnderEye,
+	911:  &GlisteringMelonSlice,
+	912:  &AllaySpawnEgg,
+	913:  &AxolotlSpawnEgg,
+	914:  &BatSpawnEgg,
+	915:  &BeeSpawnEgg,
+	916:  &BlazeSpawnEgg,
+	917:  &CatSpawnEgg,
+	918:  &CaveSpiderSpawnEgg,
+	919:  &ChickenSpawnEgg,
+	920:  &CodSpawnEgg,
+	921:  &CowSpawnEgg,
+	922:  &CreeperSpawnEgg,
+	923:  &DolphinSpawnEgg,
+	924:  &DonkeySpawnEgg,
+	925:  &DrownedSpawnEgg,
+	926:  &ElderGuardianSpawnEgg,
+	927:  &EndermanSpawnEgg,
+	928:  &EndermiteSpawnEgg,
+	929:  &EvokerSpawnEgg,
+	930:  &FoxSpawnEgg,
+	931:  &FrogSpawnEgg,
+	932:  &GhastSpawnEgg,
+	933:  &GlowSquidSpawnEgg,
+	934:  &GoatSpawnEgg,
+	935:  &GuardianSpawnEgg,
+	936:  &HoglinSpawnEgg,
+	937:  &HorseSpawnEgg,
+	938:  &HuskSpawnEgg,
+	939:  &LlamaSpawnEgg,
+	940:  &MagmaCubeSpawnEgg,
+	941:  &MooshroomSpawnEgg,
+	942:  &MuleSpawnEgg,
+	943:  &OcelotSpawnEgg,
+	944:  &PandaSpawnEgg,
+	945:  &ParrotSpawnEgg,
+	946:  &PhantomSpawnEgg,
+	947:  &PigSpawnEgg,
+	948:  &PiglinSpawnEgg,
+	949:  &PiglinBruteSpawnEgg,
+	950:  &PillagerSpawnEgg,
+	951:  &PolarBearSpawnEgg,
+	952:  &PufferfishSpawnEgg,
+	953:  &RabbitSpawnEgg,
+	954:  &RavagerSpawnEgg,
+	955:  &SalmonSpawnEgg,
+	956:  &SheepSpawnEgg,
+	957:  &ShulkerSpawnEgg,
+	958:  &SilverfishSpawnEgg,
+	959:  &SkeletonSpawnEgg,
+	960:  &SkeletonHorseSpawnEgg,
+	961:  &SlimeSpawnEgg,
+	962:  &SpiderSpawnEgg,
+	963:  &SquidSpawnEgg,
+	964:  &StraySpawnEgg,
+	965:  &StriderSpawnEgg,
+	966:  &TadpoleSpawnEgg,
+	967:  &TraderLlamaSpawnEgg,
+	968:  &TropicalFishSpawnEgg,
+	969:  &TurtleSpawnEgg,
+	970:  &VexSpawnEgg,
+	971:  &VillagerSpawnEgg,
+	972:  &VindicatorSpawnEgg,
+	973:  &WanderingTraderSpawnEgg,
+	974:  &WardenSpawnEgg,
+	975:  &WitchSpawnEgg,
+	976:  &WitherSkeletonSpawnEgg,
+	977:  &WolfSpawnEgg,
+	978:  &ZoglinSpawnEgg,
+	979:  &ZombieSpawnEgg,
+	980:  &ZombieHorseSpawnEgg,
+	981:  &ZombieVillagerSpawnEgg,
+	982:  &ZombifiedPiglinSpawnEgg,
+	983:  &ExperienceBottle,
+	984:  &FireCharge,
+	985:  &WritableBook,
+	986:  &WrittenBook,
+	987:  &ItemFrame,
+	988:  &GlowItemFrame,
+	989:  &FlowerPot,
+	990:  &Carrot,
+	991:  &Potato,
+	992:  &BakedPotato,
+	993:  &PoisonousPotato,
+	994:  &Map,
+	995:  &GoldenCarrot,
+	996:  &SkeletonSkull,
+	997:  &WitherSkeletonSkull,
+	998:  &PlayerHead,
+	999:  &ZombieHead,
+	1000: &CreeperHead,
+	1001: &DragonHead,
+	1002: &NetherStar,
+	1003: &PumpkinPie,
+	1004: &FireworkRocket,
+	1005: &FireworkStar,
+	1006: &EnchantedBook,
+	1007: &NetherBrick,
+	1008: &PrismarineShard,
+	1009: &PrismarineCrystals,
+	1010: &Rabbit,
+	1011: &CookedRabbit,
+	1012: &RabbitStew,
+	1013: &RabbitFoot,
+	1014: &RabbitHide,
+	1015: &ArmorStand,
+	1016: &IronHorseArmor,
+	1017: &GoldenHorseArmor,
+	1018: &DiamondHorseArmor,
+	1019: &LeatherHorseArmor,
+	1020: &Lead,
+	1021: &NameTag,
+	1022: &CommandBlockMinecart,
+	1023: &Mutton,
+	1024: &CookedMutton,
+	1025: &WhiteBanner,
+	1026: &OrangeBanner,
+	1027: &MagentaBanner,
+	1028: &LightBlueBanner,
+	1029: &YellowBanner,
+	1030: &LimeBanner,
+	1031: &PinkBanner,
+	1032: &GrayBanner,
+	1033: &LightGrayBanner,
+	1034: &CyanBanner,
+	1035: &PurpleBanner,
+	1036: &BlueBanner,
+	1037: &BrownBanner,
+	1038: &GreenBanner,
+	1039: &RedBanner,
+	1040: &BlackBanner,
+	1041: &EndCrystal,
+	1042: &ChorusFruit,
+	1043: &PoppedChorusFruit,
+	1044: &Beetroot,
+	1045: &BeetrootSeeds,
+	1046: &BeetrootSoup,
+	1047: &DragonBreath,
+	1048: &SplashPotion,
+	1049: &SpectralArrow,
+	1050: &TippedArrow,
+	1051: &LingeringPotion,
+	1052: &Shield,
+	1053: &TotemOfUndying,
+	1054: &ShulkerShell,
+	1055: &IronNugget,
+	1056: &KnowledgeBook,
+	1057: &DebugStick,
+	1058: &MusicDisc13,
+	1059: &MusicDiscCat,
+	1060: &MusicDiscBlocks,
+	1061: &MusicDiscChirp,
+	1062: &MusicDiscFar,
+	1063: &MusicDiscMall,
+	1064: &MusicDiscMellohi,
+	1065: &MusicDiscStal,
+	1066: &MusicDiscStrad,
+	1067: &MusicDiscWard,
+	1068: &MusicDisc11,
+	1069: &MusicDiscWait,
+	1070: &MusicDiscOtherside,
+	1071: &MusicDisc5,
+	1072: &MusicDiscPigstep,
+	1073: &DiscFragment5,
+	1074: &Trident,
+	1075: &PhantomMembrane,
+	1076: &NautilusShell,
+	1077: &HeartOfTheSea,
+	1078: &Crossbow,
+	1079: &SuspiciousStew,
+	1080: &Loom,
+	1081: &FlowerBannerPattern,
+	1082: &CreeperBannerPattern,
+	1083: &SkullBannerPattern,
+	1084: &MojangBannerPattern,
+	1085: &GlobeBannerPattern,
+	1086: &PiglinBannerPattern,
+	1087: &GoatHorn,
+	1088: &Composter,
+	1089: &Barrel,
+	1090: &Smoker,
+	1091: &BlastFurnace,
+	1092: &CartographyTable,
+	1093: &FletchingTable,
+	1094: &Grindstone,
+	1095: &SmithingTable,
+	1096: &Stonecutter,
+	1097: &Bell,
+	1098: &Lantern,
+	1099: &SoulLantern,
+	1100: &SweetBerries,
+	1101: &GlowBerries,
+	1102: &Campfire,
+	1103: &SoulCampfire,
+	1104: &Shroomlight,
+	1105: &Honeycomb,
+	1106: &BeeNest,
+	1107: &Beehive,
+	1108: &HoneyBottle,
+	1109: &HoneycombBlock,
+	1110: &Lodestone,
+	1111: &CryingObsidian,
+	1112: &Blackstone,
+	1113: &BlackstoneSlab,
+	1114: &BlackstoneStairs,
+	1115: &GildedBlackstone,
+	1116: &PolishedBlackstone,
+	1117: &PolishedBlackstoneSlab,
+	1118: &PolishedBlackstoneStairs,
+	1119: &ChiseledPolishedBlackstone,
+	1120: &PolishedBlackstoneBricks,
+	1121: &PolishedBlackstoneBrickSlab,
+	1122: &PolishedBlackstoneBrickStairs,
+	1123: &CrackedPolishedBlackstoneBricks,
+	1124: &RespawnAnchor,
+	1125: &Candle,
+	1126: &WhiteCandle,
+	1127: &OrangeCandle,
+	1128: &MagentaCandle,
+	1129: &LightBlueCandle,
+	1130: &YellowCandle,
+	1131: &LimeCandle,
+	1132: &PinkCandle,
+	1133: &GrayCandle,
+	1134: &LightGrayCandle,
+	1135: &CyanCandle,
+	1136: &PurpleCandle,
+	1137: &BlueCandle,
+	1138: &BrownCandle,
+	1139: &GreenCandle,
+	1140: &RedCandle,
+	1141: &BlackCandle,
+	1142: &SmallAmethystBud,
+	1143: &MediumAmethystBud,
+	1144: &LargeAmethystBud,
+	1145: &AmethystCluster,
+	1146: &PointedDripstone,
+	1147: &OchreFroglight,
+	1148: &VerdantFroglight,
+	1149: &PearlescentFroglight,
+	1150: &Frogspawn,
+	1151: &EchoShard,
+}
+
+// ByName is an index of minecraft items by their name.
+var ByName = map[string]*Item{
+	"air":                                &Air,
+	"stone":                              &Stone,
+	"granite":                            &Granite,
+	"polished_granite":                   &PolishedGranite,
+	"diorite":                            &Diorite,
+	"polished_diorite":                   &PolishedDiorite,
+	"andesite":                           &Andesite,
+	"polished_andesite":                  &PolishedAndesite,
+	"deepslate":                          &Deepslate,
+	"cobbled_deepslate":                  &CobbledDeepslate,
+	"polished_deepslate":                 &PolishedDeepslate,
+	"calcite":                            &Calcite,
+	"tuff":                               &Tuff,
+	"dripstone_block":                    &DripstoneBlock,
+	"grass_block":                        &GrassBlock,
+	"dirt":                               &Dirt,
+	"coarse_dirt":                        &CoarseDirt,
+	"podzol":                             &Podzol,
+	"rooted_dirt":                        &RootedDirt,
+	"mud":                                &Mud,
+	"crimson_nylium":                     &CrimsonNylium,
+	"warped_nylium":                      &WarpedNylium,
+	"cobblestone":                        &Cobblestone,
+	"oak_planks":                         &OakPlanks,
+	"spruce_planks":                      &SprucePlanks,
+	"birch_planks":                       &BirchPlanks,
+	"jungle_planks":                      &JunglePlanks,
+	"acacia_planks":                      &AcaciaPlanks,
+	"dark_oak_planks":                    &DarkOakPlanks,
+	"mangrove_planks":                    &MangrovePlanks,
+	"crimson_planks":                     &CrimsonPlanks,
+	"warped_planks":                      &WarpedPlanks,
+	"oak_sapling":                        &OakSapling,
+	"spruce_sapling":                     &SpruceSapling,
+	"birch_sapling":                      &BirchSapling,
+	"jungle_sapling":                     &JungleSapling,
+	"acacia_sapling":                     &AcaciaSapling,
+	"dark_oak_sapling":                   &DarkOakSapling,
+	"mangrove_propagule":                 &MangrovePropagule,
+	"bedrock":                            &Bedrock,
+	"sand":                               &Sand,
+	"red_sand":                           &RedSand,
+	"gravel":                             &Gravel,
+	"coal_ore":                           &CoalOre,
+	"deepslate_coal_ore":                 &DeepslateCoalOre,
+	"iron_ore":                           &IronOre,
+	"deepslate_iron_ore":                 &DeepslateIronOre,
+	"copper_ore":                         &CopperOre,
+	"deepslate_copper_ore":               &DeepslateCopperOre,
+	"gold_ore":                           &GoldOre,
+	"deepslate_gold_ore":                 &DeepslateGoldOre,
+	"redstone_ore":                       &RedstoneOre,
+	"deepslate_redstone_ore":             &DeepslateRedstoneOre,
+	"emerald_ore":                        &EmeraldOre,
+	"deepslate_emerald_ore":              &DeepslateEmeraldOre,
+	"lapis_ore":                          &LapisOre,
+	"deepslate_lapis_ore":                &DeepslateLapisOre,
+	"diamond_ore":                        &DiamondOre,
+	"deepslate_diamond_ore":              &DeepslateDiamondOre,
+	"nether_gold_ore":                    &NetherGoldOre,
+	"nether_quartz_ore":                  &NetherQuartzOre,
+	"ancient_debris":                     &AncientDebris,
+	"coal_block":                         &CoalBlock,
+	"raw_iron_block":                     &RawIronBlock,
+	"raw_copper_block":                   &RawCopperBlock,
+	"raw_gold_block":                     &RawGoldBlock,
+	"amethyst_block":                     &AmethystBlock,
+	"budding_amethyst":                   &BuddingAmethyst,
+	"iron_block":                         &IronBlock,
+	"copper_block":                       &CopperBlock,
+	"gold_block":                         &GoldBlock,
+	"diamond_block":                      &DiamondBlock,
+	"netherite_block":                    &NetheriteBlock,
+	"exposed_copper":                     &ExposedCopper,
+	"weathered_copper":                   &WeatheredCopper,
+	"oxidized_copper":                    &OxidizedCopper,
+	"cut_copper":                         &CutCopper,
+	"exposed_cut_copper":                 &ExposedCutCopper,
+	"weathered_cut_copper":               &WeatheredCutCopper,
+	"oxidized_cut_copper":                &OxidizedCutCopper,
+	"cut_copper_stairs":                  &CutCopperStairs,
+	"exposed_cut_copper_stairs":          &ExposedCutCopperStairs,
+	"weathered_cut_copper_stairs":        &WeatheredCutCopperStairs,
+	"oxidized_cut_copper_stairs":         &OxidizedCutCopperStairs,
+	"cut_copper_slab":                    &CutCopperSlab,
+	"exposed_cut_copper_slab":            &ExposedCutCopperSlab,
+	"weathered_cut_copper_slab":          &WeatheredCutCopperSlab,
+	"oxidized_cut_copper_slab":           &OxidizedCutCopperSlab,
+	"waxed_copper_block":                 &WaxedCopperBlock,
+	"waxed_exposed_copper":               &WaxedExposedCopper,
+	"waxed_weathered_copper":             &WaxedWeatheredCopper,
+	"waxed_oxidized_copper":              &WaxedOxidizedCopper,
+	"waxed_cut_copper":                   &WaxedCutCopper,
+	"waxed_exposed_cut_copper":           &WaxedExposedCutCopper,
+	"waxed_weathered_cut_copper":         &WaxedWeatheredCutCopper,
+	"waxed_oxidized_cut_copper":          &WaxedOxidizedCutCopper,
+	"waxed_cut_copper_stairs":            &WaxedCutCopperStairs,
+	"waxed_exposed_cut_copper_stairs":    &WaxedExposedCutCopperStairs,
+	"waxed_weathered_cut_copper_stairs":  &WaxedWeatheredCutCopperStairs,
+	"waxed_oxidized_cut_copper_stairs":   &WaxedOxidizedCutCopperStairs,
+	"waxed_cut_copper_slab":              &WaxedCutCopperSlab,
+	"waxed_exposed_cut_copper_slab":      &WaxedExposedCutCopperSlab,
+	"waxed_weathered_cut_copper_slab":    &WaxedWeatheredCutCopperSlab,
+	"waxed_oxidized_cut_copper_slab":     &WaxedOxidizedCutCopperSlab,
+	"oak_log":                            &OakLog,
+	"spruce_log":                         &SpruceLog,
+	"birch_log":                          &BirchLog,
+	"jungle_log":                         &JungleLog,
+	"acacia_log":                         &AcaciaLog,
+	"dark_oak_log":                       &DarkOakLog,
+	"mangrove_log":                       &MangroveLog,
+	"mangrove_roots":                     &MangroveRoots,
+	"muddy_mangrove_roots":               &MuddyMangroveRoots,
+	"crimson_stem":                       &CrimsonStem,
+	"warped_stem":                        &WarpedStem,
+	"stripped_oak_log":                   &StrippedOakLog,
+	"stripped_spruce_log":                &StrippedSpruceLog,
+	"stripped_birch_log":                 &StrippedBirchLog,
+	"stripped_jungle_log":                &StrippedJungleLog,
+	"stripped_acacia_log":                &StrippedAcaciaLog,
+	"stripped_dark_oak_log":              &StrippedDarkOakLog,
+	"stripped_mangrove_log":              &StrippedMangroveLog,
+	"stripped_crimson_stem":              &StrippedCrimsonStem,
+	"stripped_warped_stem":               &StrippedWarpedStem,
+	"stripped_oak_wood":                  &StrippedOakWood,
+	"stripped_spruce_wood":               &StrippedSpruceWood,
+	"stripped_birch_wood":                &StrippedBirchWood,
+	"stripped_jungle_wood":               &StrippedJungleWood,
+	"stripped_acacia_wood":               &StrippedAcaciaWood,
+	"stripped_dark_oak_wood":             &StrippedDarkOakWood,
+	"stripped_mangrove_wood":             &StrippedMangroveWood,
+	"stripped_crimson_hyphae":            &StrippedCrimsonHyphae,
+	"stripped_warped_hyphae":             &StrippedWarpedHyphae,
+	"oak_wood":                           &OakWood,
+	"spruce_wood":                        &SpruceWood,
+	"birch_wood":                         &BirchWood,
+	"jungle_wood":                        &JungleWood,
+	"acacia_wood":                        &AcaciaWood,
+	"dark_oak_wood":                      &DarkOakWood,
+	"mangrove_wood":                      &MangroveWood,
+	"crimson_hyphae":                     &CrimsonHyphae,
+	"warped_hyphae":                      &WarpedHyphae,
+	"oak_leaves":                         &OakLeaves,
+	"spruce_leaves":                      &SpruceLeaves,
+	"birch_leaves":                       &BirchLeaves,
+	"jungle_leaves":                      &JungleLeaves,
+	"acacia_leaves":                      &AcaciaLeaves,
+	"dark_oak_leaves":                    &DarkOakLeaves,
+	"mangrove_leaves":                    &MangroveLeaves,
+	"azalea_leaves":                      &AzaleaLeaves,
+	"flowering_azalea_leaves":            &FloweringAzaleaLeaves,
+	"sponge":                             &Sponge,
+	"wet_sponge":                         &WetSponge,
+	"glass":                              &Glass,
+	"tinted_glass":                       &TintedGlass,
+	"lapis_block":                        &LapisBlock,
+	"sandstone":                          &Sandstone,
+	"chiseled_sandstone":                 &ChiseledSandstone,
+	"cut_sandstone":                      &CutSandstone,
+	"cobweb":                             &Cobweb,
+	"grass":                              &Grass,
+	"fern":                               &Fern,
+	"azalea":                             &Azalea,
+	"flowering_azalea":                   &FloweringAzalea,
+	"dead_bush":                          &DeadBush,
+	"seagrass":                           &Seagrass,
+	"sea_pickle":                         &SeaPickle,
+	"white_wool":                         &WhiteWool,
+	"orange_wool":                        &OrangeWool,
+	"magenta_wool":                       &MagentaWool,
+	"light_blue_wool":                    &LightBlueWool,
+	"yellow_wool":                        &YellowWool,
+	"lime_wool":                          &LimeWool,
+	"pink_wool":                          &PinkWool,
+	"gray_wool":                          &GrayWool,
+	"light_gray_wool":                    &LightGrayWool,
+	"cyan_wool":                          &CyanWool,
+	"purple_wool":                        &PurpleWool,
+	"blue_wool":                          &BlueWool,
+	"brown_wool":                         &BrownWool,
+	"green_wool":                         &GreenWool,
+	"red_wool":                           &RedWool,
+	"black_wool":                         &BlackWool,
+	"dandelion":                          &Dandelion,
+	"poppy":                              &Poppy,
+	"blue_orchid":                        &BlueOrchid,
+	"allium":                             &Allium,
+	"azure_bluet":                        &AzureBluet,
+	"red_tulip":                          &RedTulip,
+	"orange_tulip":                       &OrangeTulip,
+	"white_tulip":                        &WhiteTulip,
+	"pink_tulip":                         &PinkTulip,
+	"oxeye_daisy":                        &OxeyeDaisy,
+	"cornflower":                         &Cornflower,
+	"lily_of_the_valley":                 &LilyOfTheValley,
+	"wither_rose":                        &WitherRose,
+	"spore_blossom":                      &SporeBlossom,
+	"brown_mushroom":                     &BrownMushroom,
+	"red_mushroom":                       &RedMushroom,
+	"crimson_fungus":                     &CrimsonFungus,
+	"warped_fungus":                      &WarpedFungus,
+	"crimson_roots":                      &CrimsonRoots,
+	"warped_roots":                       &WarpedRoots,
+	"nether_sprouts":                     &NetherSprouts,
+	"weeping_vines":                      &WeepingVines,
+	"twisting_vines":                     &TwistingVines,
+	"sugar_cane":                         &SugarCane,
+	"kelp":                               &Kelp,
+	"moss_carpet":                        &MossCarpet,
+	"moss_block":                         &MossBlock,
+	"hanging_roots":                      &HangingRoots,
+	"big_dripleaf":                       &BigDripleaf,
+	"small_dripleaf":                     &SmallDripleaf,
+	"bamboo":                             &Bamboo,
+	"oak_slab":                           &OakSlab,
+	"spruce_slab":                        &SpruceSlab,
+	"birch_slab":                         &BirchSlab,
+	"jungle_slab":                        &JungleSlab,
+	"acacia_slab":                        &AcaciaSlab,
+	"dark_oak_slab":                      &DarkOakSlab,
+	"mangrove_slab":                      &MangroveSlab,
+	"crimson_slab":                       &CrimsonSlab,
+	"warped_slab":                        &WarpedSlab,
+	"stone_slab":                         &StoneSlab,
+	"smooth_stone_slab":                  &SmoothStoneSlab,
+	"sandstone_slab":                     &SandstoneSlab,
+	"cut_sandstone_slab":                 &CutSandstoneSlab,
+	"petrified_oak_slab":                 &PetrifiedOakSlab,
+	"cobblestone_slab":                   &CobblestoneSlab,
+	"brick_slab":                         &BrickSlab,
+	"stone_brick_slab":                   &StoneBrickSlab,
+	"mud_brick_slab":                     &MudBrickSlab,
+	"nether_brick_slab":                  &NetherBrickSlab,
+	"quartz_slab":                        &QuartzSlab,
+	"red_sandstone_slab":                 &RedSandstoneSlab,
+	"cut_red_sandstone_slab":             &CutRedSandstoneSlab,
+	"purpur_slab":                        &PurpurSlab,
+	"prismarine_slab":                    &PrismarineSlab,
+	"prismarine_brick_slab":              &PrismarineBrickSlab,
+	"dark_prismarine_slab":               &DarkPrismarineSlab,
+	"smooth_quartz":                      &SmoothQuartz,
+	"smooth_red_sandstone":               &SmoothRedSandstone,
+	"smooth_sandstone":                   &SmoothSandstone,
+	"smooth_stone":                       &SmoothStone,
+	"bricks":                             &Bricks,
+	"bookshelf":                          &Bookshelf,
+	"mossy_cobblestone":                  &MossyCobblestone,
+	"obsidian":                           &Obsidian,
+	"torch":                              &Torch,
+	"end_rod":                            &EndRod,
+	"chorus_plant":                       &ChorusPlant,
+	"chorus_flower":                      &ChorusFlower,
+	"purpur_block":                       &PurpurBlock,
+	"purpur_pillar":                      &PurpurPillar,
+	"purpur_stairs":                      &PurpurStairs,
+	"spawner":                            &Spawner,
+	"chest":                              &Chest,
+	"crafting_table":                     &CraftingTable,
+	"farmland":                           &Farmland,
+	"furnace":                            &Furnace,
+	"ladder":                             &Ladder,
+	"cobblestone_stairs":                 &CobblestoneStairs,
+	"snow":                               &Snow,
+	"ice":                                &Ice,
+	"snow_block":                         &SnowBlock,
+	"cactus":                             &Cactus,
+	"clay":                               &Clay,
+	"jukebox":                            &Jukebox,
+	"oak_fence":                          &OakFence,
+	"spruce_fence":                       &SpruceFence,
+	"birch_fence":                        &BirchFence,
+	"jungle_fence":                       &JungleFence,
+	"acacia_fence":                       &AcaciaFence,
+	"dark_oak_fence":                     &DarkOakFence,
+	"mangrove_fence":                     &MangroveFence,
+	"crimson_fence":                      &CrimsonFence,
+	"warped_fence":                       &WarpedFence,
+	"pumpkin":                            &Pumpkin,
+	"carved_pumpkin":                     &CarvedPumpkin,
+	"jack_o_lantern":                     &JackOLantern,
+	"netherrack":                         &Netherrack,
+	"soul_sand":                          &SoulSand,
+	"soul_soil":                          &SoulSoil,
+	"basalt":                             &Basalt,
+	"polished_basalt":                    &PolishedBasalt,
+	"smooth_basalt":                      &SmoothBasalt,
+	"soul_torch":                         &SoulTorch,
+	"glowstone":                          &Glowstone,
+	"infested_stone":                     &InfestedStone,
+	"infested_cobblestone":               &InfestedCobblestone,
+	"infested_stone_bricks":              &InfestedStoneBricks,
+	"infested_mossy_stone_bricks":        &InfestedMossyStoneBricks,
+	"infested_cracked_stone_bricks":      &InfestedCrackedStoneBricks,
+	"infested_chiseled_stone_bricks":     &InfestedChiseledStoneBricks,
+	"infested_deepslate":                 &InfestedDeepslate,
+	"stone_bricks":                       &StoneBricks,
+	"mossy_stone_bricks":                 &MossyStoneBricks,
+	"cracked_stone_bricks":               &CrackedStoneBricks,
+	"chiseled_stone_bricks":              &ChiseledStoneBricks,
+	"packed_mud":                         &PackedMud,
+	"mud_bricks":                         &MudBricks,
+	"deepslate_bricks":                   &DeepslateBricks,
+	"cracked_deepslate_bricks":           &CrackedDeepslateBricks,
+	"deepslate_tiles":                    &DeepslateTiles,
+	"cracked_deepslate_tiles":            &CrackedDeepslateTiles,
+	"chiseled_deepslate":                 &ChiseledDeepslate,
+	"reinforced_deepslate":               &ReinforcedDeepslate,
+	"brown_mushroom_block":               &BrownMushroomBlock,
+	"red_mushroom_block":                 &RedMushroomBlock,
+	"mushroom_stem":                      &MushroomStem,
+	"iron_bars":                          &IronBars,
+	"chain":                              &Chain,
+	"glass_pane":                         &GlassPane,
+	"melon":                              &Melon,
+	"vine":                               &Vine,
+	"glow_lichen":                        &GlowLichen,
+	"brick_stairs":                       &BrickStairs,
+	"stone_brick_stairs":                 &StoneBrickStairs,
+	"mud_brick_stairs":                   &MudBrickStairs,
+	"mycelium":                           &Mycelium,
+	"lily_pad":                           &LilyPad,
+	"nether_bricks":                      &NetherBricks,
+	"cracked_nether_bricks":              &CrackedNetherBricks,
+	"chiseled_nether_bricks":             &ChiseledNetherBricks,
+	"nether_brick_fence":                 &NetherBrickFence,
+	"nether_brick_stairs":                &NetherBrickStairs,
+	"sculk":                              &Sculk,
+	"sculk_vein":                         &SculkVein,
+	"sculk_catalyst":                     &SculkCatalyst,
+	"sculk_shrieker":                     &SculkShrieker,
+	"enchanting_table":                   &EnchantingTable,
+	"end_portal_frame":                   &EndPortalFrame,
+	"end_stone":                          &EndStone,
+	"end_stone_bricks":                   &EndStoneBricks,
+	"dragon_egg":                         &DragonEgg,
+	"sandstone_stairs":                   &SandstoneStairs,
+	"ender_chest":                        &EnderChest,
+	"emerald_block":                      &EmeraldBlock,
+	"oak_stairs":                         &OakStairs,
+	"spruce_stairs":                      &SpruceStairs,
+	"birch_stairs":                       &BirchStairs,
+	"jungle_stairs":                      &JungleStairs,
+	"acacia_stairs":                      &AcaciaStairs,
+	"dark_oak_stairs":                    &DarkOakStairs,
+	"mangrove_stairs":                    &MangroveStairs,
+	"crimson_stairs":                     &CrimsonStairs,
+	"warped_stairs":                      &WarpedStairs,
+	"command_block":                      &CommandBlock,
+	"beacon":                             &Beacon,
+	"cobblestone_wall":                   &CobblestoneWall,
+	"mossy_cobblestone_wall":             &MossyCobblestoneWall,
+	"brick_wall":                         &BrickWall,
+	"prismarine_wall":                    &PrismarineWall,
+	"red_sandstone_wall":                 &RedSandstoneWall,
+	"mossy_stone_brick_wall":             &MossyStoneBrickWall,
+	"granite_wall":                       &GraniteWall,
+	"stone_brick_wall":                   &StoneBrickWall,
+	"mud_brick_wall":                     &MudBrickWall,
+	"nether_brick_wall":                  &NetherBrickWall,
+	"andesite_wall":                      &AndesiteWall,
+	"red_nether_brick_wall":              &RedNetherBrickWall,
+	"sandstone_wall":                     &SandstoneWall,
+	"end_stone_brick_wall":               &EndStoneBrickWall,
+	"diorite_wall":                       &DioriteWall,
+	"blackstone_wall":                    &BlackstoneWall,
+	"polished_blackstone_wall":           &PolishedBlackstoneWall,
+	"polished_blackstone_brick_wall":     &PolishedBlackstoneBrickWall,
+	"cobbled_deepslate_wall":             &CobbledDeepslateWall,
+	"polished_deepslate_wall":            &PolishedDeepslateWall,
+	"deepslate_brick_wall":               &DeepslateBrickWall,
+	"deepslate_tile_wall":                &DeepslateTileWall,
+	"anvil":                              &Anvil,
+	"chipped_anvil":                      &ChippedAnvil,
+	"damaged_anvil":                      &DamagedAnvil,
+	"chiseled_quartz_block":              &ChiseledQuartzBlock,
+	"quartz_block":                       &QuartzBlock,
+	"quartz_bricks":                      &QuartzBricks,
+	"quartz_pillar":                      &QuartzPillar,
+	"quartz_stairs":                      &QuartzStairs,
+	"white_terracotta":                   &WhiteTerracotta,
+	"orange_terracotta":                  &OrangeTerracotta,
+	"magenta_terracotta":                 &MagentaTerracotta,
+	"light_blue_terracotta":              &LightBlueTerracotta,
+	"yellow_terracotta":                  &YellowTerracotta,
+	"lime_terracotta":                    &LimeTerracotta,
+	"pink_terracotta":                    &PinkTerracotta,
+	"gray_terracotta":                    &GrayTerracotta,
+	"light_gray_terracotta":              &LightGrayTerracotta,
+	"cyan_terracotta":                    &CyanTerracotta,
+	"purple_terracotta":                  &PurpleTerracotta,
+	"blue_terracotta":                    &BlueTerracotta,
+	"brown_terracotta":                   &BrownTerracotta,
+	"green_terracotta":                   &GreenTerracotta,
+	"red_terracotta":                     &RedTerracotta,
+	"black_terracotta":                   &BlackTerracotta,
+	"barrier":                            &Barrier,
+	"light":                              &Light,
+	"hay_block":                          &HayBlock,
+	"white_carpet":                       &WhiteCarpet,
+	"orange_carpet":                      &OrangeCarpet,
+	"magenta_carpet":                     &MagentaCarpet,
+	"light_blue_carpet":                  &LightBlueCarpet,
+	"yellow_carpet":                      &YellowCarpet,
+	"lime_carpet":                        &LimeCarpet,
+	"pink_carpet":                        &PinkCarpet,
+	"gray_carpet":                        &GrayCarpet,
+	"light_gray_carpet":                  &LightGrayCarpet,
+	"cyan_carpet":                        &CyanCarpet,
+	"purple_carpet":                      &PurpleCarpet,
+	"blue_carpet":                        &BlueCarpet,
+	"brown_carpet":                       &BrownCarpet,
+	"green_carpet":                       &GreenCarpet,
+	"red_carpet":                         &RedCarpet,
+	"black_carpet":                       &BlackCarpet,
+	"terracotta":                         &Terracotta,
+	"packed_ice":                         &PackedIce,
+	"dirt_path":                          &DirtPath,
+	"sunflower":                          &Sunflower,
+	"lilac":                              &Lilac,
+	"rose_bush":                          &RoseBush,
+	"peony":                              &Peony,
+	"tall_grass":                         &TallGrass,
+	"large_fern":                         &LargeFern,
+	"white_stained_glass":                &WhiteStainedGlass,
+	"orange_stained_glass":               &OrangeStainedGlass,
+	"magenta_stained_glass":              &MagentaStainedGlass,
+	"light_blue_stained_glass":           &LightBlueStainedGlass,
+	"yellow_stained_glass":               &YellowStainedGlass,
+	"lime_stained_glass":                 &LimeStainedGlass,
+	"pink_stained_glass":                 &PinkStainedGlass,
+	"gray_stained_glass":                 &GrayStainedGlass,
+	"light_gray_stained_glass":           &LightGrayStainedGlass,
+	"cyan_stained_glass":                 &CyanStainedGlass,
+	"purple_stained_glass":               &PurpleStainedGlass,
+	"blue_stained_glass":                 &BlueStainedGlass,
+	"brown_stained_glass":                &BrownStainedGlass,
+	"green_stained_glass":                &GreenStainedGlass,
+	"red_stained_glass":                  &RedStainedGlass,
+	"black_stained_glass":                &BlackStainedGlass,
+	"white_stained_glass_pane":           &WhiteStainedGlassPane,
+	"orange_stained_glass_pane":          &OrangeStainedGlassPane,
+	"magenta_stained_glass_pane":         &MagentaStainedGlassPane,
+	"light_blue_stained_glass_pane":      &LightBlueStainedGlassPane,
+	"yellow_stained_glass_pane":          &YellowStainedGlassPane,
+	"lime_stained_glass_pane":            &LimeStainedGlassPane,
+	"pink_stained_glass_pane":            &PinkStainedGlassPane,
+	"gray_stained_glass_pane":            &GrayStainedGlassPane,
+	"light_gray_stained_glass_pane":      &LightGrayStainedGlassPane,
+	"cyan_stained_glass_pane":            &CyanStainedGlassPane,
+	"purple_stained_glass_pane":          &PurpleStainedGlassPane,
+	"blue_stained_glass_pane":            &BlueStainedGlassPane,
+	"brown_stained_glass_pane":           &BrownStainedGlassPane,
+	"green_stained_glass_pane":           &GreenStainedGlassPane,
+	"red_stained_glass_pane":             &RedStainedGlassPane,
+	"black_stained_glass_pane":           &BlackStainedGlassPane,
+	"prismarine":                         &Prismarine,
+	"prismarine_bricks":                  &PrismarineBricks,
+	"dark_prismarine":                    &DarkPrismarine,
+	"prismarine_stairs":                  &PrismarineStairs,
+	"prismarine_brick_stairs":            &PrismarineBrickStairs,
+	"dark_prismarine_stairs":             &DarkPrismarineStairs,
+	"sea_lantern":                        &SeaLantern,
+	"red_sandstone":                      &RedSandstone,
+	"chiseled_red_sandstone":             &ChiseledRedSandstone,
+	"cut_red_sandstone":                  &CutRedSandstone,
+	"red_sandstone_stairs":               &RedSandstoneStairs,
+	"repeating_command_block":            &RepeatingCommandBlock,
+	"chain_command_block":                &ChainCommandBlock,
+	"magma_block":                        &MagmaBlock,
+	"nether_wart_block":                  &NetherWartBlock,
+	"warped_wart_block":                  &WarpedWartBlock,
+	"red_nether_bricks":                  &RedNetherBricks,
+	"bone_block":                         &BoneBlock,
+	"structure_void":                     &StructureVoid,
+	"shulker_box":                        &ShulkerBox,
+	"white_shulker_box":                  &WhiteShulkerBox,
+	"orange_shulker_box":                 &OrangeShulkerBox,
+	"magenta_shulker_box":                &MagentaShulkerBox,
+	"light_blue_shulker_box":             &LightBlueShulkerBox,
+	"yellow_shulker_box":                 &YellowShulkerBox,
+	"lime_shulker_box":                   &LimeShulkerBox,
+	"pink_shulker_box":                   &PinkShulkerBox,
+	"gray_shulker_box":                   &GrayShulkerBox,
+	"light_gray_shulker_box":             &LightGrayShulkerBox,
+	"cyan_shulker_box":                   &CyanShulkerBox,
+	"purple_shulker_box":                 &PurpleShulkerBox,
+	"blue_shulker_box":                   &BlueShulkerBox,
+	"brown_shulker_box":                  &BrownShulkerBox,
+	"green_shulker_box":                  &GreenShulkerBox,
+	"red_shulker_box":                    &RedShulkerBox,
+	"black_shulker_box":                  &BlackShulkerBox,
+	"white_glazed_terracotta":            &WhiteGlazedTerracotta,
+	"orange_glazed_terracotta":           &OrangeGlazedTerracotta,
+	"magenta_glazed_terracotta":          &MagentaGlazedTerracotta,
+	"light_blue_glazed_terracotta":       &LightBlueGlazedTerracotta,
+	"yellow_glazed_terracotta":           &YellowGlazedTerracotta,
+	"lime_glazed_terracotta":             &LimeGlazedTerracotta,
+	"pink_glazed_terracotta":             &PinkGlazedTerracotta,
+	"gray_glazed_terracotta":             &GrayGlazedTerracotta,
+	"light_gray_glazed_terracotta":       &LightGrayGlazedTerracotta,
+	"cyan_glazed_terracotta":             &CyanGlazedTerracotta,
+	"purple_glazed_terracotta":           &PurpleGlazedTerracotta,
+	"blue_glazed_terracotta":             &BlueGlazedTerracotta,
+	"brown_glazed_terracotta":            &BrownGlazedTerracotta,
+	"green_glazed_terracotta":            &GreenGlazedTerracotta,
+	"red_glazed_terracotta":              &RedGlazedTerracotta,
+	"black_glazed_terracotta":            &BlackGlazedTerracotta,
+	"white_concrete":                     &WhiteConcrete,
+	"orange_concrete":                    &OrangeConcrete,
+	"magenta_concrete":                   &MagentaConcrete,
+	"light_blue_concrete":                &LightBlueConcrete,
+	"yellow_concrete":                    &YellowConcrete,
+	"lime_concrete":                      &LimeConcrete,
+	"pink_concrete":                      &PinkConcrete,
+	"gray_concrete":                      &GrayConcrete,
+	"light_gray_concrete":                &LightGrayConcrete,
+	"cyan_concrete":                      &CyanConcrete,
+	"purple_concrete":                    &PurpleConcrete,
+	"blue_concrete":                      &BlueConcrete,
+	"brown_concrete":                     &BrownConcrete,
+	"green_concrete":                     &GreenConcrete,
+	"red_concrete":                       &RedConcrete,
+	"black_concrete":                     &BlackConcrete,
+	"white_concrete_powder":              &WhiteConcretePowder,
+	"orange_concrete_powder":             &OrangeConcretePowder,
+	"magenta_concrete_powder":            &MagentaConcretePowder,
+	"light_blue_concrete_powder":         &LightBlueConcretePowder,
+	"yellow_concrete_powder":             &YellowConcretePowder,
+	"lime_concrete_powder":               &LimeConcretePowder,
+	"pink_concrete_powder":               &PinkConcretePowder,
+	"gray_concrete_powder":               &GrayConcretePowder,
+	"light_gray_concrete_powder":         &LightGrayConcretePowder,
+	"cyan_concrete_powder":               &CyanConcretePowder,
+	"purple_concrete_powder":             &PurpleConcretePowder,
+	"blue_concrete_powder":               &BlueConcretePowder,
+	"brown_concrete_powder":              &BrownConcretePowder,
+	"green_concrete_powder":              &GreenConcretePowder,
+	"red_concrete_powder":                &RedConcretePowder,
+	"black_concrete_powder":              &BlackConcretePowder,
+	"turtle_egg":                         &TurtleEgg,
+	"dead_tube_coral_block":              &DeadTubeCoralBlock,
+	"dead_brain_coral_block":             &DeadBrainCoralBlock,
+	"dead_bubble_coral_block":            &DeadBubbleCoralBlock,
+	"dead_fire_coral_block":              &DeadFireCoralBlock,
+	"dead_horn_coral_block":              &DeadHornCoralBlock,
+	"tube_coral_block":                   &TubeCoralBlock,
+	"brain_coral_block":                  &BrainCoralBlock,
+	"bubble_coral_block":                 &BubbleCoralBlock,
+	"fire_coral_block":                   &FireCoralBlock,
+	"horn_coral_block":                   &HornCoralBlock,
+	"tube_coral":                         &TubeCoral,
+	"brain_coral":                        &BrainCoral,
+	"bubble_coral":                       &BubbleCoral,
+	"fire_coral":                         &FireCoral,
+	"horn_coral":                         &HornCoral,
+	"dead_brain_coral":                   &DeadBrainCoral,
+	"dead_bubble_coral":                  &DeadBubbleCoral,
+	"dead_fire_coral":                    &DeadFireCoral,
+	"dead_horn_coral":                    &DeadHornCoral,
+	"dead_tube_coral":                    &DeadTubeCoral,
+	"tube_coral_fan":                     &TubeCoralFan,
+	"brain_coral_fan":                    &BrainCoralFan,
+	"bubble_coral_fan":                   &BubbleCoralFan,
+	"fire_coral_fan":                     &FireCoralFan,
+	"horn_coral_fan":                     &HornCoralFan,
+	"dead_tube_coral_fan":                &DeadTubeCoralFan,
+	"dead_brain_coral_fan":               &DeadBrainCoralFan,
+	"dead_bubble_coral_fan":              &DeadBubbleCoralFan,
+	"dead_fire_coral_fan":                &DeadFireCoralFan,
+	"dead_horn_coral_fan":                &DeadHornCoralFan,
+	"blue_ice":                           &BlueIce,
+	"conduit":                            &Conduit,
+	"polished_granite_stairs":            &PolishedGraniteStairs,
+	"smooth_red_sandstone_stairs":        &SmoothRedSandstoneStairs,
+	"mossy_stone_brick_stairs":           &MossyStoneBrickStairs,
+	"polished_diorite_stairs":            &PolishedDioriteStairs,
+	"mossy_cobblestone_stairs":           &MossyCobblestoneStairs,
+	"end_stone_brick_stairs":             &EndStoneBrickStairs,
+	"stone_stairs":                       &StoneStairs,
+	"smooth_sandstone_stairs":            &SmoothSandstoneStairs,
+	"smooth_quartz_stairs":               &SmoothQuartzStairs,
+	"granite_stairs":                     &GraniteStairs,
+	"andesite_stairs":                    &AndesiteStairs,
+	"red_nether_brick_stairs":            &RedNetherBrickStairs,
+	"polished_andesite_stairs":           &PolishedAndesiteStairs,
+	"diorite_stairs":                     &DioriteStairs,
+	"cobbled_deepslate_stairs":           &CobbledDeepslateStairs,
+	"polished_deepslate_stairs":          &PolishedDeepslateStairs,
+	"deepslate_brick_stairs":             &DeepslateBrickStairs,
+	"deepslate_tile_stairs":              &DeepslateTileStairs,
+	"polished_granite_slab":              &PolishedGraniteSlab,
+	"smooth_red_sandstone_slab":          &SmoothRedSandstoneSlab,
+	"mossy_stone_brick_slab":             &MossyStoneBrickSlab,
+	"polished_diorite_slab":              &PolishedDioriteSlab,
+	"mossy_cobblestone_slab":             &MossyCobblestoneSlab,
+	"end_stone_brick_slab":               &EndStoneBrickSlab,
+	"smooth_sandstone_slab":              &SmoothSandstoneSlab,
+	"smooth_quartz_slab":                 &SmoothQuartzSlab,
+	"granite_slab":                       &GraniteSlab,
+	"andesite_slab":                      &AndesiteSlab,
+	"red_nether_brick_slab":              &RedNetherBrickSlab,
+	"polished_andesite_slab":             &PolishedAndesiteSlab,
+	"diorite_slab":                       &DioriteSlab,
+	"cobbled_deepslate_slab":             &CobbledDeepslateSlab,
+	"polished_deepslate_slab":            &PolishedDeepslateSlab,
+	"deepslate_brick_slab":               &DeepslateBrickSlab,
+	"deepslate_tile_slab":                &DeepslateTileSlab,
+	"scaffolding":                        &Scaffolding,
+	"redstone":                           &Redstone,
+	"redstone_torch":                     &RedstoneTorch,
+	"redstone_block":                     &RedstoneBlock,
+	"repeater":                           &Repeater,
+	"comparator":                         &Comparator,
+	"piston":                             &Piston,
+	"sticky_piston":                      &StickyPiston,
+	"slime_block":                        &SlimeBlock,
+	"honey_block":                        &HoneyBlock,
+	"observer":                           &Observer,
+	"hopper":                             &Hopper,
+	"dispenser":                          &Dispenser,
+	"dropper":                            &Dropper,
+	"lectern":                            &Lectern,
+	"target":                             &Target,
+	"lever":                              &Lever,
+	"lightning_rod":                      &LightningRod,
+	"daylight_detector":                  &DaylightDetector,
+	"sculk_sensor":                       &SculkSensor,
+	"tripwire_hook":                      &TripwireHook,
+	"trapped_chest":                      &TrappedChest,
+	"tnt":                                &Tnt,
+	"redstone_lamp":                      &RedstoneLamp,
+	"note_block":                         &NoteBlock,
+	"stone_button":                       &StoneButton,
+	"polished_blackstone_button":         &PolishedBlackstoneButton,
+	"oak_button":                         &OakButton,
+	"spruce_button":                      &SpruceButton,
+	"birch_button":                       &BirchButton,
+	"jungle_button":                      &JungleButton,
+	"acacia_button":                      &AcaciaButton,
+	"dark_oak_button":                    &DarkOakButton,
+	"mangrove_button":                    &MangroveButton,
+	"crimson_button":                     &CrimsonButton,
+	"warped_button":                      &WarpedButton,
+	"stone_pressure_plate":               &StonePressurePlate,
+	"polished_blackstone_pressure_plate": &PolishedBlackstonePressurePlate,
+	"light_weighted_pressure_plate":      &LightWeightedPressurePlate,
+	"heavy_weighted_pressure_plate":      &HeavyWeightedPressurePlate,
+	"oak_pressure_plate":                 &OakPressurePlate,
+	"spruce_pressure_plate":              &SprucePressurePlate,
+	"birch_pressure_plate":               &BirchPressurePlate,
+	"jungle_pressure_plate":              &JunglePressurePlate,
+	"acacia_pressure_plate":              &AcaciaPressurePlate,
+	"dark_oak_pressure_plate":            &DarkOakPressurePlate,
+	"mangrove_pressure_plate":            &MangrovePressurePlate,
+	"crimson_pressure_plate":             &CrimsonPressurePlate,
+	"warped_pressure_plate":              &WarpedPressurePlate,
+	"iron_door":                          &IronDoor,
+	"oak_door":                           &OakDoor,
+	"spruce_door":                        &SpruceDoor,
+	"birch_door":                         &BirchDoor,
+	"jungle_door":                        &JungleDoor,
+	"acacia_door":                        &AcaciaDoor,
+	"dark_oak_door":                      &DarkOakDoor,
+	"mangrove_door":                      &MangroveDoor,
+	"crimson_door":                       &CrimsonDoor,
+	"warped_door":                        &WarpedDoor,
+	"iron_trapdoor":                      &IronTrapdoor,
+	"oak_trapdoor":                       &OakTrapdoor,
+	"spruce_trapdoor":                    &SpruceTrapdoor,
+	"birch_trapdoor":                     &BirchTrapdoor,
+	"jungle_trapdoor":                    &JungleTrapdoor,
+	"acacia_trapdoor":                    &AcaciaTrapdoor,
+	"dark_oak_trapdoor":                  &DarkOakTrapdoor,
+	"mangrove_trapdoor":                  &MangroveTrapdoor,
+	"crimson_trapdoor":                   &CrimsonTrapdoor,
+	"warped_trapdoor":                    &WarpedTrapdoor,
+	"oak_fence_gate":                     &OakFenceGate,
+	"spruce_fence_gate":                  &SpruceFenceGate,
+	"birch_fence_gate":                   &BirchFenceGate,
+	"jungle_fence_gate":                  &JungleFenceGate,
+	"acacia_fence_gate":                  &AcaciaFenceGate,
+	"dark_oak_fence_gate":                &DarkOakFenceGate,
+	"mangrove_fence_gate":                &MangroveFenceGate,
+	"crimson_fence_gate":                 &CrimsonFenceGate,
+	"warped_fence_gate":                  &WarpedFenceGate,
+	"powered_rail":                       &PoweredRail,
+	"detector_rail":                      &DetectorRail,
+	"rail":                               &Rail,
+	"activator_rail":                     &ActivatorRail,
+	"saddle":                             &Saddle,
+	"minecart":                           &Minecart,
+	"chest_minecart":                     &ChestMinecart,
+	"furnace_minecart":                   &FurnaceMinecart,
+	"tnt_minecart":                       &TntMinecart,
+	"hopper_minecart":                    &HopperMinecart,
+	"carrot_on_a_stick":                  &CarrotOnAStick,
+	"warped_fungus_on_a_stick":           &WarpedFungusOnAStick,
+	"elytra":                             &Elytra,
+	"oak_boat":                           &OakBoat,
+	"oak_chest_boat":                     &OakChestBoat,
+	"spruce_boat":                        &SpruceBoat,
+	"spruce_chest_boat":                  &SpruceChestBoat,
+	"birch_boat":                         &BirchBoat,
+	"birch_chest_boat":                   &BirchChestBoat,
+	"jungle_boat":                        &JungleBoat,
+	"jungle_chest_boat":                  &JungleChestBoat,
+	"acacia_boat":                        &AcaciaBoat,
+	"acacia_chest_boat":                  &AcaciaChestBoat,
+	"dark_oak_boat":                      &DarkOakBoat,
+	"dark_oak_chest_boat":                &DarkOakChestBoat,
+	"mangrove_boat":                      &MangroveBoat,
+	"mangrove_chest_boat":                &MangroveChestBoat,
+	"structure_block":                    &StructureBlock,
+	"jigsaw":                             &Jigsaw,
+	"turtle_helmet":                      &TurtleHelmet,
+	"scute":                              &Scute,
+	"flint_and_steel":                    &FlintAndSteel,
+	"apple":                              &Apple,
+	"bow":                                &Bow,
+	"arrow":                              &Arrow,
+	"coal":                               &Coal,
+	"charcoal":                           &Charcoal,
+	"diamond":                            &Diamond,
+	"emerald":                            &Emerald,
+	"lapis_lazuli":                       &LapisLazuli,
+	"quartz":                             &Quartz,
+	"amethyst_shard":                     &AmethystShard,
+	"raw_iron":                           &RawIron,
+	"iron_ingot":                         &IronIngot,
+	"raw_copper":                         &RawCopper,
+	"copper_ingot":                       &CopperIngot,
+	"raw_gold":                           &RawGold,
+	"gold_ingot":                         &GoldIngot,
+	"netherite_ingot":                    &NetheriteIngot,
+	"netherite_scrap":                    &NetheriteScrap,
+	"wooden_sword":                       &WoodenSword,
+	"wooden_shovel":                      &WoodenShovel,
+	"wooden_pickaxe":                     &WoodenPickaxe,
+	"wooden_axe":                         &WoodenAxe,
+	"wooden_hoe":                         &WoodenHoe,
+	"stone_sword":                        &StoneSword,
+	"stone_shovel":                       &StoneShovel,
+	"stone_pickaxe":                      &StonePickaxe,
+	"stone_axe":                          &StoneAxe,
+	"stone_hoe":                          &StoneHoe,
+	"golden_sword":                       &GoldenSword,
+	"golden_shovel":                      &GoldenShovel,
+	"golden_pickaxe":                     &GoldenPickaxe,
+	"golden_axe":                         &GoldenAxe,
+	"golden_hoe":                         &GoldenHoe,
+	"iron_sword":                         &IronSword,
+	"iron_shovel":                        &IronShovel,
+	"iron_pickaxe":                       &IronPickaxe,
+	"iron_axe":                           &IronAxe,
+	"iron_hoe":                           &IronHoe,
+	"diamond_sword":                      &DiamondSword,
+	"diamond_shovel":                     &DiamondShovel,
+	"diamond_pickaxe":                    &DiamondPickaxe,
+	"diamond_axe":                        &DiamondAxe,
+	"diamond_hoe":                        &DiamondHoe,
+	"netherite_sword":                    &NetheriteSword,
+	"netherite_shovel":                   &NetheriteShovel,
+	"netherite_pickaxe":                  &NetheritePickaxe,
+	"netherite_axe":                      &NetheriteAxe,
+	"netherite_hoe":                      &NetheriteHoe,
+	"stick":                              &Stick,
+	"bowl":                               &Bowl,
+	"mushroom_stew":                      &MushroomStew,
+	"string":                             &String,
+	"feather":                            &Feather,
+	"gunpowder":                          &Gunpowder,
+	"wheat_seeds":                        &WheatSeeds,
+	"wheat":                              &Wheat,
+	"bread":                              &Bread,
+	"leather_helmet":                     &LeatherHelmet,
+	"leather_chestplate":                 &LeatherChestplate,
+	"leather_leggings":                   &LeatherLeggings,
+	"leather_boots":                      &LeatherBoots,
+	"chainmail_helmet":                   &ChainmailHelmet,
+	"chainmail_chestplate":               &ChainmailChestplate,
+	"chainmail_leggings":                 &ChainmailLeggings,
+	"chainmail_boots":                    &ChainmailBoots,
+	"iron_helmet":                        &IronHelmet,
+	"iron_chestplate":                    &IronChestplate,
+	"iron_leggings":                      &IronLeggings,
+	"iron_boots":                         &IronBoots,
+	"diamond_helmet":                     &DiamondHelmet,
+	"diamond_chestplate":                 &DiamondChestplate,
+	"diamond_leggings":                   &DiamondLeggings,
+	"diamond_boots":                      &DiamondBoots,
+	"golden_helmet":                      &GoldenHelmet,
+	"golden_chestplate":                  &GoldenChestplate,
+	"golden_leggings":                    &GoldenLeggings,
+	"golden_boots":                       &GoldenBoots,
+	"netherite_helmet":                   &NetheriteHelmet,
+	"netherite_chestplate":               &NetheriteChestplate,
+	"netherite_leggings":                 &NetheriteLeggings,
+	"netherite_boots":                    &NetheriteBoots,
+	"flint":                              &Flint,
+	"porkchop":                           &Porkchop,
+	"cooked_porkchop":                    &CookedPorkchop,
+	"painting":                           &Painting,
+	"golden_apple":                       &GoldenApple,
+	"enchanted_golden_apple":             &EnchantedGoldenApple,
+	"oak_sign":                           &OakSign,
+	"spruce_sign":                        &SpruceSign,
+	"birch_sign":                         &BirchSign,
+	"jungle_sign":                        &JungleSign,
+	"acacia_sign":                        &AcaciaSign,
+	"dark_oak_sign":                      &DarkOakSign,
+	"mangrove_sign":                      &MangroveSign,
+	"crimson_sign":                       &CrimsonSign,
+	"warped_sign":                        &WarpedSign,
+	"bucket":                             &Bucket,
+	"water_bucket":                       &WaterBucket,
+	"lava_bucket":                        &LavaBucket,
+	"powder_snow_bucket":                 &PowderSnowBucket,
+	"snowball":                           &Snowball,
+	"leather":                            &Leather,
+	"milk_bucket":                        &MilkBucket,
+	"pufferfish_bucket":                  &PufferfishBucket,
+	"salmon_bucket":                      &SalmonBucket,
+	"cod_bucket":                         &CodBucket,
+	"tropical_fish_bucket":               &TropicalFishBucket,
+	"axolotl_bucket":                     &AxolotlBucket,
+	"tadpole_bucket":                     &TadpoleBucket,
+	"brick":                              &Brick,
+	"clay_ball":                          &ClayBall,
+	"dried_kelp_block":                   &DriedKelpBlock,
+	"paper":                              &Paper,
+	"book":                               &Book,
+	"slime_ball":                         &SlimeBall,
+	"egg":                                &Egg,
+	"compass":                            &Compass,
+	"recovery_compass":                   &RecoveryCompass,
+	"bundle":                             &Bundle,
+	"fishing_rod":                        &FishingRod,
+	"clock":                              &Clock,
+	"spyglass":                           &Spyglass,
+	"glowstone_dust":                     &GlowstoneDust,
+	"cod":                                &Cod,
+	"salmon":                             &Salmon,
+	"tropical_fish":                      &TropicalFish,
+	"pufferfish":                         &Pufferfish,
+	"cooked_cod":                         &CookedCod,
+	"cooked_salmon":                      &CookedSalmon,
+	"ink_sac":                            &InkSac,
+	"glow_ink_sac":                       &GlowInkSac,
+	"cocoa_beans":                        &CocoaBeans,
+	"white_dye":                          &WhiteDye,
+	"orange_dye":                         &OrangeDye,
+	"magenta_dye":                        &MagentaDye,
+	"light_blue_dye":                     &LightBlueDye,
+	"yellow_dye":                         &YellowDye,
+	"lime_dye":                           &LimeDye,
+	"pink_dye":                           &PinkDye,
+	"gray_dye":                           &GrayDye,
+	"light_gray_dye":                     &LightGrayDye,
+	"cyan_dye":                           &CyanDye,
+	"purple_dye":                         &PurpleDye,
+	"blue_dye":                           &BlueDye,
+	"brown_dye":                          &BrownDye,
+	"green_dye":                          &GreenDye,
+	"red_dye":                            &RedDye,
+	"black_dye":                          &BlackDye,
+	"bone_meal":                          &BoneMeal,
+	"bone":                               &Bone,
+	"sugar":                              &Sugar,
+	"cake":                               &Cake,
+	"white_bed":                          &WhiteBed,
+	"orange_bed":                         &OrangeBed,
+	"magenta_bed":                        &MagentaBed,
+	"light_blue_bed":                     &LightBlueBed,
+	"yellow_bed":                         &YellowBed,
+	"lime_bed":                           &LimeBed,
+	"pink_bed":                           &PinkBed,
+	"gray_bed":                           &GrayBed,
+	"light_gray_bed":                     &LightGrayBed,
+	"cyan_bed":                           &CyanBed,
+	"purple_bed":                         &PurpleBed,
+	"blue_bed":                           &BlueBed,
+	"brown_bed":                          &BrownBed,
+	"green_bed":                          &GreenBed,
+	"red_bed":                            &RedBed,
+	"black_bed":                          &BlackBed,
+	"cookie":                             &Cookie,
+	"filled_map":                         &FilledMap,
+	"shears":                             &Shears,
+	"melon_slice":                        &MelonSlice,
+	"dried_kelp":                         &DriedKelp,
+	"pumpkin_seeds":                      &PumpkinSeeds,
+	"melon_seeds":                        &MelonSeeds,
+	"beef":                               &Beef,
+	"cooked_beef":                        &CookedBeef,
+	"chicken":                            &Chicken,
+	"cooked_chicken":                     &CookedChicken,
+	"rotten_flesh":                       &RottenFlesh,
+	"ender_pearl":                        &EnderPearl,
+	"blaze_rod":                          &BlazeRod,
+	"ghast_tear":                         &GhastTear,
+	"gold_nugget":                        &GoldNugget,
+	"nether_wart":                        &NetherWart,
+	"potion":                             &Potion,
+	"glass_bottle":                       &GlassBottle,
+	"spider_eye":                         &SpiderEye,
+	"fermented_spider_eye":               &FermentedSpiderEye,
+	"blaze_powder":                       &BlazePowder,
+	"magma_cream":                        &MagmaCream,
+	"brewing_stand":                      &BrewingStand,
+	"cauldron":                           &Cauldron,
+	"ender_eye":                          &EnderEye,
+	"glistering_melon_slice":             &GlisteringMelonSlice,
+	"allay_spawn_egg":                    &AllaySpawnEgg,
+	"axolotl_spawn_egg":                  &AxolotlSpawnEgg,
+	"bat_spawn_egg":                      &BatSpawnEgg,
+	"bee_spawn_egg":                      &BeeSpawnEgg,
+	"blaze_spawn_egg":                    &BlazeSpawnEgg,
+	"cat_spawn_egg":                      &CatSpawnEgg,
+	"cave_spider_spawn_egg":              &CaveSpiderSpawnEgg,
+	"chicken_spawn_egg":                  &ChickenSpawnEgg,
+	"cod_spawn_egg":                      &CodSpawnEgg,
+	"cow_spawn_egg":                      &CowSpawnEgg,
+	"creeper_spawn_egg":                  &CreeperSpawnEgg,
+	"dolphin_spawn_egg":                  &DolphinSpawnEgg,
+	"donkey_spawn_egg":                   &DonkeySpawnEgg,
+	"drowned_spawn_egg":                  &DrownedSpawnEgg,
+	"elder_guardian_spawn_egg":           &ElderGuardianSpawnEgg,
+	"enderman_spawn_egg":                 &EndermanSpawnEgg,
+	"endermite_spawn_egg":                &EndermiteSpawnEgg,
+	"evoker_spawn_egg":                   &EvokerSpawnEgg,
+	"fox_spawn_egg":                      &FoxSpawnEgg,
+	"frog_spawn_egg":                     &FrogSpawnEgg,
+	"ghast_spawn_egg":                    &GhastSpawnEgg,
+	"glow_squid_spawn_egg":               &GlowSquidSpawnEgg,
+	"goat_spawn_egg":                     &GoatSpawnEgg,
+	"guardian_spawn_egg":                 &GuardianSpawnEgg,
+	"hoglin_spawn_egg":                   &HoglinSpawnEgg,
+	"horse_spawn_egg":                    &HorseSpawnEgg,
+	"husk_spawn_egg":                     &HuskSpawnEgg,
+	"llama_spawn_egg":                    &LlamaSpawnEgg,
+	"magma_cube_spawn_egg":               &MagmaCubeSpawnEgg,
+	"mooshroom_spawn_egg":                &MooshroomSpawnEgg,
+	"mule_spawn_egg":                     &MuleSpawnEgg,
+	"ocelot_spawn_egg":                   &OcelotSpawnEgg,
+	"panda_spawn_egg":                    &PandaSpawnEgg,
+	"parrot_spawn_egg":                   &ParrotSpawnEgg,
+	"phantom_spawn_egg":                  &PhantomSpawnEgg,
+	"pig_spawn_egg":                      &PigSpawnEgg,
+	"piglin_spawn_egg":                   &PiglinSpawnEgg,
+	"piglin_brute_spawn_egg":             &PiglinBruteSpawnEgg,
+	"pillager_spawn_egg":                 &PillagerSpawnEgg,
+	"polar_bear_spawn_egg":               &PolarBearSpawnEgg,
+	"pufferfish_spawn_egg":               &PufferfishSpawnEgg,
+	"rabbit_spawn_egg":                   &RabbitSpawnEgg,
+	"ravager_spawn_egg":                  &RavagerSpawnEgg,
+	"salmon_spawn_egg":                   &SalmonSpawnEgg,
+	"sheep_spawn_egg":                    &SheepSpawnEgg,
+	"shulker_spawn_egg":                  &ShulkerSpawnEgg,
+	"silverfish_spawn_egg":               &SilverfishSpawnEgg,
+	"skeleton_spawn_egg":                 &SkeletonSpawnEgg,
+	"skeleton_horse_spawn_egg":           &SkeletonHorseSpawnEgg,
+	"slime_spawn_egg":                    &SlimeSpawnEgg,
+	"spider_spawn_egg":                   &SpiderSpawnEgg,
+	"squid_spawn_egg":                    &SquidSpawnEgg,
+	"stray_spawn_egg":                    &StraySpawnEgg,
+	"strider_spawn_egg":                  &StriderSpawnEgg,
+	"tadpole_spawn_egg":                  &TadpoleSpawnEgg,
+	"trader_llama_spawn_egg":             &TraderLlamaSpawnEgg,
+	"tropical_fish_spawn_egg":            &TropicalFishSpawnEgg,
+	"turtle_spawn_egg":                   &TurtleSpawnEgg,
+	"vex_spawn_egg":                      &VexSpawnEgg,
+	"villager_spawn_egg":                 &VillagerSpawnEgg,
+	"vindicator_spawn_egg":               &VindicatorSpawnEgg,
+	"wandering_trader_spawn_egg":         &WanderingTraderSpawnEgg,
+	"warden_spawn_egg":                   &WardenSpawnEgg,
+	"witch_spawn_egg":                    &WitchSpawnEgg,
+	"wither_skeleton_spawn_egg":          &WitherSkeletonSpawnEgg,
+	"wolf_spawn_egg":                     &WolfSpawnEgg,
+	"zoglin_spawn_egg":                   &ZoglinSpawnEgg,
+	"zombie_spawn_egg":                   &ZombieSpawnEgg,
+	"zombie_horse_spawn_egg":             &ZombieHorseSpawnEgg,
+	"zombie_villager_spawn_egg":          &ZombieVillagerSpawnEgg,
+	"zombified_piglin_spawn_egg":         &ZombifiedPiglinSpawnEgg,
+	"experience_bottle":                  &ExperienceBottle,
+	"fire_charge":                        &FireCharge,
+	"writable_book":                      &WritableBook,
+	"written_book":                       &WrittenBook,
+	"item_frame":                         &ItemFrame,
+	"glow_item_frame":                    &GlowItemFrame,
+	"flower_pot":                         &FlowerPot,
+	"carrot":                             &Carrot,
+	"potato":                             &Potato,
+	"baked_potato":                       &BakedPotato,
+	"poisonous_potato":                   &PoisonousPotato,
+	"map":                                &Map,
+	"golden_carrot":                      &GoldenCarrot,
+	"skeleton_skull":                     &SkeletonSkull,
+	"wither_skeleton_skull":              &WitherSkeletonSkull,
+	"player_head":                        &PlayerHead,
+	"zombie_head":                        &ZombieHead,
+	"creeper_head":                       &CreeperHead,
+	"dragon_head":                        &DragonHead,
+	"nether_star":                        &NetherStar,
+	"pumpkin_pie":                        &PumpkinPie,
+	"firework_rocket":                    &FireworkRocket,
+	"firework_star":                      &FireworkStar,
+	"enchanted_book":                     &EnchantedBook,
+	"nether_brick":                       &NetherBrick,
+	"prismarine_shard":                   &PrismarineShard,
+	"prismarine_crystals":                &PrismarineCrystals,
+	"rabbit":                             &Rabbit,
+	"cooked_rabbit":                      &CookedRabbit,
+	"rabbit_stew":                        &RabbitStew,
+	"rabbit_foot":                        &RabbitFoot,
+	"rabbit_hide":                        &RabbitHide,
+	"armor_stand":                        &ArmorStand,
+	"iron_horse_armor":                   &IronHorseArmor,
+	"golden_horse_armor":                 &GoldenHorseArmor,
+	"diamond_horse_armor":                &DiamondHorseArmor,
+	"leather_horse_armor":                &LeatherHorseArmor,
+	"lead":                               &Lead,
+	"name_tag":                           &NameTag,
+	"command_block_minecart":             &CommandBlockMinecart,
+	"mutton":                             &Mutton,
+	"cooked_mutton":                      &CookedMutton,
+	"white_banner":                       &WhiteBanner,
+	"orange_banner":                      &OrangeBanner,
+	"magenta_banner":                     &MagentaBanner,
+	"light_blue_banner":                  &LightBlueBanner,
+	"yellow_banner":                      &YellowBanner,
+	"lime_banner":                        &LimeBanner,
+	"pink_banner":                        &PinkBanner,
+	"gray_banner":                        &GrayBanner,
+	"light_gray_banner":                  &LightGrayBanner,
+	"cyan_banner":                        &CyanBanner,
+	"purple_banner":                      &PurpleBanner,
+	"blue_banner":                        &BlueBanner,
+	"brown_banner":                       &BrownBanner,
+	"green_banner":                       &GreenBanner,
+	"red_banner":                         &RedBanner,
+	"black_banner":                       &BlackBanner,
+	"end_crystal":                        &EndCrystal,
+	"chorus_fruit":                       &ChorusFruit,
+	"popped_chorus_fruit":                &PoppedChorusFruit,
+	"beetroot":                           &Beetroot,
+	"beetroot_seeds":                     &BeetrootSeeds,
+	"beetroot_soup":                      &BeetrootSoup,
+	"dragon_breath":                      &DragonBreath,
+	"splash_potion":                      &SplashPotion,
+	"spectral_arrow":                     &SpectralArrow,
+	"tipped_arrow":                       &TippedArrow,
+	"lingering_potion":                   &LingeringPotion,
+	"shield":                             &Shield,
+	"totem_of_undying":                   &TotemOfUndying,
+	"shulker_shell":                      &ShulkerShell,
+	"iron_nugget":                        &IronNugget,
+	"knowledge_book":                     &KnowledgeBook,
+	"debug_stick":                        &DebugStick,
+	"music_disc_13":                      &MusicDisc13,
+	"music_disc_cat":                     &MusicDiscCat,
+	"music_disc_blocks":                  &MusicDiscBlocks,
+	"music_disc_chirp":                   &MusicDiscChirp,
+	"music_disc_far":                     &MusicDiscFar,
+	"music_disc_mall":                    &MusicDiscMall,
+	"music_disc_mellohi":                 &MusicDiscMellohi,
+	"music_disc_stal":                    &MusicDiscStal,
+	"music_disc_strad":                   &MusicDiscStrad,
+	"music_disc_ward":                    &MusicDiscWard,
+	"music_disc_11":                      &MusicDisc11,
+	"music_disc_wait":                    &MusicDiscWait,
+	"music_disc_otherside":               &MusicDiscOtherside,
+	"music_disc_5":                       &MusicDisc5,
+	"music_disc_pigstep":                 &MusicDiscPigstep,
+	"disc_fragment_5":                    &DiscFragment5,
+	"trident":                            &Trident,
+	"phantom_membrane":                   &PhantomMembrane,
+	"nautilus_shell":                     &NautilusShell,
+	"heart_of_the_sea":                   &HeartOfTheSea,
+	"crossbow":                           &Crossbow,
+	"suspicious_stew":                    &SuspiciousStew,
+	"loom":                               &Loom,
+	"flower_banner_pattern":              &FlowerBannerPattern,
+	"creeper_banner_pattern":             &CreeperBannerPattern,
+	"skull_banner_pattern":               &SkullBannerPattern,
+	"mojang_banner_pattern":              &MojangBannerPattern,
+	"globe_banner_pattern":               &GlobeBannerPattern,
+	"piglin_banner_pattern":              &PiglinBannerPattern,
+	"goat_horn":                          &GoatHorn,
+	"composter":                          &Composter,
+	"barrel":                             &Barrel,
+	"smoker":                             &Smoker,
+	"blast_furnace":                      &BlastFurnace,
+	"cartography_table":                  &CartographyTable,
+	"fletching_table":                    &FletchingTable,
+	"grindstone":                         &Grindstone,
+	"smithing_table":                     &SmithingTable,
+	"stonecutter":                        &Stonecutter,
+	"bell":                               &Bell,
+	"lantern":                            &Lantern,
+	"soul_lantern":                       &SoulLantern,
+	"sweet_berries":                      &SweetBerries,
+	"glow_berries":                       &GlowBerries,
+	"campfire":                           &Campfire,
+	"soul_campfire":                      &SoulCampfire,
+	"shroomlight":                        &Shroomlight,
+	"honeycomb":                          &Honeycomb,
+	"bee_nest":                           &BeeNest,
+	"beehive":                            &Beehive,
+	"honey_bottle":                       &HoneyBottle,
+	"honeycomb_block":                    &HoneycombBlock,
+	"lodestone":                          &Lodestone,
+	"crying_obsidian":                    &CryingObsidian,
+	"blackstone":                         &Blackstone,
+	"blackstone_slab":                    &BlackstoneSlab,
+	"blackstone_stairs":                  &BlackstoneStairs,
+	"gilded_blackstone":                  &GildedBlackstone,
+	"polished_blackstone":                &PolishedBlackstone,
+	"polished_blackstone_slab":           &PolishedBlackstoneSlab,
+	"polished_blackstone_stairs":         &PolishedBlackstoneStairs,
+	"chiseled_polished_blackstone":       &ChiseledPolishedBlackstone,
+	"polished_blackstone_bricks":         &PolishedBlackstoneBricks,
+	"polished_blackstone_brick_slab":     &PolishedBlackstoneBrickSlab,
+	"polished_blackstone_brick_stairs":   &PolishedBlackstoneBrickStairs,
+	"cracked_polished_blackstone_bricks": &CrackedPolishedBlackstoneBricks,
+	"respawn_anchor":                     &RespawnAnchor,
+	"candle":                             &Candle,
+	"white_candle":                       &WhiteCandle,
+	"orange_candle":                      &OrangeCandle,
+	"magenta_candle":                     &MagentaCandle,
+	"light_blue_candle":                  &LightBlueCandle,
+	"yellow_candle":                      &YellowCandle,
+	"lime_candle":                        &LimeCandle,
+	"pink_candle":                        &PinkCandle,
+	"gray_candle":                        &GrayCandle,
+	"light_gray_candle":                  &LightGrayCandle,
+	"cyan_candle":                        &CyanCandle,
+	"purple_candle":                      &PurpleCandle,
+	"blue_candle":                        &BlueCandle,
+	"brown_candle":                       &BrownCandle,
+	"green_candle":                       &GreenCandle,
+	"red_candle":                         &RedCandle,
+	"black_candle":                       &BlackCandle,
+	"small_amethyst_bud":                 &SmallAmethystBud,
+	"medium_amethyst_bud":                &MediumAmethystBud,
+	"large_amethyst_bud":                 &LargeAmethystBud,
+	"amethyst_cluster":                   &AmethystCluster,
+	"pointed_dripstone":                  &PointedDripstone,
+	"ochre_froglight":                    &OchreFroglight,
+	"verdant_froglight":                  &VerdantFroglight,
+	"pearlescent_froglight":              &PearlescentFroglight,
+	"frogspawn":                          &Frogspawn,
+	"echo_shard":                         &EchoShard,
 }

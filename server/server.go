@@ -6,15 +6,15 @@
 //
 // A server is roughly divided into two parts: Gate and GamePlay
 //
-//	+------------------------------------------------------------------------------+
-//	|                             Go-MC Server Framework                           |
-//	|--------------------------------------+---------------------------------------|
-//	|               Gate                   |                GamePlay               |
-//	|--------------------+-----------------+---------------+-----------------------|
-//	|    LoginHandler    |         ListPingHandler         |        Others..       |
-//	|--------------------|------------+----+---------------|-----------------------+
-//	| MojangLoginHandler |  PingInfo  |     PlayerList     |  [go-mc/server], etc. |
-//	+--------------------+------------+--------------------+-----------------------+
+//	+---------------------------------------------------------------------+
+//	|                        Go-MC Server Framework                       |
+//	+--------------------------------------+------------------------------+
+//	|               Gate                   |           GamePlay           |
+//	+--------------------+-----------------+                              |
+//	|    LoginHandler    | ListPingHandler |                              |
+//	+--------------------+------------+----+---------------+--------------+
+//	| MojangLoginHandler |  PingInfo  |     PlayerList     |  Others....  |
+//	+--------------------+------------+--------------------+--------------+
 //
 // Gate, which is used to respond to the client login request, provide login verification,
 // respond to the List Ping Request and providing the online players' information.
@@ -23,24 +23,19 @@
 // (that is, after the LoginSuccess package is sent),
 // and is responsible for functions including player status, chunk management, keep alive, chat, etc.
 //
-// The implement of Gameplay is provided at [go-mc/server]. You can also write your version.
-//
-// [go-mc/server]: https://github.com/go-mc/server
+// The implement of Gameplay is provided at https://github.com/go-mc/server.
 package server
 
 import (
 	"errors"
-	"log"
-
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"log"
 )
 
-const (
-	ProtocolName    = "1.19.2"
-	ProtocolVersion = 760
-)
+const ProtocolName = "1.19"
+const ProtocolVersion = 759
 
 type Server struct {
 	*log.Logger

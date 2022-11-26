@@ -11,7 +11,6 @@ import (
 	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/chat"
@@ -26,9 +25,9 @@ var playerID = flag.String("uuid", "", "The player's UUID")
 var accessToken = flag.String("token", "", "AccessToken")
 
 var client *bot.Client
-var player *basic.Player
-var worldManager *world.World
-var screenManager *screen.Manager
+var player *bot.Player
+var worldManager *bot.World
+var screenManager *bot.Manager
 
 func main() {
 	flag.Parse()
@@ -39,8 +38,9 @@ func main() {
 		UUID: *playerID,
 		AsTk: *accessToken,
 	}
-	player = basic.NewPlayer(client, basic.DefaultSettings)
-	basic.EventsListener{
+	player = bot.NewPlayer(client, bot.DefaultSettings)
+	bot.EventsListener{
+		c:            client,
 		GameStart:    onGameStart,
 		ChatMsg:      onChatMsg,
 		SystemMsg:    onSystemMsg,
@@ -48,11 +48,11 @@ func main() {
 		HealthChange: onHealthChange,
 		Death:        onDeath,
 	}.Attach(client)
-	worldManager = world.NewWorld(client, player, world.EventsListener{
+	worldManager = bot.NewWorld(client, player, world.EventsListener{
 		LoadChunk:   onChunkLoad,
 		UnloadChunk: onChunkUnload,
 	})
-	screenManager = screen.NewManager(client, screen.EventsListener{
+	screenManager = bot.NewManager(client, screen.EventsListener{
 		Open:    nil,
 		SetSlot: onScreenSlotChange,
 		Close:   nil,
@@ -103,7 +103,7 @@ func onGameStart() error {
 	return nil //if err isn't nil, HandleGame() will return it.
 }
 
-func onChatMsg(c *basic.PlayerMessage) error {
+func onChatMsg(c *bot.PlayerMessage) error {
 	log.Println("Chat:", c.SignedMessage.String())
 	return nil
 }
@@ -133,8 +133,8 @@ func onScreenSlotChange(id, index int) error {
 		if ok {
 			// Currently, only inventory container is supported
 			switch container.(type) {
-			case *screen.Inventory:
-				slot := container.(*screen.Inventory).Slots[index]
+			case *bot.Inventory:
+				slot := container.(*bot.Inventory).Slots[index]
 				itemInfo := item.ByID[item.ID(slot.ID)]
 				log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d | NBT: %v", id, index, itemInfo, slot.Count, slot.NBT)
 			}

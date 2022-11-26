@@ -2,11 +2,10 @@ package server
 
 import (
 	_ "embed"
-
+	"github.com/Tnze/go-mc/server/auth"
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/net"
-	"github.com/Tnze/go-mc/server/auth"
 )
 
 type GamePlay interface {

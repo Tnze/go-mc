@@ -2,8 +2,6 @@ package block
 
 import "strconv"
 
-//go:generate go run ./generator/properties/main.go
-
 type Boolean bool
 
 func (b Boolean) MarshalText() (text []byte, err error) {

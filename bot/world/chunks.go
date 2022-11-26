@@ -1,39 +1,35 @@
 package world
 
 import (
-	"errors"
-
-	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/bot/basic"
-	"github.com/Tnze/go-mc/data/packetid"
-	"github.com/Tnze/go-mc/level"
-	pk "github.com/Tnze/go-mc/net/packet"
+	"fmt"
+	"github.com/Tnze/go-mc/bot/maths"
+	. "github.com/Tnze/go-mc/level"
 )
 
 type World struct {
-	c      *bot.Client
-	p      *basic.Player
-	events EventsListener
-
-	Columns map[level.ChunkPos]*level.Chunk
+	Columns map[ChunkPos]*Chunk
 }
 
-func NewWorld(c *bot.Client, p *basic.Player, events EventsListener) (w *World) {
+func NewWorld() (w *World) {
 	w = &World{
-		c: c, p: p,
-		events:  events,
-		Columns: make(map[level.ChunkPos]*level.Chunk),
+		Columns: make(map[ChunkPos]*Chunk),
 	}
-	c.Events.AddListener(
-		bot.PacketHandler{Priority: 64, ID: packetid.ClientboundLogin, F: w.onPlayerSpawn},
-		bot.PacketHandler{Priority: 64, ID: packetid.ClientboundRespawn, F: w.onPlayerSpawn},
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundLevelChunkWithLight, F: w.handleLevelChunkWithLightPacket},
-		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundForgetLevelChunk, F: w.handleForgetLevelChunkPacket},
-	)
 	return
 }
 
-func (w *World) onPlayerSpawn(pk.Packet) error {
+func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, error) {
+	if int32(pos.Y) < 0 || int32(pos.Y) > 256 {
+		return -1, fmt.Errorf("out of range")
+	}
+	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
+	if chunk, ok := w.Columns[chunkPos]; ok {
+		return chunk.GetBlock(pos)
+	} else {
+		return -1, fmt.Errorf("chunk not loaded")
+	}
+}
+
+/*func (w *World) onPlayerSpawn(pk.Packet) error {
 	// unload all chunks
 	w.Columns = make(map[level.ChunkPos]*level.Chunk)
 	return nil
@@ -41,10 +37,7 @@ func (w *World) onPlayerSpawn(pk.Packet) error {
 
 func (w *World) handleLevelChunkWithLightPacket(packet pk.Packet) error {
 	var pos level.ChunkPos
-	currentDimType := w.p.WorldInfo.RegistryCodec.DimensionType.Find(w.p.DimensionType)
-	if currentDimType == nil {
-		return errors.New("dimension type " + w.p.DimensionType + " not found")
-	}
+	currentDimType := w.p.WorldInfo.DimensionCodec.DimensionType.Find(w.p.DimensionType)
 	chunk := level.EmptyChunk(int(currentDimType.Height) / 16)
 	if err := packet.Scan(&pos, chunk); err != nil {
 		return err
@@ -69,4 +62,4 @@ func (w *World) handleForgetLevelChunkPacket(packet pk.Packet) error {
 	}
 	delete(w.Columns, pos)
 	return err
-}
+}*/

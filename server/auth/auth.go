@@ -222,8 +222,8 @@ func (p Property) WriteTo(w io.Writer) (n int64, err error) {
 		pk.String(p.Value),
 		pk.Boolean(hasSignature),
 		pk.Opt{
-			Has:   hasSignature,
-			Field: pk.String(p.Signature),
+			If:    hasSignature,
+			Value: pk.String(p.Signature),
 		},
 	}.WriteTo(w)
 }

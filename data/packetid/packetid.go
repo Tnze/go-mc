@@ -1,196 +1,201 @@
 package packetid
 
-// Login Clientbound
+/*
+Reference: https://wiki.vg/index.php?title=Protocol&oldid=17753#Packet_format
+*/
+
+// Handshake client -> server
 const (
-	LoginDisconnect = iota
-	LoginEncryptionRequest
-	LoginSuccess
-	LoginCompression
-	LoginPluginRequest
+	SPacketHandshake       = iota
+	SPacketLegacyHandshake = 0xFE
 )
 
-// Login Serverbound
+// Status server -> client
 const (
-	LoginStart = iota
-	LoginEncryptionResponse
-	LoginPluginResponse
+	CPacketStatusResponse = iota
+	CPacketStatusPing
 )
 
-// Status Clientbound
+// Status client -> server
 const (
-	StatusResponse = iota
-	StatusPongResponse
+	SPacketStatusRequest = iota
+	SPacketStatusPing
 )
 
-// Status Serverbound
+// Login server -> client
 const (
-	StatusRequest = iota
-	StatusPingRequest
+	CPacketLoginDisconnect = iota
+	CPacketEncryptionRequest
+	CPacketLoginSuccess
+	CPacketSetCompression
+	CPacketLoginPluginRequest
 )
 
-// Game Clientbound
+// Login client -> server
 const (
-	ClientboundAddEntity = iota
-	ClientboundAddExperienceOrb
-	ClientboundAddPlayer
-	ClientboundAnimate
-	ClientboundAwardStats
-	ClientboundBlockChangedAck
-	ClientboundBlockDestruction
-	ClientboundBlockEntityData
-	ClientboundBlockEvent
-	ClientboundBlockUpdate
-	ClientboundBossEvent
-	ClientboundChangeDifficulty
-	ClientboundChatPreview
-	ClientboundClearTitles
-	ClientboundCommandSuggestions
-	ClientboundCommands
-	ClientboundContainerClose
-	ClientboundContainerSetContent
-	ClientboundContainerSetData
-	ClientboundContainerSetSlot
-	ClientboundCooldown
-	ClientboundCustomChatCompletions
-	ClientboundCustomPayload
-	ClientboundCustomSound
-	ClientboundDeleteChat
-	ClientboundDisconnect
-	ClientboundEntityEvent
-	ClientboundExplode
-	ClientboundForgetLevelChunk
-	ClientboundGameEvent
-	ClientboundHorseScreenOpen
-	ClientboundInitializeBorder
-	ClientboundKeepAlive
-	ClientboundLevelChunkWithLight
-	ClientboundLevelEvent
-	ClientboundLevelParticles
-	ClientboundLightUpdate
-	ClientboundLogin
-	ClientboundMapItemData
-	ClientboundMerchantOffers
-	ClientboundMoveEntityPos
-	ClientboundMoveEntityPosRot
-	ClientboundMoveEntityRot
-	ClientboundMoveVehicle
-	ClientboundOpenBook
-	ClientboundOpenScreen
-	ClientboundOpenSignEditor
-	ClientboundPing
-	ClientboundPlaceGhostRecipe
-	ClientboundPlayerAbilities
-	ClientboundPlayerChatHeader
-	ClientboundPlayerChat
-	ClientboundPlayerCombatEnd
-	ClientboundPlayerCombatEnter
-	ClientboundPlayerCombatKill
-	ClientboundPlayerInfo
-	ClientboundPlayerLookAt
-	ClientboundPlayerPosition
-	ClientboundRecipe
-	ClientboundRemoveEntities
-	ClientboundRemoveMobEffect
-	ClientboundResourcePack
-	ClientboundRespawn
-	ClientboundRotateHead
-	ClientboundSectionBlocksUpdate
-	ClientboundSelectAdvancementsTab
-	ClientboundServerData
-	ClientboundSetActionBarText
-	ClientboundSetBorderCenter
-	ClientboundSetBorderLerpSize
-	ClientboundSetBorderSize
-	ClientboundSetBorderWarningDelay
-	ClientboundSetBorderWarningDistance
-	ClientboundSetCamera
-	ClientboundSetCarriedItem
-	ClientboundSetChunkCacheCenter
-	ClientboundSetChunkCacheRadius
-	ClientboundSetDefaultSpawnPosition
-	ClientboundSetDisplayChatPreview
-	ClientboundSetDisplayObjective
-	ClientboundSetEntityData
-	ClientboundSetEntityLink
-	ClientboundSetEntityMotion
-	ClientboundSetEquipment
-	ClientboundSetExperience
-	ClientboundSetHealth
-	ClientboundSetObjective
-	ClientboundSetPassengers
-	ClientboundSetPlayerTeam
-	ClientboundSetScore
-	ClientboundSetSimulationDistance
-	ClientboundSetSubtitleText
-	ClientboundSetTime
-	ClientboundSetTitleText
-	ClientboundSetTitlesAnimation
-	ClientboundSoundEntity
-	ClientboundSound
-	ClientboundStopSound
-	ClientboundSystemChat
-	ClientboundTabList
-	ClientboundTagQuery
-	ClientboundTakeItemEntity
-	ClientboundTeleportEntity
-	ClientboundUpdateAdvancements
-	ClientboundUpdateAttributes
-	ClientboundUpdateMobEffect
-	ClientboundUpdateRecipes
-	ClientboundUpdateTags
+	SPacketLoginStart = iota
+	SPacketEncryptionResponse
+	SPacketLoginPluginResponse
 )
 
-// Game Serverbound
+// Play server -> client
 const (
-	ServerboundAcceptTeleportation = iota
-	ServerboundBlockEntityTagQuery
-	ServerboundChangeDifficulty
-	ServerboundChatAck
-	ServerboundChatCommand
-	ServerboundChat
-	ServerboundChatPreview
-	ServerboundClientCommand
-	ServerboundClientInformation
-	ServerboundCommandSuggestion
-	ServerboundContainerButtonClick
-	ServerboundContainerClick
-	ServerboundContainerClose
-	ServerboundCustomPayload
-	ServerboundEditBook
-	ServerboundEntityTagQuery
-	ServerboundInteract
-	ServerboundJigsawGenerate
-	ServerboundKeepAlive
-	ServerboundLockDifficulty
-	ServerboundMovePlayerPos
-	ServerboundMovePlayerPosRot
-	ServerboundMovePlayerRot
-	ServerboundMovePlayerStatusOnly
-	ServerboundMoveVehicle
-	ServerboundPaddleBoat
-	ServerboundPickItem
-	ServerboundPlaceRecipe
-	ServerboundPlayerAbilities
-	ServerboundPlayerAction
-	ServerboundPlayerCommand
-	ServerboundPlayerInput
-	ServerboundPong
-	ServerboundRecipeBookChangeSettings
-	ServerboundRecipeBookSeenRecipe
-	ServerboundRenameItem
-	ServerboundResourcePack
-	ServerboundSeenAdvancements
-	ServerboundSelectTrade
-	ServerboundSetBeacon
-	ServerboundSetCarriedItem
-	ServerboundSetCommandBlock
-	ServerboundSetCommandMinecart
-	ServerboundSetCreativeModeSlot
-	ServerboundSetJigsawBlock
-	ServerboundSetStructureBlock
-	ServerboundSignUpdate
-	ServerboundSwing
-	ServerboundTeleportToEntity
-	ServerboundUseItemOn
-	ServerboundUseItem
+	CPacketSpawnObject = iota
+	CPacketSpawnExperienceOrb
+	CPacketSpawnPlayer
+	CPacketSpawnEntity
+	CPacketAwardStats
+	CPacketAcknowledgeBlockChange
+	CPacketSetBlockDestroyStage
+	CPacketBlockEntityData
+	CPacketBlockAction
+	CPacketBlockUpdate
+	CPacketBossBar
+	CPacketServerDifficulty
+	CPacketChatPreview
+	CPacketClearTitles
+	CPacketCommandSuggestions
+	CPacketCommands
+	CPacketCloseContainer
+	CPacketSetContainerContent
+	CPacketSetContainerProperty
+	CPacketSetContainerSlot
+	CPacketSetCooldown
+	CPacketPluginMessage
+	CPacketCustomSoundEffect
+	CPacketDisconnect
+	CPacketEntityStatus
+	CPacketExplosion
+	CPacketUnloadChunk
+	CPacketChangeGameState
+	CPacketOpenHorseWindow
+	CPacketInitializeBorder
+	CPacketKeepAlive
+	CPacketChunkData
+	CPacketWorldEvent
+	CPacketParticles
+	CPacketUpdateLight
+	CPacketLogin
+	CPacketMapData
+	CPacketTradeList
+	CPacketEntityPosition
+	CPacketEntityPositionRotation
+	CPacketEntityRotation
+	CPacketVehicleMove
+	CPacketOpenBook
+	CPacketOpenContainer
+	CPacketOpenSignEditor
+	CPacketPing
+	CPacketGhostRecipe
+	CPacketPlayerAbilities
+	CPacketChatMessage
+	CPacketEndCombat
+	CPacketEnterCombat
+	CPacketCombatDeath
+	CPacketPlayerInfo
+	CPacketLookAt
+	CPacketSyncPosition
+	CPacketUpdateRecipeBook
+	CPacketRemoveEntities
+	CPacketRemoveEntityEffect
+	CPacketResourcePackSend
+	CPacketRespawn
+	CPacketEntityHeadLook
+	CPacketUpdateSectionBlock
+	CPacketSelectAdvancementTab
+	CPacketServerData
+	CPacketSetActionBarText
+	CPacketSetBorderCenter
+	CPacketSetBorderLerpSize
+	CPacketSetBorderSize
+	CPacketSetBorderWarningDelay
+	CPacketSetBorderWarningDistance
+	CPacketSetCamera
+	CPacketSetHeldItem
+	CPlayerSetCenterChunk
+	CPacketSetRenderDistance
+	CPacketSetSpawnPosition
+	CPacketSetDisplayChat
+	CPacketDisplayObjective
+	CPacketSetEntityMetadata
+	CPacketLinkEntities
+	CPacketEntityVelocity
+	CPacketSetEquipment
+	CPacketSetExperience
+	CPacketUpdateHealth
+	CPacketScoreboardObjective
+	CPacketSetPassengers
+	CPacketSetPlayerTeam
+	CPacketSetScore
+	CPacketSetSimulationDistance
+	CPacketSetSubtitleText
+	CPacketSetTime
+	CPacketSetTitleText
+	CPacketSetTitlesAnimation
+	CPacketEntitySoundEffect
+	CPacketSoundEffect
+	CPacketStopSound
+	CPacketSystemMessage
+	CPacketSetTabList
+	CPacketTagQueryResponse
+	CPacketPickupItem
+	CPacketTeleportEntity
+	CPacketUpdateAdvancements
+	CPacketUpdateAttributes
+	CPacketEntityEffect
+	CPacketUpdateRecipes
+	CPacketSetTags
+)
+
+// Play client -> server
+const (
+	SPacketTeleportConfirm = iota
+	SPacketQueryBlockEntityTag
+	SPacketSetDifficulty
+	SPacketChatCommand
+	SPacketChatMessage
+	SPacketChatPreview
+	SPacketClientCommand
+	SPacketClientSettings
+	SPacketCommandSuggestion
+	SPacketClickWindowButton
+	SPacketClickWindow
+	SPacketCloseWindow
+	SPacketPluginMessage
+	SPacketEditBook
+	SPacketQueryEntityTag
+	SPacketInteract
+	SPacketJigsawGenerate
+	SPacketKeepAlive
+	SPacketLockDifficulty
+	SPacketPlayerPosition
+	SPacketPlayerPositionRotation
+	SPacketPlayerRotation
+	SPacketPlayerOnGround
+	SPacketMoveVehicle
+	SPacketPadddleBoat
+	SPacketPickItem
+	SPacketCraftRecipeRequest
+	SPacketPlayerAbilities
+	SPacketPlayerAction
+	SPacketPlayerCommand
+	SPacketPlayerInput
+	SPacketPong
+	SPacketChangeRecipeBookState
+	SPacketSetSeenRecipe
+	SPacketRenameItem
+	SPacketResourcePack
+	SPacketSelectTrade
+	SPacketSetBeaconEffect
+	SPacketSetHeldItem
+	SPacketSetCommandBlock
+	SPacketSetCommandMinecart
+	SPacketSetCreativeModeSlot
+	SPacketSetJigsawBlock
+	SPacketSetStructureBlock
+	SPacketSetSign
+	SPacketSwingArm
+	SPacketTeleportToEntity
+	SPacketUseItemOn
+	SPacketUseItem
 )

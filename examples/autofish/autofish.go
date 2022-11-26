@@ -7,7 +7,6 @@ import (
 	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -18,7 +17,7 @@ const timeout = 45
 
 var (
 	c *bot.Client
-	p *basic.Player
+	p *bot.Player
 
 	watch chan time.Time
 )
@@ -26,10 +25,10 @@ var (
 func main() {
 	//log.SetOutput(colorable.NewColorableStdout()) // optional for colorable output
 	c = bot.NewClient()
-	p = basic.NewPlayer(c, basic.DefaultSettings)
+	p = bot.NewPlayer(c, bot.DefaultSettings)
 
 	//Register event handlers
-	basic.EventsListener{
+	bot.EventsListener{
 		GameStart:  onGameStart,
 		ChatMsg:    onChatMsg,
 		SystemMsg:  onSystemMsg,
@@ -107,7 +106,7 @@ func onSound(id int, category int, x, y, z float64, volume, pitch float32) error
 	return nil
 }
 
-func onChatMsg(c *basic.PlayerMessage) error {
+func onChatMsg(c *bot.PlayerMessage) error {
 	log.Println("Chat:", c.SignedMessage)
 	return nil
 }

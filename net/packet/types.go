@@ -3,11 +3,11 @@ package packet
 import (
 	"bytes"
 	"errors"
+	"github.com/Tnze/go-mc/bot/maths"
+	"github.com/Tnze/go-mc/nbt"
 	"github.com/google/uuid"
 	"io"
 	"math"
-
-	"github.com/Tnze/go-mc/nbt"
 )
 
 // A Field is both FieldEncoder and FieldDecoder
@@ -57,9 +57,7 @@ type (
 	VarLong int64
 
 	//Position x as a 26-bit integer, followed by y as a 12-bit integer, followed by z as a 26-bit integer (all signed, two's complement)
-	Position struct {
-		X, Y, Z int
-	}
+	Position maths.Vec3d
 
 	//Angle is rotation angle in steps of 1/256 of a full turn
 	Angle Byte
@@ -319,7 +317,7 @@ func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 
 func (p Position) WriteTo(w io.Writer) (n int64, err error) {
 	var b [8]byte
-	position := uint64(p.X&0x3FFFFFF)<<38 | uint64((p.Z&0x3FFFFFF)<<12) | uint64(p.Y&0xFFF)
+	position := uint64(int(p.X)&0x3FFFFFF)<<38 | uint64((int(p.Z)&0x3FFFFFF)<<12) | uint64(int(p.Y)&0xFFF)
 	for i := 7; i >= 0; i-- {
 		b[i] = byte(position)
 		position >>= 8
@@ -340,7 +338,6 @@ func (p *Position) ReadFrom(r io.Reader) (n int64, err error) {
 	y := int(v & 0xFFF)
 	z := int(v << 26 >> 38)
 
-	//处理负数
 	if x >= 1<<25 {
 		x -= 1 << 26
 	}
@@ -351,7 +348,7 @@ func (p *Position) ReadFrom(r io.Reader) (n int64, err error) {
 		z -= 1 << 26
 	}
 
-	p.X, p.Y, p.Z = x, y, z
+	p.X, p.Y, p.Z = float32(x), float32(y), float32(z)
 	return
 }
 
@@ -467,6 +464,10 @@ func (u UUID) WriteTo(w io.Writer) (n int64, err error) {
 func (u *UUID) ReadFrom(r io.Reader) (n int64, err error) {
 	nn, err := io.ReadFull(r, (*u)[:])
 	return int64(nn), err
+}
+
+func (u UUID) String() string {
+	return (uuid.UUID)(u).String()
 }
 
 func (p *PluginMessageData) WriteTo(w io.Writer) (n int64, err error) {
