@@ -71,7 +71,7 @@ const (
 	CPacketOpenHorseWindow
 	CPacketInitializeBorder
 	CPacketKeepAlive
-	CPacketChunkData // This is the most frustrating packet to work with in the entire protocol. It's a mess. I want to kys.
+	CPacketChunkData
 	CPacketWorldEvent
 	CPacketParticles
 	CPacketUpdateLight
