@@ -80,12 +80,12 @@ func Array(ary any) Field {
 }
 
 type Opt struct {
-	Has   interface{} // Pointer of bool, or `func() bool`
-	Field interface{} // FieldEncoder, FieldDecoder or both (Field)
+	If    interface{} // Pointer of bool, or `func() bool`
+	Value interface{} // FieldEncoder, FieldDecoder or both (Field)
 }
 
 func (o Opt) has() bool {
-	v := reflect.ValueOf(o.Has)
+	v := reflect.ValueOf(o.If)
 	for {
 		switch v.Kind() {
 		case reflect.Ptr:
@@ -95,21 +95,21 @@ func (o Opt) has() bool {
 		case reflect.Func:
 			return v.Interface().(func() bool)()
 		default:
-			panic(errors.New("unsupported Has value"))
+			panic(errors.New("unsupported If value"))
 		}
 	}
 }
 
 func (o Opt) WriteTo(w io.Writer) (int64, error) {
 	if o.has() {
-		return o.Field.(FieldEncoder).WriteTo(w)
+		return o.Value.(FieldEncoder).WriteTo(w)
 	}
 	return 0, nil
 }
 
 func (o Opt) ReadFrom(r io.Reader) (int64, error) {
 	if o.has() {
-		return o.Field.(FieldDecoder).ReadFrom(r)
+		return o.Value.(FieldDecoder).ReadFrom(r)
 	}
 	return 0, nil
 }

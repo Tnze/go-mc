@@ -9,7 +9,6 @@ import (
 	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/chat"
 )
 
@@ -36,7 +35,7 @@ func main() {
 type individual struct {
 	id     int
 	client *bot.Client
-	player *basic.Player
+	player *bot.Player
 }
 
 func newIndividual(id int, name string) (i *individual) {
@@ -44,8 +43,8 @@ func newIndividual(id int, name string) (i *individual) {
 	i.id = id
 	i.client = bot.NewClient()
 	i.client.Auth.Name = name
-	i.player = basic.NewPlayer(i.client, basic.DefaultSettings)
-	basic.EventsListener{
+	i.player = bot.NewPlayer(i.client, bot.DefaultSettings)
+	bot.EventsListener{
 		GameStart:  i.onGameStart,
 		Disconnect: onDisconnect,
 	}.Attach(i.client)

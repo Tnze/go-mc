@@ -103,7 +103,7 @@ func TestVarLong_ReadFrom(t *testing.T) {
 var testJoinGameData []byte
 
 func ExamplePacket_Scan_joinGame() {
-	p := pk.Packet{ID: 0x24, Data: testJoinGameData}
+	p := pk.Packet{ID: 0x23, Data: testJoinGameData}
 	var (
 		EID            pk.Int
 		Hardcore       pk.Boolean
@@ -135,7 +135,7 @@ func ExamplePacket_Scan_joinGame() {
 		&ViewDistance,
 		&RDI, &ERS, &IsDebug, &IsFlat,
 	)
-	fmt.Print(err)
+	fmt.Println(err)
 	// Output: <nil>
 }
 
@@ -156,7 +156,7 @@ func ExampleMarshal_setSlot() {
 			pk.Byte(pf.WindowID),
 			pk.Short(pf.Slot),
 			pk.Boolean(pf.Present),
-			pk.Opt{Has: pf.Present, Field: pk.Tuple{
+			pk.Opt{If: pf.Present, Value: pk.Tuple{
 				pk.VarInt(pf.ItemID),
 				pk.Byte(pf.ItemCount),
 				pf.NBT,

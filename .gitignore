@@ -20,3 +20,4 @@ examples/genmaps/*.png
 data/packetid/generate.go
 .idea/
 .vscode/
+.github

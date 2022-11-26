@@ -11,8 +11,6 @@ import (
 	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
-	"github.com/Tnze/go-mc/bot/basic"
-	"github.com/Tnze/go-mc/bot/screen"
 	_ "github.com/Tnze/go-mc/data/lang/zh-cn"
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -20,15 +18,15 @@ import (
 
 var address = flag.String("address", "127.0.0.1", "The server address")
 var client *bot.Client
-var player *basic.Player
-var screenManager *screen.Manager
+var player *bot.Player
+var screenManager *bot.Manager
 
 func main() {
 	flag.Parse()
 	//log.SetOutput(colorable.NewColorableStdout())
 	client = bot.NewClient()
 	client.Auth.Name = "Daze"
-	player = basic.NewPlayer(client, basic.DefaultSettings)
+	player = bot.NewPlayer(client, bot.DefaultSettings)
 	client.Events.AddListener(bot.PacketHandler{
 		ID:       packetid.ClientboundCommands,
 		Priority: 50,
@@ -77,20 +75,20 @@ func (n Node) ReadFrom(r io.Reader) (int64, error) {
 		&Flags,
 		pk.Array(&Children),
 		pk.Opt{
-			Has:   func() bool { return Flags&0x08 != 0 },
-			Field: &Redirect,
+			If:    func() bool { return Flags&0x08 != 0 },
+			Value: &Redirect,
 		},
 		pk.Opt{
-			Has:   func() bool { return Flags&0x03 == 2 || Flags&0x03 == 1 },
-			Field: &Name,
+			If:    func() bool { return Flags&0x03 == 2 || Flags&0x03 == 1 },
+			Value: &Name,
 		},
 		pk.Opt{
-			Has:   func() bool { return Flags&0x03 == 2 },
-			Field: pk.Tuple{&Parser, &Properties},
+			If:    func() bool { return Flags&0x03 == 2 },
+			Value: pk.Tuple{&Parser, &Properties},
 		},
 		pk.Opt{
-			Has:   func() bool { return Flags&0x10 != 0 },
-			Field: &SuggestionsType,
+			If:    func() bool { return Flags&0x10 != 0 },
+			Value: &SuggestionsType,
 		},
 	}.ReadFrom(r)
 	if err != nil {
@@ -120,29 +118,29 @@ func (p Prop) ReadFrom(r io.Reader) (int64, error) {
 		var Min, Max pk.Double
 		return pk.Tuple{
 			&Flags,
-			pk.Opt{Has: func() bool { return Flags&0x01 != 0 }, Field: &Min},
-			pk.Opt{Has: func() bool { return Flags&0x02 != 0 }, Field: &Max},
+			pk.Opt{If: func() bool { return Flags&0x01 != 0 }, Value: &Min},
+			pk.Opt{If: func() bool { return Flags&0x02 != 0 }, Value: &Max},
 		}.ReadFrom(r)
 	case "brigadier:float":
 		var Min, Max pk.Float
 		return pk.Tuple{
 			&Flags,
-			pk.Opt{Has: func() bool { return Flags&0x01 != 0 }, Field: &Min},
-			pk.Opt{Has: func() bool { return Flags&0x02 != 0 }, Field: &Max},
+			pk.Opt{If: func() bool { return Flags&0x01 != 0 }, Value: &Min},
+			pk.Opt{If: func() bool { return Flags&0x02 != 0 }, Value: &Max},
 		}.ReadFrom(r)
 	case "brigadier:integer":
 		var Min, Max pk.Int
 		return pk.Tuple{
 			&Flags,
-			pk.Opt{Has: func() bool { return Flags&0x01 != 0 }, Field: &Min},
-			pk.Opt{Has: func() bool { return Flags&0x02 != 0 }, Field: &Max},
+			pk.Opt{If: func() bool { return Flags&0x01 != 0 }, Value: &Min},
+			pk.Opt{If: func() bool { return Flags&0x02 != 0 }, Value: &Max},
 		}.ReadFrom(r)
 	case "brigadier:long":
 		var Min, Max pk.Long
 		return pk.Tuple{
 			&Flags,
-			pk.Opt{Has: func() bool { return Flags&0x01 != 0 }, Field: &Min},
-			pk.Opt{Has: func() bool { return Flags&0x02 != 0 }, Field: &Max},
+			pk.Opt{If: func() bool { return Flags&0x01 != 0 }, Value: &Min},
+			pk.Opt{If: func() bool { return Flags&0x02 != 0 }, Value: &Max},
 		}.ReadFrom(r)
 	case "brigadier:string":
 		return new(pk.VarInt).ReadFrom(r)

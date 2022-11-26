@@ -12,12 +12,13 @@ func (c *Client) HandleGame() error {
 	for {
 		//Read packets
 		if err := c.Conn.ReadPacket(&p); err != nil {
+			fmt.Printf("read packet error %x: %v", p.ID, err)
 			return err
 		}
 
 		//handle packets
-		err := c.handlePacket(p)
-		if err != nil {
+		if err := c.handlePacket(p); err != nil {
+			fmt.Println("handle packet error:", err)
 			return err
 		}
 	}
@@ -39,15 +40,14 @@ func (d PacketHandlerError) Unwrap() error {
 func (c *Client) handlePacket(p pk.Packet) (err error) {
 	if c.Events.generic != nil {
 		for _, handler := range *c.Events.generic {
-			if err = handler.F(p); err != nil {
+			if err = handler.F(c, p); err != nil {
 				return PacketHandlerError{ID: p.ID, Err: err}
 			}
 		}
 	}
 	if listeners := c.Events.handlers[p.ID]; listeners != nil {
 		for _, handler := range *listeners {
-			err = handler.F(p)
-			if err != nil {
+			if err = handler.F(c, p); err != nil {
 				return PacketHandlerError{ID: p.ID, Err: err}
 			}
 		}

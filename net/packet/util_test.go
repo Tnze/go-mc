@@ -112,7 +112,7 @@ func ExampleOpt_ReadFrom() {
 	if err := p1.Scan(
 		&has,
 		pk.Opt{
-			Has: &has, Field: &data,
+			If: &has, Value: &data,
 		},
 	); err != nil {
 		panic(err)
@@ -126,7 +126,7 @@ func ExampleOpt_ReadFrom() {
 	}}
 	if err := p2.Scan(
 		&has,
-		pk.Opt{Has: &has, Field: &data2},
+		pk.Opt{If: &has, Value: &data2},
 	); err != nil {
 		panic(err)
 	}
@@ -156,10 +156,10 @@ func ExampleOpt_ReadFrom_func() {
 	if err := p.Scan(
 		&flag,
 		pk.Opt{
-			Has: func() bool {
+			If: func() bool {
 				return flag&1 != 0
 			},
-			Field: &data,
+			Value: &data,
 		},
 	); err != nil {
 		panic(err)
@@ -178,8 +178,8 @@ func ExampleTuple_ReadFrom() {
 	if err := p.Scan(
 		&has,
 		pk.Opt{
-			Has: &has,
-			Field: pk.Tuple{
+			If: &has,
+			Value: pk.Tuple{
 				pk.Ary[pk.Int]{Ary: &ary},
 			},
 		},

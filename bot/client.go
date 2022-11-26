@@ -1,9 +1,11 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/bot/basic"
+	"github.com/Tnze/go-mc/bot/maths"
+	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/yggdrasil/user"
-	"github.com/google/uuid"
 )
 
 // Client is used to access Minecraft server
@@ -12,11 +14,13 @@ type Client struct {
 	Auth    Auth
 	KeyPair user.KeyPairResp
 
-	Name string
-	UUID uuid.UUID
+	World  *world.World
+	Player *Player
+	TPS    *maths.TpsCalculator
 
-	Events      Events
-	LoginPlugin map[string]func(data []byte) ([]byte, error)
+	EventHandlers EventsListener
+	Events        Events
+	LoginPlugin   map[string]func(data []byte) ([]byte, error)
 }
 
 func (c *Client) Close() error {
@@ -31,13 +35,12 @@ func (c *Client) Close() error {
 // For online-mode, you need login your Mojang account
 // and load your Name, UUID and AccessToken to client.
 func NewClient() *Client {
-	return &Client{
+	c := &Client{
 		Auth:   Auth{Name: "Steve"},
 		Events: Events{handlers: make(map[int32]*handlerHeap)},
 	}
-}
-
-// Position is a 3D vector.
-type Position struct {
-	X, Y, Z int
+	c.Player = NewPlayer(c, basic.DefaultSettings)
+	c.World = world.NewWorld()
+	c.TPS = new(maths.TpsCalculator)
+	return c
 }

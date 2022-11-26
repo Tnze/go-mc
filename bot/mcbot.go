@@ -18,11 +18,10 @@ import (
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/yggdrasil/user"
-	"github.com/google/uuid"
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
-const ProtocolVersion = 760
+const ProtocolVersion = 759
 const DefaultPort = mcnet.DefaultPort
 
 // JoinServer connect a Minecraft server for playing the game.
@@ -67,31 +66,23 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	// Handshake
 	err = c.Conn.WritePacket(pk.Marshal(
 		Handshake,
-		pk.VarInt(ProtocolVersion), // Protocol version
-		pk.String(host),            // Host
-		pk.UnsignedShort(port),     // Port
-		pk.Byte(2),
+		pk.VarInt(ProtocolVersion),
+		pk.String(host),
+		pk.UnsignedShort(port),
+		pk.VarInt(2),
 	))
 	if err != nil {
 		return LoginErr{"handshake", err}
 	}
 	// Login Start
 	c.KeyPair, err = user.GetOrFetchKeyPair(c.Auth.AsTk)
-	HasSignature := err == nil
-	c.UUID, err = uuid.Parse(c.Auth.UUID)
-	HasPlayerUUID := err == nil
 	err = c.Conn.WritePacket(pk.Marshal(
-		packetid.LoginStart,
+		packetid.SPacketLoginStart,
 		pk.String(c.Auth.Name),
-		pk.Boolean(HasSignature),
+		pk.Boolean(err == nil),
 		pk.Opt{
-			Has:   HasSignature,
-			Field: keyPair(c.KeyPair),
-		},
-		pk.Boolean(HasPlayerUUID),
-		pk.Opt{
-			Has:   HasPlayerUUID,
-			Field: pk.UUID(c.UUID),
+			If:    err == nil,
+			Value: keyPair(c.KeyPair),
 		},
 	))
 	if err != nil {
@@ -106,7 +97,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 
 		//Handle Packet
 		switch p.ID {
-		case packetid.LoginDisconnect: //LoginDisconnect
+		case packetid.CPacketLoginDisconnect:
 			var reason chat.Message
 			err = p.Scan(&reason)
 			if err != nil {
@@ -114,29 +105,29 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			}
 			return LoginErr{"disconnect", DisconnectErr(reason)}
 
-		case packetid.LoginEncryptionRequest: //Encryption Request
+		case packetid.CPacketEncryptionRequest:
 			if err := handleEncryptionRequest(c, p); err != nil {
 				return LoginErr{"encryption", err}
 			}
 
-		case packetid.LoginSuccess: //Login Success
+		case packetid.CPacketLoginSuccess:
 			err := p.Scan(
-				(*pk.UUID)(&c.UUID),
-				(*pk.String)(&c.Name),
+				(*pk.UUID)(&c.Player.UUID),
+				(*pk.String)(&c.Player.DisplayName),
 			)
 			if err != nil {
 				return LoginErr{"login success", err}
 			}
 			return nil
 
-		case packetid.LoginCompression: //Set Compression
+		case packetid.CPacketSetCompression:
 			var threshold pk.VarInt
 			if err := p.Scan(&threshold); err != nil {
 				return LoginErr{"compression", err}
 			}
 			c.Conn.SetThreshold(int(threshold))
 
-		case packetid.LoginPluginRequest: //Login Plugin Request
+		case packetid.CPacketPluginMessage:
 			var (
 				msgid   pk.VarInt
 				channel pk.Identifier
@@ -155,9 +146,9 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			}
 
 			if err := c.Conn.WritePacket(pk.Marshal(
-				packetid.LoginPluginResponse,
+				packetid.CPacketPluginMessage,
 				msgid, pk.Boolean(ok),
-				pk.Opt{Has: ok, Field: data},
+				pk.Opt{If: ok, Value: data},
 			)); err != nil {
 				return LoginErr{"login Plugin", err}
 			}

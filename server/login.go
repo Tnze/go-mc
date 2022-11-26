@@ -2,7 +2,6 @@ package server
 
 import (
 	"fmt"
-
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
@@ -52,7 +51,7 @@ type MojangLoginHandler struct {
 
 // AcceptLogin implement LoginHandler for MojangLoginHandler
 func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *auth.PublicKey, properties []auth.Property, err error) {
-	// login start
+	//login start
 	var p pk.Packet
 	err = conn.ReadPacket(&p)
 	if err != nil {
@@ -63,23 +62,15 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		return
 	}
 
-	var (
-		hasPubKey   pk.Boolean
-		pubKey      auth.PublicKey
-		hasUUID     pk.Boolean
-		profileUUID pk.UUID // ignored
-	)
+	var hasPubKey pk.Boolean
+	var pubKey auth.PublicKey
 	err = p.Scan(
-		(*pk.String)(&name), // decode username as pk.String
+		(*pk.String)(&name),
 		&hasPubKey, pk.Opt{
-			Has:   &hasPubKey,
-			Field: &pubKey,
+			If:    &hasPubKey,
+			Value: &pubKey,
 		},
-		&hasUUID, pk.Opt{
-			Has:   &hasUUID,
-			Field: &profileUUID,
-		},
-	)
+	) //decode username as pk.String
 	if err != nil {
 		return
 	}
@@ -95,10 +86,10 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		return
 	}
 
-	// auth
+	//auth
 	if d.OnlineMode {
 		var resp *auth.Resp
-		// Auth, Encrypt
+		//Auth, Encrypt
 		resp, err = auth.Encrypt(conn, name, pubKey.PubKey)
 		if err != nil {
 			return
@@ -111,7 +102,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		id = offline.NameToUUID(name)
 	}
 
-	// set compression
+	//set compression
 	if d.Threshold >= 0 {
 		err = conn.WritePacket(pk.Marshal(
 			packetid.LoginCompression,
