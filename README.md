@@ -6,6 +6,8 @@
 [![Build Status](https://travis-ci.org/Tnze/go-mc.svg?branch=master)](https://travis-ci.org/Tnze/go-mc)
 [![Discord](https://img.shields.io/discord/915805561138860063?label=Discord)](https://discord.gg/A4qh8BT8Ue)
 
+### [教程 · Tutorial](https://github.com/go-mc/tutorial)
+
 Require Go version: 1.18
 
 There's some library in Go support you to create your Minecraft client or server.  
