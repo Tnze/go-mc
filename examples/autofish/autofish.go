@@ -8,7 +8,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
-	botchat "github.com/Tnze/go-mc/bot/chat"
+	"github.com/Tnze/go-mc/bot/msg"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -20,7 +20,7 @@ const timeout = 45
 var (
 	c  *bot.Client
 	p  *basic.Player
-	bc *botchat.Chat
+	bc *msg.Manager
 
 	watch chan time.Time
 )
@@ -34,7 +34,7 @@ func main() {
 		Disconnect: onDisconnect,
 		Death:      onDeath,
 	})
-	bc = botchat.NewChat(c, p, botchat.EventsHandler{PlayerChatMessage: onChatMsg})
+	bc = msg.New(c, p, msg.EventsHandler{PlayerChatMessage: onChatMsg})
 
 	// Register event handlers
 

@@ -12,7 +12,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
-	botchat "github.com/Tnze/go-mc/bot/chat"
+	"github.com/Tnze/go-mc/bot/msg"
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/chat"
@@ -31,7 +31,7 @@ var (
 var (
 	client        *bot.Client
 	player        *basic.Player
-	chatHandler   *botchat.Chat
+	chatHandler   *msg.Manager
 	worldManager  *world.World
 	screenManager *screen.Manager
 )
@@ -52,7 +52,7 @@ func main() {
 		HealthChange: onHealthChange,
 		Death:        onDeath,
 	})
-	chatHandler = botchat.NewChat(client, player, botchat.EventsHandler{
+	chatHandler = msg.New(client, player, msg.EventsHandler{
 		PlayerChatMessage: onPlayerMsg,
 	})
 	worldManager = world.NewWorld(client, player, world.EventsListener{

@@ -1,4 +1,4 @@
-package chat
+package msg
 
 import "github.com/Tnze/go-mc/chat"
 

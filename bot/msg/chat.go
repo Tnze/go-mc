@@ -1,4 +1,4 @@
-package chat
+package msg
 
 import (
 	"fmt"
@@ -13,14 +13,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type Chat struct {
+type Manager struct {
 	c *bot.Client
 	p *basic.Player
 }
 
-func NewChat(c *bot.Client, p *basic.Player, events EventsHandler) *Chat {
+func New(c *bot.Client, p *basic.Player, events EventsHandler) *Manager {
 	attachPlayerMsg(c, p, events.PlayerChatMessage)
-	return &Chat{c, p}
+	return &Manager{c, p}
 }
 
 func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Message) error) {
