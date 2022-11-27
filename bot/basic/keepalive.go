@@ -5,7 +5,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-func (p Player) handleKeepAlivePacket(packet pk.Packet) error {
+func (p *Player) handleKeepAlivePacket(packet pk.Packet) error {
 	var KeepAliveID pk.Long
 	if err := packet.Scan(&KeepAliveID); err != nil {
 		return Error{err}
