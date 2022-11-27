@@ -1,6 +1,7 @@
 package core
 
 import (
+	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/data/effects"
 	"github.com/Tnze/go-mc/data/item"
 )
@@ -87,4 +88,18 @@ func (e *EntityLiving) SetHealth(health float32) bool {
 		return true
 	}
 	return false
+}
+
+/*
+GetEyePos
+
+	@param partialTicks (float32) - the partial ticks
+	@return Vec3d - the position of the entity's eyes
+*/
+func (e *EntityLiving) GetEyePos() maths.Vec3d {
+	return maths.Vec3d{
+		X: e.Position.X,
+		Y: e.Position.Y + 1.62,
+		Z: e.Position.Z,
+	}
 }

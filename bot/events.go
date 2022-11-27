@@ -925,7 +925,7 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 	}
 
 	position := maths.Vec3d{X: float32(X), Y: float32(Y), Z: float32(Z)}
-	rotation := maths.Vec2d{X: float32(Yaw), Y: float32(Pitch)}
+	rotation := maths.Vec2d{X: float32(Pitch), Y: float32(Yaw)}
 
 	if Flags&0x01 != 0 {
 		c.Player.Position = c.Player.Position.Add(position)
@@ -933,6 +933,12 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 	} else {
 		c.Player.Position = position
 		c.Player.Rotation = rotation
+	}
+	result, err := c.World.RayTrace(c.Player.Rotation, c.Player.GetEyePos(), 5)
+	if err != nil {
+		fmt.Println(err)
+	} else {
+		fmt.Println(result.Block)
 	}
 	fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
 	return nil

@@ -13,6 +13,10 @@ func ToDegrees(angle float64) float64 {
 	return angle * 180.0 / math.Pi
 }
 
+func ToRadians(angle float64) float64 {
+	return angle * math.Pi / 180.0
+}
+
 func normalizeAngle[T float32 | float64](angle T) T {
 	angle = floatRemaining(angle, 360)
 	switch {

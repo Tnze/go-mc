@@ -43,3 +43,20 @@ func (v Vec3d) DivScalar(scalar float32) Vec3d {
 func (v Vec3d) DistanceTo(vec3d Vec3d) float32 {
 	return float32(math.Sqrt(math.Pow(float64(v.X-vec3d.X), 2) + math.Pow(float64(v.Y-vec3d.Y), 2) + math.Pow(float64(v.Z-vec3d.Z), 2)))
 }
+
+func (v Vec3d) Center() Vec3d {
+	return Vec3d{X: v.X + 0.5, Y: v.Y + 0.5, Z: v.Z + 0.5}
+}
+
+func (v Vec3d) Floor() Vec3d {
+	return Vec3d{X: float32(math.Floor(float64(v.X))), Y: float32(math.Floor(float64(v.Y))), Z: float32(math.Floor(float64(v.Z)))}
+}
+
+func (v Vec3d) Length() float32 {
+	return float32(math.Sqrt(float64(v.X*v.X + v.Y*v.Y + v.Z*v.Z)))
+}
+
+func (v Vec3d) Normalize() Vec3d {
+	length := v.Length()
+	return Vec3d{X: v.X / length, Y: v.Y / length, Z: v.Z / length}
+}

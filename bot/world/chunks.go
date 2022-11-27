@@ -2,8 +2,10 @@ package world
 
 import (
 	"fmt"
+	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	. "github.com/Tnze/go-mc/level"
+	block2 "github.com/Tnze/go-mc/level/block"
 )
 
 type World struct {
@@ -27,6 +29,32 @@ func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, error) {
 	} else {
 		return -1, fmt.Errorf("chunk not loaded")
 	}
+}
+
+func (w *World) RayTrace(rotation maths.Vec2d, eyePos maths.Vec3d, maxDistance float32) (core.RayTraceResult, error) {
+	if eyePos == maths.NullVec3d {
+		return core.RayTraceResult{}, fmt.Errorf("eyePos is null")
+	}
+	if maxDistance <= 0 {
+		return core.RayTraceResult{}, fmt.Errorf("maxDistance is negative")
+	}
+
+	for _, pos := range maths.RayTraceBlocks(rotation, eyePos, maxDistance) {
+		block, err := w.GetBlock(pos)
+		if err != nil {
+			return core.RayTraceResult{}, err
+		}
+		if block2.IsAir(block) {
+			continue
+		}
+		return core.RayTraceResult{
+			Position: pos,
+			Side:     core.GetClosestFacing(eyePos, pos),
+			Block:    block2.StateList[block],
+		}, nil
+	}
+
+	return core.RayTraceResult{}, fmt.Errorf("no block found")
 }
 
 /*func (w *World) onPlayerSpawn(pk.Packet) error {
