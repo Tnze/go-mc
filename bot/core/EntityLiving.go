@@ -6,6 +6,9 @@ import (
 	"github.com/Tnze/go-mc/data/item"
 )
 
+var EyePosVec = maths.Vec3d{Y: 1.62}
+var EyePos = float32(1.62)
+
 type EntityLiving struct {
 	*Entity
 	health                  float32
@@ -97,9 +100,5 @@ GetEyePos
 	@return Vec3d - the position of the entity's eyes
 */
 func (e *EntityLiving) GetEyePos() maths.Vec3d {
-	return maths.Vec3d{
-		X: e.Position.X,
-		Y: e.Position.Y + 1.62,
-		Z: e.Position.Z,
-	}
+	return e.Position.Add(EyePosVec)
 }

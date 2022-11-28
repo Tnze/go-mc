@@ -6,6 +6,7 @@ import (
 	"github.com/Tnze/go-mc/bot/maths"
 	. "github.com/Tnze/go-mc/level"
 	block2 "github.com/Tnze/go-mc/level/block"
+	"math"
 )
 
 type World struct {
@@ -31,15 +32,15 @@ func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, error) {
 	}
 }
 
-func (w *World) RayTrace(rotation maths.Vec2d, eyePos maths.Vec3d, maxDistance float32) (core.RayTraceResult, error) {
-	if eyePos == maths.NullVec3d {
-		return core.RayTraceResult{}, fmt.Errorf("eyePos is null")
+func (w *World) RayTrace(start, end maths.Vec3d) (core.RayTraceResult, error) {
+	if start == maths.NullVec3d {
+		return core.RayTraceResult{}, fmt.Errorf("start is null")
 	}
-	if maxDistance <= 0 {
-		return core.RayTraceResult{}, fmt.Errorf("maxDistance is negative")
+	if end == maths.NullVec3d {
+		return core.RayTraceResult{}, fmt.Errorf("end is null")
 	}
 
-	for _, pos := range maths.RayTraceBlocks(rotation, eyePos, maxDistance) {
+	for _, pos := range maths.RayTraceBlocks(start, end) {
 		block, err := w.GetBlock(pos)
 		if err != nil {
 			return core.RayTraceResult{}, err
@@ -49,12 +50,65 @@ func (w *World) RayTrace(rotation maths.Vec2d, eyePos maths.Vec3d, maxDistance f
 		}
 		return core.RayTraceResult{
 			Position: pos,
-			Side:     core.GetClosestFacing(eyePos, pos),
+			Side:     core.GetClosestFacing(start, pos),
 			Block:    block2.StateList[block],
 		}, nil
 	}
 
 	return core.RayTraceResult{}, fmt.Errorf("no block found")
+}
+
+func (w *World) GetBlockDensity(pos maths.Vec3d, bb core.AxisAlignedBB) float32 {
+	d0 := 1.0 / ((bb.MaxX-bb.MinX)*2.0 + 1.0)
+	d1 := 1.0 / ((bb.MaxY-bb.MinY)*2.0 + 1.0)
+	d2 := 1.0 / ((bb.MaxZ-bb.MinZ)*2.0 + 1.0)
+	d3 := (1.0 - math.Floor(1.0/d0)*d0) / 2.0
+	d4 := (1.0 - math.Floor(1.0/d2)*d2) / 2.0
+
+	if d0 >= 0.0 && d1 >= 0.0 && d2 >= 0.0 {
+		j2 := float32(0)
+		k2 := float32(0)
+
+		for f := 0.0; f <= 1.0; f += d0 {
+			for f1 := 0.0; f1 <= 1.0; f1 += d1 {
+				for f2 := 0.0; f2 <= 1.0; f2 += d2 {
+					d5 := bb.MinX + (bb.MaxX-bb.MinX)*f
+					d6 := bb.MinY + (bb.MaxY-bb.MinY)*f1
+					d7 := bb.MinZ + (bb.MaxZ-bb.MinZ)*f2
+
+					if result, err := w.RayTrace(maths.Vec3d{X: float32(d5 + d3), Y: float32(d6), Z: float32(d7 + d4)}, pos); result.Block == nil && err == nil {
+						j2++
+					}
+					k2++
+				}
+			}
+		}
+
+		return j2 / k2
+	}
+	return 0
+}
+
+func (w *World) IsAABBInMaterial(bb core.AxisAlignedBB) bool {
+	i := int32(math.Floor(float64(bb.MinX)))
+	j := int32(math.Floor(float64(bb.MaxX)))
+	k := int32(math.Floor(float64(bb.MinY)))
+	l := int32(math.Floor(float64(bb.MaxY)))
+	i1 := int32(math.Floor(float64(bb.MinZ)))
+	j1 := int32(math.Floor(float64(bb.MaxZ)))
+
+	for x := i; x <= j; x++ {
+		for y := k; y <= l; y++ {
+			for z := i1; z <= j1; z++ {
+				if block, err := w.GetBlock(maths.Vec3d{float32(x), float32(y), float32(z)}); err == nil {
+					if block2.StateList[block].ID() == "minecraft:water" { //TODO: fix this
+						return false
+					}
+				}
+			}
+		}
+	}
+	return true
 }
 
 /*func (w *World) onPlayerSpawn(pk.Packet) error {

@@ -1,6 +1,23 @@
 package maths
 
-import "math"
+import (
+	"math"
+)
+
+func ProjectPosition(rotation Vec2d, distance float32, head bool) Vec3d {
+	x := distance * float32(math.Sin(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.Y))))
+	y := float32(0)
+	if rotation.Y > 0 {
+		y = distance * float32(-math.Sin(ToRadians(float64(rotation.Y))))
+	} else {
+		y = distance * float32(math.Sin(ToRadians(float64(rotation.Y))))
+	}
+	z := distance * float32(math.Cos(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.X))))
+	if head {
+		y += 1.62
+	}
+	return Vec3d{X: x, Y: y, Z: z}
+}
 
 func GetRotationFromVector(vec Vec3d) Vec2d {
 	xz := math.Hypot(float64(vec.X), float64(vec.Z))
