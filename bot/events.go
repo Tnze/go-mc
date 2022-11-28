@@ -940,7 +940,7 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(result.String()) // Debug
+	fmt.Println(result)
 	fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
 	return nil
 }
