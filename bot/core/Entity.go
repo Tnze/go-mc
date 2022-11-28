@@ -1,12 +1,15 @@
 package core
 
-import "github.com/Tnze/go-mc/bot/maths"
+import (
+	"github.com/Tnze/go-mc/bot/maths"
+)
 
 type Entity struct {
 	Name                string
 	EntityID            int32
 	Position            maths.Vec3d
 	Rotation            maths.Vec2d
+	BoundingBox         AxisAlignedBB // TODO: Add bounding box
 	invulnerableDamages []DamageSource
 }
 

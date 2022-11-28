@@ -90,12 +90,12 @@ func (w *World) GetBlockDensity(pos maths.Vec3d, bb core.AxisAlignedBB) float32 
 }
 
 func (w *World) IsAABBInMaterial(bb core.AxisAlignedBB) bool {
-	i := int32(math.Floor(float64(bb.MinX)))
-	j := int32(math.Floor(float64(bb.MaxX)))
-	k := int32(math.Floor(float64(bb.MinY)))
-	l := int32(math.Floor(float64(bb.MaxY)))
-	i1 := int32(math.Floor(float64(bb.MinZ)))
-	j1 := int32(math.Floor(float64(bb.MaxZ)))
+	i := int32(math.Floor(bb.MinX))
+	j := int32(math.Floor(bb.MaxX))
+	k := int32(math.Floor(bb.MinY))
+	l := int32(math.Floor(bb.MaxY))
+	i1 := int32(math.Floor(bb.MinZ))
+	j1 := int32(math.Floor(bb.MaxZ))
 
 	for x := i; x <= j; x++ {
 		for y := k; y <= l; y++ {
