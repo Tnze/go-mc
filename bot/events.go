@@ -934,12 +934,13 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 		c.Player.Position = position
 		c.Player.Rotation = rotation
 	}
-	result, err := c.World.RayTrace(c.Player.Rotation, c.Player.GetEyePos(), 5)
+	start := c.Player.GetEyePos()
+	end := maths.ProjectPosition(c.Player.Rotation, 5, 1.62) // Relative to the player's eye position
+	result, err := c.World.RayTrace(start, start.Add(end))
 	if err != nil {
 		fmt.Println(err)
-	} else {
-		fmt.Println(result.Block)
 	}
+	fmt.Println(result.String()) // Debug
 	fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
 	return nil
 }

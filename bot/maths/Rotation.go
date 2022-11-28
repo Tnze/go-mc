@@ -4,7 +4,7 @@ import (
 	"math"
 )
 
-func ProjectPosition(rotation Vec2d, distance float32, head bool) Vec3d {
+func ProjectPosition(rotation Vec2d, distance float32, offsetY float32) Vec3d {
 	x := distance * float32(math.Sin(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.Y))))
 	y := float32(0)
 	if rotation.Y > 0 {
@@ -13,10 +13,7 @@ func ProjectPosition(rotation Vec2d, distance float32, head bool) Vec3d {
 		y = distance * float32(math.Sin(ToRadians(float64(rotation.Y))))
 	}
 	z := distance * float32(math.Cos(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.X))))
-	if head {
-		y += 1.62
-	}
-	return Vec3d{X: x, Y: y, Z: z}
+	return Vec3d{X: x, Y: y + offsetY, Z: z}
 }
 
 func GetRotationFromVector(vec Vec3d) Vec2d {
