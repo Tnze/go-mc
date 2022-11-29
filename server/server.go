@@ -60,11 +60,11 @@ func (s *Server) Listen(addr string) error {
 		if err != nil {
 			return err
 		}
-		go s.acceptConn(&conn)
+		go s.AcceptConn(&conn)
 	}
 }
 
-func (s *Server) acceptConn(conn *net.Conn) {
+func (s *Server) AcceptConn(conn *net.Conn) {
 	defer conn.Close()
 	protocol, intention, err := s.handshake(conn)
 	if err != nil {
