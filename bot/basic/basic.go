@@ -19,8 +19,6 @@
 //   - Disconnect
 //   - HealthChange
 //   - Death
-//
-// You must manually attach the [EventsListener] to the [Client] as needed.
 package basic
 
 import (
