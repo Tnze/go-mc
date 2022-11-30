@@ -1,5 +1,11 @@
 package chat
 
+import (
+	"io"
+
+	pk "github.com/Tnze/go-mc/net/packet"
+)
+
 type Decoration struct {
 	TranslationKey string   `nbt:"translation_key"`
 	Parameters     []string `nbt:"parameters"`
@@ -48,4 +54,47 @@ func (t *Type) Decorate(content Message, d *Decoration) (msg Message) {
 		Color:         d.Style.Color,
 		Insertion:     d.Style.Insertion,
 	}
+}
+
+func (t *Type) ReadFrom(r io.Reader) (n int64, err error) {
+	var hasTargetName pk.Boolean
+	n1, err := (*pk.VarInt)(&t.ID).ReadFrom(r)
+	if err != nil {
+		return n1, err
+	}
+	n2, err := t.SenderName.ReadFrom(r)
+	if err != nil {
+		return n1 + n2, err
+	}
+	n3, err := hasTargetName.ReadFrom(r)
+	if err != nil {
+		return n1 + n2 + n3, err
+	}
+	if hasTargetName {
+		t.TargetName = new(Message)
+		n4, err := t.TargetName.ReadFrom(r)
+		return n1 + n2 + n3 + n4, err
+	}
+	return n1 + n2 + n3, nil
+}
+
+func (t *Type) WriteTo(w io.Writer) (n int64, err error) {
+	hasTargetName := pk.Boolean(t.TargetName != nil)
+	n1, err := (*pk.VarInt)(&t.ID).WriteTo(w)
+	if err != nil {
+		return n1, err
+	}
+	n2, err := t.SenderName.WriteTo(w)
+	if err != nil {
+		return n1 + n2, err
+	}
+	n3, err := hasTargetName.WriteTo(w)
+	if err != nil {
+		return n1 + n2 + n3, err
+	}
+	if hasTargetName {
+		n4, err := t.TargetName.WriteTo(w)
+		return n1 + n2 + n3 + n4, err
+	}
+	return n1 + n2 + n3, nil
 }

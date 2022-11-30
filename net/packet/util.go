@@ -81,8 +81,8 @@ func Array(ary any) Field {
 }
 
 type Opt struct {
-	Has   interface{} // Pointer of bool, or `func() bool`
-	Field interface{} // FieldEncoder, FieldDecoder or both (Field)
+	Has   any // Pointer of bool, or `func() bool`
+	Field any // FieldEncoder, FieldDecoder, `func() FieldEncoder`, `func() FieldDecoder` or `func() Field`
 }
 
 func (o Opt) has() bool {
@@ -103,14 +103,32 @@ func (o Opt) has() bool {
 
 func (o Opt) WriteTo(w io.Writer) (int64, error) {
 	if o.has() {
-		return o.Field.(FieldEncoder).WriteTo(w)
+		switch field := o.Field.(type) {
+		case FieldEncoder:
+			return field.WriteTo(w)
+		case func() FieldEncoder:
+			return field().WriteTo(w)
+		case func() Field:
+			return field().WriteTo(w)
+		default:
+			panic("unsupported Field type: " + reflect.TypeOf(o.Field).String())
+		}
 	}
 	return 0, nil
 }
 
 func (o Opt) ReadFrom(r io.Reader) (int64, error) {
 	if o.has() {
-		return o.Field.(FieldDecoder).ReadFrom(r)
+		switch field := o.Field.(type) {
+		case FieldDecoder:
+			return field.ReadFrom(r)
+		case func() FieldDecoder:
+			return field().ReadFrom(r)
+		case func() Field:
+			return field().ReadFrom(r)
+		default:
+			panic("unsupported Field type: " + reflect.TypeOf(o.Field).String())
+		}
 	}
 	return 0, nil
 }
