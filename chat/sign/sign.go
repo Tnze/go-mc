@@ -2,7 +2,9 @@ package sign
 
 import (
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/binary"
+	"encoding/json"
 	"io"
 	"time"
 
@@ -12,18 +14,18 @@ import (
 )
 
 type MessageHeader struct {
-	Signature []byte
-	Sender    uuid.UUID
+	PrevSignature []byte
+	Sender        uuid.UUID
 }
 
 func (m *MessageHeader) WriteTo(w io.Writer) (n int64, err error) {
-	hasSignature := pk.Boolean(len(m.Signature) > 0)
+	hasSignature := pk.Boolean(len(m.PrevSignature) > 0)
 	n, err = hasSignature.WriteTo(w)
 	if err != nil {
 		return
 	}
 	if hasSignature {
-		n2, err := pk.ByteArray(m.Signature).WriteTo(w)
+		n2, err := pk.ByteArray(m.PrevSignature).WriteTo(w)
 		n += n2
 		if err != nil {
 			return n, err
@@ -40,7 +42,7 @@ func (m *MessageHeader) ReadFrom(r io.Reader) (n int64, err error) {
 		return
 	}
 	if hasSignature {
-		n2, err := (*pk.ByteArray)(&m.Signature).ReadFrom(r)
+		n2, err := (*pk.ByteArray)(&m.PrevSignature).ReadFrom(r)
 		n += n2
 		if err != nil {
 			return n, err
@@ -51,8 +53,8 @@ func (m *MessageHeader) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 type MessageBody struct {
-	PlainMessage string
-	Message      *chat.Message
+	PlainMsg     string
+	DecoratedMsg json.RawMessage
 	Timestamp    time.Time
 	Salt         int64
 	History      []HistoryMessage
@@ -60,11 +62,11 @@ type MessageBody struct {
 
 func (m *MessageBody) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
-		pk.String(m.PlainMessage),
-		pk.Boolean(m.Message != nil),
+		pk.String(m.PlainMsg),
+		pk.Boolean(m.DecoratedMsg != nil),
 		pk.Opt{
-			Has:   m.Message != nil,
-			Field: m.Message,
+			Has:   m.DecoratedMsg != nil,
+			Field: m.DecoratedMsg,
 		},
 		pk.Long(m.Timestamp.UnixMilli()),
 		pk.Long(m.Salt),
@@ -76,14 +78,11 @@ func (m *MessageBody) ReadFrom(r io.Reader) (n int64, err error) {
 	var hasContent pk.Boolean
 	var timestamp pk.Long
 	n, err = pk.Tuple{
-		(*pk.String)(&m.PlainMessage),
+		(*pk.String)(&m.PlainMsg),
 		&hasContent,
 		pk.Opt{
-			Has: &hasContent,
-			Field: func() pk.FieldDecoder {
-				m.Message = new(chat.Message)
-				return m.Message
-			},
+			Has:   &hasContent,
+			Field: (*pk.ByteArray)(&m.DecoratedMsg),
 		},
 		&timestamp,
 		(*pk.Long)(&m.Salt),
@@ -91,6 +90,24 @@ func (m *MessageBody) ReadFrom(r io.Reader) (n int64, err error) {
 	}.ReadFrom(r)
 	m.Timestamp = time.UnixMilli(int64(timestamp))
 	return
+}
+
+func (m *MessageBody) Hash() []byte {
+	hash := sha256.New()
+	binary.Write(hash, binary.BigEndian, m.Salt)
+	binary.Write(hash, binary.BigEndian, m.Timestamp.Second())
+	hash.Write([]byte(m.PlainMsg))
+	hash.Write([]byte{70})
+	if m.DecoratedMsg != nil {
+		decorated, _ := m.DecoratedMsg.MarshalJSON()
+		hash.Write(decorated)
+	}
+	for _, v := range m.History {
+		hash.Write([]byte{70})
+		hash.Write(v.Sender[:])
+		hash.Write(v.Signature)
+	}
+	return hash.Sum(nil)
 }
 
 type FilterMask struct {
@@ -176,13 +193,13 @@ func genSalt() (salt int64) {
 func Unsigned(id uuid.UUID, plain string, content *chat.Message) (msg PlayerMessage) {
 	return PlayerMessage{
 		MessageHeader: MessageHeader{
-			Signature: nil,
-			Sender:    id,
+			PrevSignature: nil,
+			Sender:        id,
 		},
 		MessageSignature: []byte{},
 		MessageBody: MessageBody{
-			PlainMessage: plain,
-			Message:      nil,
+			PlainMsg:     plain,
+			DecoratedMsg: nil,
 			Timestamp:    time.Now(),
 			Salt:         genSalt(),
 			History:      nil,

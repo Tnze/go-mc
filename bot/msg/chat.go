@@ -44,10 +44,13 @@ func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Messa
 				}
 
 				var content chat.Message
-				if message.MessageBody.Message != nil {
-					content = *message.MessageBody.Message
+				if message.MessageBody.DecoratedMsg != nil {
+					data, _ := message.MessageBody.DecoratedMsg.MarshalJSON()
+					if err := content.UnmarshalJSON(data); err != nil {
+						return err
+					}
 				} else {
-					content = chat.Text(message.MessageBody.PlainMessage)
+					content = chat.Text(message.MessageBody.PlainMsg)
 				}
 
 				ct := p.WorldInfo.RegistryCodec.ChatType.FindByID(chatType.ID)

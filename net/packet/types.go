@@ -460,11 +460,13 @@ func (b *ByteArray) ReadFrom(r io.Reader) (n int64, err error) {
 	if err != nil {
 		return n1, err
 	}
-	buf := bytes.NewBuffer(*b)
-	buf.Reset()
-	n2, err := io.CopyN(buf, r, int64(Len))
-	*b = buf.Bytes()
-	return n1 + n2, err
+	if cap(*b) < int(Len) {
+		*b = make(ByteArray, Len)
+	} else {
+		*b = (*b)[:Len]
+	}
+	n2, err := io.ReadFull(r, *b)
+	return n1 + int64(n2), err
 }
 
 func (u UUID) WriteTo(w io.Writer) (n int64, err error) {
