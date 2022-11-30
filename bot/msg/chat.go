@@ -4,11 +4,10 @@ import (
 	"encoding/hex"
 	"fmt"
 
-	"github.com/Tnze/go-mc/chat/sign"
-
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/chat/sign"
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
