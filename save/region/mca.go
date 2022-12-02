@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+var (
+	ErrNoSector             = errors.New("sector does not exist")
+	ErrNoData               = errors.New("data is missing")
+	ErrSectorNegativeLength = errors.New("declared length of data is negative")
+	ErrTooLarge             = errors.New("data too large")
+)
+
 // Region contain 32*32 chunks in one .mca file
 type Region struct {
 	f          io.ReadWriteSeeker
@@ -136,7 +143,7 @@ func sectorLoc(offset int32) (sec, num int32) {
 func (r *Region) ReadSector(x, z int) (data []byte, err error) {
 	sec, num := sectorLoc(r.offsets[z][x])
 	if sec == 0 {
-		return nil, errors.New("sector not exist")
+		return nil, ErrNoSector
 	}
 	_, err = r.f.Seek(4096*int64(sec), 0)
 	if err != nil {
@@ -150,13 +157,13 @@ func (r *Region) ReadSector(x, z int) (data []byte, err error) {
 		return
 	}
 	if length == 0 {
-		return nil, errors.New("data is missing")
+		return nil, ErrNoData
 	}
 	if length < 0 {
-		return nil, errors.New("declared length of data is negative")
+		return nil, ErrSectorNegativeLength
 	}
 	if length > 4096*num {
-		return nil, errors.New("data too large")
+		return nil, ErrTooLarge
 	}
 	data = make([]byte, length)
 	_, err = io.ReadFull(reader, data)
@@ -171,7 +178,7 @@ func (r *Region) WriteSector(x, z int, data []byte) error {
 
 	// maximum chunk size is 1MB
 	if need >= 256 {
-		return errors.New("data too large")
+		return ErrTooLarge
 	}
 
 	if n != 0 && now == need {
