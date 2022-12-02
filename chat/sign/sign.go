@@ -52,6 +52,16 @@ func (m *MessageHeader) ReadFrom(r io.Reader) (n int64, err error) {
 	return n + n3, err
 }
 
+func (m *MessageHeader) Hash(bodyHash []byte) []byte {
+	hash := sha256.New()
+	if m.PrevSignature != nil {
+		hash.Write(m.PrevSignature)
+	}
+	hash.Write(m.Sender[:])
+	hash.Write(bodyHash)
+	return hash.Sum(nil)
+}
+
 type MessageBody struct {
 	PlainMsg     string
 	DecoratedMsg json.RawMessage
@@ -180,6 +190,10 @@ func (msg *PlayerMessage) WriteTo(w io.Writer) (n int64, err error) {
 		},
 		&msg.FilterMask,
 	}.WriteTo(w)
+}
+
+func (msg *PlayerMessage) Hash() []byte {
+	return msg.MessageHeader.Hash(msg.MessageBody.Hash())
 }
 
 func genSalt() (salt int64) {
