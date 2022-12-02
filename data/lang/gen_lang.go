@@ -32,8 +32,8 @@ var Map = {{.LangMap | printf "%#v"}}
 //go:generate go run $GOFILE
 //go:generate go fmt ./...
 func main() {
-	fmt.Println("generating langs")
 	if len(os.Args) == 2 {
+		fmt.Println("generating en-us lang")
 		f, err := os.Open(os.Args[1])
 		if err != nil {
 			panic(err)
@@ -41,6 +41,9 @@ func main() {
 		defer f.Close()
 		readLang("en_us", f)
 		return
+	} else {
+		fmt.Println("generating langs except en-us")
+		fmt.Println("WARN: You should also set the secondary argument to en-us's json file")
 	}
 
 	versionURL, err := assetIndexURL()
