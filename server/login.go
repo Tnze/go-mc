@@ -84,19 +84,19 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		return
 	}
 
-	if hasPubKey {
-		if !pubKey.Verify() {
-			err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.invalid_public_key_signature")}
-			return
-		}
-		profilePubKey = &pubKey
-	} else if d.EnforceSecureProfile {
-		err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.missing_public_key")}
-		return
-	}
-
 	// auth
 	if d.OnlineMode {
+		if hasPubKey {
+			if !pubKey.Verify() {
+				err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.invalid_public_key_signature")}
+				return
+			}
+			profilePubKey = &pubKey
+		} else if d.EnforceSecureProfile {
+			err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.missing_public_key")}
+			return
+		}
+
 		var resp *auth.Resp
 		// Auth, Encrypt
 		resp, err = auth.Encrypt(conn, name, pubKey.PubKey)

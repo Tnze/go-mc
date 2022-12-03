@@ -75,7 +75,7 @@ func (m *MessageBody) WriteTo(w io.Writer) (n int64, err error) {
 		pk.Boolean(m.DecoratedMsg != nil),
 		pk.Opt{
 			Has:   m.DecoratedMsg != nil,
-			Field: m.DecoratedMsg,
+			Field: pk.ByteArray(m.DecoratedMsg),
 		},
 		pk.Long(m.Timestamp.UnixMilli()),
 		pk.Long(m.Salt),
@@ -209,7 +209,7 @@ func (p *HistoryMessage) ReadFrom(r io.Reader) (n int64, err error) {
 	return n + n2, err
 }
 
-func (p *HistoryMessage) WriteTo(w io.Writer) (n int64, err error) {
+func (p HistoryMessage) WriteTo(w io.Writer) (n int64, err error) {
 	n, err = pk.UUID(p.Sender).WriteTo(w)
 	if err != nil {
 		return
