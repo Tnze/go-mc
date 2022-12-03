@@ -38,28 +38,15 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 	//Register event handlers
 	c.Events.AddListener(
 		PacketHandler{ID: packetid.CPacketSetContainerContent, Priority: 0, F: c.EventHandlers.SetWindowContent},
-		//PacketHandler{ID: packetid.CPacket, Priority: 0, F: c.EventHandlers.SpawnGlobalEntity},
-		//PacketHandler{ID: packetid.CPacket, Priority: 0, F: c.EventHandlers.SpawnMob},
 		PacketHandler{ID: packetid.CPacketSpawnObject, Priority: 0, F: c.EventHandlers.SpawnEntity},
-		//PacketHandler{ID: packetid.CPacketSpawnPainting, Priority: 0, F: c.EventHandlers.SpawnPainting},
+		PacketHandler{ID: packetid.CPacketSpawnPlayer, Priority: 0, F: c.EventHandlers.SpawnPlayer},
 		PacketHandler{ID: packetid.CPacketSetEntityMetadata, Priority: 0, F: c.EventHandlers.EntityMetadata},
-		//PacketHandler{ID: packetid.CPacketTeleportEntity, Priority: 0, F: c.EventHandlers.EntityTeleport},
-		//PacketHandler{ID: packetid.CPacketEntityHeadLook, Priority: 0, F: c.EventHandlers.EntityHeadRotation},
-		//PacketHandler{ID: packetid.CPacketEntityVelocity, Priority: 0, F: c.EventHandlers.EntityVelocity},
 		PacketHandler{ID: packetid.CPacketEntityEffect, Priority: 0, F: c.EventHandlers.EntityEffect},
-		//PacketHandler{ID: packetid.CPacketEntityPosition, Priority: 0, F: c.EventHandlers.EntityPosition},
 		PacketHandler{ID: packetid.CPacketEntityPositionRotation, Priority: 0, F: c.EventHandlers.EntityPositionRotation},
-		//PacketHandler{ID: packetid.CPacket, Priority: 0, F: c.EventHandlers.PlayerPositionAndLook},
 		PacketHandler{ID: packetid.CPacketPlayerAbilities, Priority: 0, F: c.EventHandlers.PlayerAbilities},
 		PacketHandler{ID: packetid.CPacketSyncPosition, Priority: 0, F: c.EventHandlers.SyncPlayerPosition},
 		PacketHandler{ID: packetid.CPacketChunkData, Priority: 0, F: c.EventHandlers.ChunkData},
 	)
-
-	// Register event handlers
-	// 	c.Events.GameStart = onGameStartFunc
-	// 	c.Events.ChatMsg = onChatMsgFunc
-	// 	c.Events.Disconnect = onDisconnectFunc
-	//	...
 
 	//JoinGame
 	err = c.HandleGame()

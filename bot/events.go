@@ -3,6 +3,7 @@ package bot
 import (
 	"errors"
 	"fmt"
+	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/data/item"
 	"github.com/Tnze/go-mc/level"
@@ -28,6 +29,10 @@ func (e EventsListener) Attach(c *Client) {
 		PacketHandler{Priority: 64, ID: packetid.CPacketUpdateHealth, F: e.UpdateHealth},
 		PacketHandler{Priority: int(^uint(0) >> 1), ID: packetid.CPacketSetTime, F: e.TimeUpdate},
 	)
+
+	c.Events.AddTicker(
+		TickHandler{Priority: 0, F: ApplyPhysics},
+	)
 }
 
 type PlayerMessage struct {
@@ -44,20 +49,30 @@ type PlayerMessage struct {
 
 func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) error {
 	var (
-		EntityID                        pk.VarInt
-		EntityUUID                      pk.UUID
-		TypeID                          pk.Byte
-		X, Y, Z                         pk.Double
-		Pitch, Yaw, HeadYaw             pk.Angle
-		Data                            pk.VarInt
-		VelocityX, VelocityY, VelocityZ pk.Short
+		EntityID            pk.VarInt
+		EntityUUID          pk.UUID
+		TypeID              pk.Byte
+		X, Y, Z             pk.Double
+		Pitch, Yaw, HeadYaw pk.Angle
+		Data                pk.VarInt
+		vX, vY, vZ          pk.Short
 	)
 
-	if err := p.Scan(&EntityID, &EntityUUID, &TypeID, &X, &Y, &Z, &Pitch, &Yaw, &HeadYaw, &Data, &VelocityX, &VelocityY, &VelocityZ); err != nil {
+	if err := p.Scan(&EntityID, &EntityUUID, &TypeID, &X, &Y, &Z, &Pitch, &Yaw, &HeadYaw, &Data, &vX, &vY, &vZ); err != nil {
 		return err
 	}
 
-	fmt.Println("SpawnEntity", EntityID, EntityUUID, TypeID, X, Y, Z, Pitch, Yaw, HeadYaw, Data, VelocityX, VelocityY, VelocityZ)
+	if err := c.World.AddEntity(core.NewEntity(
+		int32(EntityID),
+		uuid.UUID(EntityUUID),
+		int32(TypeID),
+		float32(X), float32(Y), float32(Z),
+		float32(Pitch), float32(Yaw),
+	)); err != nil {
+		return err
+	}
+
+	fmt.Println("SpawnEntity", EntityID, EntityUUID, TypeID, X, Y, Z, Pitch, Yaw, HeadYaw, Data, vX, vY, vZ)
 	return nil
 }
 
@@ -130,6 +145,17 @@ func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) error {
 	if err := p.Scan(&EntityID, &PlayerUUID, &X, &Y, &Z, &Yaw, &Pitch); err != nil {
 		return err
 	}
+
+	if err := c.World.AddEntity(core.NewEntity(
+		int32(EntityID),
+		uuid.UUID(PlayerUUID),
+		116, // Player type
+		float32(X), float32(Y), float32(Z),
+		float32(Pitch), float32(Yaw),
+	)); err != nil {
+		return err
+	}
+
 	fmt.Println("SpawnPlayer", EntityID, PlayerUUID.String(), X, Y, Z, Yaw, Pitch)
 	return nil
 }
@@ -624,6 +650,9 @@ func (e *EventsListener) KeepAlive(c *Client, p pk.Packet) error {
 }
 
 func (e *EventsListener) ChunkData(c *Client, p pk.Packet) error {
+	/*
+		From https://github.com/maxsupermanhd/WebChunk/blob/7ba5b2394ddc7a8d3ab90c31fb511c920ca2c62c/proxy/chunkProcessor.go#L437
+	*/
 	var (
 		ChunkPos level.ChunkPos
 		Chunk    level.Chunk
@@ -773,6 +802,12 @@ func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) error {
 
 	if err := p.Scan(&EntityID, &DeltaX, &DeltaY, &DeltaZ, &OnGround); err != nil {
 		return err
+	}
+
+	if _, entity, err := c.World.GetEntityByID(int32(EntityID)); err == nil {
+		if t, ok := entity.(*core.Entity); ok {
+			t.AddRelativePosition(maths.Vec3d{X: float32(DeltaX), Y: float32(DeltaY), Z: float32(DeltaZ)})
+		}
 	}
 
 	fmt.Println("EntityRelativeMove", EntityID, DeltaX, DeltaY, DeltaZ, OnGround)
@@ -934,13 +969,32 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 		c.Player.Position = position
 		c.Player.Rotation = rotation
 	}
+
+	//c.Player.OnGround = Flags&0x02 != 0
+
+	if TeleportID != 0 {
+		if err := c.Conn.WritePacket(
+			pk.Marshal(
+				packetid.SPacketTeleportConfirm,
+				TeleportID,
+			),
+		); err != nil {
+			return err
+		}
+	}
+
+	c.Player.OnGround = Flags&0x02 != 0
+
 	start := c.Player.GetEyePos()
 	end := maths.ProjectPosition(c.Player.Rotation, 5, 1.62) // Relative to the player's eye position
 	result, err := c.World.RayTrace(start, start.Add(end))
 	if err != nil {
 		fmt.Println(err)
+	} else {
+		fmt.Println(result)
 	}
-	fmt.Println(result)
+
+	fmt.Println("Players:", c.World.GetEntitiesByType(core.EntityPlayer{}))
 	fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
 	return nil
 }

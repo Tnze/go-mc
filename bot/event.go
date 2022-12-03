@@ -41,7 +41,7 @@ func (e *Events) AddGeneric(listeners ...PacketHandler) {
 
 type TickHandler struct {
 	Priority int
-	F        func(*Client)
+	F        func(*Client) error
 }
 
 func (e *Events) AddTicker(tickers ...TickHandler) {

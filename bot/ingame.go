@@ -3,11 +3,13 @@ package bot
 import (
 	"fmt"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"time"
 )
 
 // HandleGame receive server packet and response them correctly.
 // Note that HandleGame will block if you don't receive from Events.
 func (c *Client) HandleGame() error {
+	var ticker = time.Now()
 	var p pk.Packet
 	for {
 		//Read packets
@@ -20,6 +22,14 @@ func (c *Client) HandleGame() error {
 		if err := c.handlePacket(p); err != nil {
 			fmt.Println("handle packet error:", err)
 			return err
+		}
+
+		//handle tickers
+		if time.Since(ticker) >= time.Duration(50*c.TPS.TickAverage())*time.Millisecond { // Server synchronization
+			if err := c.handleTickers(); err != nil {
+				fmt.Println("handle tickers error:", err)
+			}
+			ticker = time.Now()
 		}
 	}
 }
@@ -53,4 +63,15 @@ func (c *Client) handlePacket(p pk.Packet) (err error) {
 		}
 	}
 	return
+}
+
+func (c *Client) handleTickers() error {
+	if c.Events.tickers != nil {
+		for _, handler := range *c.Events.tickers {
+			if err := handler.F(c); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

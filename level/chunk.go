@@ -49,10 +49,10 @@ type Chunk struct {
 
 func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, error) {
 	X, Y, Z := int(vec3d.X), int(vec3d.Y), int(vec3d.Z)
-	Y += 64 // Let's assume the bot never goes below 0.
+	Y += 64 // Offset so that Y=-64 is the index 0 of the array
 
 	if Y < 0 || Y>>4 >= len(c.Sections) {
-		return -1, errors.New("out of bounds")
+		return block.ToStateID[block.Air{}], errors.New("out of bounds")
 	}
 	sec := c.Sections[Y>>4]
 	if sec.BlockCount == 0 {

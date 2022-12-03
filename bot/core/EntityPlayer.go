@@ -2,12 +2,10 @@ package core
 
 import (
 	. "github.com/Tnze/go-mc/data/slots"
-	"github.com/google/uuid"
 )
 
 type EntityPlayer struct {
 	*EntityLiving
-	UUID        uuid.UUID
 	DisplayName string
 	Cursor      *Slot
 	Screens     map[int]Container

@@ -1,11 +1,14 @@
 package bot
 
 import (
+	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
+	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/data/packetid"
 	. "github.com/Tnze/go-mc/data/slots"
+	"github.com/Tnze/go-mc/level/block"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"math"
 )
@@ -15,9 +18,10 @@ type Player struct {
 	basic.WorldInfo
 	*core.EntityPlayer
 	*screen.Manager
-	c        *Client
-	Settings basic.Settings
-	isSpawn  bool
+	c         *Client
+	Settings  basic.Settings
+	isSpawn   bool
+	fallTicks float32
 }
 
 func NewPlayer(c *Client, settings basic.Settings) *Player {
@@ -26,7 +30,11 @@ func NewPlayer(c *Client, settings basic.Settings) *Player {
 		WorldInfo:  basic.WorldInfo{},
 		EntityPlayer: &core.EntityPlayer{
 			EntityLiving: &core.EntityLiving{
-				Entity: &core.Entity{},
+				Entity: &core.Entity{
+					Position: maths.Vec3d{},
+					Motion:   maths.Vec3d{},
+					Rotation: maths.Vec2d{},
+				},
 			},
 		},
 		Manager:  screen.NewManager(),
@@ -74,6 +82,73 @@ func (p *Player) Chat(msg string) error {
 	}
 
 	return nil
+}
+
+func ApplyPhysics(c *Client) error {
+	if err := doFall(c); err != nil {
+		return err
+	}
+	c.Player.Position = c.Player.Position.Add(c.Player.Motion)
+	if err := c.Conn.WritePacket(
+		pk.Marshal(
+			packetid.SPacketPlayerPositionRotation,
+			pk.Double(c.Player.Position.X),
+			pk.Double(c.Player.Position.Y),
+			pk.Double(c.Player.Position.Z),
+			pk.Float(c.Player.Rotation.X),
+			pk.Float(c.Player.Rotation.Y),
+			pk.Boolean(false),
+		),
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func doFall(c *Client) error {
+	pos := c.Player.Position
+	// Check if the player is in the air
+	if b, err := c.World.GetBlock(maths.Vec3d{X: pos.X, Y: pos.Y - 0.5, Z: pos.Z}); b != block.ToStateID[block.Air{}] || err != nil {
+		c.Player.fallTicks = 0
+		c.Player.Motion = maths.NullVec3d
+		return err
+	}
+
+	// Calculate fall movement
+	speed := maths.CalculateFallVelocity(c.Player.fallTicks)
+	c.Player.Motion = c.Player.Motion.Add(speed)
+	c.Player.fallTicks++
+
+	return nil
+}
+
+func FallDamage(c *Client, fallDistance float64) float32 {
+	damage := math.Max(0, fallDistance-3)
+	// Check if the player have feather falling enchantment
+	armors := c.Player.Manager.Inventory.Armor()
+	for _, armor := range armors {
+		fmt.Println(armor.NBT.String()) // TODO: Get enchantment
+	}
+	return float32(damage)
+}
+
+func CalculateFallDistance(c *Client) (dst float32, err error) {
+	Y := int(c.Player.Position.Y)
+	// Check if the player is in the air
+	if b, err := c.World.GetBlock(maths.Vec3d{X: c.Player.Position.X, Y: float32(Y), Z: c.Player.Position.Z}); b != block.ToStateID[block.Air{}] || err != nil {
+		return 0, err
+	}
+	for i := Y; i > 0; i-- {
+		b, err := c.World.GetBlock(maths.Vec3d{X: c.Player.Position.X, Y: float32(i), Z: c.Player.Position.Z})
+		if err != nil {
+			return 0, err
+		}
+		if b == block.ToStateID[block.Air{}] {
+			dst = float32(Y - i)
+		}
+	}
+	return
 }
 
 func (p *Player) ContainerClick(id int, slot int16, button byte, mode int32, slots ChangedSlots, carried *Slot) error {

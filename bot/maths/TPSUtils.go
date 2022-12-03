@@ -25,6 +25,11 @@ func (t *TpsCalculator) Update() {
 	t.TimeLastUpdate = time.Now()
 }
 
+/*
+TickAverage
+
+	@return float64 - The average tick rate from 0 to 1.
+*/
 func (t *TpsCalculator) TickAverage() float64 {
 	var sum float64
 	for _, v := range t.lastNTicks {

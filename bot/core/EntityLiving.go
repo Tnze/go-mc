@@ -22,6 +22,7 @@ type EntityLiving struct {
 	ActiveItemStackUseCount int32
 	ActivePotionEffects     []effects.Effect
 	dead                    bool
+	OnGround                bool
 }
 
 /*

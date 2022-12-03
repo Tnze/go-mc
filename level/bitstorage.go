@@ -120,7 +120,6 @@ func (b *BitStorage) Get(i int) int {
 	if b.valuesPerLong == 0 {
 		return 0
 	}
-	fmt.Println(b.length, i)
 	if i < 0 || i > b.length-1 {
 		panic(indexOutOfBounds)
 	}

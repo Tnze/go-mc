@@ -7,10 +7,12 @@ import (
 	. "github.com/Tnze/go-mc/level"
 	block2 "github.com/Tnze/go-mc/level/block"
 	"math"
+	"reflect"
 )
 
 type World struct {
-	Columns map[ChunkPos]*Chunk
+	Columns  map[ChunkPos]*Chunk
+	entities []*interface{}
 }
 
 func NewWorld() (w *World) {
@@ -20,9 +22,73 @@ func NewWorld() (w *World) {
 	return
 }
 
+func (w *World) AddEntity(e interface{}) error {
+	if w.isValidEntity(&e) {
+		w.entities = append(w.entities, &e)
+		return nil
+	}
+	return fmt.Errorf("invalid entity")
+}
+
+func (w *World) RemoveEntity(e interface{}) error {
+	if w.isValidEntity(&e) {
+		if i, _, err := w.GetEntityByID(e.(core.Entity).ID); err == nil {
+			w.entities = append(w.entities[:i], w.entities[i+1:]...)
+			return nil
+		} else {
+			return err
+		}
+	}
+	return fmt.Errorf("invalid entity")
+}
+
+func (w *World) GetEntities() []*interface{} {
+	return w.entities
+}
+
+func (w *World) GetEntitiesByType(t interface{}) []*interface{} {
+	var entities []*interface{}
+	for _, e := range w.entities {
+		if reflect.TypeOf(*e) == reflect.TypeOf(t) {
+			entities = append(entities, e)
+		}
+	}
+	return entities
+}
+
+func (w *World) GetEntityByID(id int32) (int, interface{}, error) {
+	for i, e := range w.entities {
+		if (*e).(core.Entity).ID == id {
+			return i, e, nil
+		}
+	}
+	return -1, nil, fmt.Errorf("entity not found")
+}
+
+/*
+isValidEntity
+
+	@param interface{} - The entity to check
+	@return bool - Whether the entity is valid
+
+	@description
+		If the return value is true, then we do not need to do more type assertions because we know that the entity is valid.
+		So it will always at least have the properties of core.Entity.
+*/
+func (w *World) isValidEntity(e *interface{}) bool {
+	if _, ok := (*e).(core.Entity); ok {
+		return true
+	} else if _, ok := (*e).(*core.EntityLiving); ok {
+		return true
+	} else if _, ok := (*e).(*core.EntityPlayer); ok {
+		return true
+	}
+	return false
+}
+
 func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, error) {
-	if int32(pos.Y) < 0 || int32(pos.Y) > 256 {
-		return -1, fmt.Errorf("out of range")
+	if pos.Y < -64.0 || pos.Y > 256.0 {
+		return block2.ToStateID[block2.Air{}], fmt.Errorf("out of range")
 	}
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
 	if chunk, ok := w.Columns[chunkPos]; ok {
@@ -33,11 +99,8 @@ func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, error) {
 }
 
 func (w *World) RayTrace(start, end maths.Vec3d) (core.RayTraceResult, error) {
-	if start == maths.NullVec3d {
-		return core.RayTraceResult{}, fmt.Errorf("start is null")
-	}
-	if end == maths.NullVec3d {
-		return core.RayTraceResult{}, fmt.Errorf("end is null")
+	if start == maths.NullVec3d && end == maths.NullVec3d {
+		return core.RayTraceResult{}, fmt.Errorf("start and end are null")
 	}
 
 	for _, pos := range maths.RayTraceBlocks(start, end) {
