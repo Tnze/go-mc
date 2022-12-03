@@ -16,7 +16,48 @@ type Entity struct {
 	Rotation            maths.Vec2d
 	Motion              maths.Vec3d
 	BoundingBox         AxisAlignedBB // TODO: Add bounding box
+	Width, Height       float32
 	invulnerableDamages []DamageSource
+}
+
+/*
+SetSize
+
+	@param width (float32) - the width to set
+	@param height (float32) - the height to set
+	@return none
+*/
+func (e *Entity) SetSize(width, height float32) {
+	/*
+		From net.minecraft.entity.Entity#setSize
+	*/
+	if width != e.Width || height != e.Height {
+		f := e.Width
+		e.Width = width
+		e.Height = height
+
+		if e.Width < f {
+			d0 := width / 2.0
+			e.BoundingBox = AxisAlignedBB{
+				MinX: e.Position.X - d0,
+				MinY: e.Position.Y,
+				MinZ: e.Position.Z - d0,
+				MaxX: e.Position.X + d0,
+				MaxY: e.Position.Y + height,
+				MaxZ: e.Position.Z + d0,
+			}
+		}
+
+		aabb := e.BoundingBox
+		e.BoundingBox = AxisAlignedBB{
+			MinX: aabb.MinX,
+			MinY: aabb.MinY,
+			MinZ: aabb.MinZ,
+			MaxX: aabb.MaxX + e.Width,
+			MaxY: aabb.MaxY + e.Height,
+			MaxZ: aabb.MaxZ + e.Width,
+		}
+	}
 }
 
 /*
@@ -76,7 +117,7 @@ func NewEntity(
 	entityType := entity.TypeEntityByID[Type]
 	switch *entityType {
 	case entity.Player:
-		return EntityPlayer{
+		e := EntityPlayer{
 			EntityLiving: &EntityLiving{
 				Entity: &Entity{
 					Name:     entityType.Name,
@@ -85,14 +126,13 @@ func NewEntity(
 					UUID:     EUUID,
 					Position: maths.Vec3d{X: X, Y: Y, Z: Z},
 					Rotation: maths.Vec2d{X: Yaw, Y: Pitch},
-					/*
-						BoundingBox
-					*/
 				},
 			},
 		}
+		e.SetSize(entityType.Width, entityType.Height)
+		return &e
 	default:
-		return EntityLiving{
+		e := EntityLiving{
 			Entity: &Entity{
 				Name:     entityType.Name,
 				Type:     *entityType,
@@ -100,10 +140,9 @@ func NewEntity(
 				UUID:     EUUID,
 				Position: maths.Vec3d{X: X, Y: Y, Z: Z},
 				Rotation: maths.Vec2d{X: Yaw, Y: Pitch},
-				/*
-					BoundingBox
-				*/
 			},
 		}
+		e.SetSize(entityType.Width, entityType.Height)
+		return &e
 	}
 }
