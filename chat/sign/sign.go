@@ -1,7 +1,6 @@
 package sign
 
 import (
-	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
 	"encoding/json"
@@ -104,8 +103,8 @@ func (m *MessageBody) ReadFrom(r io.Reader) (n int64, err error) {
 
 func (m *MessageBody) Hash() []byte {
 	hash := sha256.New()
-	binary.Write(hash, binary.BigEndian, m.Salt)
-	binary.Write(hash, binary.BigEndian, m.Timestamp.Second())
+	_ = binary.Write(hash, binary.BigEndian, m.Salt)
+	_ = binary.Write(hash, binary.BigEndian, m.Timestamp.Unix())
 	hash.Write([]byte(m.PlainMsg))
 	hash.Write([]byte{70})
 	if m.DecoratedMsg != nil {
@@ -194,33 +193,6 @@ func (msg *PlayerMessage) WriteTo(w io.Writer) (n int64, err error) {
 
 func (msg *PlayerMessage) Hash() []byte {
 	return msg.MessageHeader.Hash(msg.MessageBody.Hash())
-}
-
-func genSalt() (salt int64) {
-	err := binary.Read(rand.Reader, binary.BigEndian, &salt)
-	if err != nil {
-		panic(err)
-	}
-	return
-}
-
-func Unsigned(id uuid.UUID, plain string, content *chat.Message) (msg PlayerMessage) {
-	return PlayerMessage{
-		MessageHeader: MessageHeader{
-			PrevSignature: nil,
-			Sender:        id,
-		},
-		MessageSignature: []byte{},
-		MessageBody: MessageBody{
-			PlainMsg:     plain,
-			DecoratedMsg: nil,
-			Timestamp:    time.Now(),
-			Salt:         genSalt(),
-			History:      nil,
-		},
-		UnsignedContent: nil,
-		FilterMask:      FilterMask{Type: 0},
-	}
 }
 
 type HistoryMessage struct {
