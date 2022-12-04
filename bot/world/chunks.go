@@ -106,6 +106,22 @@ func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, basic.Error) {
 	}
 }
 
+func (w *World) GetNeighbors(block maths.Vec3d) []maths.Vec3d {
+	return []maths.Vec3d{
+		{X: block.X + 1, Y: block.Y, Z: block.Z},
+		{X: block.X - 1, Y: block.Y, Z: block.Z},
+		{X: block.X, Y: block.Y + 1, Z: block.Z},
+		{X: block.X, Y: block.Y - 1, Z: block.Z},
+		{X: block.X, Y: block.Y, Z: block.Z + 1},
+		{X: block.X, Y: block.Y, Z: block.Z - 1},
+	}
+}
+
+func (w *World) isChunkLoaded(pos ChunkPos) bool {
+	_, ok := w.Columns[pos]
+	return ok
+}
+
 func (w *World) RayTrace(start, end maths.Vec3d) (core.RayTraceResult, basic.Error) {
 	if start == maths.NullVec3d && end == maths.NullVec3d {
 		return core.RayTraceResult{}, basic.Error{Err: basic.NullValue, Info: fmt.Errorf("start and end cannot be null")}

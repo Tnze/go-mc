@@ -1,6 +1,8 @@
 package maths
 
-import "math"
+import (
+	"math"
+)
 
 var NullVec3d = Vec3d{X: 0, Y: 0, Z: 0}
 
@@ -59,4 +61,8 @@ func (v Vec3d) Length() float32 {
 func (v Vec3d) Normalize() Vec3d {
 	length := v.Length()
 	return Vec3d{X: v.X / length, Y: v.Y / length, Z: v.Z / length}
+}
+
+func (v Vec3d) ToChunkPos() [2]int32 {
+	return [2]int32{int32(v.X) >> 4, int32(v.Z) >> 4}
 }
