@@ -77,7 +77,7 @@ func (s *Server) AcceptConn(conn *net.Conn) {
 	case 2: // login
 		name, id, profilePubKey, properties, err := s.AcceptLogin(conn, protocol)
 		if err != nil {
-			var loginErr *LoginFailErr
+			var loginErr LoginFailErr
 			if errors.As(err, &loginErr) {
 				_ = conn.WritePacket(pk.Marshal(
 					packetid.LoginDisconnect,
