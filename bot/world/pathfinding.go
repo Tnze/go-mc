@@ -42,41 +42,28 @@ func (w *World) PathFind(start, end maths.Vec3d) []maths.Vec3d {
 				path = append(path, current.point)
 				current = current.parent
 			}
-			return backtrace(path)
+			return backtrace(path[1:])
 		}
 
-		neighbors := toNodes(w.GetNeighbors(currentNode.point), currentNode)
-
-		for _, neighbor := range neighbors {
-			if contains(closedList, neighbor) {
-				continue
-			} else {
-				// If the neighbor is not in the open list, calculate the g, h, and f values
-				neighbor.g = currentNode.g + euclideanDistance(currentNode.point, neighbor.point)
-				neighbor.h = euclideanDistance(neighbor.point, endNode.point)
-				neighbor.f = neighbor.g + neighbor.h
-				openList = append(openList, neighbor)
-			}
+		neighbor := filterNeighbors(w, w.GetNeighbors(currentNode.point), endNode.point)
+		if !contains(closedList, neighbor) {
+			newNode := &Node{point: neighbor, parent: currentNode}
+			newNode.g = currentNode.g + euclideanDistance(currentNode.point, newNode.point)
+			newNode.h = euclideanDistance(newNode.point, endNode.point)
+			newNode.f = newNode.g + newNode.h
+			openList = append(openList, newNode)
 		}
 	}
 	return make([]maths.Vec3d, 0)
 }
 
-func contains(list []*Node, node *Node) bool {
+func contains(list []*Node, node maths.Vec3d) bool {
 	for _, n := range list {
-		if node == n {
+		if n.point == node {
 			return true
 		}
 	}
 	return false
-}
-
-func toNodes(points []maths.Vec3d, current *Node) []*Node {
-	nodes := make([]*Node, 0)
-	for _, point := range points {
-		nodes = append(nodes, &Node{point: point, parent: current})
-	}
-	return nodes
 }
 
 func backtrace(node []maths.Vec3d) []maths.Vec3d {
@@ -84,4 +71,14 @@ func backtrace(node []maths.Vec3d) []maths.Vec3d {
 		node[i], node[len(node)-i-1] = node[len(node)-i-1], node[i]
 	}
 	return node
+}
+
+func filterNeighbors(w *World, points []maths.Vec3d, end maths.Vec3d) maths.Vec3d {
+	var closestPoint maths.Vec3d
+	for _, point := range points {
+		if euclideanDistance(point, end) < euclideanDistance(closestPoint, end) {
+			closestPoint = point
+		}
+	}
+	return closestPoint
 }
