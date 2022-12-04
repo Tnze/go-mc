@@ -33,7 +33,7 @@ func (w *World) AddEntity(e interface{}) error {
 
 func (w *World) RemoveEntity(e interface{}) error {
 	if w.isValidEntity(&e) {
-		if i, _, err := w.GetEntityByID(e.(core.Entity).ID); err == nil {
+		if i, _, err := w.GetEntityByID(e.(*core.Entity).ID); err == nil {
 			w.entities = append(w.entities[:i], w.entities[i+1:]...)
 			return nil
 		} else {
@@ -59,8 +59,18 @@ func (w *World) GetEntitiesByType(t interface{}) []*interface{} {
 
 func (w *World) GetEntityByID(id int32) (int, interface{}, error) {
 	for i, e := range w.entities {
-		if (*e).(core.Entity).ID == id {
-			return i, e, nil
+		if t, ok := (*e).(*core.Entity); ok {
+			if t.ID == id {
+				return i, *e, nil
+			}
+		} else if t, ok := (*e).(*core.EntityLiving); ok {
+			if t.ID == id {
+				return i, *e, nil
+			}
+		} else if t, ok := (*e).(*core.EntityPlayer); ok {
+			if t.ID == id {
+				return i, *e, nil
+			}
 		}
 	}
 	return -1, nil, fmt.Errorf("entity not found")
@@ -88,9 +98,6 @@ func (w *World) isValidEntity(e *interface{}) bool {
 }
 
 func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, basic.Error) {
-	if pos.Y < -64.0 || pos.Y > 256.0 {
-		return block2.ToStateID[block2.Air{}], basic.Error{Err: basic.OutOfBound, Info: fmt.Errorf("y=%d out of bound", int(pos.Y))}
-	}
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
 	if chunk, ok := w.Columns[chunkPos]; ok {
 		return chunk.GetBlock(pos)

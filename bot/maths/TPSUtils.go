@@ -1,6 +1,7 @@
 package maths
 
 import (
+	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
 	"time"
 )
@@ -25,7 +26,7 @@ func (t *TpsCalculator) Start() {
 			time.Sleep(time.Duration(50*t.TickAverage()) * time.Millisecond) // Synchronise with the server's TPS
 			if t.Callback != nil {
 				if err := t.Callback(); !err.Is(basic.NoError) {
-					panic(err)
+					fmt.Println("Error in TPS callback:", err)
 				}
 			}
 		}

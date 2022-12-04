@@ -698,7 +698,7 @@ func (e *EventsListener) Particle(c *Client, p pk.Packet) basic.Error {
 
 func (e *EventsListener) JoinGame(c *Client, p pk.Packet) basic.Error {
 	if err := p.Scan(
-		(*pk.Int)(&c.Player.EID),
+		(*pk.Int)(&c.Player.ID),
 		(*pk.Boolean)(&c.Player.Hardcore),
 		(*pk.UnsignedByte)(&c.Player.Gamemode),
 		(*pk.Byte)(&c.Player.PrevGamemode),
@@ -1306,14 +1306,14 @@ func (e *EventsListener) EntityVelocity(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityVelocity packet: %w", err)}
 	}
 
-	if _, entity, err := c.World.GetEntityByID(int32(entityID)); err == nil {
-		entity.(*core.Entity).SetMotion(
-			maths.Vec3d{
-				X: float32(velocityX) / 8000,
-				Y: float32(velocityY) / 8000,
-				Z: float32(velocityZ) / 8000,
-			},
-		)
+	if _, e, err := c.World.GetEntityByID(int32(entityID)); err == nil {
+		if t, ok := (e).(*core.Entity); ok {
+			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
+		} else if t, ok := (e).(*core.EntityLiving); ok {
+			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
+		} else if t, ok := (e).(*core.EntityPlayer); ok {
+			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
+		} // I will probably make an interface, so I don't have to do this
 	} else {
 		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to find entity with ID %d", entityID)}
 	}

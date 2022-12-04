@@ -51,13 +51,14 @@ type Chunk struct {
 func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, basic.Error) {
 	X, Y, Z := int(vec3d.X), int(vec3d.Y), int(vec3d.Z)
 	Y += 64 // Offset so that Y=-64 is the index 0 of the array
-
-	if Y < 0 || Y>>4 >= len(c.Sections) {
-		return block.ToStateID[block.Air{}], basic.Error{Err: basic.OutOfBound, Info: fmt.Errorf("y=%d out of bound", Y)}
+	if Y < 0 || Y >= len(c.Sections)*16 {
+		return block.ToStateID[block.Air{}], basic.Error{Err: basic.NoError, Info: fmt.Errorf("y=%d out of bound", Y)} // Safe check
 	}
-	sec := c.Sections[Y>>4]
-	i := Y&15<<8 | Z&15<<4 | X&15
-	return sec.States.Get(i), basic.Error{Err: basic.NoError, Info: nil}
+	if t := c.Sections[Y>>4]; t.States != nil {
+		return t.States.Get(Y&15<<8 | Z&15<<4 | X&15), basic.Error{Err: basic.NoError, Info: nil}
+	} else {
+		return block.ToStateID[block.Air{}], basic.Error{Err: basic.NoError, Info: fmt.Errorf("y=%d out of bound", Y)}
+	}
 }
 
 var biomesIDs map[string]BiomesState

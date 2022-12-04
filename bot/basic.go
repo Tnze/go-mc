@@ -86,11 +86,9 @@ func (p *Player) Chat(msg string) error {
 }
 
 func ApplyPhysics(c *Client) basic.Error {
-	/*if err := doFall(c); err != nil {
-		return err
-	}*/
 	c.Player.Position = c.Player.Position.Add(c.Player.Motion)
-	if c.Player.GetLastPosition().DistanceTo(c.Player.Position) < 0.001 {
+	if c.Player.Position.DistanceTo(c.Player.GetLastPosition()) < 0.01 {
+		c.Player.Motion = maths.NullVec3d
 		return basic.Error{Err: basic.NoError, Info: nil}
 	}
 	if err := c.Conn.WritePacket(
@@ -114,29 +112,31 @@ func ApplyPhysics(c *Client) basic.Error {
 	inertia := float32(core.Slipperiness(getBlock) * core.AirBornInertia)
 	c.Player.Motion = c.Player.Motion.MulScalar(inertia)
 
-	// Apply gravity and friction
-	c.Player.Motion = c.Player.Motion.Add(maths.Vec3d{X: 0, Y: -core.Gravity, Z: 0})
+	// Check Y motion
+	if c.Player.Motion.Y != 0 {
+		if getBlock, err := c.World.GetBlock(c.Player.Position.Sub(maths.Vec3d{Y: 0.5})); !err.Is(basic.NoError) {
+			return err
+		} else if block.IsAir(getBlock) {
+			c.Player.fallTicks++
+		} else {
+			c.Player.fallTicks = 0
+		}
+	}
+
+	// Apply gravity
+	c.Player.Motion = c.Player.Motion.Add(maths.Vec3d{X: 0, Y: -core.Gravity * (c.Player.fallTicks + 1), Z: 0})
+
+	// Apply friction
 	/*c.Player.Motion.X *= inertia
 	c.Player.Motion.Y *= core.AirDrag
 	c.Player.Motion.Z *= inertia*/
 
-	c.Player.SetLastPosition(c.Player.Position)
-
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func doFall(c *Client) basic.Error {
-	pos := c.Player.Position
-	// Check if the player is in the air
-	if b, err := c.World.GetBlock(maths.Vec3d{X: pos.X, Y: pos.Y - 0.5, Z: pos.Z}); b != block.ToStateID[block.Air{}] || !err.Is(basic.NoError) {
-		c.Player.fallTicks = 0
-		return err
+	// Reset motion if it's too small
+	if c.Player.Motion.Length() < 0.05 {
+		c.Player.Motion = maths.NullVec3d
 	}
 
-	// Calculate fall movement
-	speed := maths.CalculateFallVelocity(c.Player.fallTicks)
-	c.Player.Motion = c.Player.Motion.Add(speed)
-	c.Player.fallTicks++
+	c.Player.SetLastPosition(c.Player.Position)
 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
