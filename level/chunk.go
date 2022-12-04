@@ -61,6 +61,17 @@ func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, basic.Error) {
 	}
 }
 
+func (c *Chunk) SetBlock(d maths.Vec3d, i int) {
+	X, Y, Z := int(d.X), int(d.Y), int(d.Z)
+	Y += 64 // Offset so that Y=-64 is the index 0 of the array
+	if Y < 0 || Y >= len(c.Sections)*16 {
+		return // Safe check
+	}
+	if t := c.Sections[Y>>4]; t.States != nil {
+		t.States.Set(Y&15<<8|Z&15<<4|X&15, BlocksState(i))
+	}
+}
+
 var biomesIDs map[string]BiomesState
 var BitsPerBiome int
 
@@ -460,6 +471,7 @@ type Section struct {
 func (s *Section) GetBlock(i int) BlocksState {
 	return s.States.Get(i)
 }
+
 func (s *Section) SetBlock(i int, v BlocksState) {
 	if block.IsAir(s.States.Get(i)) {
 		s.BlockCount--
