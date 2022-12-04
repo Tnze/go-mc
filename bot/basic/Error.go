@@ -14,6 +14,7 @@ const (
 	DialError   // Anything related to login process
 	NullValue   // Anything related to default values
 	NoValue     // If a value is not set
+	IncompleteExecution
 	NotImplemented
 )
 
