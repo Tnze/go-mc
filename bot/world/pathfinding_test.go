@@ -1,7 +1,11 @@
 package world
 
 import (
+	"fmt"
 	"github.com/Tnze/go-mc/bot/maths"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/png"
@@ -40,7 +44,11 @@ func DrawPath(path []maths.Vec3d) {
 
 	// Draw the path on the image.
 	// The color of the y position is from red to green depending on the height.
-	for _, point := range path {
+	for i, point := range path {
+		if i == 0 || i == len(path)-1 {
+			text := fmt.Sprintf("(%d, %d, %d)", int(point.X), int(point.Y), int(point.Z))
+			addLabel(img, int(point.X), int(point.Z), text)
+		}
 		for x := 0; x < pointSize; x++ {
 			for y := 0; y < pointSize; y++ {
 				img.Set(int(point.X)+x, int(point.Z)+y, color.RGBA{R: uint8(point.Y), G: 255 - uint8(point.Y), A: 255})
@@ -52,6 +60,19 @@ func DrawPath(path []maths.Vec3d) {
 	f, _ := os.Create("path.png")
 	defer f.Close()
 	png.Encode(f, img)
+}
+
+func addLabel(img *image.RGBA, x, y int, label string) {
+	col := color.RGBA{B: 255, A: 255}
+	point := fixed.Point26_6{X: fixed.I(x - 25), Y: fixed.I(y - 50)}
+
+	d := &font.Drawer{
+		Dst:  img,
+		Src:  image.NewUniform(col),
+		Face: basicfont.Face7x13,
+		Dot:  point,
+	}
+	d.DrawString(label)
 }
 
 func random(min, max int) int {
