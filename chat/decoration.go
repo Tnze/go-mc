@@ -10,15 +10,15 @@ type Decoration struct {
 	TranslationKey string   `nbt:"translation_key"`
 	Parameters     []string `nbt:"parameters"`
 	Style          struct {
-		Bold          bool   `nbt:"bold"`
-		Italic        bool   `nbt:"italic"`
-		UnderLined    bool   `nbt:"underlined"`
-		StrikeThrough bool   `nbt:"strikethrough"`
-		Obfuscated    bool   `nbt:"obfuscated"`
-		Color         string `nbt:"color"`
-		Insertion     string `nbt:"insertion"`
-		Font          string `nbt:"font"`
-	} `nbt:"style"`
+		Bold          bool   `nbt:"bold,omitempty"`
+		Italic        bool   `nbt:"italic,omitempty"`
+		UnderLined    bool   `nbt:"underlined,omitempty"`
+		StrikeThrough bool   `nbt:"strikethrough,omitempty"`
+		Obfuscated    bool   `nbt:"obfuscated,omitempty"`
+		Color         string `nbt:"color,omitempty"`
+		Insertion     string `nbt:"insertion,omitempty"`
+		Font          string `nbt:"font,omitempty"`
+	} `nbt:"style,omitempty"`
 }
 
 type Type struct {

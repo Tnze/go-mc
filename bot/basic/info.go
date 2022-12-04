@@ -3,10 +3,9 @@ package basic
 import (
 	"unsafe"
 
-	"github.com/Tnze/go-mc/registry"
-
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/registry"
 )
 
 // WorldInfo content player info in server.
