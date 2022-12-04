@@ -106,6 +106,13 @@ func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, basic.Error) {
 	}
 }
 
+func (w *World) SetBlock(d maths.Vec3d, i int) {
+	chunkPos := ChunkPos{int32(d.X) >> 4, int32(d.Z) >> 4}
+	if chunk, ok := w.Columns[chunkPos]; ok {
+		chunk.SetBlock(d, i)
+	}
+}
+
 func (w *World) GetNeighbors(block maths.Vec3d) []maths.Vec3d {
 	return []maths.Vec3d{
 		{X: block.X + 1, Y: block.Y, Z: block.Z},
