@@ -1,4 +1,4 @@
-package basic
+package world
 
 import (
 	"github.com/Tnze/go-mc/bot/maths"

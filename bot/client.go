@@ -42,5 +42,6 @@ func NewClient() *Client {
 	c.Player = NewPlayer(c, basic.DefaultSettings)
 	c.World = world.NewWorld()
 	c.TPS = new(maths.TpsCalculator)
+	c.TPS.Callback = c.handleTickers
 	return c
 }

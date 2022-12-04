@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/Tnze/go-mc/bot"
 	"image"
 	_ "image/jpeg"
 	"image/png"
@@ -16,7 +17,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
 )
 

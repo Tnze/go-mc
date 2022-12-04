@@ -2,6 +2,8 @@ package screen
 
 import (
 	"errors"
+	"fmt"
+	"github.com/Tnze/go-mc/bot/basic"
 	item2 "github.com/Tnze/go-mc/data/item"
 	"github.com/Tnze/go-mc/data/slots"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -11,16 +13,16 @@ type Inventory struct {
 	Slots [46]slots.Slot
 }
 
-func (inv *Inventory) onClose() error {
-	return nil
+func (inv *Inventory) onClose() basic.Error {
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (inv *Inventory) OnSetSlot(i int, s slots.Slot) error {
+func (inv *Inventory) OnSetSlot(i int, s slots.Slot) basic.Error {
 	if i < 0 || i >= len(inv.Slots) {
-		return errors.New("slot index out of bounds")
+		return basic.Error{Err: basic.OutOfBound, Info: fmt.Errorf("slot %d out of bound", i)}
 	}
 	inv.Slots[i] = s
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
 func (inv *Inventory) CraftingOutput() *slots.Slot { return &inv.Slots[0] }
@@ -68,9 +70,9 @@ GetHotbarSlotById returns the slot of the item in the hotbar.
 	@param ID the slot ID
 	@return the slot of the item, -1 if not found
 */
-func (inv *Inventory) GetHotbarSlotById(ID uint8) (slots.Slot, error) {
+func (inv *Inventory) GetHotbarSlotById(ID uint8) (slots.Slot, basic.Error) {
 	if ID > 8 {
-		return slots.Slot{}, errors.New("slot ID out of bounds")
+		return slots.Slot{}, basic.Error{Err: basic.OutOfBound, Info: errors.New("slot ID out of bound")}
 	}
-	return inv.Hotbar()[ID], nil
+	return inv.Hotbar()[ID], basic.Error{Err: basic.NoError, Info: nil}
 }

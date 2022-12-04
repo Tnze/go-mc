@@ -1,8 +1,8 @@
 package bot
 
 import (
-	"errors"
 	"fmt"
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/data/item"
@@ -47,7 +47,7 @@ type PlayerMessage struct {
 	TimeStamp         time.Time
 }
 
-func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) error {
+func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID            pk.VarInt
 		EntityUUID          pk.UUID
@@ -59,7 +59,7 @@ func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&EntityID, &EntityUUID, &TypeID, &X, &Y, &Z, &Pitch, &Yaw, &HeadYaw, &Data, &vX, &vY, &vZ); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnEntity packet: %w", err)}
 	}
 
 	if err := c.World.AddEntity(core.NewEntity(
@@ -69,72 +69,78 @@ func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) error {
 		float32(X), float32(Y), float32(Z),
 		float32(Pitch), float32(Yaw),
 	)); err != nil {
-		return err
+		return basic.Error{Err: basic.InvalidEntity, Info: err}
 	}
 
 	fmt.Println("SpawnEntity", EntityID, EntityUUID, TypeID, X, Y, Z, Pitch, Yaw, HeadYaw, Data, vX, vY, vZ)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnExperienceOrb(c *Client, p pk.Packet) error {
-	var entityID pk.VarInt
-	var x, y, z pk.Double
-	var count pk.Short
+func (e *EventsListener) SpawnExperienceOrb(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID pk.VarInt
+		x, y, z  pk.Double
+		count    pk.Short
+	)
 
 	if err := p.Scan(&entityID, &x, &y, &z, &count); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnExperienceOrb packet: %w", err)}
 	}
 
 	fmt.Println("SpawnExperienceOrb", entityID, x, y, z, count)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnGlobalEntity(c *Client, p pk.Packet) error {
+func (e *EventsListener) SpawnGlobalEntity(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.VarInt
 	var typeID pk.Byte
 	var x, y, z pk.Double
 
 	if err := p.Scan(&entityID, &typeID, &x, &y, &z); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnGlobalEntity packet: %w", err)}
 	}
 
 	fmt.Println("SpawnGlobalEntity", entityID, typeID, x, y, z)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnMob(c *Client, p pk.Packet) error {
-	var entityID pk.VarInt
-	var u pk.UUID
-	var typeID pk.Byte
-	var x, y, z pk.Double
-	var yaw, pitch, headYaw pk.Angle
-	var velocityX, velocityY, velocityZ pk.Short
-	//var metadata pk.Metadata // TODO
+func (e *EventsListener) SpawnMob(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID            pk.VarInt
+		entityUUID          pk.UUID
+		typeID              pk.Byte
+		x, y, z             pk.Double
+		yaw, pitch, headYaw pk.Angle
+		vX, vY, vZ          pk.Short
+		//metadata pk.Metadata
+	)
 
-	if err := p.Scan(&entityID, &u, &typeID, &x, &y, &z, &yaw, &pitch, &headYaw, &velocityX, &velocityY, &velocityZ /*&metadata*/); err != nil {
-		return err
+	if err := p.Scan(&entityID, &entityUUID, &typeID, &x, &y, &z, &yaw, &pitch, &headYaw, &vX, &vY, &vZ /*&metadata*/); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnMob packet: %w", err)}
 	}
 
-	fmt.Println("SpawnMob", entityID, u, typeID, x, y, z, yaw, pitch, headYaw, velocityX, velocityY, velocityZ /*metadata*/)
-	return nil
+	fmt.Println("SpawnMob", entityID, entityUUID, typeID, x, y, z, yaw, pitch, headYaw, vX, vY, vZ /*, metadata*/)
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnPainting(c *Client, p pk.Packet) error {
-	var entityID pk.VarInt
-	var uuid pk.UUID
-	var title pk.String
-	var location pk.Position
-	var direction pk.Byte
+func (e *EventsListener) SpawnPainting(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID   pk.VarInt
+		entityUUID pk.UUID
+		title      pk.String
+		location   pk.Position
+		direction  pk.Byte
+	)
 
-	if err := p.Scan(&entityID, &uuid, &title, &location, &direction); err != nil {
-		return err
+	if err := p.Scan(&entityID, &entityUUID, &title, &location, &direction); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnPainting packet: %w", err)}
 	}
 
-	fmt.Println("SpawnPainting", entityID, uuid, title, location, direction)
-	return nil
+	fmt.Println("SpawnPainting", entityID, entityUUID, title, location, direction)
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) error {
+func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID   pk.VarInt
 		PlayerUUID pk.UUID
@@ -143,7 +149,7 @@ func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&EntityID, &PlayerUUID, &X, &Y, &Z, &Yaw, &Pitch); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnPlayer packet: %w", err)}
 	}
 
 	if err := c.World.AddEntity(core.NewEntity(
@@ -153,26 +159,28 @@ func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) error {
 		float32(X), float32(Y), float32(Z),
 		float32(Pitch), float32(Yaw),
 	)); err != nil {
-		return err
+		return basic.Error{Err: basic.InvalidEntity, Info: err}
 	}
 
 	fmt.Println("SpawnPlayer", EntityID, PlayerUUID.String(), X, Y, Z, Yaw, Pitch)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Animation(c *Client, p pk.Packet) error {
-	var entityID pk.VarInt
-	var animation pk.Byte
+func (e *EventsListener) Animation(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID  pk.VarInt
+		animation pk.Byte
+	)
 
 	if err := p.Scan(&entityID, &animation); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Animation packet: %w", err)}
 	}
 
 	fmt.Println("Animation", entityID, animation)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Statistics(c *Client, p pk.Packet) error {
+func (e *EventsListener) Statistics(c *Client, p pk.Packet) basic.Error {
 	/*var count pk.VarInt
 	var statistics []struct {
 		Name  pk.String
@@ -184,23 +192,25 @@ func (e *EventsListener) Statistics(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("Statistics", count, statistics)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BlockBreakAnimation(c *Client, p pk.Packet) error {
-	var entityID pk.VarInt
-	var location pk.Position
-	var destroyStage pk.Byte
+func (e *EventsListener) BlockBreakAnimation(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID pk.VarInt
+		location pk.Position
+		stage    pk.Byte
+	)
 
-	if err := p.Scan(&entityID, &location, &destroyStage); err != nil {
-		return err
+	if err := p.Scan(&entityID, &location, &stage); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BlockBreakAnimation packet: %w", err)}
 	}
 
-	fmt.Println("BlockBreakAnimation", entityID, location, destroyStage)
-	return nil
+	fmt.Println("BlockBreakAnimation", entityID, location, stage)
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UpdateBlockEntity(c *Client, p pk.Packet) error {
+func (e *EventsListener) UpdateBlockEntity(c *Client, p pk.Packet) basic.Error {
 	/*var location pk.Position
 	var action pk.Byte
 	var nbtData pk
@@ -210,61 +220,67 @@ func (e *EventsListener) UpdateBlockEntity(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("UpdateBlockEntity", location, action, nbtData)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BlockAction(c *Client, p pk.Packet) error {
-	var location pk.Position
-	var actionID pk.Byte
-	var actionParam pk.Byte
-	var blockType pk.VarInt
+func (e *EventsListener) BlockAction(c *Client, p pk.Packet) basic.Error {
+	var (
+		location    pk.Position
+		actionID    pk.Byte
+		actionParam pk.Byte
+		blockType   pk.VarInt
+	)
 
 	if err := p.Scan(&location, &actionID, &actionParam, &blockType); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BlockAction packet: %w", err)}
 	}
 
 	fmt.Println("BlockAction", location, actionID, actionParam, blockType)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BlockChange(c *Client, p pk.Packet) error {
-	var location pk.Position
-	var blockType pk.VarInt
+func (e *EventsListener) BlockChange(c *Client, p pk.Packet) basic.Error {
+	var (
+		location  pk.Position
+		blockType pk.VarInt
+	)
 
 	if err := p.Scan(&location, &blockType); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BlockChange packet: %w", err)}
 	}
 
 	fmt.Println("BlockChange", location, blockType)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BossBar(c *Client, p pk.Packet) error {
+func (e *EventsListener) BossBar(c *Client, p pk.Packet) basic.Error {
 	var uuid pk.UUID
 	var action pk.Byte
 
 	if err := p.Scan(&uuid, &action); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
 	}
 
 	switch action {
 	case 0:
-		var title pk.String
-		var health pk.Float
-		var color pk.Byte
-		var division pk.Byte
-		var flags pk.Byte
+		var (
+			title     pk.String
+			health    pk.Float
+			color     pk.Byte
+			divisions pk.Byte
+			flags     pk.Byte
+		)
 
-		if err := p.Scan(&title, &health, &color, &division, &flags); err != nil {
-			return err
+		if err := p.Scan(&title, &health, &color, &divisions, &flags); err != nil {
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
 		}
 
-		fmt.Println("BossBar", uuid, action, title, health, color, division, flags)
+		fmt.Println("BossBar", uuid, action, title, health, color, divisions, flags)
 	case 1:
 		var health pk.Float
 
 		if err := p.Scan(&health); err != nil {
-			return err
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
 		}
 
 		fmt.Println("BossBar", uuid, action, health)
@@ -272,7 +288,7 @@ func (e *EventsListener) BossBar(c *Client, p pk.Packet) error {
 		var title pk.String
 
 		if err := p.Scan(&title); err != nil {
-			return err
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
 		}
 
 		fmt.Println("BossBar", uuid, action, title)
@@ -280,7 +296,7 @@ func (e *EventsListener) BossBar(c *Client, p pk.Packet) error {
 		var color pk.Byte
 
 		if err := p.Scan(&color); err != nil {
-			return err
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
 		}
 
 		fmt.Println("BossBar", uuid, action, color)
@@ -288,7 +304,7 @@ func (e *EventsListener) BossBar(c *Client, p pk.Packet) error {
 		var division pk.Byte
 
 		if err := p.Scan(&division); err != nil {
-			return err
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
 		}
 
 		fmt.Println("BossBar", uuid, action, division)
@@ -296,7 +312,7 @@ func (e *EventsListener) BossBar(c *Client, p pk.Packet) error {
 		var flags pk.Byte
 
 		if err := p.Scan(&flags); err != nil {
-			return err
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
 		}
 
 		fmt.Println("BossBar", uuid, action, flags)
@@ -304,21 +320,21 @@ func (e *EventsListener) BossBar(c *Client, p pk.Packet) error {
 		fmt.Println("BossBar", uuid, action)
 	}
 
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ServerDifficulty(c *Client, p pk.Packet) error {
+func (e *EventsListener) ServerDifficulty(c *Client, p pk.Packet) basic.Error {
 	var difficulty pk.Byte
 
 	if err := p.Scan(&difficulty); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ServerDifficulty packet: %w", err)}
 	}
 
 	fmt.Println("ServerDifficulty", difficulty)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) TabComplete(c *Client, p pk.Packet) error {
+func (e *EventsListener) TabComplete(c *Client, p pk.Packet) basic.Error {
 	/*var count pk.VarInt
 	var matches []pk.String
 
@@ -327,54 +343,26 @@ func (e *EventsListener) TabComplete(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("TabComplete", count, matches)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) error {
-	var json pk.String
-	var position pk.Byte
+func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
+	var (
+		json     pk.String
+		position pk.Byte
+		msg      chat.Message
+		pos      pk.VarInt
+	)
 
-	if err := p.Scan(&json, &position); err != nil {
-		return err
+	if err := p.Scan(&json, &position, &msg, &pos); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
 
-	switch position {
-	case 0:
-		/*var (
-			Message           PlayerMessage
-			SenderDisplayName pk.String
-			SenderTeamName    pk.String
-			Timestamp         pk.Long
-		)
-
-		if err := p.Scan(&SenderDisplayName, &SenderTeamName, &Timestamp); err != nil {
-			return err
-		}
-		if err := json.Unmarshal(&Message); err != nil {
-			return err
-		}*/
-
-		var msg chat.Message
-		var pos pk.VarInt
-
-		if err := p.Scan(&msg, &pos); err != nil {
-			return err
-		}
-		fmt.Println("ChatMessage", msg, pos)
-	case 1:
-		var msg chat.Message
-		var pos pk.VarInt
-
-		if err := p.Scan(&msg, &pos); err != nil {
-			return err
-		}
-		fmt.Println("SystemMessage", msg, pos)
-	}
-
-	return nil
+	fmt.Println("Message", msg, pos)
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) MultiBlockChange(c *Client, p pk.Packet) error {
+func (e *EventsListener) MultiBlockChange(c *Client, p pk.Packet) basic.Error {
 	/*var chunkX pk.Int
 	var chunkZ pk.Int
 	var recordCount pk.VarInt
@@ -388,23 +376,23 @@ func (e *EventsListener) MultiBlockChange(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("MultiBlockChange", chunkX, chunkZ, recordCount, records)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ConfirmTransaction(c *Client, p pk.Packet) error {
+func (e *EventsListener) ConfirmTransaction(c *Client, p pk.Packet) basic.Error {
 	var windowID pk.Byte
 	var actionNumber pk.Short
 	var accepted pk.Boolean
 
 	if err := p.Scan(&windowID, &actionNumber, &accepted); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ConfirmTransaction packet: %w", err)}
 	}
 
 	fmt.Println("ConfirmTransaction", windowID, actionNumber, accepted)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetWindowContent(c *Client, p pk.Packet) error {
+func (e *EventsListener) SetWindowContent(c *Client, p pk.Packet) basic.Error {
 	var (
 		ContainerID pk.UnsignedByte
 		StateID     pk.VarInt
@@ -417,57 +405,59 @@ func (e *EventsListener) SetWindowContent(c *Client, p pk.Packet) error {
 		pk.Array(&SlotData),
 		&CarriedItem,
 	); err != nil {
-		return Error{err}
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan SetWindowContent")}
 	}
 	c.Player.Manager.StateID = int32(StateID)
 	// copy the slot data to container
 	container, ok := c.Player.Manager.Screens[int(ContainerID)]
 	if !ok {
-		return Error{errors.New("setting content of non-exist container")}
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to find container with id %d", ContainerID)}
 	}
 	for i, v := range SlotData {
 		err := container.OnSetSlot(i, v)
-		if err != nil {
-			return Error{err}
+		if !err.Is(basic.NoError) {
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", i, err)}
 		}
 		/*if m.events.SetSlot != nil {
 			if err := m.events.SetSlot(int(ContainerID), i); err != nil {
-				return Error{err}
+				return basic.Error{err}
 			}
 		}*/
 	}
 
 	fmt.Println("SetWindowContent", ContainerID, StateID, SlotData, CarriedItem)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CloseWindow(c *Client, p pk.Packet) error {
+func (e *EventsListener) CloseWindow(c *Client, p pk.Packet) basic.Error {
 	var windowID pk.Byte
 
 	if err := p.Scan(&windowID); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseWindow packet: %w", err)}
 	}
 
 	fmt.Println("CloseWindow", windowID)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) OpenWindow(c *Client, p pk.Packet) error {
-	var windowID pk.Byte
-	var windowType pk.String
-	var windowTitle pk.String
-	var slotCount pk.Byte
-	var entityID pk.Int
+func (e *EventsListener) OpenWindow(c *Client, p pk.Packet) basic.Error {
+	var (
+		windowID    pk.Byte
+		windowType  pk.String
+		windowTitle pk.String
+		slotCount   pk.Byte
+		entityID    pk.Int
+	)
 
 	if err := p.Scan(&windowID, &windowType, &windowTitle, &slotCount, &entityID); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read OpenWindow packet: %w", err)}
 	}
 
 	fmt.Println("OpenWindow", windowID, windowType, windowTitle, slotCount, entityID)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) WindowItems(c *Client, p pk.Packet) error {
+func (e *EventsListener) WindowItems(c *Client, p pk.Packet) basic.Error {
 	/*var windowID pk.Byte
 	var count pk.Short
 	var items []pk.Slot
@@ -477,23 +467,23 @@ func (e *EventsListener) WindowItems(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("WindowItems", windowID, count, items)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) WindowProperty(c *Client, p pk.Packet) error {
+func (e *EventsListener) WindowProperty(c *Client, p pk.Packet) basic.Error {
 	var windowID pk.Byte
 	var property pk.Short
 	var value pk.Short
 
 	if err := p.Scan(&windowID, &property, &value); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read WindowProperty packet: %w", err)}
 	}
 
 	fmt.Println("WindowProperty", windowID, property, value)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetSlot(c *Client, p pk.Packet) (err error) {
+func (e *EventsListener) SetSlot(c *Client, p pk.Packet) (err basic.Error) {
 	var (
 		ContainerID pk.Byte
 		StateID     pk.VarInt
@@ -501,7 +491,7 @@ func (e *EventsListener) SetSlot(c *Client, p pk.Packet) (err error) {
 		SlotData    Slot
 	)
 	if err := p.Scan(&ContainerID, &StateID, &SlotID, &SlotData); err != nil {
-		return Error{err}
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan SetSlot")}
 	}
 
 	c.Player.Manager.StateID = int32(StateID)
@@ -515,76 +505,80 @@ func (e *EventsListener) SetSlot(c *Client, p pk.Packet) (err error) {
 
 	/*if m.events.SetSlot != nil {
 		if err := m.events.SetSlot(int(ContainerID), int(SlotID)); err != nil {
-			return Error{err}
+			return basic.Error{err}
 		}
 	}*/
-	if err != nil {
-		return Error{err}
-	}
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetCooldown(c *Client, p pk.Packet) error {
-	var itemID pk.VarInt
-	var cooldown pk.VarInt
+func (e *EventsListener) SetCooldown(c *Client, p pk.Packet) basic.Error {
+	var (
+		itemID pk.VarInt
+		ticks  pk.VarInt
+	)
 
-	if err := p.Scan(&itemID, &cooldown); err != nil {
-		return err
+	if err := p.Scan(&itemID, &ticks); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SetCooldown packet: %w", err)}
 	}
 
-	fmt.Println("SetCooldown", itemID, cooldown)
-	return nil
+	fmt.Println("SetCooldown", itemID, ticks)
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PluginMessage(c *Client, p pk.Packet) error {
-	var channel pk.String
-	var data pk.ByteArray
+func (e *EventsListener) PluginMessage(c *Client, p pk.Packet) basic.Error {
+	var (
+		channel pk.String
+		data    pk.ByteArray
+	)
 
 	if err := p.Scan(&channel, &data); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PluginMessage packet: %w", err)}
 	}
 
 	fmt.Println("PluginMessage", channel, data)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) NamedSoundEffect(c *Client, p pk.Packet) error {
-	var soundName pk.String
-	var soundCategory pk.Byte
-	var effectPosition pk.Position
-	var volume pk.Float
-	var pitch pk.Float
+func (e *EventsListener) NamedSoundEffect(c *Client, p pk.Packet) basic.Error {
+	var (
+		soundName      pk.String
+		soundCategory  pk.Byte
+		effectPosition pk.Position
+		volume         pk.Float
+		pitch          pk.Float
+	)
 
 	if err := p.Scan(&soundName, &soundCategory, &effectPosition, &volume, &pitch); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read NamedSoundEffect packet: %w", err)}
 	}
 
 	fmt.Println("NamedSoundEffect", soundName, soundCategory, effectPosition, volume, pitch)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Disconnect(c *Client, p pk.Packet) error {
+func (e *EventsListener) Disconnect(c *Client, p pk.Packet) basic.Error {
 	var reason chat.Message
 	if err := p.Scan(&reason); err != nil {
-		return Error{err}
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan Disconnect: %w", err)}
 	}
 
-	return nil
+	fmt.Println("Disconnect", reason)
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityStatus(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityStatus(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 	var entityStatus pk.Byte
 
 	if err := p.Scan(&entityID, &entityStatus); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityStatus packet: %w", err)}
 	}
 
 	fmt.Println("EntityStatus", entityID, entityStatus)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Explosion(c *Client, p pk.Packet) error {
+func (e *EventsListener) Explosion(c *Client, p pk.Packet) basic.Error {
 	/*var x pk.Float
 	var y pk.Float
 	var z pk.Float
@@ -604,37 +598,37 @@ func (e *EventsListener) Explosion(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("Explosion", x, y, z, radius, recordCount, records, playerMotionX, playerMotionY, playerMotionZ)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UnloadChunk(c *Client, p pk.Packet) error {
+func (e *EventsListener) UnloadChunk(c *Client, p pk.Packet) basic.Error {
 	var chunk level.ChunkPos
 
 	if err := p.Scan(&chunk); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UnloadChunk packet: %w", err)}
 	}
 
 	delete(c.World.Columns, chunk)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ChangeGameState(c *Client, p pk.Packet) error {
+func (e *EventsListener) ChangeGameState(c *Client, p pk.Packet) basic.Error {
 	var reason pk.UnsignedByte
 	var value pk.Float
 
 	if err := p.Scan(&reason, &value); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChangeGameState packet: %w", err)}
 	}
 
 	fmt.Println("ChangeGameState", reason, value)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) KeepAlive(c *Client, p pk.Packet) error {
+func (e *EventsListener) KeepAlive(c *Client, p pk.Packet) basic.Error {
 	var keepAliveID pk.Long
 
 	if err := p.Scan(&keepAliveID); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read KeepAlive packet: %w", err)}
 	}
 
 	if err := c.Conn.WritePacket(
@@ -642,17 +636,14 @@ func (e *EventsListener) KeepAlive(c *Client, p pk.Packet) error {
 			packetid.SPacketKeepAlive,
 			keepAliveID,
 		),
-	); err != nil {
-		return err
+	); !err.Is(basic.NoError) {
+		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write KeepAlive packet: %w", err)}
 	}
 
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ChunkData(c *Client, p pk.Packet) error {
-	/*
-		From https://github.com/maxsupermanhd/WebChunk/blob/7ba5b2394ddc7a8d3ab90c31fb511c920ca2c62c/proxy/chunkProcessor.go#L437
-	*/
+func (e *EventsListener) ChunkData(c *Client, p pk.Packet) basic.Error {
 	var (
 		ChunkPos level.ChunkPos
 		Chunk    level.Chunk
@@ -661,30 +652,30 @@ func (e *EventsListener) ChunkData(c *Client, p pk.Packet) error {
 	if err := p.Scan(
 		&ChunkPos, &Chunk,
 	); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChunkData packet: %w", err)}
 	}
 
 	fmt.Println("ChunkData", ChunkPos, len(Chunk.Sections), len(c.World.Columns))
 	c.World.Columns[ChunkPos] = &Chunk
 
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Effect(c *Client, p pk.Packet) error {
+func (e *EventsListener) Effect(c *Client, p pk.Packet) basic.Error {
 	var effectID pk.Int
 	var location pk.Position
 	var data pk.Int
 	var disableRelativeVolume pk.Boolean
 
 	if err := p.Scan(&effectID, &location, &data, &disableRelativeVolume); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Effect packet: %w", err)}
 	}
 
 	fmt.Println("Effect", effectID, location, data, disableRelativeVolume)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Particle(c *Client, p pk.Packet) error {
+func (e *EventsListener) Particle(c *Client, p pk.Packet) basic.Error {
 	/*var particleID pk.String
 	var longDistance pk.Boolean
 	var x pk.Float
@@ -702,11 +693,11 @@ func (e *EventsListener) Particle(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("Particle", particleID, longDistance, x, y, z, offsetX, offsetY, offsetZ, particleData, particleCount, data)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) JoinGame(c *Client, p pk.Packet) error {
-	err := p.Scan(
+func (e *EventsListener) JoinGame(c *Client, p pk.Packet) basic.Error {
+	if err := p.Scan(
 		(*pk.Int)(&c.Player.EID),
 		(*pk.Boolean)(&c.Player.Hardcore),
 		(*pk.UnsignedByte)(&c.Player.Gamemode),
@@ -727,20 +718,18 @@ func (e *EventsListener) JoinGame(c *Client, p pk.Packet) error {
 			If:    (*pk.Boolean)(&c.Player.HasDeathLocation),
 			Value: (*pk.Position)(&c.Player.WorldInfo.DeathPosition),
 		},
-	)
-	if err != nil {
-		return Error{err}
+	); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read JoinGame packet: %w", err)}
 	}
-	err = c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
+	if err := c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
 		packetid.SPacketPluginMessage,
 		pk.Identifier("minecraft:brand"),
 		pk.String(c.Player.Settings.Brand),
-	))
-	if err != nil {
-		return Error{err}
+	)); !err.Is(basic.NoError) {
+		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write PluginMessage packet: %w", err)}
 	}
 
-	err = c.Conn.WritePacket(pk.Marshal(
+	if err := c.Conn.WritePacket(pk.Marshal(
 		packetid.SPacketClientSettings,
 		pk.String(c.Player.Settings.Locale),
 		pk.Byte(c.Player.Settings.ViewDistance),
@@ -750,16 +739,20 @@ func (e *EventsListener) JoinGame(c *Client, p pk.Packet) error {
 		pk.VarInt(c.Player.Settings.MainHand),
 		pk.Boolean(c.Player.Settings.EnableTextFiltering),
 		pk.Boolean(c.Player.Settings.AllowListing),
-	))
-	if err != nil {
-		return Error{err}
+	)); !err.Is(basic.NoError) {
+		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write ClientSettings packet: %w", err)}
+	}
+
+	// Add the player to the world
+	if err := c.World.AddEntity(c.Player.EntityPlayer); err != nil {
+		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to add player to the world: %w", err)}
 	}
 
 	fmt.Println("JoinGame", c.Player.EID, c.Player.Hardcore, c.Player.Gamemode, c.Player.PrevGamemode, c.Player.DimensionNames, c.Player.WorldInfo.DimensionCodec, c.Player.WorldInfo.DimensionType, c.Player.DimensionName, c.Player.HashedSeed, c.Player.MaxPlayers, c.Player.ViewDistance, c.Player.SimulationDistance, c.Player.ReducedDebugInfo, c.Player.EnableRespawnScreen, c.Player.IsDebug, c.Player.IsFlat)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Map(c *Client, p pk.Packet) error {
+func (e *EventsListener) Map(c *Client, p pk.Packet) basic.Error {
 	/*var itemDamage pk.VarInt
 	var scale pk.Byte
 	var trackingPosition pk.Boolean
@@ -779,21 +772,21 @@ func (e *EventsListener) Map(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("Map", itemDamage, scale, trackingPosition, icons, columns, rows, x, z, data)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Entity(c *Client, p pk.Packet) error {
+func (e *EventsListener) Entity(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 
 	if err := p.Scan(&entityID); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Entity packet: %w", err)}
 	}
 
 	fmt.Println("Entity", entityID)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID               pk.VarInt
 		DeltaX, DeltaY, DeltaZ pk.Short
@@ -801,7 +794,7 @@ func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&EntityID, &DeltaX, &DeltaY, &DeltaZ, &OnGround); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityPosition packet: %w", err)}
 	}
 
 	if _, entity, err := c.World.GetEntityByID(int32(EntityID)); err == nil {
@@ -811,10 +804,10 @@ func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("EntityRelativeMove", EntityID, DeltaX, DeltaY, DeltaZ, OnGround)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityPositionRotation(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityPositionRotation(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID               pk.VarInt
 		DeltaX, DeltaY, DeltaZ pk.Short
@@ -823,28 +816,28 @@ func (e *EventsListener) EntityPositionRotation(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&EntityID, &DeltaX, &DeltaY, &DeltaZ, &Yaw, &Pitch, &OnGround); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityPositionRotation packet: %w", err)}
 	}
 
 	fmt.Println("EntityPositionRotation", EntityID, DeltaX, DeltaY, DeltaZ, Yaw, Pitch, OnGround)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityHeadRotation(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityHeadRotation(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID pk.VarInt
 		HeadYaw  pk.Angle
 	)
 
 	if err := p.Scan(&EntityID, &HeadYaw); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityHeadRotation packet: %w", err)}
 	}
 
 	fmt.Println("EntityHeadRotation", EntityID, HeadYaw)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityRotation(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityRotation(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID   pk.VarInt
 		Yaw, Pitch pk.Angle
@@ -852,78 +845,78 @@ func (e *EventsListener) EntityRotation(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&EntityID, &Yaw, &Pitch, &OnGround); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityRotation packet: %w", err)}
 	}
 
 	fmt.Println("EntityRotation", EntityID, Yaw, Pitch, OnGround)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) VehicleMove(c *Client, p pk.Packet) error {
+func (e *EventsListener) VehicleMove(c *Client, p pk.Packet) basic.Error {
 	var (
 		X, Y, Z    pk.Double
 		Yaw, Pitch pk.Float
 	)
 
 	if err := p.Scan(&X, &Y, &Z, &Yaw, &Pitch); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read VehicleMove packet: %w", err)}
 	}
 
 	fmt.Println("VehicleMove", X, Y, Z, Yaw, Pitch)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) OpenSignEditor(c *Client, p pk.Packet) error {
+func (e *EventsListener) OpenSignEditor(c *Client, p pk.Packet) basic.Error {
 	var location pk.Position
 
 	if err := p.Scan(&location); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read OpenSignEditor packet: %w", err)}
 	}
 
 	fmt.Println("OpenSignEditor", location)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CraftRecipeResponse(c *Client, p pk.Packet) error {
+func (e *EventsListener) CraftRecipeResponse(c *Client, p pk.Packet) basic.Error {
 	var windowID pk.UnsignedByte
 	var recipe pk.String
 
 	if err := p.Scan(&windowID, &recipe); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CraftRecipeResponse packet: %w", err)}
 	}
 
 	fmt.Println("CraftRecipeResponse", windowID, recipe)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerAbilities(c *Client, p pk.Packet) error {
+func (e *EventsListener) PlayerAbilities(c *Client, p pk.Packet) basic.Error {
 	var flags pk.UnsignedByte
 	var flyingSpeed pk.Float
 	var fov pk.Float
 
 	if err := p.Scan(&flags, &flyingSpeed, &fov); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PlayerAbilities packet: %w", err)}
 	}
 
 	fmt.Println("PlayerAbilities", flags, flyingSpeed, fov)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CombatEvent(c *Client, p pk.Packet) error {
+func (e *EventsListener) CombatEvent(c *Client, p pk.Packet) basic.Error {
 	var event pk.Byte
 	var duration pk.Int
 	var entityID pk.Int
 	var message pk.String
 
 	if err := p.Scan(&event, &duration, &entityID, &message); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CombatEvent packet: %w", err)}
 	}
 
 	fmt.Println("CombatEvent", event, duration, entityID, message)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerInfo(c *Client, p pk.Packet) error {
+func (e *EventsListener) PlayerInfo(c *Client, p pk.Packet) basic.Error {
 	/*var action pk.Byte
 	var players []struct {
 		UUID       pk.UUID
@@ -943,10 +936,10 @@ func (e *EventsListener) PlayerInfo(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("PlayerInfo", action, players)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
+func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) basic.Error {
 	var (
 		X, Y, Z    pk.Double
 		Yaw, Pitch pk.Float
@@ -956,7 +949,7 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&X, &Y, &Z, &Yaw, &Pitch, &Flags, &TeleportID, &Dismount); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SyncPlayerPosition packet: %w", err)}
 	}
 
 	position := maths.Vec3d{X: float32(X), Y: float32(Y), Z: float32(Z)}
@@ -970,7 +963,7 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 		c.Player.Rotation = rotation
 	}
 
-	//c.Player.OnGround = Flags&0x02 != 0
+	c.Player.OnGround = Flags&0x02 == 0
 
 	if TeleportID != 0 {
 		if err := c.Conn.WritePacket(
@@ -978,57 +971,47 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) error {
 				packetid.SPacketTeleportConfirm,
 				TeleportID,
 			),
-		); err != nil {
-			return err
+		); !err.Is(basic.NoError) {
+			return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write TeleportConfirm packet: %w", err)}
 		}
 	}
 
-	c.Player.OnGround = Flags&0x02 != 0
-
-	start := c.Player.GetEyePos()
-	end := maths.ProjectPosition(c.Player.Rotation, 5, 1.62) // Relative to the player's eye position
-	result, err := c.World.RayTrace(start, start.Add(end))
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(result)
-	}
-
-	fmt.Println("Players:", c.World.GetEntitiesByType(core.EntityPlayer{}))
 	fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerPositionAndLook(c *Client, p pk.Packet) error {
-	var x pk.Double
-	var y pk.Double
-	var z pk.Double
-	var yaw pk.Angle
-	var pitch pk.Angle
-	var flags pk.Byte
-	var teleportID pk.VarInt
+func (e *EventsListener) PlayerPositionAndLook(c *Client, p pk.Packet) basic.Error {
+	var (
+		x          pk.Double
+		y          pk.Double
+		z          pk.Double
+		yaw        pk.Float
+		pitch      pk.Float
+		flags      pk.Byte
+		teleportID pk.VarInt
+	)
 
 	if err := p.Scan(&x, &y, &z, &yaw, &pitch, &flags, &teleportID); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PlayerPositionAndLook packet: %w", err)}
 	}
 
 	fmt.Println("PlayerPositonAndLook", x, y, z, yaw, pitch, flags, teleportID)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UseBed(c *Client, p pk.Packet) error {
+func (e *EventsListener) UseBed(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 	var location pk.Position
 
 	if err := p.Scan(&entityID, &location); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UseBed packet: %w", err)}
 	}
 
 	fmt.Println("UseBed", entityID, location)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UnlockRecipes(c *Client, p pk.Packet) error {
+func (e *EventsListener) UnlockRecipes(c *Client, p pk.Packet) basic.Error {
 	/*var action pk.Byte
 	var craftingBookOpen pk.Boolean
 	var filter pk.Boolean
@@ -1039,10 +1022,10 @@ func (e *EventsListener) UnlockRecipes(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("UnlockRecipes", action, craftingBookOpen, filter, recipes)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) DestroyEntities(c *Client, p pk.Packet) error {
+func (e *EventsListener) DestroyEntities(c *Client, p pk.Packet) basic.Error {
 	/*var entityIDs []pk.Int
 
 	if err := p.Scan(&entityIDs); err != nil {
@@ -1050,34 +1033,36 @@ func (e *EventsListener) DestroyEntities(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("DestroyEntities", entityIDs)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) RemoveEntityEffect(c *Client, p pk.Packet) error {
+func (e *EventsListener) RemoveEntityEffect(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 	var effectID pk.Byte
 
 	if err := p.Scan(&entityID, &effectID); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read RemoveEntityEffect packet: %w", err)}
 	}
 
 	fmt.Println("RemoveEntityEffect", entityID, effectID)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ResourcePackSend(c *Client, p pk.Packet) error {
-	var url pk.String
-	var hash pk.String
+func (e *EventsListener) ResourcePackSend(c *Client, p pk.Packet) basic.Error {
+	var (
+		url  pk.String
+		hash pk.String
+	)
 
 	if err := p.Scan(&url, &hash); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ResourcePackSend packet: %w", err)}
 	}
 
 	fmt.Println("ResourcePackSend", url, hash)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Respawn(c *Client, p pk.Packet) error {
+func (e *EventsListener) Respawn(c *Client, p pk.Packet) basic.Error {
 	var copyMeta bool
 	if err := p.Scan(
 		(*pk.String)(&c.Player.DimensionType),
@@ -1089,119 +1074,255 @@ func (e *EventsListener) Respawn(c *Client, p pk.Packet) error {
 		(*pk.Boolean)(&c.Player.IsFlat),
 		(*pk.Boolean)(&copyMeta),
 	); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Respawn packet: %w", err)}
 	}
 
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SelectAdvancementTab(c *Client, p pk.Packet) error {
+func (e *EventsListener) SelectAdvancementTab(c *Client, p pk.Packet) basic.Error {
 	var hasID pk.Boolean
 	var identifier pk.String
 
 	if err := p.Scan(&hasID, &identifier); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SelectAdvancementTab packet: %w", err)}
 	}
 
 	fmt.Println("SelectAdvancementTab", hasID, identifier)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) WorldBorder(c *Client, p pk.Packet) error {
-	var action pk.Byte
-	var radius pk.Double
-	var oldRadius pk.Double
-	var speed pk.VarInt
-	var x pk.Int
-	var z pk.Int
-	var portalBoundary pk.VarInt
-	var warningTime pk.VarInt
-	var warningBlocks pk.VarInt
+func (e *EventsListener) WorldBorder(c *Client, p pk.Packet) basic.Error {
+	var (
+		action         pk.Byte
+		radius         pk.Double
+		oldRadius      pk.Double
+		speed          pk.VarInt
+		x              pk.Int
+		z              pk.Int
+		portalBoundary pk.Int
+		warningTime    pk.VarInt
+		warningBlocks  pk.VarInt
+	)
 
 	if err := p.Scan(&action, &radius, &oldRadius, &speed, &x, &z, &portalBoundary, &warningTime, &warningBlocks); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read WorldBorder packet: %w", err)}
 	}
 
 	fmt.Println("WorldBorder", action, radius, oldRadius, speed, x, z, portalBoundary, warningTime, warningBlocks)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Camera(c *Client, p pk.Packet) error {
+func (e *EventsListener) Camera(c *Client, p pk.Packet) basic.Error {
 	var cameraID pk.Int
 
 	if err := p.Scan(&cameraID); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Camera packet: %w", err)}
 	}
 
 	fmt.Println("Camera", cameraID)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) HeldItemChange(c *Client, p pk.Packet) error {
+func (e *EventsListener) HeldItemChange(c *Client, p pk.Packet) basic.Error {
 	var slot pk.Short
 
 	if err := p.Scan(&slot); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read HeldItemChange packet: %w", err)}
 	}
 
 	newSlot, err := c.Player.Inventory.GetHotbarSlotById(uint8(slot))
-	if err != nil {
-		return err
+	if !err.Is(basic.NoError) {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read HeldItemChange packet: %w", err)}
 	}
+
 	fmt.Println("HeldItemChange", slot, "New Item:", item.ByID[item.ID(newSlot.ID)].Name)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) DisplayScoreboard(c *Client, p pk.Packet) error {
+func (e *EventsListener) DisplayScoreboard(c *Client, p pk.Packet) basic.Error {
 	var position pk.Byte
 	var name pk.String
 
 	if err := p.Scan(&position, &name); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read DisplayScoreboard packet: %w", err)}
 	}
 
 	fmt.Println("DisplayScoreboard", position, name)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityMetadata(c *Client, p pk.Packet) error {
-	/*var entityID pk.Int
-	var metadata pk.Metadata
+func (e *EventsListener) EntityMetadata(c *Client, p pk.Packet) basic.Error {
+	var (
+		err      error
+		EntityID pk.VarInt
+		Metadata struct {
+			Index pk.UnsignedByte
+			Type  pk.VarInt
+			Value interface{}
+		}
+	)
 
-	if err := p.Scan(&entityID, &metadata); err != nil {
-		return err
+	if err := p.Scan(
+		&EntityID,
+		&Metadata.Index,
+		pk.Opt{
+			If: func() bool {
+				return Metadata.Index != 0xff
+			},
+			Value: &Metadata.Type,
+		},
+	); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityMetadata packet: %w", err)}
+	}
+	switch Metadata.Type {
+	case 0:
+		var Value pk.Byte
+		err = p.Scan(&Value)
+	case 1:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
+	case 2:
+		var Value pk.Float
+		err = p.Scan(&Value)
+	case 3:
+		var Value pk.String
+		err = p.Scan(&Value)
+	case 4:
+		var Value chat.Message
+		err = p.Scan(&Value)
+	case 5:
+		var Value struct {
+			Present pk.Boolean
+			Value   chat.Message
+		}
+		err = p.Scan(
+			&Value.Present,
+			pk.Opt{
+				If:    Value.Present,
+				Value: &Value.Value,
+			},
+		)
+	case 6:
+		var Value Slot
+		err = p.Scan(&Value)
+	case 7:
+		var Value pk.Boolean
+		err = p.Scan(&Value)
+	case 8:
+		var Value pk.Position
+		err = p.Scan(&Value)
+	case 9:
+		var Value pk.Position
+		err = p.Scan(&Value)
+	case 10:
+		var Value struct {
+			Present pk.Boolean
+			Value   pk.Position
+		}
+		err = p.Scan(
+			&Value.Present,
+			pk.Opt{
+				If:    Value.Present,
+				Value: &Value.Value,
+			},
+		)
+	case 11:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
+	case 12:
+		var Value struct {
+			Present pk.Boolean
+			Value   pk.UUID
+		}
+		err = p.Scan(
+			&Value.Present,
+			pk.Opt{
+				If:    Value.Present,
+				Value: &Value.Value,
+			},
+		)
+	case 13:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
+	/*case 14:*/
+	case 15:
+		var Value struct {
+			ID   pk.VarInt
+			Data pk.VarInt // TODO: This is a particle data
+		}
+		err = p.Scan(&Value.ID, &Value.Data)
+	case 16:
+		var Value pk.ByteArray // TODO: 3 floats
+		err = p.Scan(&Value)
+	case 17:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
+	case 18:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
+	case 19:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
+	case 20:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
+	/*case 21:*/
+	case 22:
+		var Value pk.VarInt
+		err = p.Scan(&Value)
 	}
 
-	fmt.Println("EntityMetadata", entityID, metadata)*/
-	return nil
+	if err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityMetadata packet: %w", err)}
+	}
+
+	fmt.Println("EntityMetadata", EntityID, Metadata.Index, Metadata.Type)
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) AttachEntity(c *Client, p pk.Packet) error {
-	var entityID pk.Int
-	var vehicleID pk.Int
-	var leash pk.Boolean
+func (e *EventsListener) AttachEntity(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID  pk.Int
+		vehicleID pk.Int
+		leash     pk.Boolean
+	)
 
 	if err := p.Scan(&entityID, &vehicleID, &leash); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read AttachEntity packet: %w", err)}
 	}
 
 	fmt.Println("AttachEntity", entityID, vehicleID, leash)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityVelocity(c *Client, p pk.Packet) error {
-	var entityID pk.VarInt
-	var velocityX, velocityY, velocityZ pk.Short
+func (e *EventsListener) EntityVelocity(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID                        pk.VarInt
+		velocityX, velocityY, velocityZ pk.Short
+	)
 
 	if err := p.Scan(&entityID, &velocityX, &velocityY, &velocityZ); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityVelocity packet: %w", err)}
+	}
+
+	if _, entity, err := c.World.GetEntityByID(int32(entityID)); err == nil {
+		entity.(*core.Entity).SetMotion(
+			maths.Vec3d{
+				X: float32(velocityX) / 8000,
+				Y: float32(velocityY) / 8000,
+				Z: float32(velocityZ) / 8000,
+			},
+		)
+	} else {
+		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to find entity with ID %d", entityID)}
 	}
 
 	fmt.Println("EntityVelocity", entityID, velocityX, velocityY, velocityZ)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityEquipment(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityEquipment(c *Client, p pk.Packet) basic.Error {
 	/*var entityID pk.Int
 	var slot pk.Short
 	var item pk.Slot
@@ -1211,24 +1332,26 @@ func (e *EventsListener) EntityEquipment(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("EntityEquipment", entityID, slot, item)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetExperience(c *Client, p pk.Packet) error {
-	var experienceBar pk.Float
-	var level pk.VarInt
-	var totalExperience pk.VarInt
+func (e *EventsListener) SetExperience(c *Client, p pk.Packet) basic.Error {
+	var (
+		experienceBar   pk.Float
+		levelInt        pk.VarInt
+		totalExperience pk.VarInt
+	)
 
-	if err := p.Scan(&experienceBar, &level, &totalExperience); err != nil {
-		return err
+	if err := p.Scan(&experienceBar, &levelInt, &totalExperience); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SetExperience packet: %w", err)}
 	}
 
-	fmt.Println("SetExperience", experienceBar, level, totalExperience)
-	c.Player.SetExp(float32(experienceBar), int32(level), int32(totalExperience))
-	return nil
+	fmt.Println("SetExperience", experienceBar, levelInt, totalExperience)
+	c.Player.SetExp(float32(experienceBar), int32(levelInt), int32(totalExperience))
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UpdateHealth(c *Client, p pk.Packet) error {
+func (e *EventsListener) UpdateHealth(c *Client, p pk.Packet) basic.Error {
 	var (
 		health         pk.Float
 		food           pk.VarInt
@@ -1236,19 +1359,19 @@ func (e *EventsListener) UpdateHealth(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&health, &food, &foodSaturation); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UpdateHealth packet: %w", err)}
 	}
 
 	fmt.Println("UpdateHealth", health, food, foodSaturation)
 	if respawn := c.Player.SetHealth(float32(health)); respawn {
 		if err := c.Player.Respawn(); err != nil {
-			return err
+			return basic.Error{Err: basic.NoError, Info: err}
 		}
 	}
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ScoreboardObjective(c *Client, p pk.Packet) error {
+func (e *EventsListener) ScoreboardObjective(c *Client, p pk.Packet) basic.Error {
 	var (
 		name           pk.String
 		mode           pk.Byte
@@ -1258,14 +1381,14 @@ func (e *EventsListener) ScoreboardObjective(c *Client, p pk.Packet) error {
 	)
 
 	if err := p.Scan(&name, &mode, &objectiveName, &objectiveValue, &type_); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ScoreboardObjective packet: %w", err)}
 	}
 
 	fmt.Println("ScoreboardObjective", name, mode, objectiveName, objectiveValue, type_)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetPassengers(c *Client, p pk.Packet) error {
+func (e *EventsListener) SetPassengers(c *Client, p pk.Packet) basic.Error {
 	/*var entityID pk.Int
 	var passengerCount pk.VarInt
 	var passengers pk.Ary[]pk.VarInt
@@ -1275,10 +1398,10 @@ func (e *EventsListener) SetPassengers(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("SetPassengers", entityID, passengerCount, passengers)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Teams(c *Client, p pk.Packet) error {
+func (e *EventsListener) Teams(c *Client, p pk.Packet) basic.Error {
 	/*var name pk.String
 	var mode pk.Byte
 	var teamName pk.String
@@ -1297,35 +1420,35 @@ func (e *EventsListener) Teams(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("Teams", name, mode, teamName, displayName, prefix, suffix, friendlyFire, nameTagVisibility, collisionRule, color, playerCount, players)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UpdateScore(c *Client, p pk.Packet) error {
+func (e *EventsListener) UpdateScore(c *Client, p pk.Packet) basic.Error {
 	var name pk.String
 	var action pk.Byte
 	var objectiveName pk.String
 	var value pk.VarInt
 
 	if err := p.Scan(&name, &action, &objectiveName, &value); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UpdateScore packet: %w", err)}
 	}
 
 	fmt.Println("UpdateScore", name, action, objectiveName, value)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnPosition(c *Client, p pk.Packet) error {
+func (e *EventsListener) SpawnPosition(c *Client, p pk.Packet) basic.Error {
 	var location pk.Position
 
 	if err := p.Scan(&location); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnPosition packet: %w", err)}
 	}
 
 	fmt.Println("SpawnPosition", location)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) TimeUpdate(c *Client, p pk.Packet) error {
+func (e *EventsListener) TimeUpdate(c *Client, p pk.Packet) basic.Error {
 	var (
 		WorldAge  pk.Long
 		TimeOfDay pk.Long
@@ -1334,69 +1457,77 @@ func (e *EventsListener) TimeUpdate(c *Client, p pk.Packet) error {
 	c.TPS.Update()
 
 	if err := p.Scan(&WorldAge, &TimeOfDay); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read TimeUpdate packet: %w", err)}
 	}
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Title(c *Client, p pk.Packet) error {
-	var action pk.Byte
-	var fadeIn pk.Int
-	var stay pk.Int
-	var fadeOut pk.Int
-	var title pk.String
-	var subtitle pk.String
-	var actionBar pk.String
+func (e *EventsListener) Title(c *Client, p pk.Packet) basic.Error {
+	var (
+		action    pk.Byte
+		fadeIn    pk.Int
+		stay      pk.Int
+		fadeOut   pk.Int
+		title     pk.String
+		subtitle  pk.String
+		actionBar pk.String
+	)
 
 	if err := p.Scan(&action, &fadeIn, &stay, &fadeOut, &title, &subtitle, &actionBar); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Title packet: %w", err)}
 	}
 
 	fmt.Println("Title", action, fadeIn, stay, fadeOut, title, subtitle, actionBar)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SoundEffect(c *Client, p pk.Packet) error {
-	var soundID pk.VarInt
-	var soundCategory pk.VarInt
-	var effectPosition pk.Position
-	var volume pk.Float
-	var pitch pk.Float
+func (e *EventsListener) SoundEffect(c *Client, p pk.Packet) basic.Error {
+	var (
+		soundID        pk.VarInt
+		soundCategory  pk.VarInt
+		effectPosition pk.Position
+		volume         pk.Float
+		pitch          pk.Float
+	)
 
 	if err := p.Scan(&soundID, &soundCategory, &effectPosition, &volume, &pitch); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SoundEffect packet: %w", err)}
 	}
 
 	fmt.Println("SoundEffect", soundID, soundCategory, effectPosition, volume, pitch)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerListHeaderAndFooter(c *Client, p pk.Packet) error {
-	var header pk.String
-	var footer pk.String
+func (e *EventsListener) PlayerListHeaderAndFooter(c *Client, p pk.Packet) basic.Error {
+	var (
+		header pk.String
+		footer pk.String
+	)
 
 	if err := p.Scan(&header, &footer); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PlayerListHeaderAndFooter packet: %w", err)}
 	}
 
 	fmt.Println("PlayerListHeaderAndFooter", header, footer)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CollectItem(c *Client, p pk.Packet) error {
-	var collectedEntityID pk.Int
-	var collectorEntityID pk.Int
-	var pickupCount pk.VarInt
+func (e *EventsListener) CollectItem(c *Client, p pk.Packet) basic.Error {
+	var (
+		collectedEntityID pk.Int
+		collectorEntityID pk.Int
+		pickupCount       pk.Int
+	)
 
 	if err := p.Scan(&collectedEntityID, &collectorEntityID, &pickupCount); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CollectItem packet: %w", err)}
 	}
 
 	fmt.Println("CollectItem", collectedEntityID, collectorEntityID, pickupCount)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityTeleport(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityTeleport(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.VarInt
 	var x pk.Double
 	var y pk.Double
@@ -1406,26 +1537,26 @@ func (e *EventsListener) EntityTeleport(c *Client, p pk.Packet) error {
 	var onGround pk.Boolean
 
 	if err := p.Scan(&entityID, &x, &y, &z, &yaw, &pitch, &onGround); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityTeleport packet: %w", err)}
 	}
 
 	fmt.Println("EntityTeleport", entityID, x, y, z, yaw, pitch, onGround)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Advancements(c *Client, p pk.Packet) error {
+func (e *EventsListener) Advancements(c *Client, p pk.Packet) basic.Error {
 	var action pk.Byte
 	var data pk.String
 
 	if err := p.Scan(&action, &data); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Advancements packet: %w", err)}
 	}
 
 	fmt.Println("Advancements", action, data)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityProperties(c *Client, p pk.Packet) error {
+func (e *EventsListener) EntityProperties(c *Client, p pk.Packet) basic.Error {
 	/*var entityID pk.Int
 	var count pk.VarInt
 	var properties pk.Ary[]pk.String
@@ -1435,20 +1566,22 @@ func (e *EventsListener) EntityProperties(c *Client, p pk.Packet) error {
 	}
 
 	fmt.Println("EntityProperties", entityID, count, properties)*/
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityEffect(c *Client, p pk.Packet) error {
-	var entityID pk.Int
-	var effectID pk.Byte
-	var amplifier pk.Byte
-	var duration pk.VarInt
-	var hideParticles pk.Boolean
+func (e *EventsListener) EntityEffect(c *Client, p pk.Packet) basic.Error {
+	var (
+		entityID      pk.Int
+		effectID      pk.Byte
+		amplifier     pk.Byte
+		duration      pk.VarInt
+		hideParticles pk.Boolean
+	)
 
 	if err := p.Scan(&entityID, &effectID, &amplifier, &duration, &hideParticles); err != nil {
-		return err
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityEffect packet: %w", err)}
 	}
 
 	fmt.Println("EntityEffect", entityID, effectID, amplifier, duration, hideParticles)
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }

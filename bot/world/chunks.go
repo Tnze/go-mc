@@ -2,6 +2,7 @@ package world
 
 import (
 	"fmt"
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	. "github.com/Tnze/go-mc/level"
@@ -86,39 +87,36 @@ func (w *World) isValidEntity(e *interface{}) bool {
 	return false
 }
 
-func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, error) {
+func (w *World) GetBlock(pos maths.Vec3d) (BlocksState, basic.Error) {
 	if pos.Y < -64.0 || pos.Y > 256.0 {
-		return block2.ToStateID[block2.Air{}], fmt.Errorf("out of range")
+		return block2.ToStateID[block2.Air{}], basic.Error{Err: basic.OutOfBound, Info: fmt.Errorf("y=%d out of bound", int(pos.Y))}
 	}
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
 	if chunk, ok := w.Columns[chunkPos]; ok {
 		return chunk.GetBlock(pos)
 	} else {
-		return -1, fmt.Errorf("chunk not loaded")
+		return -1, basic.Error{Err: basic.InvalidChunk, Info: fmt.Errorf("chunk not found")}
 	}
 }
 
-func (w *World) RayTrace(start, end maths.Vec3d) (core.RayTraceResult, error) {
+func (w *World) RayTrace(start, end maths.Vec3d) (core.RayTraceResult, basic.Error) {
 	if start == maths.NullVec3d && end == maths.NullVec3d {
-		return core.RayTraceResult{}, fmt.Errorf("start and end are null")
+		return core.RayTraceResult{}, basic.Error{Err: basic.NullValue, Info: fmt.Errorf("start and end cannot be null")}
 	}
 
 	for _, pos := range maths.RayTraceBlocks(start, end) {
 		block, err := w.GetBlock(pos)
-		if err != nil {
-			return core.RayTraceResult{}, err
-		}
-		if block2.IsAir(block) {
+		if err.Is(basic.InvalidChunk) || block2.IsAir(block) {
 			continue
 		}
 		return core.RayTraceResult{
 			Position: pos,
 			Side:     core.GetClosestFacing(start, pos),
 			Block:    block2.StateList[block],
-		}, nil
+		}, basic.Error{Err: basic.NoError, Info: nil}
 	}
 
-	return core.RayTraceResult{}, fmt.Errorf("no block found")
+	return core.RayTraceResult{}, basic.Error{Err: basic.NoValue, Info: fmt.Errorf("no block found")}
 }
 
 func (w *World) GetBlockDensity(pos maths.Vec3d, bb core.AxisAlignedBB) float32 {
@@ -139,7 +137,7 @@ func (w *World) GetBlockDensity(pos maths.Vec3d, bb core.AxisAlignedBB) float32 
 					d6 := bb.MinY + (bb.MaxY-bb.MinY)*f1
 					d7 := bb.MinZ + (bb.MaxZ-bb.MinZ)*f2
 
-					if result, err := w.RayTrace(maths.Vec3d{X: float32(d5 + d3), Y: float32(d6), Z: float32(d7 + d4)}, pos); result.Block == nil && err == nil {
+					if result, err := w.RayTrace(maths.Vec3d{X: float32(d5 + d3), Y: float32(d6), Z: float32(d7 + d4)}, pos); result.Block == nil && err.Is(basic.NoValue) {
 						j2++
 					}
 					k2++
@@ -163,7 +161,7 @@ func (w *World) IsAABBInMaterial(bb core.AxisAlignedBB) bool {
 	for x := i; x <= j; x++ {
 		for y := k; y <= l; y++ {
 			for z := i1; z <= j1; z++ {
-				if block, err := w.GetBlock(maths.Vec3d{float32(x), float32(y), float32(z)}); err == nil {
+				if block, err := w.GetBlock(maths.Vec3d{X: float32(x), Y: float32(y), Z: float32(z)}); !err.Is(basic.InvalidChunk) && !block2.IsAir(block) {
 					if block2.StateList[block].ID() == "minecraft:water" { //TODO: fix this
 						return false
 					}

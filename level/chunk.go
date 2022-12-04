@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/maths"
 	"io"
 	"log"
@@ -47,19 +48,16 @@ type Chunk struct {
 	Status      ChunkStatus
 }
 
-func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, error) {
+func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, basic.Error) {
 	X, Y, Z := int(vec3d.X), int(vec3d.Y), int(vec3d.Z)
 	Y += 64 // Offset so that Y=-64 is the index 0 of the array
 
 	if Y < 0 || Y>>4 >= len(c.Sections) {
-		return block.ToStateID[block.Air{}], errors.New("out of bounds")
+		return block.ToStateID[block.Air{}], basic.Error{Err: basic.OutOfBound, Info: fmt.Errorf("y=%d out of bound", Y)}
 	}
 	sec := c.Sections[Y>>4]
-	if sec.BlockCount == 0 {
-		return 0, nil
-	}
 	i := Y&15<<8 | Z&15<<4 | X&15
-	return sec.States.Get(i), nil
+	return sec.States.Get(i), basic.Error{Err: basic.NoError, Info: nil}
 }
 
 var biomesIDs map[string]BiomesState
@@ -333,6 +331,9 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (c *Chunk) ReadFrom(r io.Reader) (int64, error) {
+	/*
+		From https://github.com/maxsupermanhd/WebChunk/blob/7ba5b2394ddc7a8d3ab90c31fb511c920ca2c62c/proxy/chunkProcessor.go#L437
+	*/
 	var (
 		HeightMaps struct {
 			MotionBlocking         []uint64 `nbt:"MOTION_BLOCKING"`

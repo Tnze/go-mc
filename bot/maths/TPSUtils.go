@@ -1,18 +1,41 @@
 package maths
 
 import (
+	"github.com/Tnze/go-mc/bot/basic"
 	"time"
 )
 
 type TpsCalculator struct {
+	Started bool
 	// TickRate is the number of ticks per second.
 	TickRate   float64
 	lastNTicks []float64
 	// TimeLastUpdate is the time of the last update.
 	TimeLastUpdate time.Time
+	// This is the callback for the tick event. Channels are too slow to use unfortunately
+	Callback func() basic.Error
+}
+
+func (t *TpsCalculator) Start() {
+	t.Started = true
+	t.TimeLastUpdate = time.Now()
+
+	go func() {
+		for {
+			time.Sleep(time.Duration(50*t.TickAverage()) * time.Millisecond) // Synchronise with the server's TPS
+			if t.Callback != nil {
+				if err := t.Callback(); !err.Is(basic.NoError) {
+					panic(err)
+				}
+			}
+		}
+	}() // Create a new thread for the tick event to avoid the delay from the main thread
 }
 
 func (t *TpsCalculator) Update() {
+	if !t.Started {
+		t.Start()
+	}
 	if t.lastNTicks == nil {
 		t.lastNTicks = make([]float64, 5)
 		for i := range t.lastNTicks {

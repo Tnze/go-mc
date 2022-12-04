@@ -2,7 +2,7 @@ package bot
 
 import (
 	"encoding/hex"
-	"fmt"
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/offline"
 	"github.com/Tnze/go-mc/yggdrasil"
@@ -28,8 +28,7 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 	c.Auth.UUID = hex.EncodeToString(id[:])
 
 	//Login
-	err := c.JoinServer("127.0.0.1")
-	if err != nil {
+	if err := c.JoinServer("127.0.0.1"); !err.Is(basic.NoError) {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
@@ -40,8 +39,8 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 		PacketHandler{ID: packetid.CPacketSetContainerContent, Priority: 0, F: c.EventHandlers.SetWindowContent},
 		PacketHandler{ID: packetid.CPacketSpawnObject, Priority: 0, F: c.EventHandlers.SpawnEntity},
 		PacketHandler{ID: packetid.CPacketSpawnPlayer, Priority: 0, F: c.EventHandlers.SpawnPlayer},
-		PacketHandler{ID: packetid.CPacketSetEntityMetadata, Priority: 0, F: c.EventHandlers.EntityMetadata},
 		PacketHandler{ID: packetid.CPacketEntityEffect, Priority: 0, F: c.EventHandlers.EntityEffect},
+		PacketHandler{ID: packetid.CPacketEntityVelocity, Priority: 0, F: c.EventHandlers.EntityVelocity},
 		PacketHandler{ID: packetid.CPacketEntityPositionRotation, Priority: 0, F: c.EventHandlers.EntityPositionRotation},
 		PacketHandler{ID: packetid.CPacketPlayerAbilities, Priority: 0, F: c.EventHandlers.PlayerAbilities},
 		PacketHandler{ID: packetid.CPacketSyncPosition, Priority: 0, F: c.EventHandlers.SyncPlayerPosition},
@@ -49,9 +48,8 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 	)
 
 	//JoinGame
-	err = c.HandleGame()
-	if err != nil {
-		fmt.Println("HandleGame:", err)
+	if err := c.HandleGame(); !err.Is(basic.NoError) {
+		log.Fatal(err)
 	}
 }
 

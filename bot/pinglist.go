@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -102,7 +103,7 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 
 	var p pk.Packet
 	//服务器返回状态
-	if err := conn.ReadPacket(&p); err != nil {
+	if err := conn.ReadPacket(&p); !err.Is(basic.NoError) {
 		return nil, 0, fmt.Errorf("bot: recv list packect fail: %v", err)
 	}
 	var s pk.String

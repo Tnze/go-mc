@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"github.com/Tnze/go-mc/bot/basic"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -41,7 +42,7 @@ func (e *Events) AddGeneric(listeners ...PacketHandler) {
 
 type TickHandler struct {
 	Priority int
-	F        func(*Client) error
+	F        func(*Client) basic.Error
 }
 
 func (e *Events) AddTicker(tickers ...TickHandler) {
@@ -54,11 +55,10 @@ func (e *Events) AddTicker(tickers ...TickHandler) {
 	}
 }
 
-type PacketHandlerFunc func(*Client, pk.Packet) error
 type PacketHandler struct {
 	ID       int32
 	Priority int
-	F        PacketHandlerFunc
+	F        func(*Client, pk.Packet) basic.Error
 }
 
 // handlerHeap is PriorityQueue<PacketHandlerFunc>

@@ -1,6 +1,7 @@
 package screen
 
 import (
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/slots"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"io"
@@ -45,18 +46,6 @@ func (c ChangedSlots) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 type Container interface {
-	OnSetSlot(i int, s slots.Slot) error
-	onClose() error
-}
-
-type Error struct {
-	Err error
-}
-
-func (e Error) Error() string {
-	return "bot/screen: " + e.Err.Error()
-}
-
-func (e Error) Unwrap() error {
-	return e.Err
+	OnSetSlot(i int, s slots.Slot) basic.Error
+	onClose() basic.Error
 }
