@@ -6,6 +6,7 @@ import (
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/bot/screen"
+	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/data/packetid"
 	. "github.com/Tnze/go-mc/data/slots"
 	"github.com/Tnze/go-mc/level/block"
@@ -14,8 +15,8 @@ import (
 )
 
 type Player struct {
-	basic.PlayerInfo
-	basic.WorldInfo
+	world.PlayerInfo
+	world.WorldInfo
 	*core.EntityPlayer
 	*screen.Manager
 	c         *Client
@@ -26,8 +27,8 @@ type Player struct {
 
 func NewPlayer(c *Client, settings basic.Settings) *Player {
 	return &Player{
-		PlayerInfo: basic.PlayerInfo{},
-		WorldInfo:  basic.WorldInfo{},
+		PlayerInfo: world.PlayerInfo{},
+		WorldInfo:  world.WorldInfo{},
 		EntityPlayer: &core.EntityPlayer{
 			EntityLiving: &core.EntityLiving{
 				Entity: &core.Entity{
@@ -51,8 +52,8 @@ func (p *Player) Respawn() error {
 		packetid.SPacketClientCommand,
 		pk.VarInt(PerformRespawn),
 	))
-	if err != nil {
-		return Error{err}
+	if !err.Is(basic.NoError) {
+		return basic.Error{Err: basic.WriterError, Info: err}
 	}
 
 	return nil
@@ -77,41 +78,58 @@ func (p *Player) Chat(msg string) error {
 		signature,
 		signaturePreview,*/
 	))
-	if err != nil {
-		return Error{err}
+	if !err.Is(basic.NoError) {
+		return basic.Error{Err: basic.WriterError, Info: err}
 	}
 
 	return nil
 }
 
-func ApplyPhysics(c *Client) error {
-	if err := doFall(c); err != nil {
+func ApplyPhysics(c *Client) basic.Error {
+	/*if err := doFall(c); err != nil {
 		return err
-	}
+	}*/
 	c.Player.Position = c.Player.Position.Add(c.Player.Motion)
+	if c.Player.GetLastPosition().DistanceTo(c.Player.Position) < 0.001 {
+		return basic.Error{Err: basic.NoError, Info: nil}
+	}
 	if err := c.Conn.WritePacket(
 		pk.Marshal(
-			packetid.SPacketPlayerPositionRotation,
+			packetid.SPacketPlayerPosition,
 			pk.Double(c.Player.Position.X),
 			pk.Double(c.Player.Position.Y),
 			pk.Double(c.Player.Position.Z),
-			pk.Float(c.Player.Rotation.X),
-			pk.Float(c.Player.Rotation.Y),
-			pk.Boolean(false),
+			pk.Boolean(c.Player.OnGround),
 		),
-	); err != nil {
+	); !err.Is(basic.NoError) {
+		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("failed to send player position: %v", err)}
+	}
+
+	// Apply inertia
+	getBlock, err := c.World.GetBlock(c.Player.Position)
+	if !err.Is(basic.NoError) {
 		return err
 	}
 
-	return nil
+	inertia := float32(core.Slipperiness(getBlock) * core.AirBornInertia)
+	c.Player.Motion = c.Player.Motion.MulScalar(inertia)
+
+	// Apply gravity and friction
+	c.Player.Motion = c.Player.Motion.Add(maths.Vec3d{X: 0, Y: -core.Gravity, Z: 0})
+	/*c.Player.Motion.X *= inertia
+	c.Player.Motion.Y *= core.AirDrag
+	c.Player.Motion.Z *= inertia*/
+
+	c.Player.SetLastPosition(c.Player.Position)
+
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func doFall(c *Client) error {
+func doFall(c *Client) basic.Error {
 	pos := c.Player.Position
 	// Check if the player is in the air
-	if b, err := c.World.GetBlock(maths.Vec3d{X: pos.X, Y: pos.Y - 0.5, Z: pos.Z}); b != block.ToStateID[block.Air{}] || err != nil {
+	if b, err := c.World.GetBlock(maths.Vec3d{X: pos.X, Y: pos.Y - 0.5, Z: pos.Z}); b != block.ToStateID[block.Air{}] || !err.Is(basic.NoError) {
 		c.Player.fallTicks = 0
-		c.Player.Motion = maths.NullVec3d
 		return err
 	}
 
@@ -120,7 +138,7 @@ func doFall(c *Client) error {
 	c.Player.Motion = c.Player.Motion.Add(speed)
 	c.Player.fallTicks++
 
-	return nil
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
 func FallDamage(c *Client, fallDistance float64) float32 {
@@ -136,12 +154,12 @@ func FallDamage(c *Client, fallDistance float64) float32 {
 func CalculateFallDistance(c *Client) (dst float32, err error) {
 	Y := int(c.Player.Position.Y)
 	// Check if the player is in the air
-	if b, err := c.World.GetBlock(maths.Vec3d{X: c.Player.Position.X, Y: float32(Y), Z: c.Player.Position.Z}); b != block.ToStateID[block.Air{}] || err != nil {
+	if b, err := c.World.GetBlock(maths.Vec3d{X: c.Player.Position.X, Y: float32(Y), Z: c.Player.Position.Z}); b != block.ToStateID[block.Air{}] || !err.Is(basic.NoError) {
 		return 0, err
 	}
 	for i := Y; i > 0; i-- {
 		b, err := c.World.GetBlock(maths.Vec3d{X: c.Player.Position.X, Y: float32(i), Z: c.Player.Position.Z})
-		if err != nil {
+		if !err.Is(basic.NoError) {
 			return 0, err
 		}
 		if b == block.ToStateID[block.Air{}] {

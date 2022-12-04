@@ -1,5 +1,10 @@
 package core
 
+import (
+	"github.com/Tnze/go-mc/level"
+	"github.com/Tnze/go-mc/level/block"
+)
+
 const (
 	Gravity              = 0.08
 	AirDrag              = 0.02
@@ -20,7 +25,24 @@ const (
 	LiquidAcceleration   = 0.02
 	AirBornInertia       = 0.91
 	AirBornAcceleration  = 0.02
-	Slipperiness         = 0.6
+	DefaultSlipperiness  = 0.6
 	OutOfLiquidImpulse   = 0.3
 	SlowFalling          = 0.125
 )
+
+func Slipperiness(b level.BlocksState) float64 {
+	if t, ok := slipperiness[b]; ok {
+		return t
+	} else {
+		return DefaultSlipperiness
+	}
+}
+
+var slipperiness = map[level.BlocksState]float64{
+	block.ToStateID[block.SoulSand{}]:   SoulSandMultiplier,
+	block.ToStateID[block.HoneyBlock{}]: HoneyBlockMultiplier,
+	block.ToStateID[block.SlimeBlock{}]: 0.8,
+	block.ToStateID[block.Ice{}]:        0.98,
+	block.ToStateID[block.PackedIce{}]:  0.98,
+	block.ToStateID[block.FrostedIce{}]: 0.98,
+}
