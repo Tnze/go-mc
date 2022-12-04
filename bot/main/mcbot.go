@@ -2,7 +2,7 @@
 // or just ping it for getting information.
 //
 // Runnable example could be found at examples/ .
-package bot
+package main
 
 import (
 	"context"

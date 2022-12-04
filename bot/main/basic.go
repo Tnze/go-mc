@@ -1,4 +1,4 @@
-package bot
+package main
 
 import (
 	"fmt"
@@ -19,7 +19,6 @@ type Player struct {
 	world.WorldInfo
 	*core.EntityPlayer
 	*screen.Manager
-	c         *Client
 	Settings  basic.Settings
 	isSpawn   bool
 	fallTicks float32
@@ -39,16 +38,15 @@ func NewPlayer(c *Client, settings basic.Settings) *Player {
 			},
 		},
 		Manager:  screen.NewManager(),
-		c:        c,
 		Settings: settings,
 		isSpawn:  false,
 	}
 }
 
-func (p *Player) Respawn() error {
+func (p *Player) Respawn(c *Client) error {
 	const PerformRespawn = 0
 
-	err := p.c.Conn.WritePacket(pk.Marshal(
+	err := c.Conn.WritePacket(pk.Marshal(
 		packetid.SPacketClientCommand,
 		pk.VarInt(PerformRespawn),
 	))
@@ -59,7 +57,7 @@ func (p *Player) Respawn() error {
 	return nil
 }
 
-func (p *Player) Chat(msg string) error {
+func (p *Player) Chat(c *Client, msg string) error {
 	var (
 		message = pk.String(msg[:int(math.Min(float64(len(msg)), 256))])
 		//timestamp = pk.Long(time.Now().Unix())
@@ -69,7 +67,7 @@ func (p *Player) Chat(msg string) error {
 		signaturePreview = pk.Boolean(false)*/
 	)
 
-	err := p.c.Conn.WritePacket(pk.Marshal(
+	err := c.Conn.WritePacket(pk.Marshal(
 		packetid.SPacketChatMessage,
 		message,
 		//timestamp,
@@ -141,36 +139,8 @@ func ApplyPhysics(c *Client) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func FallDamage(c *Client, fallDistance float64) float32 {
-	damage := math.Max(0, fallDistance-3)
-	// Check if the player have feather falling enchantment
-	armors := c.Player.Manager.Inventory.Armor()
-	for _, armor := range armors {
-		fmt.Println(armor.NBT.String()) // TODO: Get enchantment
-	}
-	return float32(damage)
-}
-
-func CalculateFallDistance(c *Client) (dst float32, err error) {
-	Y := int(c.Player.Position.Y)
-	// Check if the player is in the air
-	if b, err := c.World.GetBlock(maths.Vec3d{X: c.Player.Position.X, Y: float32(Y), Z: c.Player.Position.Z}); b != block.ToStateID[block.Air{}] || !err.Is(basic.NoError) {
-		return 0, err
-	}
-	for i := Y; i > 0; i-- {
-		b, err := c.World.GetBlock(maths.Vec3d{X: c.Player.Position.X, Y: float32(i), Z: c.Player.Position.Z})
-		if !err.Is(basic.NoError) {
-			return 0, err
-		}
-		if b == block.ToStateID[block.Air{}] {
-			dst = float32(Y - i)
-		}
-	}
-	return
-}
-
-func (p *Player) ContainerClick(id int, slot int16, button byte, mode int32, slots ChangedSlots, carried *Slot) error {
-	return p.c.Conn.WritePacket(pk.Marshal(
+func (p *Player) ContainerClick(c *Client, id int, slot int16, button byte, mode int32, slots ChangedSlots, carried *Slot) error {
+	return c.Conn.WritePacket(pk.Marshal(
 		packetid.CPacketSetContainerSlot,
 		pk.UnsignedByte(id),
 		pk.VarInt(p.Manager.StateID),

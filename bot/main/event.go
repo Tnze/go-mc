@@ -1,4 +1,4 @@
-package bot
+package main
 
 import (
 	"github.com/Tnze/go-mc/bot/basic"

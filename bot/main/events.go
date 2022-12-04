@@ -1,4 +1,4 @@
-package bot
+package main
 
 import (
 	"fmt"
@@ -350,15 +350,20 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 	var (
 		json     pk.String
 		position pk.Byte
-		msg      chat.Message
-		pos      pk.VarInt
+		/*msg      chat.Message
+		pos      pk.VarInt*/
 	)
 
-	if err := p.Scan(&json, &position, &msg, &pos); err != nil {
+	if err := p.Scan(&json, &position); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
 
-	fmt.Println("Message", msg, pos)
+	// Test pathfinding
+	x, y, z := c.Player.Position.X+5, c.Player.Position.Y, c.Player.Position.Z+3
+	path := c.World.PathFind(c.Player.Position, maths.Vec3d{X: x, Y: y, Z: z})
+	fmt.Println("Pathfinding", path)
+
+	fmt.Println("Message", json, position)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
@@ -1364,7 +1369,7 @@ func (e *EventsListener) UpdateHealth(c *Client, p pk.Packet) basic.Error {
 
 	fmt.Println("UpdateHealth", health, food, foodSaturation)
 	if respawn := c.Player.SetHealth(float32(health)); respawn {
-		if err := c.Player.Respawn(); err != nil {
+		if err := c.Player.Respawn(c); err != nil {
 			return basic.Error{Err: basic.NoError, Info: err}
 		}
 	}
