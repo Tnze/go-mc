@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	address     = flag.String("address", "127.0.0.1", "The server address")
+	address     = flag.String("address", "127.0.0.1:25565", "The server address")
 	name        = flag.String("name", "Daze", "The player's name")
 	playerID    = flag.String("uuid", "", "The player's UUID")
 	accessToken = flag.String("token", "", "AccessToken")

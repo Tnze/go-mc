@@ -95,13 +95,13 @@ func (b Boolean) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (b *Boolean) ReadFrom(r io.Reader) (n int64, err error) {
-	v, err := readByte(r)
+	n, v, err := readByte(r)
 	if err != nil {
-		return 1, err
+		return n, err
 	}
 
 	*b = v != 0
-	return 1, nil
+	return n, nil
 }
 
 func (s String) WriteTo(w io.Writer) (int64, error) {
@@ -134,13 +134,14 @@ func (s *String) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 // readByte read one byte from io.Reader
-func readByte(r io.Reader) (byte, error) {
+func readByte(r io.Reader) (int64, byte, error) {
 	if r, ok := r.(io.ByteReader); ok {
-		return r.ReadByte()
+		v, err := r.ReadByte()
+		return 1, v, err
 	}
 	var v [1]byte
-	_, err := io.ReadFull(r, v[:])
-	return v[0], err
+	n, err := r.Read(v[:])
+	return int64(n), v[0], err
 }
 
 func (b Byte) WriteTo(w io.Writer) (n int64, err error) {
@@ -149,12 +150,12 @@ func (b Byte) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 func (b *Byte) ReadFrom(r io.Reader) (n int64, err error) {
-	v, err := readByte(r)
+	n, v, err := readByte(r)
 	if err != nil {
-		return 0, err
+		return n, err
 	}
 	*b = Byte(v)
-	return 1, nil
+	return n, nil
 }
 
 func (u UnsignedByte) WriteTo(w io.Writer) (n int64, err error) {
@@ -163,12 +164,12 @@ func (u UnsignedByte) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 func (u *UnsignedByte) ReadFrom(r io.Reader) (n int64, err error) {
-	v, err := readByte(r)
+	n, v, err := readByte(r)
 	if err != nil {
-		return 0, err
+		return n, err
 	}
 	*u = UnsignedByte(v)
-	return 1, nil
+	return n, nil
 }
 
 func (s Short) WriteTo(w io.Writer) (int64, error) {
@@ -267,17 +268,19 @@ func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
 
 func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 	var V uint32
-	for sec := byte(0x80); sec&0x80 != 0; n++ {
-		if n > MaxVarIntLen {
+	var num, n2 int64
+	for sec := byte(0x80); sec&0x80 != 0; num++ {
+		if num > MaxVarIntLen {
 			return n, errors.New("VarInt is too big")
 		}
 
-		sec, err = readByte(r)
+		n2, sec, err = readByte(r)
+		n += n2
 		if err != nil {
 			return n, err
 		}
 
-		V |= uint32(sec&0x7F) << uint32(7*n)
+		V |= uint32(sec&0x7F) << uint32(7*num)
 	}
 
 	*v = VarInt(V)
@@ -304,16 +307,18 @@ func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
 
 func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 	var V uint64
-	for sec := byte(0x80); sec&0x80 != 0; n++ {
-		if n >= MaxVarLongLen {
+	var num, n2 int64
+	for sec := byte(0x80); sec&0x80 != 0; num++ {
+		if num >= MaxVarLongLen {
 			return n, errors.New("VarLong is too big")
 		}
-		sec, err = readByte(r)
+		n2, sec, err = readByte(r)
+		n += n2
 		if err != nil {
 			return
 		}
 
-		V |= uint64(sec&0x7F) << uint64(7*n)
+		V |= uint64(sec&0x7F) << uint64(7*num)
 	}
 
 	*v = VarLong(V)
@@ -455,11 +460,13 @@ func (b *ByteArray) ReadFrom(r io.Reader) (n int64, err error) {
 	if err != nil {
 		return n1, err
 	}
-	buf := bytes.NewBuffer(*b)
-	buf.Reset()
-	n2, err := io.CopyN(buf, r, int64(Len))
-	*b = buf.Bytes()
-	return n1 + n2, err
+	if cap(*b) < int(Len) {
+		*b = make(ByteArray, Len)
+	} else {
+		*b = (*b)[:Len]
+	}
+	n2, err := io.ReadFull(r, *b)
+	return n1 + int64(n2), err
 }
 
 func (u UUID) WriteTo(w io.Writer) (n int64, err error) {

@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"crypto"
 	"crypto/rsa"
 	"crypto/x509"
 	"errors"
@@ -66,4 +67,8 @@ func (p *PublicKey) Verify() bool {
 		return false
 	}
 	return VerifySignature(encoded, p.Signature)
+}
+
+func (p *PublicKey) VerifyMessage(hash, signature []byte) error {
+	return rsa.VerifyPKCS1v15(p.PubKey, crypto.SHA256, hash, signature)
 }

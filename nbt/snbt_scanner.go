@@ -83,7 +83,7 @@ func (s *scanner) eof() int {
 		return scanEnd
 	}
 	if s.errContext == "" {
-		s.errContext = "unexpected end of JSON input"
+		s.errContext = "unexpected end of SNBT input"
 	}
 	return scanError
 }
