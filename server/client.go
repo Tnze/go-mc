@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"strconv"
 	"sync"
+	"sync/atomic"
 
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -28,21 +29,27 @@ func (s WritePacketError) Unwrap() error {
 	return s.Err
 }
 
-type PacketQueue struct {
-	queue  *list.List
-	closed bool
-	cond   sync.Cond
+type PacketQueue interface {
+	Push(packet pk.Packet)
+	Pull() (packet pk.Packet, ok bool)
+	Close()
 }
 
-func NewPacketQueue() (p *PacketQueue) {
-	p = &PacketQueue{
+func NewPacketQueue() (p PacketQueue) {
+	p = &LinkedListPacketQueue{
 		queue: list.New(),
 		cond:  sync.Cond{L: new(sync.Mutex)},
 	}
 	return p
 }
 
-func (p *PacketQueue) Push(packet pk.Packet) {
+type LinkedListPacketQueue struct {
+	queue  *list.List
+	closed bool
+	cond   sync.Cond
+}
+
+func (p *LinkedListPacketQueue) Push(packet pk.Packet) {
 	p.cond.L.Lock()
 	if !p.closed {
 		p.queue.PushBack(packet)
@@ -51,7 +58,7 @@ func (p *PacketQueue) Push(packet pk.Packet) {
 	p.cond.L.Unlock()
 }
 
-func (p *PacketQueue) Pull() (packet pk.Packet, ok bool) {
+func (p *LinkedListPacketQueue) Pull() (packet pk.Packet, ok bool) {
 	p.cond.L.Lock()
 	defer p.cond.L.Unlock()
 	for p.queue.Front() == nil && !p.closed {
@@ -65,9 +72,36 @@ func (p *PacketQueue) Pull() (packet pk.Packet, ok bool) {
 	return
 }
 
-func (p *PacketQueue) Close() {
+func (p *LinkedListPacketQueue) Close() {
 	p.cond.L.Lock()
 	p.closed = true
 	p.cond.Broadcast()
 	p.cond.L.Unlock()
+}
+
+type ChannelPacketQueue struct {
+	c      chan pk.Packet
+	closed atomic.Bool
+}
+
+func (c ChannelPacketQueue) Push(packet pk.Packet) {
+	if c.closed.Load() {
+		return
+	}
+	select {
+	case c.c <- packet:
+	default:
+		c.closed.Store(true)
+	}
+}
+
+func (c ChannelPacketQueue) Pull() (packet pk.Packet, ok bool) {
+	if !c.closed.Load() {
+		packet, ok = <-c.c
+	}
+	return
+}
+
+func (c ChannelPacketQueue) Close() {
+	c.closed.Store(true)
 }
