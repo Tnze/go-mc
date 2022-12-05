@@ -79,22 +79,20 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	}
 	// Login Start
 	c.KeyPair, err = user.GetOrFetchKeyPair(c.Auth.AsTk)
-	HasSignature := err == nil
+	KeyPair := pk.Option[keyPair]{
+		Has: err == nil,
+		Val: keyPair(c.KeyPair),
+	}
 	c.UUID, err = uuid.Parse(c.Auth.UUID)
-	HasPlayerUUID := err == nil
+	PlayerUUID := pk.Option[pk.UUID]{
+		Has: err == nil,
+		Val: pk.UUID(c.UUID),
+	}
 	err = c.Conn.WritePacket(pk.Marshal(
 		packetid.LoginStart,
 		pk.String(c.Auth.Name),
-		pk.Boolean(HasSignature),
-		pk.Opt{
-			Has:   HasSignature,
-			Field: keyPair(c.KeyPair),
-		},
-		pk.Boolean(HasPlayerUUID),
-		pk.Opt{
-			Has:   HasPlayerUUID,
-			Field: pk.UUID(c.UUID),
-		},
+		KeyPair,
+		PlayerUUID,
 	))
 	if err != nil {
 		return LoginErr{"login start", err}
@@ -148,9 +146,10 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 				return LoginErr{"Login Plugin", err}
 			}
 
-			handler, ok := c.LoginPlugin[string(channel)]
-			if ok {
-				data, err = handler(data)
+			var PluginMessageData pk.Option[pk.PluginMessageData]
+			if handler, ok := c.LoginPlugin[string(channel)]; ok {
+				PluginMessageData.Has = true
+				PluginMessageData.Val, err = handler(data)
 				if err != nil {
 					return LoginErr{"Login Plugin", err}
 				}
@@ -158,8 +157,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 
 			if err := c.Conn.WritePacket(pk.Marshal(
 				packetid.LoginPluginResponse,
-				msgid, pk.Boolean(ok),
-				pk.Opt{Has: ok, Field: data},
+				msgid, PluginMessageData,
 			)); err != nil {
 				return LoginErr{"login Plugin", err}
 			}

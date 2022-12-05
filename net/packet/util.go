@@ -7,6 +7,12 @@ import (
 	"reflect"
 )
 
+var (
+	_ Field = (*Option[Field])(nil)
+	_ Field = (*Ary[VarInt])(nil)
+	_ Field = Tuple(nil)
+)
+
 // Ary is used to send or receive the packet field like "Array of X"
 // which has a count must be known from the context.
 //
@@ -19,16 +25,16 @@ import (
 // So it's allowed to directly set an integer type Len, but not a pointer.
 //
 // Note that Ary DO read or write the Len. You aren't need to do so by your self.
-type Ary[T VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long] struct {
+type Ary[LEN VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long] struct {
 	Ary interface{} // Slice or Pointer of Slice of FieldEncoder, FieldDecoder or both (Field)
 }
 
-func (a Ary[T]) WriteTo(w io.Writer) (n int64, err error) {
+func (a Ary[LEN]) WriteTo(w io.Writer) (n int64, err error) {
 	array := reflect.ValueOf(a.Ary)
 	for array.Kind() == reflect.Ptr {
 		array = array.Elem()
 	}
-	Len := T(array.Len())
+	Len := LEN(array.Len())
 	if nn, err := any(&Len).(FieldEncoder).WriteTo(w); err != nil {
 		return n, err
 	} else {
@@ -45,8 +51,8 @@ func (a Ary[T]) WriteTo(w io.Writer) (n int64, err error) {
 	return n, nil
 }
 
-func (a Ary[T]) ReadFrom(r io.Reader) (n int64, err error) {
-	var Len T
+func (a Ary[LEN]) ReadFrom(r io.Reader) (n int64, err error) {
+	var Len LEN
 	if nn, err := any(&Len).(FieldDecoder).ReadFrom(r); err != nil {
 		return nn, err
 	} else {
@@ -133,7 +139,33 @@ func (o Opt) ReadFrom(r io.Reader) (int64, error) {
 	return 0, nil
 }
 
-type Tuple []interface{} // FieldEncoder, FieldDecoder or both (Field)
+type Option[T any] struct {
+	Has Boolean
+	Val T
+}
+
+func (o Option[T]) WriteTo(w io.Writer) (n int64, err error) {
+	n1, err := o.Has.WriteTo(w)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	n2, err := any(&o.Val).(FieldEncoder).WriteTo(w)
+	return n1 + n2, err
+}
+
+func (o *Option[T]) ReadFrom(r io.Reader) (n int64, err error) {
+	n1, err := o.Has.ReadFrom(r)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	// This lose performance, but current Golang doesn't provide any better solution.
+	// I hope Go support we declare type constraint like `Option[*T Field]` in the future
+	// and then we can prevent using any dynamic dispatch.
+	n2, err := any(&o.Val).(FieldDecoder).ReadFrom(r)
+	return n1 + n2, err
+}
+
+type Tuple []any // FieldEncoder, FieldDecoder or both (Field)
 
 // WriteTo write Tuple to io.Writer, panic when any of filed don't implement FieldEncoder
 func (t Tuple) WriteTo(w io.Writer) (n int64, err error) {

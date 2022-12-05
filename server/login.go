@@ -64,21 +64,13 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	}
 
 	var (
-		hasPubKey   pk.Boolean
-		pubKey      auth.PublicKey
-		hasUUID     pk.Boolean
-		profileUUID pk.UUID // ignored
+		pubKey      pk.Option[auth.PublicKey]
+		profileUUID pk.Option[pk.UUID] // ignored
 	)
 	err = p.Scan(
 		(*pk.String)(&name), // decode username as pk.String
-		&hasPubKey, pk.Opt{
-			Has:   &hasPubKey,
-			Field: &pubKey,
-		},
-		&hasUUID, pk.Opt{
-			Has:   &hasUUID,
-			Field: &profileUUID,
-		},
+		&pubKey,
+		&profileUUID,
 	)
 	if err != nil {
 		return
@@ -86,12 +78,12 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 
 	// auth
 	if d.OnlineMode {
-		if hasPubKey {
-			if !pubKey.Verify() {
+		if pubKey.Has {
+			if !pubKey.Val.Verify() {
 				err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.invalid_public_key_signature")}
 				return
 			}
-			profilePubKey = &pubKey
+			profilePubKey = &pubKey.Val
 		} else if d.EnforceSecureProfile {
 			err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.missing_public_key")}
 			return
@@ -99,7 +91,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 
 		var resp *auth.Resp
 		// Auth, Encrypt
-		resp, err = auth.Encrypt(conn, name, pubKey.PubKey)
+		resp, err = auth.Encrypt(conn, name, pubKey.Val.PubKey)
 		if err != nil {
 			return
 		}

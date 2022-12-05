@@ -118,7 +118,6 @@ func (k *KeepAlive) tickPlayer(c KeepAliveClient) {
 	elem, ok := k.listIndex[c]
 	if !ok {
 		panic(errors.New("keepalive: fail to tick player: client not found"))
-		return
 	}
 	if elem.Prev() == nil {
 		if !k.waitTimer.Stop() {
@@ -156,7 +155,6 @@ func keepAliveSetTimer(l *list.List, timer *time.Timer, interval time.Duration) 
 		}
 	}
 	timer.Reset(interval)
-	return
 }
 
 type keepAliveItem struct {
