@@ -208,7 +208,7 @@ func ExampleOption_ReadFrom_func() {
 		// empty
 	}}
 
-	var User1, User2 pk.Option[pk.String]
+	var User1, User2 pk.Option[pk.String, *pk.String]
 	if err := p1.Scan(&User1); err != nil {
 		panic(err)
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	_ Field = (*Option[Field])(nil)
+	_ Field = (*Option[VarInt, *VarInt])(nil)
 	_ Field = (*Ary[VarInt])(nil)
 	_ Field = Tuple(nil)
 )
@@ -139,29 +139,65 @@ func (o Opt) ReadFrom(r io.Reader) (int64, error) {
 	return 0, nil
 }
 
-type Option[T any] struct {
+type fieldPointer[T any] interface {
+	*T
+	FieldDecoder
+}
+
+// Currently we have to repeat T in the type arguments.
+//
+//	var opt Option[String, *String]
+//
+// Constraint type will inference makes it less awkward in the future.
+// See: https://github.com/golang/go/issues/54469
+type Option[T FieldEncoder, P fieldPointer[T]] struct {
 	Has Boolean
 	Val T
 }
 
-func (o Option[T]) WriteTo(w io.Writer) (n int64, err error) {
+func (o Option[T, P]) WriteTo(w io.Writer) (n int64, err error) {
 	n1, err := o.Has.WriteTo(w)
 	if err != nil || !o.Has {
 		return n1, err
 	}
-	n2, err := any(&o.Val).(FieldEncoder).WriteTo(w)
+	n2, err := o.Val.WriteTo(w)
 	return n1 + n2, err
 }
 
-func (o *Option[T]) ReadFrom(r io.Reader) (n int64, err error) {
+func (o *Option[T, P]) ReadFrom(r io.Reader) (n int64, err error) {
 	n1, err := o.Has.ReadFrom(r)
 	if err != nil || !o.Has {
 		return n1, err
 	}
-	// This lose performance, but current Golang doesn't provide any better solution.
-	// I hope Go support we declare type constraint like `Option[*T Field]` in the future
-	// and then we can prevent using any dynamic dispatch.
-	n2, err := any(&o.Val).(FieldDecoder).ReadFrom(r)
+	n2, err := P(&o.Val).ReadFrom(r)
+	return n1 + n2, err
+}
+
+type OptionDecoder[T any, P fieldPointer[T]] struct {
+	Has Boolean
+	Val T
+}
+
+func (o *OptionDecoder[T, P]) ReadFrom(r io.Reader) (n int64, err error) {
+	n1, err := o.Has.ReadFrom(r)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	n2, err := P(&o.Val).ReadFrom(r)
+	return n1 + n2, err
+}
+
+type OptionEncoder[T FieldEncoder] struct {
+	Has Boolean
+	Val T
+}
+
+func (o OptionEncoder[T]) WriteTo(w io.Writer) (n int64, err error) {
+	n1, err := o.Has.WriteTo(w)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	n2, err := o.Val.WriteTo(w)
 	return n1 + n2, err
 }
 

@@ -6,10 +6,7 @@ package bot
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/pem"
 	"errors"
-	"io"
 	"net"
 	"strconv"
 
@@ -79,12 +76,12 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	}
 	// Login Start
 	c.KeyPair, err = user.GetOrFetchKeyPair(c.Auth.AsTk)
-	KeyPair := pk.Option[keyPair]{
+	KeyPair := pk.OptionEncoder[user.KeyPairResp]{
 		Has: err == nil,
-		Val: keyPair(c.KeyPair),
+		Val: c.KeyPair,
 	}
 	c.UUID, err = uuid.Parse(c.Auth.UUID)
-	PlayerUUID := pk.Option[pk.UUID]{
+	PlayerUUID := pk.Option[pk.UUID, *pk.UUID]{
 		Has: err == nil,
 		Val: pk.UUID(c.UUID),
 	}
@@ -146,7 +143,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 				return LoginErr{"Login Plugin", err}
 			}
 
-			var PluginMessageData pk.Option[pk.PluginMessageData]
+			var PluginMessageData pk.Option[pk.PluginMessageData, *pk.PluginMessageData]
 			if handler, ok := c.LoginPlugin[string(channel)]; ok {
 				PluginMessageData.Has = true
 				PluginMessageData.Val, err = handler(data)
@@ -163,24 +160,6 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 			}
 		}
 	}
-}
-
-type keyPair user.KeyPairResp
-
-func (k keyPair) WriteTo(w io.Writer) (int64, error) {
-	block, _ := pem.Decode([]byte(k.KeyPair.PublicKey))
-	if block == nil {
-		return 0, errors.New("pem decode error: no data is found")
-	}
-	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignature)
-	if err != nil {
-		return 0, err
-	}
-	return pk.Tuple{
-		pk.Long(k.ExpiresAt.UnixMilli()),
-		pk.ByteArray(block.Bytes),
-		pk.ByteArray(signature),
-	}.WriteTo(w)
 }
 
 type LoginErr struct {
