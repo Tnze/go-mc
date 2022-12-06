@@ -7,7 +7,7 @@ import (
 
 const (
 	Gravity              = 0.08
-	AirDrag              = 0.02
+	AirDrag              = 0.98
 	YawSpeed             = 3.0
 	PitchSpeed           = 3.0
 	PlayerSpeed          = 0.1
@@ -17,11 +17,12 @@ const (
 	NegligeableVelocity  = 0.003
 	SoulSandMultiplier   = 0.4
 	HoneyBlockMultiplier = 0.4
-	HoneyBlockJump       = 0.4
 	LadderMaxSpeed       = 0.15
 	LadderAcceleration   = 0.2
 	WaterInertia         = 0.8
 	LavaInertia          = 0.5
+	WaterGravity         = 0.02
+	LavaGravity          = 0.02
 	LiquidAcceleration   = 0.02
 	AirBornInertia       = 0.91
 	AirBornAcceleration  = 0.02
