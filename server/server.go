@@ -28,6 +28,7 @@ package server
 
 import (
 	"errors"
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -60,7 +61,12 @@ func (s *Server) Listen(addr string) error {
 }
 
 func (s *Server) acceptConn(conn *net.Conn) {
-	defer conn.Close()
+	defer func(conn *net.Conn) {
+		err := conn.Close()
+		if err != nil {
+			s.Println(err)
+		}
+	}(conn)
 	protocol, intention, err := s.handshake(conn)
 	if err != nil {
 		return
@@ -74,10 +80,12 @@ func (s *Server) acceptConn(conn *net.Conn) {
 		if err != nil {
 			var loginErr *LoginFailErr
 			if errors.As(err, &loginErr) {
-				_ = conn.WritePacket(pk.Marshal(
-					packetid.LoginDisconnect,
+				if err := conn.WritePacket(pk.Marshal(
+					packetid.CPacketDisconnect,
 					loginErr.reason,
-				))
+				)); !err.Is(basic.NoError) {
+					return
+				}
 			}
 			if s.Logger != nil {
 				s.Logger.Printf("client %v login error: %v", conn.Socket.RemoteAddr(), err)

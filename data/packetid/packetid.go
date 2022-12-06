@@ -40,10 +40,10 @@ const (
 
 // Play server -> client
 const (
-	CPacketSpawnObject = iota
+	CPacketSpawnEntity = iota
 	CPacketSpawnExperienceOrb
 	CPacketSpawnPlayer
-	CPacketSpawnEntity
+	CPacketEntityAnimation
 	CPacketAwardStats
 	CPacketAcknowledgeBlockChange
 	CPacketSetBlockDestroyStage
@@ -180,7 +180,7 @@ const (
 	SPacketPlayerAction
 	SPacketPlayerCommand
 	SPacketPlayerInput
-	SPacketPong
+	SPacketPongResponse
 	SPacketChangeRecipeBookState
 	SPacketSetSeenRecipe
 	SPacketRenameItem

@@ -91,55 +91,6 @@ func (e *EventsListener) SpawnExperienceOrb(c *Client, p pk.Packet) basic.Error 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnGlobalEntity(c *Client, p pk.Packet) basic.Error {
-	var entityID pk.VarInt
-	var typeID pk.Byte
-	var x, y, z pk.Double
-
-	if err := p.Scan(&entityID, &typeID, &x, &y, &z); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnGlobalEntity packet: %w", err)}
-	}
-
-	fmt.Println("SpawnGlobalEntity", entityID, typeID, x, y, z)
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func (e *EventsListener) SpawnMob(c *Client, p pk.Packet) basic.Error {
-	var (
-		entityID            pk.VarInt
-		entityUUID          pk.UUID
-		typeID              pk.Byte
-		x, y, z             pk.Double
-		yaw, pitch, headYaw pk.Angle
-		vX, vY, vZ          pk.Short
-		//metadata pk.Metadata
-	)
-
-	if err := p.Scan(&entityID, &entityUUID, &typeID, &x, &y, &z, &yaw, &pitch, &headYaw, &vX, &vY, &vZ /*&metadata*/); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnMob packet: %w", err)}
-	}
-
-	fmt.Println("SpawnMob", entityID, entityUUID, typeID, x, y, z, yaw, pitch, headYaw, vX, vY, vZ /*, metadata*/)
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func (e *EventsListener) SpawnPainting(c *Client, p pk.Packet) basic.Error {
-	var (
-		entityID   pk.VarInt
-		entityUUID pk.UUID
-		title      pk.String
-		location   pk.Position
-		direction  pk.Byte
-	)
-
-	if err := p.Scan(&entityID, &entityUUID, &title, &location, &direction); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnPainting packet: %w", err)}
-	}
-
-	fmt.Println("SpawnPainting", entityID, entityUUID, title, location, direction)
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
 func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID   pk.VarInt
@@ -166,7 +117,7 @@ func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Animation(c *Client, p pk.Packet) basic.Error {
+func (e *EventsListener) EntityAnimation(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID  pk.VarInt
 		animation pk.Byte
@@ -180,7 +131,7 @@ func (e *EventsListener) Animation(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Statistics(c *Client, p pk.Packet) basic.Error {
+func (e *EventsListener) AwardStatistics(c *Client, p pk.Packet) basic.Error {
 	/*var count pk.VarInt
 	var statistics []struct {
 		Name  pk.String
@@ -195,7 +146,7 @@ func (e *EventsListener) Statistics(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BlockBreakAnimation(c *Client, p pk.Packet) basic.Error {
+func (e *EventsListener) SetBlockDestroyStage(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID pk.VarInt
 		location pk.Position
@@ -210,7 +161,7 @@ func (e *EventsListener) BlockBreakAnimation(c *Client, p pk.Packet) basic.Error
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UpdateBlockEntity(c *Client, p pk.Packet) basic.Error {
+func (e *EventsListener) BlockEntityData(c *Client, p pk.Packet) basic.Error {
 	/*var location pk.Position
 	var action pk.Byte
 	var nbtData pk
