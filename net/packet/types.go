@@ -479,8 +479,8 @@ func (u *UUID) ReadFrom(r io.Reader) (n int64, err error) {
 	return int64(nn), err
 }
 
-func (p *PluginMessageData) WriteTo(w io.Writer) (n int64, err error) {
-	nn, err := w.Write(*p)
+func (p PluginMessageData) WriteTo(w io.Writer) (n int64, err error) {
+	nn, err := w.Write(p)
 	return int64(nn), err
 }
 

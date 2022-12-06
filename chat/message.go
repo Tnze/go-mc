@@ -11,6 +11,7 @@
 package chat
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -113,6 +114,7 @@ func (m Message) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON decode json to Message
 func (m *Message) UnmarshalJSON(raw []byte) (err error) {
+	raw = bytes.TrimSpace(raw)
 	if len(raw) == 0 {
 		return io.EOF
 	}

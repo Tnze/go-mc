@@ -17,7 +17,7 @@ type PublicKey struct {
 	Signature []byte
 }
 
-func (p *PublicKey) WriteTo(w io.Writer) (n int64, err error) {
+func (p PublicKey) WriteTo(w io.Writer) (n int64, err error) {
 	pubKeyEncoded, err := x509.MarshalPKIXPublicKey(p.PubKey)
 	if err != nil {
 		return 0, err

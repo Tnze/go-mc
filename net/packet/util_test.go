@@ -138,16 +138,16 @@ func ExampleOpt_ReadFrom() {
 	// WILL NOT BE READ, WILL NOT BE COVERED
 }
 
+// As an example, we define this packet as this:
+// +------+-----------------+----------------------------------+
+// | Name | Type            | Notes                            |
+// +------+-----------------+----------------------------------+
+// | Flag | Unsigned Byte   | Odd if the following is present. |
+// +------+-----------------+----------------------------------+
+// | User | Optional String | The player's name.               |
+// +------+-----------------+----------------------------------+
+// So we need a function to decide if the User field is present.
 func ExampleOpt_ReadFrom_func() {
-	// As an example, we define this packet as this:
-	// +------+-----------------+----------------------------------+
-	// | Name | Type            | Notes                            |
-	// +------+-----------------+----------------------------------+
-	// | Flag | Unsigned Byte   | Odd if the following is present. |
-	// +------+-----------------+----------------------------------+
-	// | User | Optional String | The player's name.               |
-	// +------+-----------------+----------------------------------+
-	// So we need a function to decide if the User field is present.
 	var flag pk.Byte
 	var data pk.String
 	p := pk.Packet{Data: []byte{
@@ -187,4 +187,39 @@ func ExampleTuple_ReadFrom() {
 	); err != nil {
 		panic(err)
 	}
+}
+
+// As an example, we define this packet as this:
+// +------+-----------------+-----------------------------------+
+// | Name | Type            | Notes                             |
+// +------+-----------------+-----------------------------------+
+// | Has  | Boolean         | True if the following is present. |
+// +------+-----------------+-----------------------------------+
+// | User | Optional String | The player's name.                |
+// +------+-----------------+-----------------------------------+
+// So we need a function to decide if the User field is present.
+func ExampleOption_ReadFrom_func() {
+	p1 := pk.Packet{Data: []byte{
+		0x01,                  // pk.Boolean(true)
+		4, 'T', 'n', 'z', 'e', // pk.String("Tnze")
+	}}
+	p2 := pk.Packet{Data: []byte{
+		0x00, // pk.Boolean(false)
+		// empty
+	}}
+
+	var User1, User2 pk.Option[pk.String, *pk.String]
+	if err := p1.Scan(&User1); err != nil {
+		panic(err)
+	}
+	if err := p2.Scan(&User2); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(User1.Has, User1.Val)
+	fmt.Println(User2.Has, User2.Val)
+
+	// Output:
+	// true Tnze
+	// false
 }

@@ -7,6 +7,12 @@ import (
 	"reflect"
 )
 
+var (
+	_ Field = (*Option[VarInt, *VarInt])(nil)
+	_ Field = (*Ary[VarInt])(nil)
+	_ Field = Tuple(nil)
+)
+
 // Ary is used to send or receive the packet field like "Array of X"
 // which has a count must be known from the context.
 //
@@ -19,16 +25,16 @@ import (
 // So it's allowed to directly set an integer type Len, but not a pointer.
 //
 // Note that Ary DO read or write the Len. You aren't need to do so by your self.
-type Ary[T VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long] struct {
+type Ary[LEN VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long] struct {
 	Ary interface{} // Slice or Pointer of Slice of FieldEncoder, FieldDecoder or both (Field)
 }
 
-func (a Ary[T]) WriteTo(w io.Writer) (n int64, err error) {
+func (a Ary[LEN]) WriteTo(w io.Writer) (n int64, err error) {
 	array := reflect.ValueOf(a.Ary)
 	for array.Kind() == reflect.Ptr {
 		array = array.Elem()
 	}
-	Len := T(array.Len())
+	Len := LEN(array.Len())
 	if nn, err := any(&Len).(FieldEncoder).WriteTo(w); err != nil {
 		return n, err
 	} else {
@@ -45,8 +51,8 @@ func (a Ary[T]) WriteTo(w io.Writer) (n int64, err error) {
 	return n, nil
 }
 
-func (a Ary[T]) ReadFrom(r io.Reader) (n int64, err error) {
-	var Len T
+func (a Ary[LEN]) ReadFrom(r io.Reader) (n int64, err error) {
+	var Len LEN
 	if nn, err := any(&Len).(FieldDecoder).ReadFrom(r); err != nil {
 		return nn, err
 	} else {
@@ -80,6 +86,12 @@ func Array(ary any) Field {
 	return Ary[VarInt]{Ary: ary}
 }
 
+// Opt is a optional [Field] which sending/receiving or not is depending on its Has field.
+// When calling `WriteTo()` or `ReadFrom()`, if Has is true, the Field's `WriteTo` or `ReadFrom()` is called.
+// Otherwise, it does nothing and return 0 and nil.
+//
+// The different between [Opt] and [Option] is that [Opt] does NOT read or write the Has field for you.
+// Which should be cared.
 type Opt struct {
 	Has   any // Pointer of bool, or `func() bool`
 	Field any // FieldEncoder, FieldDecoder, `func() FieldEncoder`, `func() FieldDecoder` or `func() Field`
@@ -133,7 +145,99 @@ func (o Opt) ReadFrom(r io.Reader) (int64, error) {
 	return 0, nil
 }
 
-type Tuple []interface{} // FieldEncoder, FieldDecoder or both (Field)
+type fieldPointer[T any] interface {
+	*T
+	FieldDecoder
+}
+
+// Option is a helper type for encoding/decoding these kind of packet:
+//
+//	+-----------+------------+----------------------------------------- +
+//	| Name      | Type       | Notes                                    |
+//	+-----------+------------+------------------------------------------+
+//	| Has Value | Boolean    | Whether or not the Value should be sent. |
+//	+-----------+------------+------------------------------------------+
+//	| Value     | Optional T | Only exist when Has Value is true.       |
+//	+-----------+------------+------------------------------------------+
+//
+// # Usage
+//
+// `Option[T]` implements [FieldEncoder] and `*Option[T]` implements [FieldDecoder].
+// That is, you can call `WriteTo()` and `ReadFrom()` methods on it.
+//
+//	var optStr Option[String]
+//	n, err := optStr.ReadFrom(r)
+//	if err != nil {
+//		// ...
+//	}
+//	if optStr.Has {
+//		fmt.Println(optStr.Val)
+//	}
+//
+// # Notes
+//
+// Currently we have to repeat T in the type arguments.
+//
+//	var opt Option[String, *String]
+//
+// Constraint type will inference makes it less awkward in the future.
+// See: https://github.com/golang/go/issues/54469
+type Option[T FieldEncoder, P fieldPointer[T]] struct {
+	Has Boolean
+	Val T
+}
+
+func (o Option[T, P]) WriteTo(w io.Writer) (n int64, err error) {
+	n1, err := o.Has.WriteTo(w)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	n2, err := o.Val.WriteTo(w)
+	return n1 + n2, err
+}
+
+func (o *Option[T, P]) ReadFrom(r io.Reader) (n int64, err error) {
+	n1, err := o.Has.ReadFrom(r)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	n2, err := P(&o.Val).ReadFrom(r)
+	return n1 + n2, err
+}
+
+// OptionDecoder is basiclly same with [Option], but support [FieldDecoder] only.
+// This allowed wrapping a [FieldDecoder] type (which isn't a [FieldEncoder]) to an Option.
+type OptionDecoder[T any, P fieldPointer[T]] struct {
+	Has Boolean
+	Val T
+}
+
+func (o *OptionDecoder[T, P]) ReadFrom(r io.Reader) (n int64, err error) {
+	n1, err := o.Has.ReadFrom(r)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	n2, err := P(&o.Val).ReadFrom(r)
+	return n1 + n2, err
+}
+
+// OptionEncoder is basiclly same with [Option], but support [FieldEncoder] only.
+// This allowed wrapping a [FieldEncoder] type (which isn't a [FieldDecoder]) to an Option.
+type OptionEncoder[T FieldEncoder] struct {
+	Has Boolean
+	Val T
+}
+
+func (o OptionEncoder[T]) WriteTo(w io.Writer) (n int64, err error) {
+	n1, err := o.Has.WriteTo(w)
+	if err != nil || !o.Has {
+		return n1, err
+	}
+	n2, err := o.Val.WriteTo(w)
+	return n1 + n2, err
+}
+
+type Tuple []any // FieldEncoder, FieldDecoder or both (Field)
 
 // WriteTo write Tuple to io.Writer, panic when any of filed don't implement FieldEncoder
 func (t Tuple) WriteTo(w io.Writer) (n int64, err error) {
