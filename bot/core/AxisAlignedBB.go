@@ -82,6 +82,10 @@ func (a AxisAlignedBB) Grow(x, y, z float64) AxisAlignedBB {
 	return AxisAlignedBB{MinX: d0, MinY: d1, MinZ: d2, MaxX: d3, MaxY: d4, MaxZ: d5}
 }
 
+func (a AxisAlignedBB) Offset(x, y, z float64) AxisAlignedBB {
+	return AxisAlignedBB{MinX: a.MinX + x, MinY: a.MinY + y, MinZ: a.MinZ + z, MaxX: a.MaxX + x, MaxY: a.MaxY + y, MaxZ: a.MaxZ + z}
+}
+
 func (a AxisAlignedBB) Intersect(other AxisAlignedBB) AxisAlignedBB {
 	/*
 		Took from net.minecraft.util.math.AxisAlignedBB#intersect version 1.12.2
