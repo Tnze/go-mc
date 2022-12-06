@@ -358,12 +358,6 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
 
-	// Test pathfinding
-	x, y, z := c.Player.Position.X+5, c.Player.Position.Y, c.Player.Position.Z+3
-	path := c.World.PathFind(c.Player.Position, maths.Vec3d{X: x, Y: y, Z: z})
-	fmt.Println("Pathfinding", path)
-
-	fmt.Println("Message", json, position)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
@@ -584,25 +578,30 @@ func (e *EventsListener) EntityStatus(c *Client, p pk.Packet) basic.Error {
 }
 
 func (e *EventsListener) Explosion(c *Client, p pk.Packet) basic.Error {
-	/*var x pk.Float
-	var y pk.Float
-	var z pk.Float
-	var radius pk.Float
-	var recordCount pk.Int
-	var records []struct {
-		X pk.Byte
-		Y pk.Byte
-		Z pk.Byte
-	}
-	var playerMotionX pk.Float
-	var playerMotionY pk.Float
-	var playerMotionZ pk.Float
+	var (
+		x, y, z    pk.Float
+		radius     pk.Float
+		records    pk.VarInt
+		data       = make([][3]pk.VarInt, 0)
+		mX, mY, mZ pk.Float
+	)
 
-	if err := p.Scan(&x, &y, &z, &radius, &recordCount, &records, &playerMotionX, &playerMotionY, &playerMotionZ); err != nil {
-		return err
+	if err := p.Scan(&x, &y, &z, &radius, &records); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Explosion packet: %w", err)}
 	}
 
-	fmt.Println("Explosion", x, y, z, radius, recordCount, records, playerMotionX, playerMotionY, playerMotionZ)*/
+	data = make([][3]pk.VarInt, records)
+	for i := pk.VarInt(0); i < records; i++ {
+		if err := p.Scan(&data[i][0], &data[i][1], &data[i][2]); err != nil {
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Explosion packet: %w", err)}
+		}
+	}
+
+	if err := p.Scan(&mX, &mY, &mZ); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Explosion packet: %w", err)}
+	}
+
+	fmt.Println("Explosion", x, y, z, radius, records, data, mX, mY, mZ)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
