@@ -79,7 +79,7 @@ func (k *KeepAlive) Run(ctx context.Context) {
 	}
 }
 
-func (k KeepAlive) pushPlayer(c KeepAliveClient) {
+func (k *KeepAlive) pushPlayer(c KeepAliveClient) {
 	k.listIndex[c] = k.pingList.PushBack(
 		keepAliveItem{player: c, t: time.Now()},
 	)
