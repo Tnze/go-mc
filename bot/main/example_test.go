@@ -45,6 +45,7 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 		PacketHandler{ID: packetid.CPacketPlayerAbilities, Priority: 0, F: c.EventHandlers.PlayerAbilities},
 		PacketHandler{ID: packetid.CPacketSyncPosition, Priority: 0, F: c.EventHandlers.SyncPlayerPosition},
 		PacketHandler{ID: packetid.CPacketChunkData, Priority: 0, F: c.EventHandlers.ChunkData},
+		PacketHandler{ID: packetid.CPacketExplosion, Priority: 0, F: c.EventHandlers.Explosion},
 	)
 
 	//JoinGame
