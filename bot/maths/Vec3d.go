@@ -50,6 +50,14 @@ func (v Vec3d) Center() Vec3d {
 	return Vec3d{X: v.X + 0.5, Y: v.Y + 0.5, Z: v.Z + 0.5}
 }
 
+func (v Vec3d) Offset(x, y, z float32) Vec3d {
+	return Vec3d{X: v.X + x, Y: v.Y + y, Z: v.Z + z}
+}
+
+func (v Vec3d) OffsetMul(x, y, z float32) Vec3d {
+	return Vec3d{X: v.X * x, Y: v.Y * y, Z: v.Z * z}
+}
+
 func (v Vec3d) Floor() Vec3d {
 	return Vec3d{X: float32(math.Floor(float64(v.X))), Y: float32(math.Floor(float64(v.Y))), Z: float32(math.Floor(float64(v.Z)))}
 }
