@@ -37,11 +37,11 @@ func (c *Client) Close() error {
 func NewClient() *Client {
 	c := &Client{
 		Auth:   Auth{Name: "Steve"},
+		World:  world.NewWorld(),
+		Player: NewPlayer(basic.DefaultSettings),
+		TPS:    new(maths.TpsCalculator),
 		Events: Events{handlers: make(map[int32]*handlerHeap)},
 	}
-	c.Player = NewPlayer(c, basic.DefaultSettings)
-	c.World = world.NewWorld()
-	c.TPS = new(maths.TpsCalculator)
-	c.TPS.Callback = c.handleTickers
+	c.TPS.SetCallback(c.handleTickers)
 	return c
 }

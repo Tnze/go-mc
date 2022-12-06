@@ -14,7 +14,11 @@ type TpsCalculator struct {
 	// TimeLastUpdate is the time of the last update.
 	TimeLastUpdate time.Time
 	// This is the callback for the tick event. Channels are too slow to use unfortunately
-	Callback func() basic.Error
+	callback func() basic.Error
+}
+
+func (t *TpsCalculator) SetCallback(callback func() basic.Error) {
+	t.callback = callback
 }
 
 func (t *TpsCalculator) Start() {
@@ -24,8 +28,8 @@ func (t *TpsCalculator) Start() {
 	go func() {
 		for {
 			time.Sleep(time.Duration(50*t.TickAverage()) * time.Millisecond) // Synchronise with the server's TPS
-			if t.Callback != nil {
-				if err := t.Callback(); !err.Is(basic.NoError) {
+			if t.callback != nil {
+				if err := t.callback(); !err.Is(basic.NoError) {
 					fmt.Println("Error in TPS callback:", err)
 				}
 			}
