@@ -698,6 +698,7 @@ func (e *EventsListener) JoinGame(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write ClientSettings packet: %w", err)}
 	}
 
+	c.Player.SetSize(0.6, 1.8) // Set the bounding box
 	// Add the player to the world
 	if err := c.World.AddEntity(c.Player.EntityPlayer); err != nil {
 		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to add player to the world: %w", err)}
