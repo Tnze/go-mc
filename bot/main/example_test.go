@@ -37,7 +37,7 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 	//Register event handlers
 	c.Events.AddListener(
 		PacketHandler{ID: packetid.CPacketSetContainerContent, Priority: 0, F: c.EventHandlers.SetWindowContent},
-		PacketHandler{ID: packetid.CPacketSpawnObject, Priority: 0, F: c.EventHandlers.SpawnEntity},
+		PacketHandler{ID: packetid.CPacketSpawnEntity, Priority: 0, F: c.EventHandlers.SpawnEntity},
 		PacketHandler{ID: packetid.CPacketSpawnPlayer, Priority: 0, F: c.EventHandlers.SpawnPlayer},
 		PacketHandler{ID: packetid.CPacketEntityEffect, Priority: 0, F: c.EventHandlers.EntityEffect},
 		PacketHandler{ID: packetid.CPacketEntityVelocity, Priority: 0, F: c.EventHandlers.EntityVelocity},
