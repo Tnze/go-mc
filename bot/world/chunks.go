@@ -167,7 +167,7 @@ func (w *World) GetBlockDensity(pos maths.Vec3d, bb core.AxisAlignedBB) float32 
 					d6 := bb.MinY + (bb.MaxY-bb.MinY)*f1
 					d7 := bb.MinZ + (bb.MaxZ-bb.MinZ)*f2
 
-					if result, err := w.RayTrace(maths.Vec3d{X: float32(d5 + d3), Y: float32(d6), Z: float32(d7 + d4)}, pos); result.Block == nil && err.Is(basic.NoValue) {
+					if _, err := w.RayTrace(maths.Vec3d{X: float32(d5 + d3), Y: float32(d6), Z: float32(d7 + d4)}, pos); err.Is(basic.NoValue) {
 						j2++
 					}
 					k2++

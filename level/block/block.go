@@ -4,13 +4,24 @@ import (
 	"bytes"
 	"compress/gzip"
 	_ "embed"
-	"fmt"
 	"math/bits"
 
 	"github.com/Tnze/go-mc/nbt"
 )
 
-type Block interface {
+type Block struct {
+	IBlock
+}
+
+func (b Block) StateID() StateID {
+	return ToStateID[b]
+}
+
+func (b Block) Is(b2 IBlock) bool {
+	return b.ID() == b2.ID()
+}
+
+type IBlock interface {
 	ID() string
 }
 
@@ -19,7 +30,7 @@ type Block interface {
 //go:embed block_states.nbt
 var blockStates []byte
 
-var ToStateID map[Block]StateID
+var ToStateID map[IBlock]StateID
 var StateList []Block
 
 // BitsPerBlock indicates how many bits are needed to represent all possible
@@ -43,7 +54,7 @@ func init() {
 	if _, err = nbt.NewDecoder(z).Decode(&states); err != nil {
 		panic(err)
 	}
-	ToStateID = make(map[Block]StateID, len(states))
+	ToStateID = make(map[IBlock]StateID, len(states))
 	StateList = make([]Block, 0, len(states))
 	for _, state := range states {
 		block := FromID[state.Name]
@@ -52,9 +63,6 @@ func init() {
 			if err != nil {
 				panic(err)
 			}
-		}
-		if _, ok := ToStateID[block]; ok {
-			panic(fmt.Errorf("state %#v already exist", block))
 		}
 		ToStateID[block] = StateID(len(StateList))
 		StateList = append(StateList, block)

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	_ "embed"
+	"fmt"
 	"go/format"
 	"log"
 	"os"
@@ -33,6 +34,7 @@ type State struct {
 }
 
 func main() {
+	fmt.Println("Generating source file...")
 	var states []State
 	readBlockStates(&states)
 
@@ -42,7 +44,7 @@ func main() {
 
 func readBlockStates(states *[]State) {
 	// open block_states data file
-	f, err := os.Open("blocks.nbt")
+	f, err := os.Open("./level/block/blocks.nbt")
 	if err != nil {
 		log.Panic(err)
 	}
