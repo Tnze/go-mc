@@ -11,7 +11,7 @@ import (
 type Client struct {
 	Conn    *net.Conn
 	Auth    Auth
-	KeyPair user.KeyPairResp
+	KeyPair *user.KeyPairResp
 
 	Name string
 	UUID uuid.UUID

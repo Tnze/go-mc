@@ -47,7 +47,7 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 
 	// 响应加密请求
 	// Write Encryption Key Response
-	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, &c.KeyPair)
+	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, c.KeyPair)
 	if err != nil {
 		return fmt.Errorf("gen encryption key response fail: %v", err)
 	}

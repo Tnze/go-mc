@@ -75,10 +75,13 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		return LoginErr{"handshake", err}
 	}
 	// Login Start
-	c.KeyPair, err = user.GetOrFetchKeyPair(c.Auth.AsTk)
-	KeyPair := pk.OptionEncoder[user.KeyPairResp]{
+	KeyPairResp, err := user.GetOrFetchKeyPair(c.Auth.AsTk)
+	if err == nil {
+		c.KeyPair = &KeyPairResp
+	}
+	KeyPair := pk.OptionEncoder[*user.KeyPairResp]{
 		Has: err == nil,
-		Val: c.KeyPair,
+		Val: &KeyPairResp,
 	}
 	c.UUID, err = uuid.Parse(c.Auth.UUID)
 	PlayerUUID := pk.Option[pk.UUID, *pk.UUID]{
