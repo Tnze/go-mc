@@ -22,7 +22,7 @@ type KeyPairResp struct {
 		PrivateKey string `json:"privateKey"`
 		PublicKey  string `json:"publicKey"`
 	} `json:"keyPair"`
-	PublicKeySignature string    `json:"publicKeySignature"`
+	PublicKeySignature string    `json:"publicKeySignatureV2"`
 	ExpiresAt          time.Time `json:"expiresAt"`
 	RefreshedAfter     time.Time `json:"refreshedAfter"`
 }
