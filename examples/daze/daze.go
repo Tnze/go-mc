@@ -19,6 +19,7 @@ import (
 	"github.com/Tnze/go-mc/data/item"
 	_ "github.com/Tnze/go-mc/data/lang/zh-cn"
 	"github.com/Tnze/go-mc/level"
+	"github.com/Tnze/go-mc/yggdrasil/user"
 )
 
 var (
@@ -45,6 +46,13 @@ func main() {
 		UUID: *playerID,
 		AsTk: *accessToken,
 	}
+	// fetch key pair for message signing
+	kp, err := user.GetOrFetchKeyPair(*accessToken)
+	if err == nil {
+		client.KeyPair = &kp
+	} else {
+		log.Println("Failed to get keypair", err)
+	}
 	player = basic.NewPlayer(client, basic.DefaultSettings, basic.EventsListener{
 		GameStart:    onGameStart,
 		SystemMsg:    onSystemMsg,
@@ -66,7 +74,7 @@ func main() {
 	})
 
 	// Login
-	err := client.JoinServer(*address)
+	err = client.JoinServer(*address)
 	if err != nil {
 		log.Fatal(err)
 	}

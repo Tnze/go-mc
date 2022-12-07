@@ -9,8 +9,11 @@ import (
 
 // Client is used to access Minecraft server
 type Client struct {
-	Conn    *net.Conn
-	Auth    Auth
+	Conn *net.Conn
+	Auth Auth
+	// KeyPair Used in login process, can be nil to avoid
+	// sending it to the server. Required to log in to servers
+	// with enforce-secure-profile
 	KeyPair *user.KeyPairResp
 
 	Name string
