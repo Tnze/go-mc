@@ -24,19 +24,46 @@ const (
 	DefaultPort     = mcnet.DefaultPort
 )
 
+type JoinOptions struct {
+	Dialer  *net.Dialer
+	Context context.Context
+
+	// Indicate not to fetch and sending player's PubKey
+	NoPublicKey bool
+
+	// Specify the player PubKey to use.
+	// If nil, it will be obtained from Mojang when joining
+	KeyPair *user.KeyPairResp
+}
+
 // JoinServer connect a Minecraft server for playing the game.
 // Using roughly the same way to parse address as minecraft.
 func (c *Client) JoinServer(addr string) (err error) {
-	return c.join(context.Background(), &mcnet.DefaultDialer, addr)
+	return c.join(addr, JoinOptions{
+		Context: context.Background(),
+		Dialer:  (*net.Dialer)(&mcnet.DefaultDialer),
+	})
 }
 
 // JoinServerWithDialer is similar to JoinServer but using a Dialer.
-func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
-	dialer := (*mcnet.Dialer)(d)
-	return c.join(context.Background(), dialer, addr)
+func (c *Client) JoinServerWithDialer(dialer *net.Dialer, addr string) (err error) {
+	return c.join(addr, JoinOptions{
+		Context: context.Background(),
+		Dialer:  dialer,
+	})
 }
 
-func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
+func (c *Client) JoinServerWithOptions(addr string, options JoinOptions) (err error) {
+	if options.Dialer == nil {
+		options.Dialer = (*net.Dialer)(&mcnet.DefaultDialer)
+	}
+	if options.Context == nil {
+		options.Context = context.Background()
+	}
+	return c.join(addr, options)
+}
+
+func (c *Client) join(addr string, options JoinOptions) error {
 	const Handshake = 0x00
 	// Split Host and Port
 	host, portStr, err := net.SplitHostPort(addr)
@@ -58,6 +85,8 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	}
 
 	// Dial connection
+	d := (*mcnet.Dialer)(options.Dialer)
+	ctx := options.Context
 	c.Conn, err = d.DialMCContext(ctx, addr)
 	if err != nil {
 		return LoginErr{"connect server", err}
@@ -75,13 +104,17 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 		return LoginErr{"handshake", err}
 	}
 	// Login Start
-	KeyPairResp, err := user.GetOrFetchKeyPair(c.Auth.AsTk)
-	if err == nil {
-		c.KeyPair = &KeyPairResp
-	}
-	KeyPair := pk.OptionEncoder[*user.KeyPairResp]{
-		Has: err == nil,
-		Val: &KeyPairResp,
+	var KeyPair pk.OptionEncoder[*user.KeyPairResp]
+	if c.Auth.AsTk != "" && !options.NoPublicKey {
+		if options.KeyPair != nil {
+			KeyPair.Has = true
+			KeyPair.Val = options.KeyPair
+			c.KeyPair = options.KeyPair
+		} else if KeyPairResp, err := user.GetOrFetchKeyPair(c.Auth.AsTk); err == nil {
+			KeyPair.Has = true
+			KeyPair.Val = &KeyPairResp
+			c.KeyPair = &KeyPairResp
+		}
 	}
 	c.UUID, err = uuid.Parse(c.Auth.UUID)
 	PlayerUUID := pk.Option[pk.UUID, *pk.UUID]{
