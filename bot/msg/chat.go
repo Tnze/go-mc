@@ -1,8 +1,11 @@
 package msg
 
 import (
-	"encoding/hex"
+	"crypto/rand"
+	"encoding/binary"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -27,8 +30,6 @@ func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Messa
 		bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChatHeader,
 			F: func(packet pk.Packet) error {
-				fmt.Println(packetid.ClientboundPacketID(packet.ID))
-				fmt.Println(hex.Dump(packet.Data))
 				return nil
 			},
 		},
@@ -37,8 +38,6 @@ func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Messa
 			F: func(packet pk.Packet) error {
 				var message sign.PlayerMessage
 				var chatType chat.Type
-				fmt.Println(packetid.ClientboundPacketID(packet.ID))
-				fmt.Println(hex.Dump(packet.Data))
 				if err := packet.Scan(&message, &chatType); err != nil {
 					return err
 				}
@@ -62,4 +61,31 @@ func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Messa
 				return handler(msg)
 			},
 		})
+}
+
+// SendMessage send chat message to server.
+// Currently only support offline-mode or "Not Secure" chat
+func (m *Manager) SendMessage(msg string) error {
+	if len(msg) > 256 {
+		return errors.New("message length greater than 256")
+	}
+
+	var salt int64
+	if err := binary.Read(rand.Reader, binary.BigEndian, &salt); err != nil {
+		return err
+	}
+
+	err := m.c.Conn.WritePacket(pk.Marshal(
+		packetid.ServerboundChat,
+		pk.String(msg),
+		pk.Long(time.Now().UnixMilli()),
+		pk.Long(salt),
+		pk.ByteArray{},
+		pk.Boolean(false),
+		pk.Array([]sign.HistoryMessage{}),
+		pk.Option[sign.HistoryMessage, *sign.HistoryMessage]{
+			Has: false,
+		},
+	))
+	return err
 }
