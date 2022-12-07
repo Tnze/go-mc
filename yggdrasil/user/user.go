@@ -22,9 +22,10 @@ type KeyPairResp struct {
 		PrivateKey string `json:"privateKey"`
 		PublicKey  string `json:"publicKey"`
 	} `json:"keyPair"`
-	PublicKeySignature string    `json:"publicKeySignature"`
-	ExpiresAt          time.Time `json:"expiresAt"`
-	RefreshedAfter     time.Time `json:"refreshedAfter"`
+	PublicKeySignature   string    `json:"publicKeySignature"`
+	PublicKeySignatureV2 string    `json:"publicKeySignatureV2"`
+	ExpiresAt            time.Time `json:"expiresAt"`
+	RefreshedAfter       time.Time `json:"refreshedAfter"`
 }
 
 func (k KeyPairResp) WriteTo(w io.Writer) (int64, error) {
@@ -32,7 +33,7 @@ func (k KeyPairResp) WriteTo(w io.Writer) (int64, error) {
 	if block == nil {
 		return 0, errors.New("pem decode error: no data is found")
 	}
-	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignature)
+	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignatureV2)
 	if err != nil {
 		return 0, err
 	}
