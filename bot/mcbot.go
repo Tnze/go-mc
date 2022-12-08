@@ -20,7 +20,7 @@ import (
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
 const (
-	ProtocolVersion = 760
+	ProtocolVersion = 761
 	DefaultPort     = mcnet.DefaultPort
 )
 
@@ -98,21 +98,16 @@ func (c *Client) join(addr string, options JoinOptions) error {
 		pk.VarInt(ProtocolVersion), // Protocol version
 		pk.String(host),            // Host
 		pk.UnsignedShort(port),     // Port
-		pk.Byte(2),
+		pk.VarInt(2),
 	))
 	if err != nil {
 		return LoginErr{"handshake", err}
 	}
 	// Login Start
-	var KeyPair pk.OptionEncoder[*user.KeyPairResp]
 	if c.Auth.AsTk != "" && !options.NoPublicKey {
 		if options.KeyPair != nil {
-			KeyPair.Has = true
-			KeyPair.Val = options.KeyPair
 			c.KeyPair = options.KeyPair
 		} else if KeyPairResp, err := user.GetOrFetchKeyPair(c.Auth.AsTk); err == nil {
-			KeyPair.Has = true
-			KeyPair.Val = &KeyPairResp
 			c.KeyPair = &KeyPairResp
 		}
 	}
@@ -124,7 +119,6 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	err = c.Conn.WritePacket(pk.Marshal(
 		packetid.LoginStart,
 		pk.String(c.Auth.Name),
-		KeyPair,
 		PlayerUUID,
 	))
 	if err != nil {
