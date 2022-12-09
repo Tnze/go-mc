@@ -1,10 +1,8 @@
-// This file is used to generate blocks.nbt and block_states.nbt
-// The necessary environment can be generated from https://github.com/Hexeption/MCP-Reborn
 package tnze.github.com;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
@@ -31,13 +29,13 @@ public class Main {
         Blocks.rebuildCache();
 
         try (FileOutputStream f = new FileOutputStream("blocks.nbt")) {
-            try (GZIPOutputStream g = new GZIPOutputStream(f)){
+            try (GZIPOutputStream g = new GZIPOutputStream(f)) {
                 DataOutput writer = new DataOutputStream(g);
                 NbtIo.writeUnnamedTag(getBlocksWithMeta(), writer);
             }
         }
         try (FileOutputStream f = new FileOutputStream("block_states.nbt")) {
-            try (GZIPOutputStream g = new GZIPOutputStream(f)){
+            try (GZIPOutputStream g = new GZIPOutputStream(f)) {
                 DataOutput writer = new DataOutputStream(g);
                 NbtIo.writeUnnamedTag(getBlockStates(), writer);
             }
@@ -46,10 +44,10 @@ public class Main {
 
     private static ListTag getBlocksWithMeta() throws Exception {
         ListTag list = new ListTag();
-        for (Block block : Registry.BLOCK) {
+        for (Block block : BuiltInRegistries.BLOCK) {
             BlockState state = block.defaultBlockState();
             CompoundTag b = new CompoundTag();
-            b.putString("Name", Registry.BLOCK.getKey(block).toString());
+            b.putString("Name", BuiltInRegistries.BLOCK.getKey(block).toString());
             ImmutableMap<Property<?>, Comparable<?>> values = state.getValues();
             if (!values.isEmpty()) {
                 CompoundTag meta = new CompoundTag();

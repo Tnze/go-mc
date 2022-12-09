@@ -14,7 +14,7 @@ func TestPaletteContainer_seq(t *testing.T) {
 	}
 	for i := 0; i < 4096; i++ {
 		if container.Get(i) != BlocksState(i) {
-			t.Errorf("Get Error, got: %v,but expect: %v", container.Get(i), BlocksState(i))
+			t.Errorf("Get Error, got: %v, but expect: %v", container.Get(i), BlocksState(i))
 		}
 	}
 }
