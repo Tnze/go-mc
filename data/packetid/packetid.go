@@ -49,7 +49,6 @@ const (
 	ClientboundBlockUpdate
 	ClientboundBossEvent
 	ClientboundChangeDifficulty
-	ClientboundChatPreview
 	ClientboundClearTitles
 	ClientboundCommandSuggestions
 	ClientboundCommands
@@ -60,9 +59,9 @@ const (
 	ClientboundCooldown
 	ClientboundCustomChatCompletions
 	ClientboundCustomPayload
-	ClientboundCustomSound
 	ClientboundDeleteChat
 	ClientboundDisconnect
+	ClientboundDisguisedChat
 	ClientboundEntityEvent
 	ClientboundExplode
 	ClientboundForgetLevelChunk
@@ -87,12 +86,12 @@ const (
 	ClientboundPing
 	ClientboundPlaceGhostRecipe
 	ClientboundPlayerAbilities
-	ClientboundPlayerChatHeader
 	ClientboundPlayerChat
 	ClientboundPlayerCombatEnd
 	ClientboundPlayerCombatEnter
 	ClientboundPlayerCombatKill
-	ClientboundPlayerInfo
+	ClientboundPlayerInfoRemove
+	ClientboundPlayerInfoUpdate
 	ClientboundPlayerLookAt
 	ClientboundPlayerPosition
 	ClientboundRecipe
@@ -115,7 +114,6 @@ const (
 	ClientboundSetChunkCacheCenter
 	ClientboundSetChunkCacheRadius
 	ClientboundSetDefaultSpawnPosition
-	ClientboundSetDisplayChatPreview
 	ClientboundSetDisplayObjective
 	ClientboundSetEntityData
 	ClientboundSetEntityLink
@@ -142,6 +140,7 @@ const (
 	ClientboundTeleportEntity
 	ClientboundUpdateAdvancements
 	ClientboundUpdateAttributes
+	ClientboundUpdateEnabledFeatures
 	ClientboundUpdateMobEffect
 	ClientboundUpdateRecipes
 	ClientboundUpdateTags
@@ -156,7 +155,6 @@ const (
 	ServerboundChatAck
 	ServerboundChatCommand
 	ServerboundChat
-	ServerboundChatPreview
 	ServerboundClientCommand
 	ServerboundClientInformation
 	ServerboundCommandSuggestion
@@ -183,6 +181,7 @@ const (
 	ServerboundPlayerCommand
 	ServerboundPlayerInput
 	ServerboundPong
+	ServerboundChatSessionUpdate
 	ServerboundRecipeBookChangeSettings
 	ServerboundRecipeBookSeenRecipe
 	ServerboundRenameItem
