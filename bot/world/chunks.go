@@ -153,21 +153,21 @@ func (w *World) GetBlockDensity(pos maths.Vec3d, bb core.AxisAlignedBB) float32 
 	d0 := 1.0 / ((bb.MaxX-bb.MinX)*2.0 + 1.0)
 	d1 := 1.0 / ((bb.MaxY-bb.MinY)*2.0 + 1.0)
 	d2 := 1.0 / ((bb.MaxZ-bb.MinZ)*2.0 + 1.0)
-	d3 := (1.0 - math.Floor(1.0/d0)*d0) / 2.0
-	d4 := (1.0 - math.Floor(1.0/d2)*d2) / 2.0
+	d3 := (1.0 - float32(math.Floor(float64(1.0/d0)))*d0) / 2.0
+	d4 := (1.0 - float32(math.Floor(float64(1.0/d2)))*d2) / 2.0
 
 	if d0 >= 0.0 && d1 >= 0.0 && d2 >= 0.0 {
 		j2 := float32(0)
 		k2 := float32(0)
 
-		for f := 0.0; f <= 1.0; f += d0 {
-			for f1 := 0.0; f1 <= 1.0; f1 += d1 {
-				for f2 := 0.0; f2 <= 1.0; f2 += d2 {
+		for f := float32(0.0); f <= 1.0; f += d0 {
+			for f1 := float32(0.0); f1 <= 1.0; f1 += d1 {
+				for f2 := float32(0.0); f2 <= 1.0; f2 += d2 {
 					d5 := bb.MinX + (bb.MaxX-bb.MinX)*f
 					d6 := bb.MinY + (bb.MaxY-bb.MinY)*f1
 					d7 := bb.MinZ + (bb.MaxZ-bb.MinZ)*f2
 
-					if _, err := w.RayTrace(maths.Vec3d{X: float32(d5 + d3), Y: float32(d6), Z: float32(d7 + d4)}, pos); err.Is(basic.NoValue) {
+					if _, err := w.RayTrace(maths.Vec3d{X: d5 + d3, Y: d6, Z: d7 + d4}, pos); err.Is(basic.NoValue) {
 						j2++
 					}
 					k2++
@@ -181,12 +181,12 @@ func (w *World) GetBlockDensity(pos maths.Vec3d, bb core.AxisAlignedBB) float32 
 }
 
 func (w *World) IsAABBInMaterial(bb core.AxisAlignedBB) bool {
-	i := int32(math.Floor(bb.MinX))
-	j := int32(math.Floor(bb.MaxX))
-	k := int32(math.Floor(bb.MinY))
-	l := int32(math.Floor(bb.MaxY))
-	i1 := int32(math.Floor(bb.MinZ))
-	j1 := int32(math.Floor(bb.MaxZ))
+	i := int32(math.Floor(float64(bb.MinX)))
+	j := int32(math.Floor(float64(bb.MaxX)))
+	k := int32(math.Floor(float64(bb.MinY)))
+	l := int32(math.Floor(float64(bb.MaxY)))
+	i1 := int32(math.Floor(float64(bb.MinZ)))
+	j1 := int32(math.Floor(float64(bb.MaxZ)))
 
 	for x := i; x <= j; x++ {
 		for y := k; y <= l; y++ {

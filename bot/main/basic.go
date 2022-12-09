@@ -87,7 +87,12 @@ func (p *Player) Chat(c *Client, msg string) error {
 }
 
 func ApplyPhysics(c *Client) basic.Error {
+	oldPos := c.Player.Position
 	c.Player.SetPosition(c.Player.Position.Add(c.Player.Motion))
+	if oldPos == c.Player.Position || c.Player.Motion.Length() < 0.0001 {
+		c.Player.Motion = maths.NullVec3d
+		return basic.Error{Err: basic.NoError, Info: nil}
+	}
 
 	if err := c.Conn.WritePacket(
 		pk.Marshal(
@@ -107,7 +112,7 @@ func ApplyPhysics(c *Client) basic.Error {
 		}
 		// TODO: Check if the player is in water or lava
 		if c.Player.OnGround && c.Player.jumpTicks == 0 {
-			if getBlock, err := c.World.GetBlock(c.Player.Position); !err.Is(basic.NoError) {
+			if getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0, 0.5, 0)); !err.Is(basic.NoError) {
 				return err
 			} else {
 				if blockUnder := block.StateList[getBlock]; blockUnder.ID() == (block.HoneyBlock{}).ID() {
@@ -155,7 +160,7 @@ func moveEntityWithHeading(c *Client, strafe, forward float32) basic.Error {
 		gravityMultiplier = core.SlowFalling
 	}*/
 
-	getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0, 0, 0))
+	getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0, 0.5, 0))
 	if !err.Is(basic.NoError) {
 		return err
 	}
@@ -192,19 +197,18 @@ func moveEntityWithHeading(c *Client, strafe, forward float32) basic.Error {
 		)
 	} else {
 		// In lava/water
+		lastY := c.Player.Motion.Y
 		acceleration := float32(core.LiquidAcceleration)
 		inertia := float32(0)
 		gravity := float32(core.WaterGravity)
 		if blockUnder.Is(block.Water{}) {
 			inertia = float32(core.WaterInertia)
+			// TODO: Depth strider
 		} else {
 			inertia = float32(core.LavaInertia)
+			gravity = float32(core.LavaGravity)
 		}
 		horizontalMotion := inertia
-
-		if blockUnder.Is(block.Water{}) {
-			// TODO: Depth strider
-		}
 
 		applyHeading(c, strafe, forward, acceleration)
 		if err := moveEntity(c); !err.Is(basic.NoError) {
@@ -222,6 +226,9 @@ func moveEntityWithHeading(c *Client, strafe, forward float32) basic.Error {
 			0,
 		)
 
+		if len(getSurroundingBB(c, c.Player.BoundingBox.Offset(c.Player.Motion.X, c.Player.Motion.Y+0.6-c.Player.Position.Y+lastY, c.Player.Motion.Z))) == 0 {
+			c.Player.Motion.Y = core.OutOfLiquidImpulse
+		}
 	}
 
 	return basic.Error{Err: basic.NoError, Info: nil}
@@ -239,15 +246,178 @@ func applyHeading(c *Client, strafe, forward, multipler float32) {
 }
 
 func moveEntity(c *Client) basic.Error {
-	/*oldVelocity := c.Player.Motion
+	if getBlock, err := c.World.GetBlock(c.Player.Position); !err.Is(basic.NoError) {
+		return err
+	} else if block.StateList[getBlock].Is(block.Cobweb{}) {
+		c.Player.Motion = c.Player.Motion.OffsetMul(0.25, 0.05, 0.25)
+	}
+	/*dX, dY, dZ := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
+	oDx, oDy, oDz := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
 
 	if c.Player.Controller.Sneak && c.Player.OnGround {
-		step := 0.5
+		step := float32(0.5)
 
-		if getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0, -1, 0)); !err.Is(basic.NoError) {
+		for ; dX != 0 && len(getSurroundingBB(c, c.Player.BoundingBox.Offset(dX, 0, 0))) == 0; oDx = dX {
+			if dX < step && dX >= -step {
+				dX = 0
+			} else if dX > 0 {
+				dX -= step
+			} else {
+				dX += step
+			}
+		}
 
+		for ; dY != 0 && len(getSurroundingBB(c, c.Player.BoundingBox.Offset(0, 0, dZ))) == 0; oDz = dZ {
+			if dZ < step && dZ >= -step {
+				dZ = 0
+			} else if dZ > 0 {
+				dZ -= step
+			} else {
+				dZ += step
+			}
+		}
+
+		for dX != 0 && dZ != 0 && len(getSurroundingBB(c, c.Player.BoundingBox.Offset(dX, 0, dZ))) == 0 {
+			if dX < step && dX >= -step {
+				dX = 0
+			} else if dX > 0 {
+				dX -= step
+			} else {
+				dX += step
+			}
+
+			if dZ < step && dZ >= -step {
+				dZ = 0
+			} else if dZ > 0 {
+				dZ -= step
+			} else {
+				dZ += step
+			}
+
+			oDx = dX
+			oDz = dZ
 		}
 	}*/
+
+	playerBB := c.Player.BoundingBox
+	/*queryBB := playerBB.Offset(dX, dY, dZ)
+	collidingBB := getSurroundingBB(c, queryBB)
+	oldBB := c.Player.BoundingBox
+
+	for _, bb := range collidingBB {
+		dY = bb.CollideY(playerBB, dY)
+	}
+	playerBB = playerBB.Offset(0, dY, 0)
+
+	for _, bb := range collidingBB {
+		dX = bb.CollideX(playerBB, dX)
+	}
+	playerBB = playerBB.Offset(dX, 0, 0)
+
+	for _, bb := range collidingBB {
+		dZ = bb.CollideZ(playerBB, dZ)
+	}
+	playerBB = playerBB.Offset(0, 0, dZ)
+
+	if c.Player.OnGround || (oDy != dY && oDy < 0) && (dX != oDx || dZ != oDz) {
+		oVXC, oVYC, oVZC := dX, dY, dZ
+
+		// Step up blocks
+		dY = float32(core.StepHeight)
+		queryBB = oldBB.Expand(c.Player.Motion.X, dY, oDz)
+		collidingBB = getSurroundingBB(c, queryBB)
+
+		BB1, BB2 := oldBB, oldBB
+		BB_XZ := BB1.Expand(dX, 0, dZ)
+
+		dY1, dY2 := oDy, oDy
+		for _, bb := range collidingBB {
+			dY1 = bb.CollideY(BB_XZ, dY1)
+			dY2 = bb.CollideY(BB1, dY2)
+		}
+		BB1 = BB1.Offset(0, dY1, 0)
+		BB2 = BB2.Offset(0, dY2, 0)
+
+		dX1, dX2 := oDx, oDx
+		for _, bb := range collidingBB {
+			dX1 = bb.CollideX(BB1, dX1)
+			dX2 = bb.CollideX(BB2, dX2)
+		}
+		BB1 = BB1.Offset(dX1, 0, 0)
+		BB2 = BB2.Offset(dX2, 0, 0)
+
+		dZ1, dZ2 := dZ, dZ
+		for _, bb := range collidingBB {
+			dZ1 = bb.CollideZ(BB1, dZ1)
+			dZ2 = bb.CollideZ(BB2, dZ2)
+		}
+		BB1 = BB1.Offset(0, 0, dZ1)
+		BB2 = BB2.Offset(0, 0, dZ2)
+
+		norm1, norm2 := dX1*dX1+dZ1*dZ1, dX2*dX2+dZ2*dZ2
+
+		if norm1 > norm2 {
+			dX, dY, dZ = dX1, -dY1, dZ1
+		} else {
+			dX, dY, dZ = dX2, -dY2, dZ2
+			playerBB = BB2
+		}
+
+		for _, bb := range collidingBB {
+			dY = bb.CollideY(playerBB, dY)
+		}
+		playerBB = playerBB.Offset(0, dY, 0)
+
+		if oVXC*oVXC+oVZC*oVZC >= dX*dX+dZ*dZ {
+			dX, dY, dZ = oVXC, oVYC, oVZC
+			playerBB = oldBB
+		}
+	} else {
+		c.Player.OnGround = false
+	}*/
+
+	/*c.Player.Position = c.Player.Position.Offset(
+		playerBB.MinX+0.3,
+		playerBB.MinY,
+		playerBB.MinZ+0.3,
+	)*/
+
+	// Apply block collision
+	playerBB = playerBB.Contract(0.001, 0.001, 0.001)
+	cursor := maths.NullVec3d
+	for cursor.Y = float32(math.Floor(float64(playerBB.MinY))); cursor.Y < float32(math.Ceil(float64(playerBB.MaxY))); cursor.Y++ {
+		for cursor.Z = float32(math.Floor(float64(playerBB.MinZ))); cursor.Z < float32(math.Ceil(float64(playerBB.MaxZ))); cursor.Z++ {
+			for cursor.X = float32(math.Floor(float64(playerBB.MinX))); cursor.X < float32(math.Ceil(float64(playerBB.MaxX))); cursor.X++ {
+				if getBlock, err := c.World.GetBlock(cursor); !err.Is(basic.NoError) {
+					continue
+				} else {
+					if block.StateList[getBlock].Is(block.SoulSand{}) {
+						c.Player.Motion.X *= core.SoulSandMultiplier
+						c.Player.Motion.Z *= core.SoulSandMultiplier
+					} else if block.StateList[getBlock].Is(block.HoneyBlock{}) {
+						c.Player.Motion.X *= core.HoneyBlockMultiplier
+						c.Player.Motion.Z *= core.HoneyBlockMultiplier
+					} else if block.StateList[getBlock].Is(block.Cobweb{}) {
+						// Set cobweb to true
+					}
+				}
+			}
+		}
+	}
+
+	if blockBelow, err := c.World.GetBlock(c.Player.Position.Offset(0, -0.5, 0)); !err.Is(basic.NoError) {
+		return err
+	} else {
+		if block.StateList[blockBelow].Is(block.SoulSand{}) {
+			c.Player.Motion.X *= core.SoulSandMultiplier
+			c.Player.Motion.Z *= core.SoulSandMultiplier
+		} else if block.StateList[blockBelow].Is(block.HoneyBlock{}) {
+			c.Player.Motion.X *= core.HoneyBlockMultiplier
+			c.Player.Motion.Z *= core.HoneyBlockMultiplier
+		} else if block.StateList[blockBelow].Is(block.Cobweb{}) {
+			// Set cobweb to true
+		}
+	}
 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }

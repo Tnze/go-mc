@@ -40,12 +40,12 @@ func (e *Entity) SetSize(width, height float32) {
 		if e.Width < f {
 			d0 := width / 2.0
 			e.BoundingBox = AxisAlignedBB{
-				MinX: float64(e.Position.X - d0),
-				MinY: float64(e.Position.Y),
-				MinZ: float64(e.Position.Z - d0),
-				MaxX: float64(e.Position.X + d0),
-				MaxY: float64(e.Position.Y + height),
-				MaxZ: float64(e.Position.Z + d0),
+				MinX: e.Position.X - d0,
+				MinY: e.Position.Y,
+				MinZ: e.Position.Z - d0,
+				MaxX: e.Position.X + d0,
+				MaxY: e.Position.Y + height,
+				MaxZ: e.Position.Z + d0,
 			}
 		}
 
@@ -54,9 +54,9 @@ func (e *Entity) SetSize(width, height float32) {
 			MinX: aabb.MinX,
 			MinY: aabb.MinY,
 			MinZ: aabb.MinZ,
-			MaxX: aabb.MaxX + float64(e.Width),
-			MaxY: aabb.MaxY + float64(e.Height),
-			MaxZ: aabb.MaxZ + float64(e.Width),
+			MaxX: aabb.MaxX + e.Width,
+			MaxY: aabb.MaxY + e.Height,
+			MaxZ: aabb.MaxZ + e.Width,
 		}
 	}
 }
