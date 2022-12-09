@@ -31,10 +31,10 @@ var EnumProperties = []EnumProperty{
 	{Name: "DripstoneThickness", Values: []string{"tip_merge", "tip", "frustum", "middle", "base"}},
 	{Name: "Half", TrimPrefix: true, Values: []string{"top", "bottom"}},
 	{Name: "NoteBlockInstrument", Values: []string{
-		"harp", "basedrum", "snare", "hat",
-		"bass", "flute", "bell", "guitar",
-		"chime", "xylophone", "iron_xylophone", "cow_bell",
-		"didgeridoo", "bit", "banjo", "pling",
+		"harp", "basedrum", "snare", "hat", "bass", "flute", "bell",
+		"guitar", "chime", "xylophone", "iron_xylophone", "cow_bell",
+		"didgeridoo", "bit", "banjo", "pling", "zombie", "skeleton",
+		"creeper", "dragon", "wither_skeleton", "piglin", "custom_head",
 	}},
 	{Name: "PistonType", Values: []string{"normal", "sticky"}},
 	{Name: "RailShape", Values: []string{
