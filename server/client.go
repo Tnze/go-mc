@@ -1,11 +1,9 @@
 package server
 
 import (
-	"container/list"
 	"strconv"
-	"sync"
-	"sync/atomic"
 
+	"github.com/Tnze/go-mc/internal/queue"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -29,79 +27,4 @@ func (s WritePacketError) Unwrap() error {
 	return s.Err
 }
 
-type PacketQueue interface {
-	Push(packet pk.Packet)
-	Pull() (packet pk.Packet, ok bool)
-	Close()
-}
-
-func NewPacketQueue() (p PacketQueue) {
-	p = &LinkedListPacketQueue{
-		queue: list.New(),
-		cond:  sync.Cond{L: new(sync.Mutex)},
-	}
-	return p
-}
-
-type LinkedListPacketQueue struct {
-	queue  *list.List
-	closed bool
-	cond   sync.Cond
-}
-
-func (p *LinkedListPacketQueue) Push(packet pk.Packet) {
-	p.cond.L.Lock()
-	if !p.closed {
-		p.queue.PushBack(packet)
-	}
-	p.cond.Signal()
-	p.cond.L.Unlock()
-}
-
-func (p *LinkedListPacketQueue) Pull() (packet pk.Packet, ok bool) {
-	p.cond.L.Lock()
-	defer p.cond.L.Unlock()
-	for p.queue.Front() == nil && !p.closed {
-		p.cond.Wait()
-	}
-	if p.closed {
-		return pk.Packet{}, false
-	}
-	packet = p.queue.Remove(p.queue.Front()).(pk.Packet)
-	ok = true
-	return
-}
-
-func (p *LinkedListPacketQueue) Close() {
-	p.cond.L.Lock()
-	p.closed = true
-	p.cond.Broadcast()
-	p.cond.L.Unlock()
-}
-
-type ChannelPacketQueue struct {
-	c      chan pk.Packet
-	closed atomic.Bool
-}
-
-func (c ChannelPacketQueue) Push(packet pk.Packet) {
-	if c.closed.Load() {
-		return
-	}
-	select {
-	case c.c <- packet:
-	default:
-		c.closed.Store(true)
-	}
-}
-
-func (c ChannelPacketQueue) Pull() (packet pk.Packet, ok bool) {
-	if !c.closed.Load() {
-		packet, ok = <-c.c
-	}
-	return
-}
-
-func (c ChannelPacketQueue) Close() {
-	c.closed.Store(true)
-}
+type PacketQueue = queue.Queue[pk.Packet]
