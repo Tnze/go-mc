@@ -80,7 +80,7 @@ func main() {
 
 		if err2 := new(bot.PacketHandlerError); errors.As(err, err2) {
 			if err := new(DisconnectErr); errors.As(err2, err) {
-				log.Print("Disconnect: ", err.Reason)
+				log.Print("Disconnect, reason: ", err.Reason)
 				return
 			} else {
 				// print and ignore the error

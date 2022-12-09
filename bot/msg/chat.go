@@ -28,12 +28,6 @@ func New(c *bot.Client, p *basic.Player, events EventsHandler) *Manager {
 func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Message) error) {
 	c.Events.AddListener(
 		bot.PacketHandler{
-			Priority: 64, ID: packetid.ClientboundPlayerChatHeader,
-			F: func(packet pk.Packet) error {
-				return nil
-			},
-		},
-		bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChat,
 			F: func(packet pk.Packet) error {
 				var message sign.PlayerMessage
