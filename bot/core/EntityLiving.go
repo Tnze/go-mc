@@ -20,7 +20,7 @@ type EntityLiving struct {
 	Absorption              float32
 	ActiveItem              item.Item
 	ActiveItemStackUseCount int32
-	ActivePotionEffects     []effects.Effect
+	ActivePotionEffects     []effects.EffectStatus
 	dead                    bool
 	OnGround                bool
 }
@@ -40,7 +40,7 @@ IsPotionActive
 	@param effect (effects.Effect) - the effect to check
 	@return bool - if the entity has the effect
 */
-func (e *EntityLiving) IsPotionActive(effect effects.Effect) bool {
+func (e *EntityLiving) IsPotionActive(effect effects.EffectStatus) bool {
 	for _, v := range e.ActivePotionEffects {
 		if v == effect {
 			return true

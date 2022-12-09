@@ -5,6 +5,7 @@ import (
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
+	"github.com/Tnze/go-mc/data/effects"
 	"github.com/Tnze/go-mc/data/item"
 	"github.com/Tnze/go-mc/level"
 	"time"
@@ -1527,17 +1528,49 @@ func (e *EventsListener) EntityProperties(c *Client, p pk.Packet) basic.Error {
 
 func (e *EventsListener) EntityEffect(c *Client, p pk.Packet) basic.Error {
 	var (
-		entityID      pk.Int
-		effectID      pk.Byte
-		amplifier     pk.Byte
-		duration      pk.VarInt
-		hideParticles pk.Boolean
+		entityID   pk.VarInt
+		effectID   pk.VarInt
+		amplifier  pk.Byte
+		duration   pk.VarInt
+		flags      pk.Byte
+		factorData pk.Boolean
+		codec      struct {
+			PaddingDuration        int     `nbt:"padding_duration"`
+			FactorStart            float32 `nbt:"factor_start"`
+			FactorTarget           float32 `nbt:"factor_target"`
+			FactorCurrent          float32 `nbt:"factor_current"`
+			EffectChangedTimeStamp int     `nbt:"effect_changed_timestamp"`
+			FactorPreviousFrame    float32 `nbt:"factor_previous_frame"`
+			HadEffectLastTick      bool    `nbt:"had_effect_last_tick"`
+		}
 	)
 
-	if err := p.Scan(&entityID, &effectID, &amplifier, &duration, &hideParticles); err != nil {
+	if err := p.Scan(
+		pk.Tuple{
+			&entityID,
+			&effectID,
+			&amplifier,
+			&duration,
+			&flags,
+			pk.Opt{
+				If:    &factorData,
+				Value: pk.NBT(&codec),
+			},
+		},
+	); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityEffect packet: %w", err)}
 	}
 
-	fmt.Println("EntityEffect", entityID, effectID, amplifier, duration, hideParticles)
+	if effect, ok := effects.ByID[int32(effectID)]; ok {
+		effectStatus := effects.EffectStatus{
+			ID:            int32(effectID),
+			Amplifier:     byte(amplifier),
+			Duration:      int32(duration),
+			ShowParticles: flags&0x01 == 0x01,
+			ShowIcon:      flags&0x04 == 0x04,
+		}
+		c.Player.ActivePotionEffects = append(c.Player.ActivePotionEffects, effectStatus)
+		fmt.Println("EntityEffect", entityID, effect, amplifier, duration, flags, codec)
+	}
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
