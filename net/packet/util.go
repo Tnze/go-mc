@@ -86,7 +86,7 @@ func Array(ary any) Field {
 	return Ary[VarInt]{Ary: ary}
 }
 
-// Opt is a optional [Field] which sending/receiving or not is depending on its Has field.
+// Opt is an optional [Field] which sending/receiving or not is depending on its Has field.
 // When calling `WriteTo()` or `ReadFrom()`, if Has is true, the Field's `WriteTo` or `ReadFrom()` is called.
 // Otherwise, it does nothing and return 0 and nil.
 //
@@ -152,13 +152,13 @@ type fieldPointer[T any] interface {
 
 // Option is a helper type for encoding/decoding these kind of packet:
 //
-//	+-----------+------------+----------------------------------------- +
-//	| Name      | Type       | Notes                                    |
-//	+-----------+------------+------------------------------------------+
-//	| Has Value | Boolean    | Whether or not the Value should be sent. |
-//	+-----------+------------+------------------------------------------+
-//	| Value     | Optional T | Only exist when Has Value is true.       |
-//	+-----------+------------+------------------------------------------+
+//	+-----------+------------+----------------------------------- +
+//	| Name      | Type       | Notes                              |
+//	+-----------+------------+------------------------------------+
+//	| Has Value | Boolean    | Whether the Value should be sent.  |
+//	+-----------+------------+------------------------------------+
+//	| Value     | Optional T | Only exist when Has Value is true. |
+//	+-----------+------------+------------------------------------+
 //
 // # Usage
 //
@@ -205,7 +205,7 @@ func (o *Option[T, P]) ReadFrom(r io.Reader) (n int64, err error) {
 	return n1 + n2, err
 }
 
-// OptionDecoder is basiclly same with [Option], but support [FieldDecoder] only.
+// OptionDecoder is basically same with [Option], but support [FieldDecoder] only.
 // This allowed wrapping a [FieldDecoder] type (which isn't a [FieldEncoder]) to an Option.
 type OptionDecoder[T any, P fieldPointer[T]] struct {
 	Has Boolean
@@ -221,7 +221,7 @@ func (o *OptionDecoder[T, P]) ReadFrom(r io.Reader) (n int64, err error) {
 	return n1 + n2, err
 }
 
-// OptionEncoder is basiclly same with [Option], but support [FieldEncoder] only.
+// OptionEncoder is basically same with [Option], but support [FieldEncoder] only.
 // This allowed wrapping a [FieldEncoder] type (which isn't a [FieldDecoder]) to an Option.
 type OptionEncoder[T FieldEncoder] struct {
 	Has Boolean
