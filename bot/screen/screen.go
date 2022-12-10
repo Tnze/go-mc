@@ -57,6 +57,5 @@ type Container interface {
 	GetInventorySlot(int) *slots.Slot
 	GetHotbarSlot(int) *slots.Slot
 	SetSlot(int, slots.Slot) basic.Error
-	SwitchSlot(int, int) basic.Error
 	OnClose() basic.Error
 }

@@ -331,6 +331,10 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 			}
 		}
 	}
+
+	if item1 == nil || item2 == nil {
+		return basic.Error{Err: basic.NoError, Info: nil}
+	}
 	// Create a new inventory transaction
 	builder := transactions.TransactionBuilder{
 		WindowID: 0,
