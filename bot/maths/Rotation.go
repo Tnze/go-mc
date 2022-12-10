@@ -1,6 +1,20 @@
 package maths
 
-import "math"
+import (
+	"math"
+)
+
+func ProjectPosition(rotation Vec2d, distance float32, offsetY float32) Vec3d {
+	x := distance * float32(math.Sin(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.Y))))
+	y := float32(0)
+	if rotation.Y > 0 {
+		y = distance * float32(-math.Sin(ToRadians(float64(rotation.Y))))
+	} else {
+		y = distance * float32(math.Sin(ToRadians(float64(rotation.Y))))
+	}
+	z := distance * float32(math.Cos(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.X))))
+	return Vec3d{X: x, Y: y + offsetY, Z: z}
+}
 
 func GetRotationFromVector(vec Vec3d) Vec2d {
 	xz := math.Hypot(float64(vec.X), float64(vec.Z))
@@ -11,6 +25,10 @@ func GetRotationFromVector(vec Vec3d) Vec2d {
 
 func ToDegrees(angle float64) float64 {
 	return angle * 180.0 / math.Pi
+}
+
+func ToRadians(angle float64) float64 {
+	return angle * math.Pi / 180.0
 }
 
 func normalizeAngle[T float32 | float64](angle T) T {

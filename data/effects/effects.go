@@ -2,12 +2,17 @@
 // Package effects stores information about potion effects in Minecraft.
 package effects
 
-// ID describes the numeric ID of an effect.
-type ID uint32
+type EffectStatus struct {
+	ID            int32
+	Amplifier     byte
+	Duration      int32
+	ShowParticles bool
+	ShowIcon      bool
+}
 
 // Item describes information about a type of item.
 type Effect struct {
-	ID          ID
+	ID          int32
 	DisplayName string
 	Name        string
 	Type        string
@@ -215,7 +220,7 @@ var (
 )
 
 // ByID is an index of minecraft items by their ID.
-var ByID = map[ID]*Effect{
+var ByID = map[int32]*Effect{
 	1:  &Speed,
 	2:  &Slowness,
 	3:  &Haste,

@@ -1,9 +1,13 @@
 package core
 
 import (
+	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/data/effects"
 	"github.com/Tnze/go-mc/data/item"
 )
+
+var EyePosVec = maths.Vec3d{Y: 1.62}
+var EyePos = float32(1.62)
 
 type EntityLiving struct {
 	*Entity
@@ -16,8 +20,9 @@ type EntityLiving struct {
 	Absorption              float32
 	ActiveItem              item.Item
 	ActiveItemStackUseCount int32
-	ActivePotionEffects     []effects.Effect
+	ActivePotionEffects     []effects.EffectStatus
 	dead                    bool
+	OnGround                bool
 }
 
 /*
@@ -35,7 +40,7 @@ IsPotionActive
 	@param effect (effects.Effect) - the effect to check
 	@return bool - if the entity has the effect
 */
-func (e *EntityLiving) IsPotionActive(effect effects.Effect) bool {
+func (e *EntityLiving) IsPotionActive(effect effects.EffectStatus) bool {
 	for _, v := range e.ActivePotionEffects {
 		if v == effect {
 			return true
@@ -87,4 +92,14 @@ func (e *EntityLiving) SetHealth(health float32) bool {
 		return true
 	}
 	return false
+}
+
+/*
+GetEyePos
+
+	@param partialTicks (float32) - the partial ticks
+	@return Vec3d - the position of the entity's eyes
+*/
+func (e *EntityLiving) GetEyePos() maths.Vec3d {
+	return e.Position.Add(EyePosVec)
 }

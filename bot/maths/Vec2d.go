@@ -5,7 +5,8 @@ import "math"
 var NullVec2d = Vec2d{X: 0, Y: 0}
 
 type Vec2d struct {
-	X, Y float32
+	X, // Pitch
+	Y float32 // Yaw
 }
 
 func (v Vec2d) Add(v2 Vec2d) Vec2d {

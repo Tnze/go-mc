@@ -22,4 +22,15 @@ Minecraft for "rodents"
 
 ## Documentation
 
-# Soon
+### Ray-Tracing
+
+You can cast a ray in the world to get the block you are looking at.
+```go
+start := c.Player.GetEyePos()
+end := maths.ProjectPosition(c.Player.Rotation, 5, 1.62) // Relative to the player's eye position
+result, err := c.World.RayTrace(start, start.Add(end))
+if err != nil {
+fmt.Println(err)
+}
+fmt.Println(result.String())
+```

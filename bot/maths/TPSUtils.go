@@ -1,18 +1,46 @@
 package maths
 
 import (
+	"fmt"
+	"github.com/Tnze/go-mc/bot/basic"
 	"time"
 )
 
 type TpsCalculator struct {
+	Started bool
 	// TickRate is the number of ticks per second.
 	TickRate   float64
 	lastNTicks []float64
 	// TimeLastUpdate is the time of the last update.
 	TimeLastUpdate time.Time
+	// This is the callback for the tick event. Channels are too slow to use unfortunately
+	callback func() basic.Error
+}
+
+func (t *TpsCalculator) SetCallback(callback func() basic.Error) {
+	t.callback = callback
+}
+
+func (t *TpsCalculator) Start() {
+	t.Started = true
+	t.TimeLastUpdate = time.Now()
+
+	go func() {
+		for {
+			time.Sleep(time.Duration(50*t.TickAverage()) * time.Millisecond) // Synchronise with the server's TPS
+			if t.callback != nil {
+				if err := t.callback(); !err.Is(basic.NoError) {
+					fmt.Println("Error in TPS callback:", err)
+				}
+			}
+		}
+	}() // Create a new thread for the tick event to avoid the delay from the main thread
 }
 
 func (t *TpsCalculator) Update() {
+	if !t.Started {
+		t.Start()
+	}
 	if t.lastNTicks == nil {
 		t.lastNTicks = make([]float64, 5)
 		for i := range t.lastNTicks {
@@ -25,6 +53,11 @@ func (t *TpsCalculator) Update() {
 	t.TimeLastUpdate = time.Now()
 }
 
+/*
+TickAverage
+
+	@return float64 - The average tick rate from 0 to 1.
+*/
 func (t *TpsCalculator) TickAverage() float64 {
 	var sum float64
 	for _, v := range t.lastNTicks {

@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/CFB8"
@@ -72,57 +73,54 @@ func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, 
 
 func encryptionRequest(conn *net.Conn, publicKey []byte) ([]byte, error) {
 	var verifyToken [verifyTokenLen]byte
-	_, err := rand.Read(verifyToken[:])
-	if err != nil {
+	if _, err := rand.Read(verifyToken[:]); err != nil {
 		return nil, err
 	}
-	err = conn.WritePacket(pk.Marshal(
-		packetid.LoginEncryptionRequest,
+	if err := conn.WritePacket(pk.Marshal(
+		packetid.CPacketEncryptionRequest,
 		pk.String(""),
 		pk.ByteArray(publicKey),
 		pk.ByteArray(verifyToken[:]),
-	))
-	return verifyToken[:], err
+	)); !err.Is(basic.NoError) {
+		return nil, err
+	}
+	return verifyToken[:], nil
 }
 
 func encryptionResponse(conn *net.Conn, profilePubKey *rsa.PublicKey, nonce []byte, key *rsa.PrivateKey) ([]byte, error) {
 	var p pk.Packet
-	err := conn.ReadPacket(&p)
-	if err != nil {
+	if err := conn.ReadPacket(&p); !err.Is(basic.NoError) {
 		return nil, err
 	}
-	if p.ID != packetid.LoginEncryptionResponse {
+	if p.ID != packetid.SPacketEncryptionResponse {
 		return nil, fmt.Errorf("0x%02X is not Encryption Response", p.ID)
 	}
 
 	r := bytes.NewReader(p.Data)
 	var ESharedSecret pk.ByteArray
-	if _, err = ESharedSecret.ReadFrom(r); err != nil {
+	if _, err := ESharedSecret.ReadFrom(r); err != nil {
 		return nil, err
 	}
 	var isNonce pk.Boolean
-	if _, err = isNonce.ReadFrom(r); err != nil {
+	if _, err := isNonce.ReadFrom(r); err != nil {
 		return nil, err
 	}
 	if isNonce {
 		var nonce2 pk.ByteArray
-		_, err = nonce2.ReadFrom(r)
-		if err != nil {
+		if _, err := nonce2.ReadFrom(r); err != nil {
 			return nil, err
 		}
-
-		nonce2, err = rsa.DecryptPKCS1v15(rand.Reader, key, nonce2)
-		if err != nil {
+		if nonce2, err := rsa.DecryptPKCS1v15(rand.Reader, key, nonce2); err != nil {
 			return nil, err
+		} else if !bytes.Equal(nonce, nonce2) {
+			return nil, errors.New("nonce is not equal")
 		}
-		if !bytes.Equal(nonce, nonce2) {
-			return nil, errors.New("nonce not match")
-		}
-
 	} else {
-		var salt pk.Long
-		var signature pk.ByteArray
-		_, err = pk.Tuple{&salt, &signature}.ReadFrom(r)
+		var (
+			salt      pk.Long
+			signature pk.ByteArray
+		)
+		_, err := pk.Tuple{&salt, &signature}.ReadFrom(r)
 		if err != nil {
 			return nil, err
 		}
@@ -130,13 +128,12 @@ func encryptionResponse(conn *net.Conn, profilePubKey *rsa.PublicKey, nonce []by
 		hash := sha256.New()
 		unwrap(hash.Write(nonce))
 		unwrap(salt.WriteTo(hash))
-		err := rsa.VerifyPKCS1v15(profilePubKey, crypto.SHA256, hash.Sum(nil), signature)
-		if err != nil {
+		if err := rsa.VerifyPKCS1v15(profilePubKey, crypto.SHA256, hash.Sum(nil), signature); err != nil {
 			return nil, err
 		}
 	}
 
-	//confirm to verify token
+	// Confirm the token
 	SharedSecret, err := rsa.DecryptPKCS1v15(rand.Reader, key, ESharedSecret)
 	if err != nil {
 		return nil, err

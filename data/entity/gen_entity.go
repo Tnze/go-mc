@@ -24,24 +24,24 @@ package entity
 // ID describes the numeric ID of an entity.
 type ID uint32
 
-// Entity describes information about a type of entity.
-type Entity struct {
+// TypeEntity describes information about a type of entity.
+type TypeEntity struct {
 	ID          ID
 	InternalID  uint32
 	DisplayName string
 	Name        string
-	Width  float64
-	Height float64
-	Type     string
+	Width  		float32
+	Height 		float32
+	Type     	string
 }
 
 var (
 	{{- range .}}
-	{{.CamelName}} = Entity{
+	{{.CamelName}} = TypeEntity{
 		ID: {{.ID}},
 		InternalID: {{.InternalID}},
 		DisplayName: "{{.DisplayName}}",
-		Name: "{{.Name}}",
+		Name: "minecraft:{{.Name}}",
 		Width: {{.Width}},
 		Height: {{.Height}},
 		Type: "{{.Type}}",
@@ -49,13 +49,18 @@ var (
 )
 
 // ByID is an index of minecraft entities by their ID.
-var ByID = map[ID]*Entity{ {{range .}}
+var TypeEntityByID = map[int32]*TypeEntity{ {{range .}}
 	{{.ID}}: &{{.CamelName}},{{end}}
 }
 
 // ByName is an index of minecraft entities by their name.
-var ByName = map[string]*Entity{ {{range .}}
+var TypeEntityByName = map[string]*TypeEntity{ {{range .}}
 	"{{.Name}}": &{{.CamelName}},{{end}}
+}
+
+// ByDisplayName is an index of minecraft entities by their display name.
+var TypeEntityByDisplayName = map[string]*TypeEntity{ {{range .}}
+	"{{.DisplayName}}": &{{.CamelName}},{{end}}
 }`
 )
 

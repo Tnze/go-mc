@@ -82,6 +82,7 @@ func Array(ary any) Field {
 type Opt struct {
 	If    interface{} // Pointer of bool, or `func() bool`
 	Value interface{} // FieldEncoder, FieldDecoder or both (Field)
+	Else  interface{} // FieldEncoder, FieldDecoder or both (Field)
 }
 
 func (o Opt) has() bool {
@@ -103,6 +104,8 @@ func (o Opt) has() bool {
 func (o Opt) WriteTo(w io.Writer) (int64, error) {
 	if o.has() {
 		return o.Value.(FieldEncoder).WriteTo(w)
+	} else if o.Else != nil {
+		return o.Else.(FieldEncoder).WriteTo(w)
 	}
 	return 0, nil
 }
@@ -110,6 +113,8 @@ func (o Opt) WriteTo(w io.Writer) (int64, error) {
 func (o Opt) ReadFrom(r io.Reader) (int64, error) {
 	if o.has() {
 		return o.Value.(FieldDecoder).ReadFrom(r)
+	} else if o.Else != nil {
+		return o.Else.(FieldDecoder).ReadFrom(r)
 	}
 	return 0, nil
 }

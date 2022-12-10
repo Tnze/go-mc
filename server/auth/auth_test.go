@@ -42,8 +42,8 @@ func TestResp(t *testing.T) {
 	}
 
 	const (
-		wantSKIN = "http://textures.minecraft.net/texture/7fd9ba42a7c81eeea22f1524271ae85a8e045ce0af5a6ae16c6406ae917e68b5"
-		wantCAPE = "http://textures.minecraft.net/texture/5786fe99be377dfb6858859f926c4dbc995751e91cee373468c5fbf4865e7151"
+		wantSKIN = "https://textures.minecraft.net/texture/7fd9ba42a7c81eeea22f1524271ae85a8e045ce0af5a6ae16c6406ae917e68b5"
+		wantCAPE = "https://textures.minecraft.net/texture/5786fe99be377dfb6858859f926c4dbc995751e91cee373468c5fbf4865e7151"
 	)
 	if texture.Textures.SKIN.URL != wantSKIN {
 		t.Errorf("skin url not match: %s, want %s",
