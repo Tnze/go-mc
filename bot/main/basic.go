@@ -11,6 +11,7 @@ import (
 	. "github.com/Tnze/go-mc/data/slots"
 	"github.com/Tnze/go-mc/level/block"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/transactions"
 	"math"
 )
 
@@ -20,6 +21,7 @@ type Player struct {
 	*core.EntityPlayer
 	*core.Controller
 	*screen.Manager
+	*transactions.Transactions
 	Settings  basic.Settings
 	isSpawn   bool
 	fallTicks float32
@@ -39,10 +41,11 @@ func NewPlayer(settings basic.Settings) *Player {
 				},
 			},
 		},
-		Controller: &core.Controller{},
-		Manager:    screen.NewManager(),
-		Settings:   settings,
-		isSpawn:    false,
+		Controller:   &core.Controller{},
+		Manager:      screen.NewManager(),
+		Transactions: transactions.NewTransactions(),
+		Settings:     settings,
+		isSpawn:      false,
 	}
 }
 
@@ -86,7 +89,21 @@ func (p *Player) Chat(c *Client, msg string) error {
 	return nil
 }
 
-func ApplyPhysics(c *Client) basic.Error {
+func runTransactions(c *Client) basic.Error {
+	if t := c.Player.Transactions.Next(); t == nil {
+		return basic.Error{Err: basic.NoError, Info: nil}
+	} else {
+		for _, v := range t.Packets {
+			if err := c.Conn.WritePacket(*v); !err.Is(basic.NoError) {
+				return basic.Error{Err: basic.WriterError, Info: err}
+			}
+		}
+	}
+
+	return basic.Error{Err: basic.NoError, Info: nil}
+}
+
+func applyPhysics(c *Client) basic.Error {
 	oldPos := c.Player.Position
 	c.Player.SetPosition(c.Player.Position.Add(c.Player.Motion))
 	if oldPos == c.Player.Position || c.Player.Motion.Length() < 0.0001 {
@@ -448,13 +465,13 @@ func (p *Player) WalkTo(c *Client, pos maths.Vec3d) error {
 
 func (p *Player) ContainerClick(c *Client, id int, slot int16, button byte, mode int32, slots ChangedSlots, carried *Slot) error {
 	return c.Conn.WritePacket(pk.Marshal(
-		packetid.CPacketSetContainerSlot,
+		packetid.SPacketClickWindow,
 		pk.UnsignedByte(id),
 		pk.VarInt(p.Manager.StateID),
 		pk.Short(slot),
 		pk.Byte(button),
 		pk.VarInt(mode),
-		slots,
+		&slots,
 		carried,
 	))
 }
