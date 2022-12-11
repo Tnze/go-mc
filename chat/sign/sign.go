@@ -1,122 +1,122 @@
 package sign
 
 import (
-	"crypto/sha256"
-	"encoding/binary"
-	"encoding/json"
 	"io"
 	"time"
 
-	"github.com/Tnze/go-mc/chat"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
 )
 
-type MessageHeader struct {
-	PrevSignature []byte
-	Sender        uuid.UUID
-}
-
-func (m *MessageHeader) WriteTo(w io.Writer) (n int64, err error) {
-	hasSignature := pk.Boolean(len(m.PrevSignature) > 0)
-	n, err = hasSignature.WriteTo(w)
-	if err != nil {
-		return
-	}
-	if hasSignature {
-		n2, err := pk.ByteArray(m.PrevSignature).WriteTo(w)
-		n += n2
-		if err != nil {
-			return n, err
-		}
-	}
-	n3, err := pk.UUID(m.Sender).WriteTo(w)
-	return n + n3, err
-}
-
-func (m *MessageHeader) ReadFrom(r io.Reader) (n int64, err error) {
-	var hasSignature pk.Boolean
-	n, err = hasSignature.ReadFrom(r)
-	if err != nil {
-		return
-	}
-	if hasSignature {
-		n2, err := (*pk.ByteArray)(&m.PrevSignature).ReadFrom(r)
-		n += n2
-		if err != nil {
-			return n, err
-		}
-	}
-	n3, err := (*pk.UUID)(&m.Sender).ReadFrom(r)
-	return n + n3, err
-}
-
-func (m *MessageHeader) Hash(bodyHash []byte) []byte {
-	hash := sha256.New()
-	if m.PrevSignature != nil {
-		hash.Write(m.PrevSignature)
-	}
-	hash.Write(m.Sender[:])
-	hash.Write(bodyHash)
-	return hash.Sum(nil)
-}
-
 type MessageBody struct {
-	PlainMsg     string
-	DecoratedMsg json.RawMessage
-	Timestamp    time.Time
-	Salt         int64
-	History      []HistoryMessage
+	PlainMsg  string
+	Timestamp time.Time
+	Salt      int64
+	LastSeen  []PackedSignature
 }
 
 func (m *MessageBody) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
 		pk.String(m.PlainMsg),
-		pk.Boolean(m.DecoratedMsg != nil),
-		pk.Opt{
-			Has:   m.DecoratedMsg != nil,
-			Field: pk.ByteArray(m.DecoratedMsg),
-		},
 		pk.Long(m.Timestamp.UnixMilli()),
 		pk.Long(m.Salt),
-		pk.Array(&m.History),
+		pk.Array(m.LastSeen),
 	}.WriteTo(w)
 }
 
 func (m *MessageBody) ReadFrom(r io.Reader) (n int64, err error) {
-	var hasContent pk.Boolean
 	var timestamp pk.Long
 	n, err = pk.Tuple{
 		(*pk.String)(&m.PlainMsg),
-		&hasContent,
-		pk.Opt{
-			Has:   &hasContent,
-			Field: (*pk.ByteArray)(&m.DecoratedMsg),
-		},
 		&timestamp,
 		(*pk.Long)(&m.Salt),
-		pk.Array(&m.History),
+		pk.Array(&m.LastSeen),
 	}.ReadFrom(r)
 	m.Timestamp = time.UnixMilli(int64(timestamp))
 	return
 }
 
-func (m *MessageBody) Hash() []byte {
-	hash := sha256.New()
-	_ = binary.Write(hash, binary.BigEndian, m.Salt)
-	_ = binary.Write(hash, binary.BigEndian, m.Timestamp.Unix())
-	hash.Write([]byte(m.PlainMsg))
-	hash.Write([]byte{70})
-	if m.DecoratedMsg != nil {
-		decorated, _ := m.DecoratedMsg.MarshalJSON()
-		hash.Write(decorated)
+type HistoryMessage struct {
+	Sender    uuid.UUID
+	Signature []byte
+}
+
+func (p *HistoryMessage) ReadFrom(r io.Reader) (n int64, err error) {
+	n, err = (*pk.UUID)(&p.Sender).ReadFrom(r)
+	if err != nil {
+		return
 	}
-	for _, v := range m.History {
-		hash.Write([]byte{70})
-		hash.Write(v.Sender[:])
-		hash.Write(v.Signature)
+	n2, err := (*pk.ByteArray)(&p.Signature).ReadFrom(r)
+	return n + n2, err
+}
+
+func (p HistoryMessage) WriteTo(w io.Writer) (n int64, err error) {
+	n, err = pk.UUID(p.Sender).WriteTo(w)
+	if err != nil {
+		return
 	}
-	return hash.Sum(nil)
+	n2, err := pk.ByteArray(p.Signature).WriteTo(w)
+	return n + n2, err
+}
+
+type HistoryUpdate struct {
+	Offset       pk.VarInt
+	Acknowledged pk.FixedBitSet // n == 20
+}
+
+func (h HistoryUpdate) WriteTo(w io.Writer) (n int64, err error) {
+	return pk.Tuple{h.Offset, h.Acknowledged}.WriteTo(w)
+}
+
+func (h *HistoryUpdate) ReadFrom(r io.Reader) (n int64, err error) {
+	return pk.Tuple{&h.Offset, &h.Acknowledged}.ReadFrom(r)
+}
+
+type Signature [256]byte
+
+func (s Signature) WriteTo(w io.Writer) (n int64, err error) {
+	n2, err := w.Write(s[:])
+	return int64(n2), err
+}
+
+func (s *Signature) ReadFrom(r io.Reader) (n int64, err error) {
+	n2, err := r.Read(s[:])
+	return int64(n2), err
+}
+
+type PackedSignature struct {
+	ID int32
+	*Signature
+}
+
+func (p PackedSignature) WriteTo(w io.Writer) (n int64, err error) {
+	n1, err := pk.VarInt(p.ID + 1).WriteTo(w)
+	if err != nil {
+		return n1, err
+	}
+	if p.Signature != nil {
+		n2, err := w.Write(p.Signature[:])
+		return n1 + int64(n2), err
+	}
+	return n1, err
+}
+
+func (p PackedSignature) ReadFrom(r io.Reader) (n int64, err error) {
+	n1, err := (*pk.VarInt)(&p.ID).ReadFrom(r)
+	if err != nil {
+		return n1, err
+	}
+
+	if p.ID == -1 {
+		if p.Signature == nil {
+			p.Signature = new(Signature)
+		}
+		n2, err := r.Read(p.Signature[:])
+		return n1 + int64(n2), err
+	} else {
+		p.Signature = nil
+		return n1, err
+	}
 }
 
 type FilterMask struct {
@@ -149,71 +149,4 @@ func (f *FilterMask) ReadFrom(r io.Reader) (n int64, err error) {
 		n += n1
 	}
 	return
-}
-
-type PlayerMessage struct {
-	MessageHeader
-	MessageSignature []byte
-	MessageBody
-	UnsignedContent *chat.Message
-	FilterMask
-}
-
-func (msg *PlayerMessage) ReadFrom(r io.Reader) (n int64, err error) {
-	var hasUnsignedContent pk.Boolean
-	return pk.Tuple{
-		&msg.MessageHeader,
-		(*pk.ByteArray)(&msg.MessageSignature),
-		&msg.MessageBody,
-		&hasUnsignedContent,
-		pk.Opt{
-			Has: &hasUnsignedContent,
-			Field: func() pk.FieldDecoder {
-				msg.UnsignedContent = new(chat.Message)
-				return msg.UnsignedContent
-			},
-		},
-		&msg.FilterMask,
-	}.ReadFrom(r)
-}
-
-func (msg *PlayerMessage) WriteTo(w io.Writer) (n int64, err error) {
-	return pk.Tuple{
-		&msg.MessageHeader,
-		pk.ByteArray(msg.MessageSignature),
-		&msg.MessageBody,
-		pk.Boolean(msg.UnsignedContent != nil),
-		pk.Opt{
-			Has:   msg.UnsignedContent != nil,
-			Field: msg.UnsignedContent,
-		},
-		&msg.FilterMask,
-	}.WriteTo(w)
-}
-
-func (msg *PlayerMessage) Hash() []byte {
-	return msg.MessageHeader.Hash(msg.MessageBody.Hash())
-}
-
-type HistoryMessage struct {
-	Sender    uuid.UUID
-	Signature []byte
-}
-
-func (p *HistoryMessage) ReadFrom(r io.Reader) (n int64, err error) {
-	n, err = (*pk.UUID)(&p.Sender).ReadFrom(r)
-	if err != nil {
-		return
-	}
-	n2, err := (*pk.ByteArray)(&p.Signature).ReadFrom(r)
-	return n + n2, err
-}
-
-func (p HistoryMessage) WriteTo(w io.Writer) (n int64, err error) {
-	n, err = pk.UUID(p.Sender).WriteTo(w)
-	if err != nil {
-		return
-	}
-	n2, err := pk.ByteArray(p.Signature).WriteTo(w)
-	return n + n2, err
 }

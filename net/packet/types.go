@@ -76,6 +76,9 @@ type (
 
 	// BitSet represents Java's BitSet, a list of bits.
 	BitSet []int64
+
+	// FixedBitSet is a fixed size BitSet
+	FixedBitSet []byte
 )
 
 const (
@@ -534,5 +537,36 @@ func (b BitSet) Set(index int, value bool) {
 		b[index/64] |= 1 << (index % 64)
 	} else {
 		b[index/64] &= ^(1 << (index % 64))
+	}
+}
+
+// NewFixedBitSet make a [FixedBitSet] which can store n bits at least.
+// If n <= 0, return nil
+func NewFixedBitSet(n int64) FixedBitSet {
+	if n <= 0 {
+		return nil
+	}
+	return make(FixedBitSet, (n-1)/8+1)
+}
+
+func (f FixedBitSet) WriteTo(w io.Writer) (n int64, err error) {
+	n2, err := w.Write(f)
+	return int64(n2), err
+}
+
+func (f FixedBitSet) ReadFrom(r io.Reader) (n int64, err error) {
+	n2, err := r.Read(f)
+	return int64(n2), err
+}
+
+func (f FixedBitSet) Get(index int) bool {
+	return (f[index/8] & (1 << (index % 8))) != 0
+}
+
+func (f FixedBitSet) Set(index int, value bool) {
+	if value {
+		f[index/8] |= 1 << (index % 8)
+	} else {
+		f[index/8] &= ^(1 << (index % 8))
 	}
 }

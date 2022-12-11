@@ -107,9 +107,9 @@ func onDeath() error {
 
 func onGameStart() error {
 	log.Println("Game start")
-	//if err := chatHandler.SendMessage("Hello, world"); err != nil {
-	//	return err
-	//}
+	if err := chatHandler.SendMessage("Hello, world"); err != nil {
+		return err
+	}
 	return nil // if err isn't nil, HandleGame() will return it.
 }
 

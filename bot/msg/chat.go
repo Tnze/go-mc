@@ -30,20 +30,24 @@ func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Messa
 		bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChat,
 			F: func(packet pk.Packet) error {
-				var message sign.PlayerMessage
-				var chatType chat.Type
-				if err := packet.Scan(&message, &chatType); err != nil {
+				var (
+					sender          pk.UUID
+					index           pk.VarInt
+					signature       pk.Option[sign.Signature, *sign.Signature]
+					body            sign.MessageBody
+					unsignedContent pk.Option[chat.Message, *chat.Message]
+					filter          sign.FilterMask
+					chatType        chat.Type
+				)
+				if err := packet.Scan(&sender, &index, &signature, &body, &unsignedContent, &filter, &chatType); err != nil {
 					return err
 				}
 
 				var content chat.Message
-				if message.MessageBody.DecoratedMsg != nil {
-					data, _ := message.MessageBody.DecoratedMsg.MarshalJSON()
-					if err := content.UnmarshalJSON(data); err != nil {
-						return err
-					}
+				if unsignedContent.Has {
+					content = unsignedContent.Val
 				} else {
-					content = chat.Text(message.MessageBody.PlainMsg)
+					content = chat.Text(body.PlainMsg)
 				}
 
 				ct := p.WorldInfo.RegistryCodec.ChatType.FindByID(chatType.ID)
@@ -74,11 +78,9 @@ func (m *Manager) SendMessage(msg string) error {
 		pk.String(msg),
 		pk.Long(time.Now().UnixMilli()),
 		pk.Long(salt),
-		pk.ByteArray{},
-		pk.Boolean(false),
-		pk.Array([]sign.HistoryMessage{}),
-		pk.Option[sign.HistoryMessage, *sign.HistoryMessage]{
-			Has: false,
+		pk.Boolean(false), // signature
+		sign.HistoryUpdate{
+			Acknowledged: pk.NewFixedBitSet(20),
 		},
 	))
 	return err
