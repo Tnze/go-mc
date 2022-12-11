@@ -111,7 +111,7 @@ func ExamplePacket_Scan_joinGame() {
 		Hardcore       pk.Boolean
 		Gamemode       pk.UnsignedByte
 		PreGamemode    pk.Byte
-		WorldNames     = make([]pk.Identifier, 0) // This cannot replace with "var DimensionNames []pk.Identifier" because "nil" has no type information
+		WorldNames     = []pk.Identifier{} // This cannot replace with "var DimensionNames []pk.Identifier" because "nil" has no type information
 		DimensionCodec struct {
 			DimensionType interface{} `nbt:"minecraft:dimension_type"`
 			WorldgenBiome interface{} `nbt:"minecraft:worldgen/biome"`

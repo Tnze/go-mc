@@ -173,7 +173,7 @@ func (p *Packet) unpackWithoutCompression(r io.Reader) error {
 
 	lengthOfData := int(Length) - int(n)
 	if lengthOfData < 0 || lengthOfData > MaxDataLength {
-		return fmt.Errorf("uncompressed packet error: lenght is %d", lengthOfData)
+		return fmt.Errorf("uncompressed packet error: length is %d", lengthOfData)
 	}
 	if cap(p.Data) < lengthOfData {
 		p.Data = make([]byte, lengthOfData)
