@@ -540,13 +540,17 @@ func (b BitSet) Set(index int, value bool) {
 	}
 }
 
+func (b BitSet) Len() int {
+	return len(b) * 64
+}
+
 // NewFixedBitSet make a [FixedBitSet] which can store n bits at least.
 // If n <= 0, return nil
 func NewFixedBitSet(n int64) FixedBitSet {
-	if n <= 0 {
+	if n < 0 {
 		return nil
 	}
-	return make(FixedBitSet, (n-1)/8+1)
+	return make(FixedBitSet, (n+7)/8)
 }
 
 func (f FixedBitSet) WriteTo(w io.Writer) (n int64, err error) {
@@ -569,4 +573,8 @@ func (f FixedBitSet) Set(index int, value bool) {
 	} else {
 		f[index/8] &= ^(1 << (index % 8))
 	}
+}
+
+func (f FixedBitSet) Len() int {
+	return len(f) * 8
 }
