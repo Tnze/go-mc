@@ -84,9 +84,12 @@ func attachUpdateHealth(c *bot.Client, healthChangeHandler func(health float32) 
 				healthChangeErr = healthChangeHandler(float32(health))
 			}
 			if deathHandler != nil && health <= 0 {
-				healthChangeErr = deathHandler()
+				deathErr = deathHandler()
 			}
-			return updateHealthError{healthChangeErr, deathErr}
+			if healthChangeErr != nil || deathErr != nil {
+				return updateHealthError{healthChangeErr, deathErr}
+			}
+			return nil
 		},
 	})
 }
