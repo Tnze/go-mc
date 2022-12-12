@@ -1,7 +1,11 @@
 package server
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
 	"fmt"
+	"sync"
+	"sync/atomic"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -48,7 +52,39 @@ type MojangLoginHandler struct {
 	// (e.g. blacklist or is server full).
 	// This is optional field and can be set to nil.
 	LoginChecker
+
+	// PrivateKey is the key used by encrypt the connection.
+	privateKey     atomic.Pointer[rsa.PrivateKey]
+	lockPrivateKey sync.Mutex
 }
+
+func (d *MojangLoginHandler) getPrivateKey() (key *rsa.PrivateKey, err error) {
+	key = d.privateKey.Load()
+	if key != nil {
+		return
+	}
+
+	d.lockPrivateKey.Lock()
+	defer d.lockPrivateKey.Unlock()
+
+	key = d.privateKey.Load()
+	if key == nil {
+		key, err = rsa.GenerateKey(rand.Reader, 1024)
+		if err != nil {
+			return
+		}
+		d.privateKey.Store(key)
+	}
+	return
+}
+
+/*
+	var verifyToken [verifyTokenLen]byte
+	_, err := rand.Read(verifyToken[:])
+	if err != nil {
+		return nil, err
+	}
+*/
 
 // AcceptLogin implement LoginHandler for MojangLoginHandler
 func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *auth.PublicKey, properties []auth.Property, err error) {
@@ -63,14 +99,9 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		return
 	}
 
-	var (
-		pubKey      pk.Option[auth.PublicKey, *auth.PublicKey]
-		profileUUID pk.Option[pk.UUID, *pk.UUID] // ignored
-	)
 	err = p.Scan(
 		(*pk.String)(&name), // decode username as pk.String
-		&pubKey,
-		&profileUUID,
+		(*pk.UUID)(&id),
 	)
 	if err != nil {
 		return
@@ -78,20 +109,14 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 
 	// auth
 	if d.OnlineMode {
-		if pubKey.Has {
-			if !pubKey.Val.Verify() {
-				err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.invalid_public_key_signature")}
-				return
-			}
-			profilePubKey = &pubKey.Val
-		} else if d.EnforceSecureProfile {
-			err = LoginFailErr{reason: chat.TranslateMsg("multiplayer.disconnect.missing_public_key")}
+		var serverKey *rsa.PrivateKey
+		serverKey, err = d.getPrivateKey()
+		if err != nil {
 			return
 		}
-
 		var resp *auth.Resp
 		// Auth, Encrypt
-		resp, err = auth.Encrypt(conn, name, pubKey.Val.PubKey)
+		resp, err = auth.Encrypt(conn, name, serverKey)
 		if err != nil {
 			return
 		}

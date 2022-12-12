@@ -256,7 +256,7 @@ func (t Tuple) ReadFrom(r io.Reader) (n int64, err error) {
 	for i, v := range t {
 		nn, err := v.(FieldDecoder).ReadFrom(r)
 		if err != nil {
-			return n, fmt.Errorf("decode tuple[%d] error: %w", i, err)
+			return n, fmt.Errorf("decode tuple[%d] %T error: %w", i, v, err)
 		}
 		n += nn
 	}

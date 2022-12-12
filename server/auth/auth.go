@@ -2,12 +2,10 @@ package auth
 
 import (
 	"bytes"
-	"crypto"
 	"crypto/aes"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
-	"crypto/sha256"
 	"crypto/x509"
 	"encoding/base64"
 	"encoding/json"
@@ -27,26 +25,26 @@ import (
 const verifyTokenLen = 16
 
 // Encrypt a connection, with authentication
-func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, error) {
-	// generate keys
-	key, err := rsa.GenerateKey(rand.Reader, 1024)
+func Encrypt(conn *net.Conn, name string, serverKey *rsa.PrivateKey) (*Resp, error) {
+	publicKey, err := x509.MarshalPKIXPublicKey(&serverKey.PublicKey)
 	if err != nil {
 		return nil, err
 	}
 
-	publicKey, err := x509.MarshalPKIXPublicKey(&key.PublicKey)
+	verifyToken := make([]byte, verifyTokenLen)
+	_, err = rand.Read(verifyToken)
 	if err != nil {
 		return nil, err
 	}
 
 	// encryption request
-	nonce, err := encryptionRequest(conn, publicKey)
+	err = encryptionRequest(conn, publicKey, verifyToken)
 	if err != nil {
 		return nil, err
 	}
 
 	// encryption response
-	SharedSecret, err := encryptionResponse(conn, profilePubKey, nonce, key)
+	SharedSecret, err := encryptionResponse(conn, serverKey, verifyToken)
 	if err != nil {
 		return nil, err
 	}
@@ -70,22 +68,16 @@ func Encrypt(conn *net.Conn, name string, profilePubKey *rsa.PublicKey) (*Resp, 
 	return resp, nil
 }
 
-func encryptionRequest(conn *net.Conn, publicKey []byte) ([]byte, error) {
-	var verifyToken [verifyTokenLen]byte
-	_, err := rand.Read(verifyToken[:])
-	if err != nil {
-		return nil, err
-	}
-	err = conn.WritePacket(pk.Marshal(
+func encryptionRequest(conn *net.Conn, publicKey, verifyToken []byte) error {
+	return conn.WritePacket(pk.Marshal(
 		packetid.LoginEncryptionRequest,
 		pk.String(""),
 		pk.ByteArray(publicKey),
-		pk.ByteArray(verifyToken[:]),
+		pk.ByteArray(verifyToken),
 	))
-	return verifyToken[:], err
 }
 
-func encryptionResponse(conn *net.Conn, profilePubKey *rsa.PublicKey, nonce []byte, key *rsa.PrivateKey) ([]byte, error) {
+func encryptionResponse(conn *net.Conn, serverKey *rsa.PrivateKey, verifyToken []byte) ([]byte, error) {
 	var p pk.Packet
 	err := conn.ReadPacket(&p)
 	if err != nil {
@@ -95,54 +87,29 @@ func encryptionResponse(conn *net.Conn, profilePubKey *rsa.PublicKey, nonce []by
 		return nil, fmt.Errorf("0x%02X is not Encryption Response", p.ID)
 	}
 
-	r := bytes.NewReader(p.Data)
-	var ESharedSecret pk.ByteArray
-	if _, err = ESharedSecret.ReadFrom(r); err != nil {
-		return nil, err
-	}
-	var isNonce pk.Boolean
-	if _, err = isNonce.ReadFrom(r); err != nil {
-		return nil, err
-	}
-	if isNonce {
-		var nonce2 pk.ByteArray
-		_, err = nonce2.ReadFrom(r)
-		if err != nil {
-			return nil, err
-		}
+	var keyBytes pk.ByteArray
+	var encryptedVerifyToken pk.ByteArray
 
-		nonce2, err = rsa.DecryptPKCS1v15(rand.Reader, key, nonce2)
-		if err != nil {
-			return nil, err
-		}
-		if !bytes.Equal(nonce, nonce2) {
-			return nil, errors.New("nonce not match")
-		}
-
-	} else {
-		var salt pk.Long
-		var signature pk.ByteArray
-		_, err = pk.Tuple{&salt, &signature}.ReadFrom(r)
-		if err != nil {
-			return nil, err
-		}
-
-		hash := sha256.New()
-		unwrap(hash.Write(nonce))
-		unwrap(salt.WriteTo(hash))
-		err := rsa.VerifyPKCS1v15(profilePubKey, crypto.SHA256, hash.Sum(nil), signature)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	// confirm to verify token
-	SharedSecret, err := rsa.DecryptPKCS1v15(rand.Reader, key, ESharedSecret)
+	err = p.Scan(&keyBytes, &encryptedVerifyToken)
 	if err != nil {
 		return nil, err
 	}
 
-	return SharedSecret, nil
+	// confirm to verify token
+	decryptedVerifyToken, err := rsa.DecryptPKCS1v15(rand.Reader, serverKey, encryptedVerifyToken)
+	if err != nil {
+		return nil, err
+	} else if !bytes.Equal(verifyToken, decryptedVerifyToken) {
+		return nil, errors.New("verifyToken not match")
+	}
+
+	// get sharedSecret
+	sharedSecret, err := rsa.DecryptPKCS1v15(rand.Reader, serverKey, keyBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return sharedSecret, nil
 }
 
 func authentication(name, hash string) (*Resp, error) {
