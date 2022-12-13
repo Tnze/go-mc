@@ -183,14 +183,12 @@ type Property struct {
 }
 
 func (p Property) WriteTo(w io.Writer) (n int64, err error) {
-	hasSignature := len(p.Signature) > 0
 	return pk.Tuple{
 		pk.String(p.Name),
 		pk.String(p.Value),
-		pk.Boolean(hasSignature),
-		pk.Opt{
-			Has:   hasSignature,
-			Field: pk.String(p.Signature),
+		pk.Option[pk.String, *pk.String]{
+			Has: p.Signature != "",
+			Val: pk.String(p.Signature),
 		},
 	}.WriteTo(w)
 }
