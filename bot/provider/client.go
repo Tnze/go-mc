@@ -1,18 +1,17 @@
-package main
+package provider
 
 import (
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/net"
-	"github.com/Tnze/go-mc/yggdrasil/user"
+	auth "github.com/maxsupermanhd/go-mc-ms-auth"
 )
 
 // Client is used to access Minecraft server
 type Client struct {
-	Conn    *net.Conn
-	Auth    Auth
-	KeyPair user.KeyPairResp
+	Conn *net.Conn
+	Auth Auth
 
 	World  *world.World
 	Player *Player
@@ -36,7 +35,7 @@ func (c *Client) Close() error {
 // and load your Name, UUID and AccessToken to client.
 func NewClient() *Client {
 	c := &Client{
-		Auth:   Auth{Name: "Steve"},
+		Auth:   Auth{RSAuth: auth.RSAuth{Name: "Steve"}, KeyPair: auth.KeyPair{}},
 		World:  world.NewWorld(),
 		Player: NewPlayer(basic.DefaultSettings),
 		TPS:    new(maths.TpsCalculator),
