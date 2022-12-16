@@ -1,4 +1,4 @@
-package main
+package provider
 
 import (
 	"fmt"
@@ -311,6 +311,8 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 	if err := p.Scan(&json, &position); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
+
+	c.Player.Chat(c, "UwU")
 
 	// Get 2 random items from the inventory
 	var (

@@ -1,6 +1,8 @@
-package main
+package provider
 
 import (
+	"crypto/rand"
+	"encoding/binary"
 	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
@@ -13,6 +15,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/transactions"
 	"math"
+	"time"
 )
 
 type Player struct {
@@ -65,24 +68,26 @@ func (p *Player) Respawn(c *Client) error {
 
 func (p *Player) Chat(c *Client, msg string) error {
 	var (
-		message = pk.String(msg[:int(math.Min(float64(len(msg)), 256))])
-		//timestamp = pk.Long(time.Now().Unix())
-		/*salt             = pk.Long(0)
-		signatureLength  = pk.VarInt(0)
-		signature        = pk.String("")
-		signaturePreview = pk.Boolean(false)*/
+		message = msg[:int(math.Min(float64(len(msg)), 256))]
 	)
 
-	err := c.Conn.WritePacket(pk.Marshal(
-		packetid.SPacketChatMessage,
-		message,
-		//timestamp,
-		/*salt,
-		signatureLength,
-		signature,
-		signaturePreview,*/
-	))
-	if !err.Is(basic.NoError) {
+	var salt int64
+	if err := binary.Read(rand.Reader, binary.BigEndian, &salt); err != nil {
+		return err
+	}
+
+	signature := c.Auth.SignMessage(message)
+
+	if err := c.Conn.WritePacket(
+		pk.Marshal(
+			packetid.SPacketChatMessage,
+			pk.String(message),
+			pk.Long(time.Now().UnixMilli()),
+			pk.Long(salt),
+			pk.ByteArray(signature),
+			pk.Boolean(true),
+		),
+	); !err.Is(basic.NoError) {
 		return basic.Error{Err: basic.WriterError, Info: err}
 	}
 
