@@ -51,6 +51,7 @@ type LevelData struct {
 	RainTime               int32 `nbt:"rainTime"`
 	RandomSeed             int64
 	SizeOnDisk             int64
+	SpawnAngle             float32
 	SpawnX, SpawnY, SpawnZ int32
 	Thundering             bool  `nbt:"thundering"`
 	ThunderTime            int32 `nbt:"thunderTime"`
