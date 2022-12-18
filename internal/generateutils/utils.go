@@ -21,10 +21,3 @@ func ToGoTypeName(name string) string {
 	}
 	return strings.Join(words, "")
 }
-
-func ToFuncReceiverName(name string) string {
-	if len(name) > 0 {
-		name = string(unicode.ToLower([]rune(name)[0]))
-	}
-	return name
-}

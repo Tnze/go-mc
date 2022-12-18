@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"log"
 	"os"
+	"strings"
 	"text/template"
 
 	"github.com/Tnze/go-mc/internal/generateutils"
@@ -19,10 +20,10 @@ var tempSource string
 var temp = template.Must(template.
 	New("block_template").
 	Funcs(template.FuncMap{
-		"UpperTheFirst":      generateutils.UpperTheFirst,
-		"ToGoTypeName":       generateutils.ToGoTypeName,
-		"ToFuncReceiverName": generateutils.ToFuncReceiverName,
-		"Generator":          func() string { return "generator/blockentities/main.go" },
+		"UpperTheFirst": generateutils.UpperTheFirst,
+		"ToGoTypeName":  generateutils.ToGoTypeName,
+		"ToLower":       strings.ToLower,
+		"Generator":     func() string { return "generator/blockentities/main.go" },
 	}).
 	Parse(tempSource),
 )
