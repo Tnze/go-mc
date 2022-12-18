@@ -2,11 +2,14 @@ package level
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io"
 	"math/bits"
+	"strconv"
 	"strings"
 
+	"github.com/Tnze/go-mc/level/biome"
 	"github.com/Tnze/go-mc/level/block"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -62,81 +65,6 @@ func EmptyChunk(secs int) *Chunk {
 	}
 }
 
-var biomesIDs map[string]BiomesState
-
-var biomesNames = []string{
-	"the_void",
-	"plains",
-	"sunflower_plains",
-	"snowy_plains",
-	"ice_spikes",
-	"desert",
-	"swamp",
-	"mangrove_swamp",
-	"forest",
-	"flower_forest",
-	"birch_forest",
-	"dark_forest",
-	"old_growth_birch_forest",
-	"old_growth_pine_taiga",
-	"old_growth_spruce_taiga",
-	"taiga",
-	"snowy_taiga",
-	"savanna",
-	"savanna_plateau",
-	"windswept_hills",
-	"windswept_gravelly_hills",
-	"windswept_forest",
-	"windswept_savanna",
-	"jungle",
-	"sparse_jungle",
-	"bamboo_jungle",
-	"badlands",
-	"eroded_badlands",
-	"wooded_badlands",
-	"meadow",
-	"grove",
-	"snowy_slopes",
-	"frozen_peaks",
-	"jagged_peaks",
-	"stony_peaks",
-	"river",
-	"frozen_river",
-	"beach",
-	"snowy_beach",
-	"stony_shore",
-	"warm_ocean",
-	"lukewarm_ocean",
-	"deep_lukewarm_ocean",
-	"ocean",
-	"deep_ocean",
-	"cold_ocean",
-	"deep_cold_ocean",
-	"frozen_ocean",
-	"deep_frozen_ocean",
-	"mushroom_fields",
-	"dripstone_caves",
-	"lush_caves",
-	"deep_dark",
-	"nether_wastes",
-	"warped_forest",
-	"crimson_forest",
-	"soul_sand_valley",
-	"basalt_deltas",
-	"the_end",
-	"end_highlands",
-	"end_midlands",
-	"small_end_islands",
-	"end_barrens",
-}
-
-func init() {
-	biomesIDs = make(map[string]BiomesState, len(biomesNames))
-	for i, v := range biomesNames {
-		biomesIDs[v] = BiomesState(i)
-	}
-}
-
 // ChunkFromSave convert save.Chunk to level.Chunk.
 func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 	secs := len(c.Sections)
@@ -159,6 +87,25 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 		sections[i].BlockLight = v.BlockLight
 	}
 
+	blockEntities := make([]BlockEntity, len(c.BlockEntities))
+	for i, v := range c.BlockEntities {
+		var tmp struct {
+			ID string `nbt:"id"`
+			X  int32  `nbt:"x"`
+			Y  int32  `nbt:"y"`
+			Z  int32  `nbt:"z"`
+		}
+		if err := v.Unmarshal(&tmp); err != nil {
+			return nil, err
+		}
+		blockEntities[i].Data = v
+		if x, z := int(tmp.X-c.XPos<<4), int(tmp.Z-c.ZPos<<4); !blockEntities[i].PackXZ(x, z) {
+			return nil, errors.New("Packing a XZ(" + strconv.Itoa(x) + ", " + strconv.Itoa(z) + ") out of bound")
+		}
+		blockEntities[i].Y = int16(tmp.Y)
+		blockEntities[i].Type = block.EntityTypes[tmp.ID]
+	}
+
 	motionBlocking := c.Heightmaps.MotionBlocking
 	motionBlockingNoLeaves := c.Heightmaps.MotionBlockingNoLeaves
 	oceanFloor := c.Heightmaps.OceanFloor
@@ -173,7 +120,8 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 			OceanFloor:             NewBitStorage(bitsForHeight, 16*16, oceanFloor),
 			WorldSurface:           NewBitStorage(bitsForHeight, 16*16, worldSurface),
 		},
-		Status: ChunkStatus(c.Status),
+		BlockEntity: blockEntities,
+		Status:      ChunkStatus(c.Status),
 	}, nil
 }
 
@@ -206,7 +154,7 @@ func readBiomesPalette(palette []string, data []uint64) (*PaletteContainer[Biome
 	biomesRawPalette := make([]BiomesState, len(palette))
 	var ok bool
 	for i, v := range palette {
-		biomesRawPalette[i], ok = biomesIDs[strings.TrimPrefix(v, "minecraft:")]
+		biomesRawPalette[i], ok = biome.BiomesIDs[strings.TrimPrefix(v, "minecraft:")]
 		if !ok {
 			return nil, fmt.Errorf("unknown biomes: %s", v)
 		}
@@ -264,7 +212,7 @@ func writeBiomesPalette(paletteData *PaletteContainer[BiomesState]) (palette []s
 	rawPalette := paletteData.palette.export()
 	palette = make([]string, len(rawPalette))
 	for i, v := range rawPalette {
-		palette[i] = biomesNames[v]
+		palette[i] = biome.BiomesNames[v]
 	}
 	data = append(data, paletteData.data.Raw()...)
 
@@ -367,12 +315,20 @@ type HeightMaps struct {
 type BlockEntity struct {
 	XZ   int8
 	Y    int16
-	Type int32
+	Type block.EntityType
 	Data nbt.RawMessage
 }
 
 func (b BlockEntity) UnpackXZ() (X, Z int) {
 	return int((uint8(b.XZ) >> 4) & 0xF), int(uint8(b.XZ) & 0xF)
+}
+
+func (b *BlockEntity) PackXZ(X, Z int) bool {
+	if X > 0xF || Z > 0xF || X < 0 || Z < 0 {
+		return false
+	}
+	b.XZ = int8(X<<4 | Z)
+	return true
 }
 
 func (b BlockEntity) WriteTo(w io.Writer) (n int64, err error) {

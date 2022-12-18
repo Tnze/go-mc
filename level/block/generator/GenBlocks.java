@@ -1,15 +1,15 @@
-package tnze.github.com;
+package pers.tnze.gomc.gen;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtIo;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.*;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -18,9 +18,10 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
-public class Main {
+public class GenBlocks {
 
     public static void main(String[] args) throws Exception {
         System.out.println("program start!");
@@ -38,6 +39,12 @@ public class Main {
             try (GZIPOutputStream g = new GZIPOutputStream(f)) {
                 DataOutput writer = new DataOutputStream(g);
                 NbtIo.writeUnnamedTag(getBlockStates(), writer);
+            }
+        }
+        try (FileOutputStream f = new FileOutputStream("block_entities.nbt")) {
+            try (GZIPOutputStream g = new GZIPOutputStream(f)) {
+                DataOutput writer = new DataOutputStream(g);
+                NbtIo.writeUnnamedTag(genBlockEntities(), writer);
             }
         }
     }
@@ -81,6 +88,23 @@ public class Main {
         ListTag list = new ListTag();
         for (BlockState blockState : Block.BLOCK_STATE_REGISTRY) {
             list.add(NbtUtils.writeBlockState(blockState));
+        }
+        return list;
+    }
+
+    private static ListTag genBlockEntities() {
+        ListTag list = new ListTag();
+        for (BlockEntityType blockEntity : BuiltInRegistries.BLOCK_ENTITY_TYPE) {
+            ListTag validBlocksList = new ListTag();
+            Set<Block> validBlocks = blockEntity.validBlocks;
+            for (Block validBlock : validBlocks){
+                validBlocksList.add(StringTag.valueOf(BuiltInRegistries.BLOCK.getKey(validBlock).toString()));
+            }
+            CompoundTag be = new CompoundTag();
+            be.putString("Name", BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity).toString());
+            be.putString("ValidBlocks", BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity).toString());
+
+            list.add(be);
         }
         return list;
     }

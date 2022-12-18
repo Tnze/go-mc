@@ -15,7 +15,7 @@ type State interface {
 }
 type (
 	BlocksState = block.StateID
-	BiomesState int
+	BiomesState = biome.Type
 )
 
 type PaletteContainer[T State] struct {
