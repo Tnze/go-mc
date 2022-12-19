@@ -82,35 +82,35 @@ func (SculkCatalystEntity) ID() string     { return "minecraft:sculk_catalyst" }
 func (SculkShriekerEntity) ID() string     { return "minecraft:sculk_shrieker" }
 func (ChiseledBookshelfEntity) ID() string { return "minecraft:chiseled_bookshelf" }
 
-func (m FurnaceEntity) IsValidBlock(block Block) bool {
+func (f FurnaceEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:furnace"
 }
 
-func (m ChestEntity) IsValidBlock(block Block) bool {
+func (c ChestEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:chest"
 }
 
-func (m TrappedChestEntity) IsValidBlock(block Block) bool {
+func (t TrappedChestEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:trapped_chest"
 }
 
-func (m EnderChestEntity) IsValidBlock(block Block) bool {
+func (e EnderChestEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:ender_chest"
 }
 
-func (m JukeboxEntity) IsValidBlock(block Block) bool {
+func (j JukeboxEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:jukebox"
 }
 
-func (m DispenserEntity) IsValidBlock(block Block) bool {
+func (d DispenserEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:dispenser"
 }
 
-func (m DropperEntity) IsValidBlock(block Block) bool {
+func (d DropperEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:dropper"
 }
 
-func (m SignEntity) IsValidBlock(block Block) bool {
+func (s SignEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:oak_sign",
 		"minecraft:spruce_sign",
@@ -138,7 +138,7 @@ func (m SignEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m HangingSignEntity) IsValidBlock(block Block) bool {
+func (h HangingSignEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:oak_hanging_sign",
 		"minecraft:spruce_hanging_sign",
@@ -170,27 +170,27 @@ func (m MobSpawnerEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:spawner"
 }
 
-func (m PistonEntity) IsValidBlock(block Block) bool {
+func (p PistonEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:moving_piston"
 }
 
-func (m BrewingStandEntity) IsValidBlock(block Block) bool {
+func (b BrewingStandEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:brewing_stand"
 }
 
-func (m EnchantingTableEntity) IsValidBlock(block Block) bool {
+func (e EnchantingTableEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:enchanting_table"
 }
 
-func (m EndPortalEntity) IsValidBlock(block Block) bool {
+func (e EndPortalEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:end_portal"
 }
 
-func (m BeaconEntity) IsValidBlock(block Block) bool {
+func (b BeaconEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:beacon"
 }
 
-func (m SkullEntity) IsValidBlock(block Block) bool {
+func (s SkullEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:skeleton_skull",
 		"minecraft:skeleton_wall_skull",
@@ -212,19 +212,19 @@ func (m SkullEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m DaylightDetectorEntity) IsValidBlock(block Block) bool {
+func (d DaylightDetectorEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:daylight_detector"
 }
 
-func (m HopperEntity) IsValidBlock(block Block) bool {
+func (h HopperEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:hopper"
 }
 
-func (m ComparatorEntity) IsValidBlock(block Block) bool {
+func (c ComparatorEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:comparator"
 }
 
-func (m BannerEntity) IsValidBlock(block Block) bool {
+func (b BannerEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:white_banner",
 		"minecraft:orange_banner",
@@ -264,15 +264,15 @@ func (m BannerEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m StructureBlockEntity) IsValidBlock(block Block) bool {
+func (s StructureBlockEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:structure_block"
 }
 
-func (m EndGatewayEntity) IsValidBlock(block Block) bool {
+func (e EndGatewayEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:end_gateway"
 }
 
-func (m CommandBlockEntity) IsValidBlock(block Block) bool {
+func (c CommandBlockEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:command_block",
 		"minecraft:chain_command_block",
@@ -283,7 +283,7 @@ func (m CommandBlockEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m ShulkerBoxEntity) IsValidBlock(block Block) bool {
+func (s ShulkerBoxEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:shulker_box",
 		"minecraft:black_shulker_box",
@@ -308,7 +308,7 @@ func (m ShulkerBoxEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m BedEntity) IsValidBlock(block Block) bool {
+func (b BedEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:red_bed",
 		"minecraft:black_bed",
@@ -332,35 +332,35 @@ func (m BedEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m ConduitEntity) IsValidBlock(block Block) bool {
+func (c ConduitEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:conduit"
 }
 
-func (m BarrelEntity) IsValidBlock(block Block) bool {
+func (b BarrelEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:barrel"
 }
 
-func (m SmokerEntity) IsValidBlock(block Block) bool {
+func (s SmokerEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:smoker"
 }
 
-func (m BlastFurnaceEntity) IsValidBlock(block Block) bool {
+func (b BlastFurnaceEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:blast_furnace"
 }
 
-func (m LecternEntity) IsValidBlock(block Block) bool {
+func (l LecternEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:lectern"
 }
 
-func (m BellEntity) IsValidBlock(block Block) bool {
+func (b BellEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:bell"
 }
 
-func (m JigsawEntity) IsValidBlock(block Block) bool {
+func (j JigsawEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:jigsaw"
 }
 
-func (m CampfireEntity) IsValidBlock(block Block) bool {
+func (c CampfireEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:campfire",
 		"minecraft:soul_campfire":
@@ -370,7 +370,7 @@ func (m CampfireEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m BeehiveEntity) IsValidBlock(block Block) bool {
+func (b BeehiveEntity) IsValidBlock(block Block) bool {
 	switch block.ID() {
 	case "minecraft:bee_nest",
 		"minecraft:beehive":
@@ -380,18 +380,18 @@ func (m BeehiveEntity) IsValidBlock(block Block) bool {
 	}
 }
 
-func (m SculkSensorEntity) IsValidBlock(block Block) bool {
+func (s SculkSensorEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:sculk_sensor"
 }
 
-func (m SculkCatalystEntity) IsValidBlock(block Block) bool {
+func (s SculkCatalystEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:sculk_catalyst"
 }
 
-func (m SculkShriekerEntity) IsValidBlock(block Block) bool {
+func (s SculkShriekerEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:sculk_shrieker"
 }
 
-func (m ChiseledBookshelfEntity) IsValidBlock(block Block) bool {
+func (c ChiseledBookshelfEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:chiseled_bookshelf"
 }
