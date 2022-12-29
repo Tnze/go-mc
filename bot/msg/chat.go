@@ -9,6 +9,7 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
+	"github.com/Tnze/go-mc/bot/playerlist"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/chat/sign"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -20,12 +21,12 @@ type Manager struct {
 	p *basic.Player
 }
 
-func New(c *bot.Client, p *basic.Player, events EventsHandler) *Manager {
-	attachPlayerMsg(c, p, events.PlayerChatMessage)
+func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events EventsHandler) *Manager {
+	attachPlayerMsg(c, p, pl, events.PlayerChatMessage)
 	return &Manager{c, p}
 }
 
-func attachPlayerMsg(c *bot.Client, p *basic.Player, handler func(msg chat.Message) error) {
+func attachPlayerMsg(c *bot.Client, p *basic.Player, _ *playerlist.PlayerList, handler func(msg chat.Message) error) {
 	c.Events.AddListener(
 		bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChat,
@@ -85,3 +86,5 @@ func (m *Manager) SendMessage(msg string) error {
 	))
 	return err
 }
+
+var InvalidChatPacket = errors.New("invalid chat packet")
