@@ -34,16 +34,22 @@ func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events Event
 		events:         events,
 		SignatureCache: sign.NewSignatureCache(),
 	}
-	c.Events.AddListener(
-		bot.PacketHandler{
+	if events.PlayerChatMessage != nil {
+		c.Events.AddListener(bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChat,
-			F: m.handlePacket,
-		},
-	)
+			F: m.handlePlayerChat,
+		})
+	}
+	if events.DisguisedChat != nil {
+		c.Events.AddListener(bot.PacketHandler{
+			Priority: 64, ID: packetid.ClientboundDisguisedChat,
+			F: m.handleDisguisedChat,
+		})
+	}
 	return m
 }
 
-func (m *Manager) handlePacket(packet pk.Packet) error {
+func (m *Manager) handlePlayerChat(packet pk.Packet) error {
 	var (
 		sender          pk.UUID
 		index           pk.VarInt
@@ -105,12 +111,26 @@ func (m *Manager) handlePacket(packet pk.Packet) error {
 	} else {
 		content = chat.Text(body.PlainMsg)
 	}
-
-	if m.events.PlayerChatMessage == nil {
-		return nil
-	}
 	msg := chatType.Decorate(content, &ct.Chat)
 	return m.events.PlayerChatMessage(msg, validated)
+}
+
+func (m *Manager) handleDisguisedChat(packet pk.Packet) error {
+	var (
+		message  chat.Message
+		chatType chat.Type
+	)
+	if err := packet.Scan(&message, &chatType); err != nil {
+		return err
+	}
+
+	ct := m.p.WorldInfo.RegistryCodec.ChatType.FindByID(chatType.ID)
+	if ct == nil {
+		return InvalidChatPacket
+	}
+	msg := chatType.Decorate(message, &ct.Chat)
+
+	return m.events.DisguisedChat(msg)
 }
 
 // SendMessage send chat message to server.

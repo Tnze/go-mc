@@ -57,6 +57,7 @@ func main() {
 	playerList = playerlist.New(client)
 	chatHandler = msg.New(client, player, playerList, msg.EventsHandler{
 		PlayerChatMessage: onPlayerMsg,
+		DisguisedChat:     onDisguisedMsg,
 	})
 	worldManager = world.NewWorld(client, player, world.EventsListener{
 		LoadChunk:   onChunkLoad,
@@ -122,6 +123,11 @@ func onPlayerMsg(msg chat.Message, validated bool) error {
 		prefix = "[Not Secure] "
 	}
 	log.Printf("%sPlayer: %v", prefix, msg)
+	return nil
+}
+
+func onDisguisedMsg(msg chat.Message) error {
+	log.Printf("Disguised: %v", msg)
 	return nil
 }
 
