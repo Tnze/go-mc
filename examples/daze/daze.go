@@ -49,13 +49,13 @@ func main() {
 	}
 	player = basic.NewPlayer(client, basic.DefaultSettings, basic.EventsListener{
 		GameStart:    onGameStart,
-		SystemMsg:    onSystemMsg,
 		Disconnect:   onDisconnect,
 		HealthChange: onHealthChange,
 		Death:        onDeath,
 	})
 	playerList = playerlist.New(client)
 	chatHandler = msg.New(client, player, playerList, msg.EventsHandler{
+		SystemChat:        onSystemMsg,
 		PlayerChatMessage: onPlayerMsg,
 		DisguisedChat:     onDisguisedMsg,
 	})
@@ -117,6 +117,11 @@ func onGameStart() error {
 	return nil // if err isn't nil, HandleGame() will return it.
 }
 
+func onSystemMsg(c chat.Message, overlay bool) error {
+	log.Printf("System: %v, Overlay: %v", c, overlay)
+	return nil
+}
+
 func onPlayerMsg(msg chat.Message, validated bool) error {
 	var prefix string
 	if !validated {
@@ -128,11 +133,6 @@ func onPlayerMsg(msg chat.Message, validated bool) error {
 
 func onDisguisedMsg(msg chat.Message) error {
 	log.Printf("Disguised: %v", msg)
-	return nil
-}
-
-func onSystemMsg(c chat.Message, overlay bool) error {
-	log.Printf("System: %v, Overlay: %v", c, overlay)
 	return nil
 }
 

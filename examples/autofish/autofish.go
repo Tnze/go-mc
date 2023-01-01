@@ -8,6 +8,8 @@ import (
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
+	"github.com/Tnze/go-mc/bot/msg"
+	"github.com/Tnze/go-mc/bot/playerlist"
 	"github.com/Tnze/go-mc/chat"
 	_ "github.com/Tnze/go-mc/data/lang/en-us"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -20,6 +22,9 @@ var (
 	c *bot.Client
 	p *basic.Player
 
+	playerList  *playerlist.PlayerList
+	chatHandler *msg.Manager
+
 	watch chan time.Time
 )
 
@@ -28,9 +33,14 @@ func main() {
 	c = bot.NewClient()
 	p = basic.NewPlayer(c, basic.DefaultSettings, basic.EventsListener{
 		GameStart:  onGameStart,
-		SystemMsg:  onSystemMsg,
 		Disconnect: onDisconnect,
 		Death:      onDeath,
+	})
+	playerList = playerlist.New(c)
+	chatHandler = msg.New(c, p, playerList, msg.EventsHandler{
+		SystemChat:        onSystemChat,
+		PlayerChatMessage: onPlayerChat,
+		DisguisedChat:     onDisguisedChat,
 	})
 
 	// Register event handlers
@@ -106,13 +116,18 @@ func onSound(id int, category int, x, y, z float64, volume, pitch float32) error
 	return nil
 }
 
-func onChatMsg(c chat.Message) error {
-	log.Println("Chat:", c)
+func onSystemChat(c chat.Message, overlay bool) error {
+	log.Printf("System Chat: %v, Overlay: %v", c, overlay)
 	return nil
 }
 
-func onSystemMsg(c chat.Message, overlay bool) error {
-	log.Printf("System: %v, Overlay: %v", c, overlay)
+func onPlayerChat(c chat.Message, _ bool) error {
+	log.Println("Player Chat:", c)
+	return nil
+}
+
+func onDisguisedChat(c chat.Message) error {
+	log.Println("Disguised Chat:", c)
 	return nil
 }
 

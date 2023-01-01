@@ -34,6 +34,12 @@ func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events Event
 		events:         events,
 		SignatureCache: sign.NewSignatureCache(),
 	}
+	if events.SystemChat != nil {
+		c.Events.AddListener(bot.PacketHandler{
+			Priority: 64, ID: packetid.ClientboundSystemChat,
+			F: m.handleSystemMessage,
+		})
+	}
 	if events.PlayerChatMessage != nil {
 		c.Events.AddListener(bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChat,
@@ -47,6 +53,15 @@ func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events Event
 		})
 	}
 	return m
+}
+
+func (m *Manager) handleSystemMessage(p pk.Packet) error {
+	var msg chat.Message
+	var overlay pk.Boolean
+	if err := p.Scan(&msg, &overlay); err != nil {
+		return err
+	}
+	return m.events.SystemChat(msg, bool(overlay))
 }
 
 func (m *Manager) handlePlayerChat(packet pk.Packet) error {

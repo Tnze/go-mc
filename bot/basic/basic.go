@@ -15,7 +15,6 @@
 // Handles some basic event you probably need.
 //   - GameStart
 //   - ChatMsg
-//   - SystemMsg
 //   - Disconnect
 //   - HealthChange
 //   - Death

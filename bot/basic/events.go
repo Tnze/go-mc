@@ -9,7 +9,6 @@ import (
 
 type EventsListener struct {
 	GameStart    func() error
-	SystemMsg    func(c chat.Message, overlay bool) error
 	Disconnect   func(reason chat.Message) error
 	HealthChange func(health float32) error
 	Death        func() error
@@ -20,9 +19,6 @@ type EventsListener struct {
 func (e EventsListener) attach(p *Player) {
 	if e.GameStart != nil {
 		attachJoinGameHandler(p.c, e.GameStart)
-	}
-	if e.SystemMsg != nil {
-		attachSystemMsg(p.c, e.SystemMsg)
 	}
 	if e.Disconnect != nil {
 		attachDisconnect(p.c, e.Disconnect)
@@ -37,20 +33,6 @@ func attachJoinGameHandler(c *bot.Client, handler func() error) {
 		Priority: 64, ID: packetid.ClientboundLogin,
 		F: func(_ pk.Packet) error {
 			return handler()
-		},
-	})
-}
-
-func attachSystemMsg(c *bot.Client, handler func(c chat.Message, overlay bool) error) {
-	c.Events.AddListener(bot.PacketHandler{
-		Priority: 64, ID: packetid.ClientboundSystemChat,
-		F: func(p pk.Packet) error {
-			var msg chat.Message
-			var pos pk.Boolean
-			if err := p.Scan(&msg, &pos); err != nil {
-				return Error{err}
-			}
-			return handler(msg, bool(pos))
 		},
 	})
 }
