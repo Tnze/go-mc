@@ -24,6 +24,13 @@ import (
 	"github.com/Tnze/go-mc/yggdrasil/user"
 )
 
+// Deprecated: Moved to go-mc/yggdrasil/user, because go-mc/bot also needs them
+type (
+	Texture   = user.Texture
+	Property  = user.Property
+	PublicKey = user.PublicKey
+)
+
 const verifyTokenLen = 16
 
 // Encrypt a connection, with authentication
@@ -172,11 +179,6 @@ func twosComplement(p []byte) []byte {
 	}
 	return p
 }
-
-type (
-	Texture  = user.Texture
-	Property = user.Property
-)
 
 // Resp is the response of authentication
 type Resp struct {

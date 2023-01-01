@@ -4,18 +4,19 @@ import (
 	"io"
 	"time"
 
-	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/google/uuid"
+
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-type MessageBody struct {
+type PackedMessageBody struct {
 	PlainMsg  string
 	Timestamp time.Time
 	Salt      int64
 	LastSeen  []PackedSignature
 }
 
-func (m *MessageBody) WriteTo(w io.Writer) (n int64, err error) {
+func (m *PackedMessageBody) WriteTo(w io.Writer) (n int64, err error) {
 	return pk.Tuple{
 		pk.String(m.PlainMsg),
 		pk.Long(m.Timestamp.UnixMilli()),
@@ -24,7 +25,7 @@ func (m *MessageBody) WriteTo(w io.Writer) (n int64, err error) {
 	}.WriteTo(w)
 }
 
-func (m *MessageBody) ReadFrom(r io.Reader) (n int64, err error) {
+func (m *PackedMessageBody) ReadFrom(r io.Reader) (n int64, err error) {
 	var timestamp pk.Long
 	n, err = pk.Tuple{
 		(*pk.String)(&m.PlainMsg),

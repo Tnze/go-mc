@@ -13,13 +13,15 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/offline"
 	"github.com/Tnze/go-mc/server/auth"
+	"github.com/Tnze/go-mc/yggdrasil/user"
+
 	"github.com/google/uuid"
 )
 
 // LoginHandler is used to handle player login process, that is,
 // from clientbound "LoginStart" packet to serverbound "LoginSuccess" packet.
 type LoginHandler interface {
-	AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *auth.PublicKey, properties []auth.Property, err error)
+	AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *user.PublicKey, properties []user.Property, err error)
 }
 
 // LoginChecker is the interface to check if a player is allowed to log in the server.
@@ -87,7 +89,7 @@ func (d *MojangLoginHandler) getPrivateKey() (key *rsa.PrivateKey, err error) {
 */
 
 // AcceptLogin implement LoginHandler for MojangLoginHandler
-func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *auth.PublicKey, properties []auth.Property, err error) {
+func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name string, id uuid.UUID, profilePubKey *user.PublicKey, properties []user.Property, err error) {
 	// login start
 	var p pk.Packet
 	err = conn.ReadPacket(&p)

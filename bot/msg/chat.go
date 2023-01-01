@@ -17,16 +17,25 @@ import (
 )
 
 type Manager struct {
-	c *bot.Client
-	p *basic.Player
+	c  *bot.Client
+	p  *basic.Player
+	pl *playerlist.PlayerList
+
+	signatureCache
 }
 
 func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events EventsHandler) *Manager {
-	attachPlayerMsg(c, p, pl, events.PlayerChatMessage)
-	return &Manager{c, p}
+	m := &Manager{
+		c:              c,
+		p:              p,
+		pl:             pl,
+		signatureCache: newSignatureCache(),
+	}
+	m.attachPlayerMsg(c, p, pl, events.PlayerChatMessage)
+	return m
 }
 
-func attachPlayerMsg(c *bot.Client, p *basic.Player, _ *playerlist.PlayerList, handler func(msg chat.Message) error) {
+func (m *Manager) attachPlayerMsg(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, handler func(msg chat.Message) error) {
 	c.Events.AddListener(
 		bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChat,
@@ -35,7 +44,7 @@ func attachPlayerMsg(c *bot.Client, p *basic.Player, _ *playerlist.PlayerList, h
 					sender          pk.UUID
 					index           pk.VarInt
 					signature       pk.Option[sign.Signature, *sign.Signature]
-					body            sign.MessageBody
+					body            sign.PackedMessageBody
 					unsignedContent pk.Option[chat.Message, *chat.Message]
 					filter          sign.FilterMask
 					chatType        chat.Type
@@ -44,6 +53,18 @@ func attachPlayerMsg(c *bot.Client, p *basic.Player, _ *playerlist.PlayerList, h
 					return err
 				}
 
+				//senderInfo, ok := pl.PlayerInfos[uuid.UUID(sender)]
+				//if !ok {
+				//	return bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
+				//}
+				//senderInfo.ChatSession.Update()
+				//if err := senderInfo.ChatSession.Validate(); err != nil {
+				//	return bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
+				//}
+				// store signature into signatureCache
+				//if err := m.popOrInsert(signature.Pointer(), body.LastSeen); err != nil {
+				//	return err
+				//}
 				var content chat.Message
 				if unsignedContent.Has {
 					content = unsignedContent.Val

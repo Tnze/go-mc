@@ -205,6 +205,14 @@ func (o *Option[T, P]) ReadFrom(r io.Reader) (n int64, err error) {
 	return n1 + n2, err
 }
 
+// Pointer returns the pointer of Val if Has is true, otherwise return nil.
+func (o *Option[T, P]) Pointer() (p *T) {
+	if o.Has {
+		p = &o.Val
+	}
+	return
+}
+
 // OptionDecoder is basically same with [Option], but support [FieldDecoder] only.
 // This allowed wrapping a [FieldDecoder] type (which isn't a [FieldEncoder]) to an Option.
 type OptionDecoder[T any, P fieldPointer[T]] struct {

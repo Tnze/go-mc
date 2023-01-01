@@ -2,12 +2,12 @@ package playerlist
 
 import (
 	"bytes"
-	"errors"
 
 	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/chat"
+	"github.com/Tnze/go-mc/chat/sign"
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/yggdrasil/user"
@@ -74,7 +74,11 @@ func (pl *PlayerList) handlePlayerInfoUpdatePacket(p pk.Packet) error {
 		}
 		// initialize chat
 		if action.Get(1) {
-			return errors.New("unsupported initialize chat yet")
+			var chatSession pk.Option[sign.Session, *sign.Session]
+			if _, err := chatSession.ReadFrom(r); err != nil {
+				return err
+			}
+			player.ChatSession = chatSession.Pointer()
 		}
 		// update gamemode
 		if action.Get(2) {
@@ -123,7 +127,7 @@ func (pl *PlayerList) handlePlayerInfoRemovePacket(p pk.Packet) error {
 
 type PlayerInfo struct {
 	GameProfile
-	// chatSession
+	ChatSession *sign.Session
 	Gamemode    int32
 	Latency     int32
 	Listed      bool
