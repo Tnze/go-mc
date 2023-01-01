@@ -4,8 +4,9 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -17,11 +18,12 @@ import (
 )
 
 type Manager struct {
-	c  *bot.Client
-	p  *basic.Player
-	pl *playerlist.PlayerList
+	c      *bot.Client
+	p      *basic.Player
+	pl     *playerlist.PlayerList
+	events EventsHandler
 
-	signatureCache
+	sign.SignatureCache
 }
 
 func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events EventsHandler) *Manager {
@@ -29,58 +31,86 @@ func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events Event
 		c:              c,
 		p:              p,
 		pl:             pl,
-		signatureCache: newSignatureCache(),
+		events:         events,
+		SignatureCache: sign.NewSignatureCache(),
 	}
-	m.attachPlayerMsg(c, p, pl, events.PlayerChatMessage)
-	return m
-}
-
-func (m *Manager) attachPlayerMsg(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, handler func(msg chat.Message) error) {
 	c.Events.AddListener(
 		bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundPlayerChat,
-			F: func(packet pk.Packet) error {
-				var (
-					sender          pk.UUID
-					index           pk.VarInt
-					signature       pk.Option[sign.Signature, *sign.Signature]
-					body            sign.PackedMessageBody
-					unsignedContent pk.Option[chat.Message, *chat.Message]
-					filter          sign.FilterMask
-					chatType        chat.Type
-				)
-				if err := packet.Scan(&sender, &index, &signature, &body, &unsignedContent, &filter, &chatType); err != nil {
-					return err
-				}
+			F: m.handlePacket,
+		},
+	)
+	return m
+}
 
-				//senderInfo, ok := pl.PlayerInfos[uuid.UUID(sender)]
-				//if !ok {
-				//	return bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
-				//}
-				//senderInfo.ChatSession.Update()
-				//if err := senderInfo.ChatSession.Validate(); err != nil {
-				//	return bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
-				//}
-				// store signature into signatureCache
-				//if err := m.popOrInsert(signature.Pointer(), body.LastSeen); err != nil {
-				//	return err
-				//}
-				var content chat.Message
-				if unsignedContent.Has {
-					content = unsignedContent.Val
-				} else {
-					content = chat.Text(body.PlainMsg)
-				}
+func (m *Manager) handlePacket(packet pk.Packet) error {
+	var (
+		sender          pk.UUID
+		index           pk.VarInt
+		signature       pk.Option[sign.Signature, *sign.Signature]
+		body            sign.PackedMessageBody
+		unsignedContent pk.Option[chat.Message, *chat.Message]
+		filter          sign.FilterMask
+		chatType        chat.Type
+	)
+	if err := packet.Scan(&sender, &index, &signature, &body, &unsignedContent, &filter, &chatType); err != nil {
+		return err
+	}
 
-				ct := p.WorldInfo.RegistryCodec.ChatType.FindByID(chatType.ID)
-				if ct == nil {
-					return fmt.Errorf("chat type %d not found", chatType.ID)
-				}
+	unpackedMsg, err := body.Unpack(&m.SignatureCache)
+	if err != nil {
+		return InvalidChatPacket
+	}
+	senderInfo, ok := m.pl.PlayerInfos[uuid.UUID(sender)]
+	if !ok {
+		return InvalidChatPacket
+	}
+	ct := m.p.WorldInfo.RegistryCodec.ChatType.FindByID(chatType.ID)
+	if ct == nil {
+		return InvalidChatPacket
+	}
 
-				msg := chatType.Decorate(content, &ct.Chat)
-				return handler(msg)
-			},
-		})
+	var message sign.Message
+	if senderInfo.ChatSession != nil {
+		message.Prev = sign.Prev{
+			Index:   int(index),
+			Sender:  uuid.UUID(sender),
+			Session: senderInfo.ChatSession.SessionID,
+		}
+	} else {
+		message.Prev = sign.Prev{
+			Index:   0,
+			Sender:  uuid.UUID(sender),
+			Session: uuid.Nil,
+		}
+	}
+	message.Signature = signature.Pointer()
+	message.MessageBody = unpackedMsg
+	message.Unsigned = unsignedContent.Pointer()
+	message.FilterMask = filter
+
+	var validated bool
+	if senderInfo.ChatSession != nil {
+		if !senderInfo.ChatSession.VerifyAndUpdate(&message) {
+			return ValidationFailed
+		}
+		validated = true
+		// store signature into signatureCache
+		m.PopOrInsert(signature.Pointer(), message.LastSeen)
+	}
+
+	var content chat.Message
+	if unsignedContent.Has {
+		content = unsignedContent.Val
+	} else {
+		content = chat.Text(body.PlainMsg)
+	}
+
+	if m.events.PlayerChatMessage == nil {
+		return nil
+	}
+	msg := chatType.Decorate(content, &ct.Chat)
+	return m.events.PlayerChatMessage(msg, validated)
 }
 
 // SendMessage send chat message to server.
@@ -108,4 +138,7 @@ func (m *Manager) SendMessage(msg string) error {
 	return err
 }
 
-var InvalidChatPacket = errors.New("invalid chat packet")
+var (
+	InvalidChatPacket       = errors.New("invalid chat packet")
+	ValidationFailed  error = bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
+)

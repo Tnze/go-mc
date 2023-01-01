@@ -78,7 +78,12 @@ func (pl *PlayerList) handlePlayerInfoUpdatePacket(p pk.Packet) error {
 			if _, err := chatSession.ReadFrom(r); err != nil {
 				return err
 			}
-			player.ChatSession = chatSession.Pointer()
+			if chatSession.Has {
+				player.ChatSession = chatSession.Pointer()
+				player.ChatSession.InitValidate()
+			} else {
+				player.ChatSession = nil
+			}
 		}
 		// update gamemode
 		if action.Get(2) {

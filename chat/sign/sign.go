@@ -9,6 +9,13 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+type MessageBody struct {
+	PlainMsg  string
+	Timestamp time.Time
+	Salt      int64
+	LastSeen  []*Signature
+}
+
 type PackedMessageBody struct {
 	PlainMsg  string
 	Timestamp time.Time
@@ -35,6 +42,25 @@ func (m *PackedMessageBody) ReadFrom(r io.Reader) (n int64, err error) {
 	}.ReadFrom(r)
 	m.Timestamp = time.UnixMilli(int64(timestamp))
 	return
+}
+
+func (m *PackedMessageBody) Unpack(cache *SignatureCache) (*MessageBody, error) {
+	LastSeen := make([]*Signature, len(m.LastSeen))
+	for i, v := range m.LastSeen {
+		if v.Signature != nil {
+			LastSeen[i] = v.Signature
+		} else if v.ID >= 0 && int(v.ID) < len(cache.signatures) {
+			LastSeen[i] = cache.signatures[v.ID]
+		} else {
+			return nil, UncachedSignature
+		}
+	}
+	return &MessageBody{
+		PlainMsg:  m.PlainMsg,
+		Timestamp: m.Timestamp,
+		Salt:      m.Salt,
+		LastSeen:  LastSeen,
+	}, nil
 }
 
 type HistoryMessage struct {

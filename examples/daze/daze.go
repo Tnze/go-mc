@@ -116,8 +116,12 @@ func onGameStart() error {
 	return nil // if err isn't nil, HandleGame() will return it.
 }
 
-func onPlayerMsg(msg chat.Message) error {
-	log.Printf("Player: %v", msg)
+func onPlayerMsg(msg chat.Message, validated bool) error {
+	var prefix string
+	if !validated {
+		prefix = "[Not Secure] "
+	}
+	log.Printf("%sPlayer: %v", prefix, msg)
 	return nil
 }
 
