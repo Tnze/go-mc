@@ -67,6 +67,16 @@ func calcBitStorageSize(bits, length int) (size int) {
 	return (length + valuesPerLong - 1) / valuesPerLong
 }
 
+// calcBitsPerValue calculate when "longs" number of uint64 stores
+// "length" number of value, how many bits are used for each value.
+func calcBitsPerValue(length, longs int) (bits int) {
+	if longs == 0 || length == 0 {
+		return 0
+	}
+	valuePerLong := (length + longs - 1) / longs
+	return 64 / valuePerLong
+}
+
 type newBitStorageErr struct {
 	ArrlLen int
 	WantLen int

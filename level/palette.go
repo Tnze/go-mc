@@ -2,7 +2,6 @@ package level
 
 import (
 	"io"
-	"math/bits"
 	"strconv"
 
 	"github.com/Tnze/go-mc/level/biome"
@@ -36,7 +35,7 @@ func NewStatesPaletteContainer(length int, defaultValue BlocksState) *PaletteCon
 
 func NewStatesPaletteContainerWithData(length int, data []uint64, pat []BlocksState) *PaletteContainer[BlocksState] {
 	var p palette[BlocksState]
-	n := bits.Len(uint(len(pat) - 1))
+	n := calcBitsPerValue(length, len(data))
 	switch n {
 	case 0:
 		p = &singleValuePalette[BlocksState]{pat[0]}
@@ -78,7 +77,7 @@ func NewBiomesPaletteContainer(length int, defaultValue BiomesState) *PaletteCon
 
 func NewBiomesPaletteContainerWithData(length int, data []uint64, pat []BiomesState) *PaletteContainer[BiomesState] {
 	var p palette[BiomesState]
-	n := bits.Len(uint(len(pat) - 1))
+	n := calcBitsPerValue(length, len(data))
 	switch n {
 	case 0:
 		p = &singleValuePalette[BiomesState]{pat[0]}
