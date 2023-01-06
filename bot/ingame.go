@@ -40,19 +40,15 @@ func (d PacketHandlerError) Unwrap() error {
 
 func (c *Client) handlePacket(p pk.Packet) (err error) {
 	packetID := packetid.ClientboundPacketID(p.ID)
-	if c.Events.generic != nil {
-		for _, handler := range *c.Events.generic {
-			if err = handler.F(p); err != nil {
-				return PacketHandlerError{ID: packetID, Err: err}
-			}
+	for _, handler := range c.Events.generic {
+		if err = handler.F(p); err != nil {
+			return PacketHandlerError{ID: packetID, Err: err}
 		}
 	}
-	if listeners := c.Events.handlers[packetID]; listeners != nil {
-		for _, handler := range *listeners {
-			err = handler.F(p)
-			if err != nil {
-				return PacketHandlerError{ID: packetID, Err: err}
-			}
+	for _, handler := range c.Events.handlers[packetID] {
+		err = handler.F(p)
+		if err != nil {
+			return PacketHandlerError{ID: packetID, Err: err}
 		}
 	}
 	return

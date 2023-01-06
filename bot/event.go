@@ -1,24 +1,29 @@
 package bot
 
 import (
+	"sort"
+	"strconv"
+
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type Events struct {
-	generic  *handlerHeap                                  // for every packet
-	handlers map[packetid.ClientboundPacketID]*handlerHeap // for specific packet id only
+	generic  []PacketHandler   // for every packet
+	handlers [][]PacketHandler // for specific packet id only
 }
 
 func (e *Events) AddListener(listeners ...PacketHandler) {
 	for _, l := range listeners {
-		var s *handlerHeap
-		var ok bool
-		if s, ok = e.handlers[l.ID]; !ok {
-			s = &handlerHeap{l}
-			e.handlers[l.ID] = s
+		// panic if l.ID is invalid
+		if l.ID < 0 || int(l.ID) >= len(e.handlers) {
+			panic("Invalid packet ID (" + strconv.Itoa(int(l.ID)) + ")")
+		}
+		if s := e.handlers[l.ID]; s == nil {
+			e.handlers[l.ID] = []PacketHandler{l}
 		} else {
-			s.Push(l)
+			e.handlers[l.ID] = append(s, l)
+			sortPacketHandlers(e.handlers[l.ID])
 		}
 	}
 }
@@ -26,13 +31,8 @@ func (e *Events) AddListener(listeners ...PacketHandler) {
 // AddGeneric adds listeners like AddListener, but the packet ID is ignored.
 // Generic listener is always called before specific packet listener.
 func (e *Events) AddGeneric(listeners ...PacketHandler) {
-	for _, l := range listeners {
-		if e.generic == nil {
-			e.generic = &handlerHeap{l}
-		} else {
-			e.generic.Push(l)
-		}
-	}
+	e.generic = append(e.generic, listeners...)
+	sortPacketHandlers(e.generic)
 }
 
 type (
@@ -44,16 +44,8 @@ type (
 	}
 )
 
-// handlerHeap is PriorityQueue<PacketHandlerFunc>
-type handlerHeap []PacketHandler
-
-func (h handlerHeap) Len() int            { return len(h) }
-func (h handlerHeap) Less(i, j int) bool  { return h[i].Priority < h[j].Priority }
-func (h handlerHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
-func (h *handlerHeap) Push(x interface{}) { *h = append(*h, x.(PacketHandler)) }
-func (h *handlerHeap) Pop() interface{} {
-	old := *h
-	n := len(old)
-	*h = old[0 : n-1]
-	return old[n-1]
+func sortPacketHandlers(slice []PacketHandler) {
+	sort.SliceStable(slice, func(i, j int) bool {
+		return slice[i].Priority > slice[j].Priority
+	})
 }
