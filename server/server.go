@@ -73,7 +73,7 @@ func (s *Server) AcceptConn(conn *net.Conn) {
 
 	switch intention {
 	case 1: // list ping
-		s.acceptListPing(conn)
+		s.acceptListPing(conn, protocol)
 	case 2: // login
 		name, id, profilePubKey, properties, err := s.AcceptLogin(conn, protocol)
 		if err != nil {

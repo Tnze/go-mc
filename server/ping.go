@@ -18,16 +18,26 @@ import (
 // ListPingHandler collect server running status info
 // which is used to handle client ping and list progress.
 type ListPingHandler interface {
-	// Name of the server version
+	// Name of the server.
+	// Vanilla server uses its version name, like "1.19.3".
 	Name() string
-	// Protocol number
-	Protocol() int
+
+	// The Protocol number.
+	// Usually implemented as returning the protocol number the server currently used.
+	// If the server supports multiple protocols, should be implemented as returning clientProtocol
+	Protocol(clientProtocol int32) int
+
 	MaxPlayer() int
+
 	OnlinePlayer() int
-	// PlayerSamples is a short list of some player in the server
+
+	// PlayerSamples is a short list of players in the server.
+	// Vanilla server returns up to 10 players in the list.
 	PlayerSamples() []PlayerSample
 
+	// Description also called MOTD, Message Of The Day.
 	Description() *chat.Message
+
 	// FavIcon should be a PNG image that is Base64 encoded
 	// (without newlines: \n, new lines no longer work since 1.13)
 	// and prepended with "data:image/png;base64,".
@@ -41,7 +51,7 @@ type PlayerSample struct {
 	ID   uuid.UUID `json:"id"`
 }
 
-func (s *Server) acceptListPing(conn *net.Conn) {
+func (s *Server) acceptListPing(conn *net.Conn, clientProtocol int32) {
 	var p pk.Packet
 	for i := 0; i < 2; i++ { // Ping or List. Only allow check twice
 		err := conn.ReadPacket(&p)
@@ -52,7 +62,7 @@ func (s *Server) acceptListPing(conn *net.Conn) {
 		switch p.ID {
 		case packetid.StatusResponse: // List
 			var resp []byte
-			resp, err = s.listResp()
+			resp, err = s.listResp(clientProtocol)
 			if err != nil {
 				break
 			}
@@ -66,7 +76,7 @@ func (s *Server) acceptListPing(conn *net.Conn) {
 	}
 }
 
-func (s *Server) listResp() ([]byte, error) {
+func (s *Server) listResp(clientProtocol int32) ([]byte, error) {
 	var list struct {
 		Version struct {
 			Name     string `json:"name"`
@@ -82,7 +92,7 @@ func (s *Server) listResp() ([]byte, error) {
 	}
 
 	list.Version.Name = s.Name()
-	list.Version.Protocol = s.Protocol()
+	list.Version.Protocol = s.Protocol(clientProtocol)
 	list.Players.Max = s.MaxPlayer()
 	list.Players.Online = s.OnlinePlayer()
 	list.Players.Sample = s.PlayerSamples()
@@ -133,7 +143,7 @@ func (p *PingInfo) Name() string {
 	return p.name
 }
 
-func (p *PingInfo) Protocol() int {
+func (p *PingInfo) Protocol(int32) int {
 	return p.protocol
 }
 
