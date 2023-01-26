@@ -5,14 +5,12 @@ import (
 
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
-	"github.com/Tnze/go-mc/yggdrasil/user"
 )
 
 // Client is used to access Minecraft server
 type Client struct {
-	Conn    *net.Conn
-	Auth    Auth
-	KeyPair *user.KeyPairResp
+	Conn *net.Conn
+	Auth Auth
 
 	Name string
 	UUID uuid.UUID

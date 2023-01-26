@@ -104,13 +104,6 @@ func (c *Client) join(addr string, options JoinOptions) error {
 		return LoginErr{"handshake", err}
 	}
 	// Login Start
-	if c.Auth.AsTk != "" && !options.NoPublicKey {
-		if options.KeyPair != nil {
-			c.KeyPair = options.KeyPair
-		} else if KeyPairResp, err := user.GetOrFetchKeyPair(c.Auth.AsTk); err == nil {
-			c.KeyPair = &KeyPairResp
-		}
-	}
 	c.UUID, err = uuid.Parse(c.Auth.UUID)
 	PlayerUUID := pk.Option[pk.UUID, *pk.UUID]{
 		Has: err == nil,
@@ -124,11 +117,12 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	if err != nil {
 		return LoginErr{"login start", err}
 	}
+	receiving := "encrypt start"
 	for {
 		// Receive Packet
 		var p pk.Packet
 		if err = c.Conn.ReadPacket(&p); err != nil {
-			return LoginErr{"receive packet", err}
+			return LoginErr{receiving, err}
 		}
 
 		// Handle Packet
@@ -145,6 +139,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 			if err := handleEncryptionRequest(c, p); err != nil {
 				return LoginErr{"encryption", err}
 			}
+			receiving = "set compression"
 
 		case packetid.LoginSuccess: // Login Success
 			err := p.Scan(
@@ -162,6 +157,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 				return LoginErr{"compression", err}
 			}
 			c.Conn.SetThreshold(int(threshold))
+			receiving = "login success"
 
 		case packetid.LoginPluginRequest: // Login Plugin Request
 			var (
