@@ -1,7 +1,11 @@
 package block
 
 func IsAir(s StateID) bool {
-	switch StateList[s].(type) {
+	return IsAirBlock(StateList[s])
+}
+
+func IsAirBlock(b Block) bool {
+	switch b.(type) {
 	case Air, CaveAir, VoidAir:
 		return true
 	default:

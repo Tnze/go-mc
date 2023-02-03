@@ -75,10 +75,11 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 			return nil, fmt.Errorf("section Y value %d out of bounds", v.Y)
 		}
 		var err error
-		sections[i].BlockCount, sections[i].States, err = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
+		sections[i].States, err = readStatesPalette(v.BlockStates.Palette, v.BlockStates.Data)
 		if err != nil {
 			return nil, err
 		}
+		sections[i].BlockCount = countNoneAirBlocks(&sections[i])
 		sections[i].Biomes, err = readBiomesPalette(v.Biomes.Palette, v.Biomes.Data)
 		if err != nil {
 			return nil, err
@@ -125,24 +126,21 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 	}, nil
 }
 
-func readStatesPalette(palette []save.BlockState, data []uint64) (blockCount int16, paletteData *PaletteContainer[BlocksState], err error) {
+func readStatesPalette(palette []save.BlockState, data []uint64) (paletteData *PaletteContainer[BlocksState], err error) {
 	statePalette := make([]BlocksState, len(palette))
 	for i, v := range palette {
 		b, ok := block.FromID[v.Name]
 		if !ok {
-			return 0, nil, fmt.Errorf("unknown block id: %v", v.Name)
+			return nil, fmt.Errorf("unknown block id: %v", v.Name)
 		}
 		if v.Properties.Data != nil {
 			if err := v.Properties.Unmarshal(&b); err != nil {
-				return 0, nil, fmt.Errorf("unmarshal block properties fail: %v", err)
+				return nil, fmt.Errorf("unmarshal block properties fail: %v", err)
 			}
 		}
 		s, ok := block.ToStateID[b]
 		if !ok {
-			return 0, nil, fmt.Errorf("unknown block: %v", b)
-		}
-		if !block.IsAir(s) {
-			blockCount++
+			return nil, fmt.Errorf("unknown block: %v", b)
 		}
 		statePalette[i] = s
 	}
@@ -160,6 +158,16 @@ func readBiomesPalette(palette []string, data []uint64) (*PaletteContainer[Biome
 		}
 	}
 	return NewBiomesPaletteContainerWithData(4*4*4, data, biomesRawPalette), nil
+}
+
+func countNoneAirBlocks(sec *Section) (blockCount int16) {
+	for i := 0; i < 16*16*16; i++ {
+		b := sec.GetBlock(i)
+		if !block.IsAir(b) {
+			blockCount++
+		}
+	}
+	return
 }
 
 // ChunkToSave convert level.Chunk to save.Chunk
@@ -364,10 +372,10 @@ func (s *Section) GetBlock(i int) BlocksState {
 }
 
 func (s *Section) SetBlock(i int, v BlocksState) {
-	if block.IsAir(s.States.Get(i)) {
+	if !block.IsAir(s.States.Get(i)) {
 		s.BlockCount--
 	}
-	if v != 0 {
+	if !block.IsAir(v) {
 		s.BlockCount++
 	}
 	s.States.Set(i, v)
