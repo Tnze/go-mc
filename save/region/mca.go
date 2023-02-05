@@ -99,7 +99,7 @@ func Create(name string) (*Region, error) {
 	return CreateWriter(f)
 }
 
-// CreateWriter init the region
+// CreateWriter create Region by an io.ReadWriteSeeker
 func CreateWriter(f io.ReadWriteSeeker) (r *Region, err error) {
 	r = new(Region)
 	r.sectors = make(map[int32]bool)

@@ -264,7 +264,7 @@ func (m Message) ClearString() string {
 
 // String return the message string with escape sequence for ansi color.
 // To convert Translated Message to string, you must set
-// On Windows, you may want print this string using github.com/matte/go-colorable.
+// On Windows, you may want print this string using github.com/mattn/go-colorable.
 func (m Message) String() string {
 	var msg, format strings.Builder
 	if m.Bold {
