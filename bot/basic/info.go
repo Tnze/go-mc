@@ -18,7 +18,7 @@ type WorldInfo struct {
 	MaxPlayers          int32    // Was once used by the client to draw the player list, but now is ignored.
 	ViewDistance        int32    // Render distance (2-32).
 	SimulationDistance  int32    // The distance that the client will process specific things, such as entities.
-	ReducedDebugInfo    bool     // If true, a Notchian client shows reduced information on the debug screen. For servers in development, this should almost always be false.
+	ReducedDebugInfo    bool     // If true, a vanilla client shows reduced information on the debug screen. For servers in development, this should almost always be false.
 	EnableRespawnScreen bool     // Set to false when the doImmediateRespawn gamerule is true.
 	IsDebug             bool     // True if the world is a debug mode world; debug mode worlds cannot be modified and have predefined blocks.
 	IsFlat              bool     // True if the world is a superflat world; flat worlds have different void fog and a horizon at y=0 instead of y=63.
@@ -29,11 +29,6 @@ type PlayerInfo struct {
 	Hardcore     bool  // Is hardcore
 	Gamemode     byte  // Gamemode. 0: Survival, 1: Creative, 2: Adventure, 3: Spectator.
 	PrevGamemode int8  // Previous Gamemode
-}
-
-// ServInfo contains information about the server implementation.
-type ServInfo struct {
-	Brand string
 }
 
 func (p *Player) handleLoginPacket(packet pk.Packet) error {

@@ -17,6 +17,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+// The Manager is used to receive and send chat messages.
 type Manager struct {
 	c      *bot.Client
 	p      *basic.Player
@@ -26,6 +27,7 @@ type Manager struct {
 	sign.SignatureCache
 }
 
+// New returns a new chat manager.
 func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events EventsHandler) *Manager {
 	m := &Manager{
 		c:              c,
@@ -37,7 +39,7 @@ func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events Event
 	if events.SystemChat != nil {
 		c.Events.AddListener(bot.PacketHandler{
 			Priority: 64, ID: packetid.ClientboundSystemChat,
-			F: m.handleSystemMessage,
+			F: m.handleSystemChat,
 		})
 	}
 	if events.PlayerChatMessage != nil {
@@ -55,7 +57,7 @@ func New(c *bot.Client, p *basic.Player, pl *playerlist.PlayerList, events Event
 	return m
 }
 
-func (m *Manager) handleSystemMessage(p pk.Packet) error {
+func (m *Manager) handleSystemChat(p pk.Packet) error {
 	var msg chat.Message
 	var overlay pk.Boolean
 	if err := p.Scan(&msg, &overlay); err != nil {
@@ -149,7 +151,7 @@ func (m *Manager) handleDisguisedChat(packet pk.Packet) error {
 }
 
 // SendMessage send chat message to server.
-// Currently only support offline-mode or "Not Secure" chat
+// Doesn't support sending message with signature currently.
 func (m *Manager) SendMessage(msg string) error {
 	if len(msg) > 256 {
 		return errors.New("message length greater than 256")

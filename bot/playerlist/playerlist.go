@@ -1,3 +1,9 @@
+// Package playerlist contains a PlayerList struct that used to manage player information.
+//
+// The [PlayerList] contains a list of [PlayerInfo] which is received from server when client join.
+// The playerlist contains every players' information of name, display name, uuid, gamemode, latency, public key, etc.
+// And can be used to render the "TAB List". Other packages may also require playerlist to work,
+// for example, the bot/msg package.
 package playerlist
 
 import (
