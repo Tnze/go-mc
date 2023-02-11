@@ -133,6 +133,21 @@ func (pl *PlayerList) handlePlayerInfoUpdatePacket(p pk.Packet) error {
 }
 
 func (pl *PlayerList) handlePlayerInfoRemovePacket(p pk.Packet) error {
+	r := bytes.NewReader(p.Data)
+	var (
+		length pk.VarInt
+		id     pk.UUID
+	)
+	if _, err := length.ReadFrom(r); err != nil {
+		return err
+	}
+
+	for i := 0; i < int(length); i++ {
+		if _, err := id.ReadFrom(r); err != nil {
+			return err
+		}
+		delete(pl.PlayerInfos, uuid.UUID(id))
+	}
 	return nil
 }
 
