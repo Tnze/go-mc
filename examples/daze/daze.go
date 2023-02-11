@@ -166,8 +166,8 @@ func onScreenSlotChange(id, index int) error {
 	return nil
 }
 
-func onHealthChange(health float32) error {
-	log.Printf("HealthChange: %v", health)
+func onHealthChange(health float32, foodLevel int32, foodSaturation float32) error {
+	log.Printf("Health: %.2f, FoodLevel: %d, FoodSaturation: %.2f", health, foodLevel, foodSaturation)
 	return nil
 }
 
