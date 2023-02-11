@@ -1,5 +1,5 @@
-// Daze could join an offline-mode server as client.
-// Just standing there and do nothing. Automatically reborn after five seconds of death.
+// A minimal bot example that could join minecraft server as a client.
+// For a complete bot example, see examples/daze.
 package main
 
 import (

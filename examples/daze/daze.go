@@ -1,5 +1,11 @@
-// Daze could join an offline-mode server as client.
-// Just standing there and do nothing. Automatically reborn after five seconds of death.
+// Daze is a basic bot example that join a server as client with these features:
+// - Say "Hello, world" when game started.
+// - Just standing there and do nothing.
+// - Receive chat message and print it.
+// - Receive player list and store it in memory.
+// - Receive chunk data and load/unload them.
+// - Receive inventory items and print them.
+// - Automatically reborn after 5 seconds of death.
 package main
 
 import (
