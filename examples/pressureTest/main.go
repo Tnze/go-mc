@@ -1,3 +1,9 @@
+// This example is used to apply pressure test on the server.
+// Testing the performance of the login handling system of go-mc/server package.
+// It can be used to test other server implementations too.
+//
+// This program will create a lot of clients and let them log in to the server.
+// The number of clients can be set by the -number flag.
 package main
 
 import (
@@ -5,8 +11,6 @@ import (
 	"log"
 	"strconv"
 	"time"
-
-	//"github.com/mattn/go-colorable"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -20,7 +24,6 @@ var (
 
 func main() {
 	flag.Parse()
-	// log.SetOutput(colorable.NewColorableStdout())
 
 	for i := 0; i < *number; i++ {
 		go func(i int) {
@@ -60,6 +63,7 @@ func (i *individual) run(address string) {
 		log.Printf("[%d]Login fail: %v", i.id, err)
 		return
 	}
+	defer i.client.Close()
 	log.Printf("[%d]Login success", i.id)
 
 	// JoinGame
@@ -79,7 +83,7 @@ type DisconnectErr struct {
 }
 
 func (d DisconnectErr) Error() string {
-	return "disconnect: " + d.Reason.String()
+	return "disconnect: " + d.Reason.ClearString()
 }
 
 func onDisconnect(reason chat.Message) error {

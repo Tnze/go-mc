@@ -1,4 +1,7 @@
-// Example minecraft 1.17.1 server
+// This example is a minimal minecraft 1.17.1 server allowing vanilla clients or go-mc/bot to connect.
+// Has the same functionality as "simpleServer1.15.2", but with 1.17.1 protocol.
+//
+// It is used to test DimensionCodec stuffs during go-mc development.
 package main
 
 import (

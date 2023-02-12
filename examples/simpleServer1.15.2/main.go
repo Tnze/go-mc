@@ -1,4 +1,11 @@
-// Example minecraft 1.15.2 server
+// This example is a minimal minecraft 1.15.2 server allowing vanilla clients or go-mc/bot to connect.
+//
+// This example handles "ping and list", so you can see its motd and player count in server list.
+// Players can join the server and seeing an empty world. No authentication profile is checked.
+// The KeepAlive packet is not handled, so client might exit 20 seconds later.
+//
+// It doesn't use go-mc/server but the go-mc/net package to handle the connection and implement basic 1.15.2 protocol,
+// proving that even latest go-mc also support old minecraft versions.
 package main
 
 import (

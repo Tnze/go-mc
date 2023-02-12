@@ -7,7 +7,6 @@ import (
 	"flag"
 	"fmt"
 	"image"
-	_ "image/jpeg"
 	"image/png"
 	"os"
 	"strings"

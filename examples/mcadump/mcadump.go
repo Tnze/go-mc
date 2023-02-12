@@ -1,3 +1,5 @@
+// This is an example of how to use the go-mc/save/region package to read and write .mca files.
+// It can unpack .mca files to .mcc files, or repack .mcc files to .mca files, controlled by the -p flags.
 package main
 
 import (
@@ -29,8 +31,7 @@ func main() {
 		usage()
 	}
 	for _, f := range args[1:] {
-		fs, err := filepath.Glob(f)
-		checkerr(err)
+		fs := must(filepath.Glob(f))
 
 		if *repack {
 			for _, f := range fs {
@@ -49,24 +50,12 @@ func usage() {
 	os.Exit(1)
 }
 
-// we use this function to check for laziness. Don't scold me >_<
-func checkerr(err error) {
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-}
-
 func unpack(f, o string) {
 	var x, z int
 	rn := filepath.Base(f)
-	_, err := fmt.Sscanf(rn, "r.%d.%d.mca", &x, &z)
-	if err != nil {
-		checkerr(fmt.Errorf("cannot use %s as mca file name: %v", rn, err))
-	}
+	must(fmt.Sscanf(rn, "r.%d.%d.mca", &x, &z))
 
-	r, err := region.Open(f)
-	checkerr(err)
+	r := must(region.Open(f))
 	defer r.Close()
 
 	for i := 0; i < 32; i++ {
@@ -75,12 +64,12 @@ func unpack(f, o string) {
 				continue
 			}
 
-			data, err := r.ReadSector(i, j)
-			checkerr(err)
+			data := must(r.ReadSector(i, j))
 			var r io.Reader = bytes.NewReader(data[1:])
 
-			fn := fmt.Sprintf("c.%d.%d.mcc", x*32+i, z*32+j)
+			fn := fmt.Sprintf("c.%d.%d.mcc", x<<5+i, z<<5+j)
 			if *decomp {
+				var err error
 				fn += ".nbt" // 解压后就是一个标准的NBT文件，可以加个.nbt后缀
 				switch data[0] {
 				default:
@@ -90,14 +79,12 @@ func unpack(f, o string) {
 				case 2:
 					r, err = zlib.NewReader(r)
 				}
-				checkerr(err)
+				must(0, err)
 			}
 
-			cf, err := os.OpenFile(filepath.Join(o, fn), os.O_CREATE|os.O_RDWR|os.O_EXCL, 0o666)
-			checkerr(err)
+			cf := must(os.OpenFile(filepath.Join(o, fn), os.O_CREATE|os.O_RDWR|os.O_EXCL, 0o666))
 
-			_, err = io.Copy(cf, r)
-			checkerr(err)
+			must(io.Copy(cf, r))
 		}
 	}
 }
@@ -105,23 +92,27 @@ func unpack(f, o string) {
 func pack(f, o string) {
 	var x, z int
 	rn := filepath.Base(f)
-	_, err := fmt.Sscanf(rn, "c.%d.%d.mcc", &x, &z)
-	if err != nil {
-		checkerr(fmt.Errorf("cannot use %s as mcc file name: %v", rn, err))
-	}
+	must(fmt.Sscanf(rn, "c.%d.%d.mcc", &x, &z))
 
 	fn := fmt.Sprintf("r.%d.%d.mca", x>>5, z>>5)
 	r, err := region.Open(fn)
 	if err != nil && os.IsNotExist(err) {
-		r, err = region.Create(filepath.Join(o, fn))
+		r = must(region.Create(filepath.Join(o, fn)))
+	} else {
+		must(0, err)
 	}
-	checkerr(err)
 	defer r.Close()
 
-	mcc, err := os.ReadFile(f)
-	checkerr(err)
+	mcc := must(os.ReadFile(f))
 
 	rx, rz := region.In(x, z)
-	err = r.WriteSector(rx, rz, mcc)
-	checkerr(err)
+	must(0, r.WriteSector(rx, rz, mcc))
+}
+
+func must[T any](v T, err error) T {
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	return v
 }

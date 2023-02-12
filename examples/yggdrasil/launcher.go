@@ -1,3 +1,8 @@
+// This example used to act as a launcher, log in and obtain the access token.
+// The Yggdrasil Authentication is no longer available. This example doesn't work now.
+//
+// For now, you should use Microsoft Authentication. The description and example code can be found here:
+// https://wiki.vg/Microsoft_Authentication_Scheme
 package main
 
 import (
