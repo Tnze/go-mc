@@ -10,12 +10,13 @@ import (
 	"net"
 	"strconv"
 
+	"github.com/google/uuid"
+
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/yggdrasil/user"
-	"github.com/google/uuid"
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
@@ -25,8 +26,8 @@ const (
 )
 
 type JoinOptions struct {
-	Dialer  *net.Dialer
-	Context context.Context
+	MCDialer mcnet.MCDialer
+	Context  context.Context
 
 	// Indicate not to fetch and sending player's PubKey
 	NoPublicKey bool
@@ -40,22 +41,22 @@ type JoinOptions struct {
 // Using roughly the same way to parse address as minecraft.
 func (c *Client) JoinServer(addr string) (err error) {
 	return c.join(addr, JoinOptions{
-		Context: context.Background(),
-		Dialer:  (*net.Dialer)(&mcnet.DefaultDialer),
+		Context:  context.Background(),
+		MCDialer: &mcnet.DefaultDialer,
 	})
 }
 
-// JoinServerWithDialer is similar to JoinServer but using a Dialer.
+// JoinServerWithDialer is similar to JoinServer but using a net.Dialer.
 func (c *Client) JoinServerWithDialer(dialer *net.Dialer, addr string) (err error) {
 	return c.join(addr, JoinOptions{
-		Context: context.Background(),
-		Dialer:  dialer,
+		Context:  context.Background(),
+		MCDialer: (*mcnet.Dialer)(dialer),
 	})
 }
 
 func (c *Client) JoinServerWithOptions(addr string, options JoinOptions) (err error) {
-	if options.Dialer == nil {
-		options.Dialer = (*net.Dialer)(&mcnet.DefaultDialer)
+	if options.MCDialer == nil {
+		options.MCDialer = &mcnet.DefaultDialer
 	}
 	if options.Context == nil {
 		options.Context = context.Background()
@@ -65,7 +66,9 @@ func (c *Client) JoinServerWithOptions(addr string, options JoinOptions) (err er
 
 func (c *Client) join(addr string, options JoinOptions) error {
 	const Handshake = 0x00
-	// Split Host and Port
+
+	// Split Host and Port. The DialMCContext will do this once,
+	// but we need the result for sending handshake packet here.
 	host, portStr, err := net.SplitHostPort(addr)
 	var port uint64
 	if err != nil {
@@ -85,9 +88,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	}
 
 	// Dial connection
-	d := (*mcnet.Dialer)(options.Dialer)
-	ctx := options.Context
-	c.Conn, err = d.DialMCContext(ctx, addr)
+	c.Conn, err = options.MCDialer.DialMCContext(options.Context, addr)
 	if err != nil {
 		return LoginErr{"connect server", err}
 	}

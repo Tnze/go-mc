@@ -62,6 +62,23 @@ func DialMCTimeout(addr string, timeout time.Duration) (*Conn, error) {
 	return DefaultDialer.DialMCContext(ctx, addr)
 }
 
+// MCDialer provide DialMCContext method, can be used to dial a minecraft server.
+// [Dialer] is its default implementation, and support SRV lookup.
+//
+// Typically, if you want to use built-in proxies or custom dialer,
+// you can hook go-mc/bot package by implement this interface.
+// When implementing a custom MCDialer, SRV lookup is optional.
+type MCDialer interface {
+	// The DialMCContext dial TCP connection to a minecraft server, and warp the net.Conn by calling [WrapConn].
+	DialMCContext(ctx context.Context, addr string) (*Conn, error)
+}
+
+// Dialer implements MCDialer interface.
+//
+// It can be easily convert from net.Dialer.
+//
+//	dialer := net.Dialer{}
+//	mcDialer := (*Dialer)(&dialer)
 type Dialer net.Dialer
 
 func (d *Dialer) resolver() *net.Resolver {
@@ -82,23 +99,23 @@ func (d *Dialer) DialMCContext(ctx context.Context, addr string) (*Conn, error) 
 			return nil, err
 		}
 	}
-	var ras []string
+	var addresses []string
 	if port == "" {
 		// We look up SRV only if the port is not specified
 		_, srvRecords, err := d.resolver().LookupSRV(ctx, "minecraft", "tcp", host)
 		if err == nil {
 			for _, record := range srvRecords {
 				addr := net.JoinHostPort(record.Target, strconv.Itoa(int(record.Port)))
-				ras = append(ras, addr)
+				addresses = append(addresses, addr)
 			}
 		}
 		// Whatever the SRV records is found,
 		addr = net.JoinHostPort(addr, strconv.Itoa(DefaultPort))
 	}
-	ras = append(ras, addr)
+	addresses = append(addresses, addr)
 
 	var firstErr error
-	for i, addr := range ras {
+	for i, addr := range addresses {
 		select {
 		case <-ctx.Done():
 			return nil, context.Canceled
@@ -106,7 +123,7 @@ func (d *Dialer) DialMCContext(ctx context.Context, addr string) (*Conn, error) 
 		}
 		dialCtx := ctx
 		if deadline, hasDeadline := ctx.Deadline(); hasDeadline {
-			partialDeadline, err := partialDeadline(time.Now(), deadline, len(ras)-i)
+			partialDeadline, err := partialDeadline(time.Now(), deadline, len(addresses)-i)
 			if err != nil {
 				// Ran out of time.
 				if firstErr == nil {
