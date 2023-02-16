@@ -14,9 +14,9 @@ const (
 )
 
 // BitStorage implement the compacted data array used in chunk storage and heightmaps.
-// You can think of this as a []intN whose N is called "bits" in NewBitStorage.
+// You can think of this as a []intN whose N is indicated by "bits".
 // For more info, see: https://wiki.vg/Chunk_Format
-// This is implementation of the format since Minecraft 1.16
+// This implementation is compatible with the format since Minecraft 1.16
 type BitStorage struct {
 	data []uint64
 	mask uint64
@@ -29,7 +29,7 @@ type BitStorage struct {
 //
 // The "bits" is the number of bits per value, which can be calculated by math/bits.Len()
 // The "length" is the number of values.
-// The "data" is optional for initializing. Panic if data != nil && len(data) != calcBitStorageSize(bits, length).
+// The "data" is optional for initializing. It will panic if data != nil && len(data) != calcBitStorageSize(bits, length).
 func NewBitStorage(bits, length int, data []uint64) (b *BitStorage) {
 	if bits == 0 {
 		return &BitStorage{
