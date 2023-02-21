@@ -3,7 +3,6 @@ package nbt
 import (
 	"bytes"
 	"compress/gzip"
-	"fmt"
 	"io"
 	"math"
 	"reflect"
@@ -445,6 +444,5 @@ func TestDecoder_Decode_ErrorUnknownField(t *testing.T) {
 	d.DisallowUnknownFields()
 	if _, err := d.Decode(&v); err == nil || !strings.Contains(err.Error(), "unknown field") {
 		t.Errorf("should return an error unmarshalling unknown field")
-		fmt.Println(err)
 	}
 }
