@@ -33,7 +33,8 @@ type DecoderReader = interface {
 	io.Reader
 }
 type Decoder struct {
-	r DecoderReader
+	r                     DecoderReader
+	disallowUnknownFields bool
 }
 
 func NewDecoder(r io.Reader) *Decoder {
@@ -44,6 +45,12 @@ func NewDecoder(r io.Reader) *Decoder {
 		d.r = reader{r}
 	}
 	return d
+}
+
+// DisallowUnknownFields makes the decoder return an error when unmarshalling a compound
+// tag item that has a tag name not present in the destination struct.
+func (d *Decoder) DisallowUnknownFields() {
+	d.disallowUnknownFields = true
 }
 
 type reader struct {
