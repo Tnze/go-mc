@@ -25,7 +25,7 @@ type BitStorage struct {
 	valuesPerLong int
 }
 
-// NewBitStorage create a new BitStorage. Return nil if bits == 0.
+// NewBitStorage create a new BitStorage.
 //
 // The "bits" is the number of bits per value, which can be calculated by math/bits.Len()
 // The "length" is the number of values.
@@ -195,6 +195,8 @@ func (b *BitStorage) WriteTo(w io.Writer) (int64, error) {
 	return n, nil
 }
 
+// Fix recalculate BitStorage internal values for given bits.
+// Typically, you should call this method after ReadFrom is called, internal data is changed.
 func (b *BitStorage) Fix(bits int) error {
 	if bits == 0 {
 		b.mask = 0
