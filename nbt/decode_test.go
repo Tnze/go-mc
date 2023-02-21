@@ -3,10 +3,12 @@ package nbt
 import (
 	"bytes"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"math"
 	"reflect"
 	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -426,5 +428,23 @@ func TestDecoder_Decode_textUnmarshaler(t *testing.T) {
 	}
 	if b != true {
 		t.Errorf("b should be true")
+	}
+}
+
+func TestDecoder_Decode_ErrorUnknownField(t *testing.T) {
+	data := []byte{
+		TagCompound, 0, 1, 'S',
+		TagByte, 0, 1, 'A', 1,
+		TagByte, 0, 1, 'B', 2,
+		TagEnd,
+	}
+	var v struct {
+		A byte `nbt:"a"`
+	}
+	d := NewDecoder(bytes.NewReader(data))
+	d.DisallowUnknownFields()
+	if _, err := d.Decode(&v); err == nil || !strings.Contains(err.Error(), "unknown field") {
+		t.Errorf("should return an error unmarshalling unknown field")
+		fmt.Println(err)
 	}
 }

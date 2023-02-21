@@ -370,10 +370,10 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 					if err != nil {
 						return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 					}
-				} else {
-					if err := d.rawRead(tt); err != nil {
-						return err
-					}
+				} else if d.disallowUnknownFields {
+					return fmt.Errorf("unknown field %q", tn)
+				} else if err := d.rawRead(tt); err != nil {
+					return err
 				}
 			}
 		case reflect.Map:
