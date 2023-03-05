@@ -54,7 +54,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 		return Error{err}
 	}
 	err = p.c.Conn.WritePacket(pk.Marshal( // PluginMessage packet
-		int32(packetid.ServerboundCustomPayload),
+		packetid.ServerboundCustomPayload,
 		pk.Identifier("minecraft:brand"),
 		pk.String(p.Settings.Brand),
 	))
@@ -63,7 +63,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	}
 
 	err = p.c.Conn.WritePacket(pk.Marshal(
-		int32(packetid.ServerboundClientInformation), // Client settings
+		packetid.ServerboundClientInformation, // Client settings
 		pk.String(p.Settings.Locale),
 		pk.Byte(p.Settings.ViewDistance),
 		pk.VarInt(p.Settings.ChatMode),

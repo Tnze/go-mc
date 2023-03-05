@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -26,7 +27,7 @@ type Auth struct {
 	AsTk string
 }
 
-func handleEncryptionRequest(c *Client, p pk.Packet) error {
+func handleEncryptionRequest(conn *net.Conn, c *Client, p pk.Packet) error {
 	// 创建AES对称加密密钥
 	key, encoStream, decoStream := newSymmetricEncryption()
 
@@ -48,13 +49,13 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 		return fmt.Errorf("gen encryption key response fail: %v", err)
 	}
 
-	err = c.Conn.WritePacket(p)
+	err = conn.WritePacket(p)
 	if err != nil {
 		return err
 	}
 
 	// 设置连接加密
-	c.Conn.SetCipher(encoStream, decoStream)
+	conn.SetCipher(encoStream, decoStream)
 	return nil
 }
 

@@ -51,7 +51,7 @@ func (p *Player) Respawn() error {
 	const PerformRespawn = 0
 
 	err := p.c.Conn.WritePacket(pk.Marshal(
-		int32(packetid.ServerboundClientCommand),
+		packetid.ServerboundClientCommand,
 		pk.VarInt(PerformRespawn),
 	))
 	if err != nil {

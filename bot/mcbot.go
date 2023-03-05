@@ -88,13 +88,13 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	}
 
 	// Dial connection
-	c.Conn, err = options.MCDialer.DialMCContext(options.Context, addr)
+	conn, err := options.MCDialer.DialMCContext(options.Context, addr)
 	if err != nil {
 		return LoginErr{"connect server", err}
 	}
 
 	// Handshake
-	err = c.Conn.WritePacket(pk.Marshal(
+	err = conn.WritePacket(pk.Marshal(
 		Handshake,
 		pk.VarInt(ProtocolVersion), // Protocol version
 		pk.String(host),            // Host
@@ -110,7 +110,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 		Has: err == nil,
 		Val: pk.UUID(c.UUID),
 	}
-	err = c.Conn.WritePacket(pk.Marshal(
+	err = conn.WritePacket(pk.Marshal(
 		packetid.LoginStart,
 		pk.String(c.Auth.Name),
 		PlayerUUID,
@@ -122,7 +122,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	for {
 		// Receive Packet
 		var p pk.Packet
-		if err = c.Conn.ReadPacket(&p); err != nil {
+		if err = conn.ReadPacket(&p); err != nil {
 			return LoginErr{receiving, err}
 		}
 
@@ -137,7 +137,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 			return LoginErr{"disconnect", DisconnectErr(reason)}
 
 		case packetid.LoginEncryptionRequest: // Encryption Request
-			if err := handleEncryptionRequest(c, p); err != nil {
+			if err := handleEncryptionRequest(conn, c, p); err != nil {
 				return LoginErr{"encryption", err}
 			}
 			receiving = "set compression"
@@ -150,6 +150,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 			if err != nil {
 				return LoginErr{"login success", err}
 			}
+			c.Conn = warpConn(conn)
 			return nil
 
 		case packetid.LoginCompression: // Set Compression
@@ -157,7 +158,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 			if err := p.Scan(&threshold); err != nil {
 				return LoginErr{"compression", err}
 			}
-			c.Conn.SetThreshold(int(threshold))
+			conn.SetThreshold(int(threshold))
 			receiving = "login success"
 
 		case packetid.LoginPluginRequest: // Login Plugin Request
@@ -179,7 +180,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 				}
 			}
 
-			if err := c.Conn.WritePacket(pk.Marshal(
+			if err := conn.WritePacket(pk.Marshal(
 				packetid.LoginPluginResponse,
 				msgid, PluginMessageData,
 			)); err != nil {
