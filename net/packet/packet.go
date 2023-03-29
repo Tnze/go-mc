@@ -55,27 +55,44 @@ func (p *Packet) Pack(w io.Writer, threshold int) error {
 func (p *Packet) packWithoutCompression(w io.Writer) error {
 	buffer := bufPool.Get().(*bytes.Buffer)
 	defer bufPool.Put(buffer)
-	buffer.Reset()
-	n, err := VarInt(p.ID).WriteTo(buffer)
-	if err != nil {
-		panic(err)
+
+	if buffer.Len() < 3 {
+		var padding [3]byte
+		buffer.Write(padding[:3-buffer.Len()])
+	} else {
+		buffer.Truncate(3)
 	}
-	// Length
-	_, err = VarInt(int(n) + len(p.Data)).WriteTo(w)
-	if err != nil {
-		return err
+
+	VarInt(p.ID).WriteTo(buffer)
+	buffer.Write(p.Data)
+
+	payloadLen := uint32(buffer.Len() - 3)
+
+	// Determine where to start writing the header based on the payload size
+	var headerStart int
+	if payloadLen <= 0xFF>>1 {
+		headerStart = 2
+	} else if payloadLen <= 0xFFFF>>2 {
+		headerStart = 1
+	} else if payloadLen <= 0xFFFFFF>>3 {
+		headerStart = 0
+	} else {
+		panic(fmt.Errorf("packet length %d is too large", payloadLen))
 	}
-	// Packet ID
-	_, err = buffer.WriteTo(w)
-	if err != nil {
-		return err
+
+	// Write the packet length at the beginning of the packet
+	for i := headerStart; payloadLen != 0; i++ {
+		b := byte(payloadLen & 0b01111111)
+		payloadLen >>= 7
+
+		if payloadLen != 0 {
+			b |= 0b10000000
+		}
+
+		buffer.Bytes()[i] = b
 	}
-	// Data
-	_, err = w.Write(p.Data)
-	if err != nil {
-		return err
-	}
-	return nil
+	_, err := w.Write(buffer.Bytes()[headerStart:])
+	return err
 }
 
 func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
