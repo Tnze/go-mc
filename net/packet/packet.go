@@ -56,6 +56,7 @@ func (p *Packet) packWithoutCompression(w io.Writer) error {
 	buffer := bufPool.Get().(*bytes.Buffer)
 	defer bufPool.Put(buffer)
 
+	// Pre-allocate room at the front of the packet for the length field
 	if buffer.Len() < 3 {
 		var padding [3]byte
 		buffer.Write(padding[:3-buffer.Len()])
