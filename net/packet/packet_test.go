@@ -63,11 +63,7 @@ func TestVarInt_ReadFrom_tooLongData(t *testing.T) {
 func TestVarInt_WriteAlignedAtEnd(t *testing.T) {
 	buf := make([]byte, 5)
 	for _, v := range VarInts {
-		n, err := pk.VarInt(v).WriteAlignedAtEnd(buf)
-		if err != nil {
-			t.Fatalf("Write to bytes.Buffer should never fail: %v", err)
-		}
-
+		n := pk.VarInt(v).WriteAlignedAtEnd(buf)
 		var inVarInt pk.VarInt
 		if _, err := inVarInt.ReadFrom(bytes.NewReader(buf[n:])); err != nil {
 			t.Errorf("unpack %d error: %v", v, err)
@@ -121,11 +117,7 @@ func TestVarLong_ReadFrom(t *testing.T) {
 func TestVarLong_WriteAlignedAtEnd(t *testing.T) {
 	buf := make([]byte, 10)
 	for _, v := range VarLongs {
-		n, err := pk.VarLong(v).WriteAlignedAtEnd(buf)
-		if err != nil {
-			t.Fatalf("Write to bytes.Buffer should never fail: %v", err)
-		}
-
+		n := pk.VarLong(v).WriteAlignedAtEnd(buf)
 		var inVarLong pk.VarLong
 		if _, err := inVarLong.ReadFrom(bytes.NewReader(buf[n:])); err != nil {
 			t.Errorf("unpack %d error: %v", v, err)

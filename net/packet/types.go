@@ -292,7 +292,7 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 
 // Writes a VarInt so it is aligned to the end of a buffer. Returns the index
 // of the first byte of the varint.
-func (v VarInt) WriteAlignedAtEnd(buf []byte) (int, error) {
+func (v VarInt) WriteAlignedAtEnd(buf []byte) int {
 	num := uint32(v)
 	var start int
 	if num <= 0xFF>>1 {
@@ -320,7 +320,7 @@ func (v VarInt) WriteAlignedAtEnd(buf []byte) (int, error) {
 		}
 		i++
 	}
-	return start, nil
+	return start
 }
 
 func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
@@ -363,7 +363,7 @@ func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 
 // Writes a VarLong so it is aligned to the end of a buffer. Returns the index
 // of the first byte of the varlong.
-func (v VarLong) WriteAlignedAtEnd(buf []byte) (int, error) {
+func (v VarLong) WriteAlignedAtEnd(buf []byte) int {
 	num := uint64(v)
 	var start int
 	if num <= 0xFF>>1 {
@@ -401,7 +401,7 @@ func (v VarLong) WriteAlignedAtEnd(buf []byte) (int, error) {
 		}
 		i++
 	}
-	return start, nil
+	return start
 }
 
 func (p Position) WriteTo(w io.Writer) (n int64, err error) {
