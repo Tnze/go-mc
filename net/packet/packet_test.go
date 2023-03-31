@@ -72,7 +72,7 @@ func FuzzVarInt_Len(f *testing.F) {
 			t.Fatal(err)
 		}
 		if a, b := buf.Len(), pk.VarInt(v).Len(); a != b {
-			t.Errorf("%#v Length calculation error: calculated to be %d, actually %d", pk.VarInt(v), b, a)
+			t.Errorf("VarInt(%d) Length calculation error: calculated to be %d, actually %d", v, b, a)
 		}
 	})
 }
@@ -129,7 +129,7 @@ func FuzzVarLong_Len(f *testing.F) {
 			t.Fatal(err)
 		}
 		if a, b := buf.Len(), pk.VarLong(v).Len(); a != b {
-			t.Errorf("%#v Length calculation error: calculated to be %d, actually %d", pk.VarLong(v), b, a)
+			t.Errorf("VarLong(%d) Length calculation error: calculated to be %d, actually %d", v, b, a)
 		}
 	})
 }
