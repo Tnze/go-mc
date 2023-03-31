@@ -65,7 +65,7 @@ func (p *Packet) packWithoutCompression(w io.Writer) error {
 
 	// Write length at front
 	payloadLen := uint32(buffer.Len() - 3)
-	start, err := writeVarIntFromEnd(payloadLen, buffer.Bytes()[:3])
+	start, err := VarInt(payloadLen).WriteAlignedAtEnd(buffer.Bytes()[:3])
 	if err != nil {
 		return err
 	}
@@ -101,7 +101,7 @@ func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 
 		// Write 'data length' before ID + payload
 		uncompressedLen := uint32(varIntLen) + uint32(len(p.Data))
-		writeStart, err = writeVarIntFromEnd(uncompressedLen, buff.Bytes()[:6])
+		writeStart, err = VarInt(uncompressedLen).WriteAlignedAtEnd(buff.Bytes()[:6])
 		if err != nil {
 			return err
 		}
@@ -109,43 +109,13 @@ func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 
 	// Write 'packet length' before all other fields
 	packetLen := uint32(buff.Len() - writeStart)
-	start, err := writeVarIntFromEnd(packetLen, buff.Bytes()[:writeStart])
+	start, err := VarInt(packetLen).WriteAlignedAtEnd(buff.Bytes()[:writeStart])
 	if err != nil {
 		return err
 	}
 
 	_, err = w.Write(buff.Bytes()[start:])
 	return err
-}
-
-// Used by Pack() to write a VarInt from the end of a buffer towards the front.
-// Only varints representable with 3 bytes are supported. For this reason,
-// len(buf) is expected to be >= 3.
-// Returns the index of the first byte of the varint.
-func writeVarIntFromEnd(val uint32, buf []byte) (int, error) {
-	var start int
-	if val <= 0xFF>>1 {
-		start = len(buf) - 1
-	} else if val <= 0xFFFF>>2 {
-		start = len(buf) - 2
-	} else if val <= 0xFFFFFF>>3 {
-		start = len(buf) - 3
-	} else {
-		return 0, fmt.Errorf("varint %d too large", val)
-	}
-
-	for i := start; val != 0; i++ {
-		b := byte(val & 0b01111111)
-		val >>= 7
-
-		if val != 0 {
-			b |= 0b10000000
-		}
-
-		buf[i] = b
-	}
-
-	return start, nil
 }
 
 // UnPack in-place decompression a packet
