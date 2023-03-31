@@ -64,10 +64,11 @@ func (p *Packet) packWithoutCompression(w io.Writer) error {
 	buffer.Write(p.Data)
 
 	// Write length at front
-	payloadLen := uint32(buffer.Len() - 3)
-	start := VarInt(payloadLen).WriteAlignedAtEnd(buffer.Bytes()[:3])
+	payloadLen := VarInt(buffer.Len() - 3)
+	varIntOffset := 3 - payloadLen.Len()
+	payloadLen.WriteToBytes(buffer.Bytes()[varIntOffset:])
 
-	_, err := w.Write(buffer.Bytes()[start:])
+	_, err := w.Write(buffer.Bytes()[varIntOffset:])
 	return err
 }
 
@@ -97,13 +98,15 @@ func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 		}
 
 		// Write 'data length' before ID + payload
-		uncompressedLen := uint32(varIntLen) + uint32(len(p.Data))
-		writeStart = VarInt(uncompressedLen).WriteAlignedAtEnd(buff.Bytes()[:6])
+		uncompressedLen := VarInt(varIntLen + int64(len(p.Data)))
+		writeStart = 6 - uncompressedLen.Len()
+		uncompressedLen.WriteToBytes(buff.Bytes()[writeStart:])
 	}
 
 	// Write 'packet length' before all other fields
-	packetLen := uint32(buff.Len() - writeStart)
-	start := VarInt(packetLen).WriteAlignedAtEnd(buff.Bytes()[:writeStart])
+	packetLen := VarInt(buff.Len() - writeStart)
+	start := writeStart - packetLen.Len()
+	VarInt(packetLen).WriteToBytes(buff.Bytes()[start:])
 
 	_, err := w.Write(buff.Bytes()[start:])
 	return err

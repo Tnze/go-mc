@@ -252,21 +252,28 @@ func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
-	vi := make([]byte, 0, MaxVarIntLen)
+	vi := make([]byte, MaxVarIntLen)
+	nn := v.WriteToBytes(vi)
+	_, err = w.Write(vi[:nn])
+	return int64(nn), err
+}
+
+func (v VarInt) WriteToBytes(buf []byte) int {
 	num := uint32(v)
+	i := 0
 	for {
 		b := num & 0x7F
 		num >>= 7
 		if num != 0 {
 			b |= 0x80
 		}
-		vi = append(vi, byte(b))
+		buf[i] = byte(b)
+		i++
 		if num == 0 {
 			break
 		}
 	}
-	nn, err := w.Write(vi)
-	return int64(nn), err
+	return i
 }
 
 func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
@@ -290,24 +297,31 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-// Writes a VarInt so it is aligned to the end of a buffer. Returns the index
-// of the first byte of the varint.
-func (v VarInt) WriteAlignedAtEnd(buf []byte) int {
+func (v VarInt) Len() int {
 	num := uint32(v)
-	var start int
 	if num <= 0xFF>>1 {
-		start = len(buf) - 1
+		return 1
 	} else if num <= 0xFFFF>>2 {
-		start = len(buf) - 2
+		return 2
 	} else if num <= 0xFFFFFF>>3 {
-		start = len(buf) - 3
+		return 3
 	} else if num <= 0xFFFFFFFF>>4 {
-		start = len(buf) - 4
+		return 4
 	} else {
-		start = len(buf) - 5
+		return 5
 	}
+}
 
-	i := start
+func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
+	vi := make([]byte, MaxVarLongLen)
+	nn := v.WriteToBytes(vi)
+	_, err = w.Write(vi[:nn])
+	return int64(nn), err
+}
+
+func (v VarLong) WriteToBytes(buf []byte) int {
+	num := uint64(v)
+	i := 0
 	for {
 		b := num & 0x7F
 		num >>= 7
@@ -315,30 +329,12 @@ func (v VarInt) WriteAlignedAtEnd(buf []byte) int {
 			b |= 0x80
 		}
 		buf[i] = byte(b)
-		if num == 0 {
-			break
-		}
 		i++
-	}
-	return start
-}
-
-func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
-	vi := make([]byte, 0, MaxVarLongLen)
-	num := uint64(v)
-	for {
-		b := num & 0x7F
-		num >>= 7
-		if num != 0 {
-			b |= 0x80
-		}
-		vi = append(vi, byte(b))
 		if num == 0 {
 			break
 		}
 	}
-	nn, err := w.Write(vi)
-	return int64(nn), err
+	return i
 }
 
 func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
@@ -361,47 +357,29 @@ func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-// Writes a VarLong so it is aligned to the end of a buffer. Returns the index
-// of the first byte of the varlong.
-func (v VarLong) WriteAlignedAtEnd(buf []byte) int {
+func (v VarLong) Len() int {
 	num := uint64(v)
-	var start int
 	if num <= 0xFF>>1 {
-		start = len(buf) - 1
+		return 1
 	} else if num <= 0xFFFF>>2 {
-		start = len(buf) - 2
+		return 2
 	} else if num <= 0xFFFFFF>>3 {
-		start = len(buf) - 3
+		return 3
 	} else if num <= 0xFFFFFFFF>>4 {
-		start = len(buf) - 4
+		return 4
 	} else if num <= 0xFFFFFFFFFF>>5 {
-		start = len(buf) - 5
+		return 5
 	} else if num <= 0xFFFFFFFFFFFF>>6 {
-		start = len(buf) - 6
+		return 6
 	} else if num <= 0xFFFFFFFFFFFFFF>>7 {
-		start = len(buf) - 7
+		return 7
 	} else if num <= 0xFFFFFFFFFFFFFFFF>>8 {
-		start = len(buf) - 8
+		return 8
 	} else if num <= 0xFFFFFFFFFFFFFFFFFF>>9 {
-		start = len(buf) - 9
+		return 9
 	} else {
-		start = len(buf) - 10
+		return 10
 	}
-
-	i := start
-	for {
-		b := num & 0x7F
-		num >>= 7
-		if num != 0 {
-			b |= 0x80
-		}
-		buf[i] = byte(b)
-		if num == 0 {
-			break
-		}
-		i++
-	}
-	return start
 }
 
 func (p Position) WriteTo(w io.Writer) (n int64, err error) {
