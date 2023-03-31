@@ -60,6 +60,23 @@ func TestVarInt_ReadFrom_tooLongData(t *testing.T) {
 	}
 }
 
+func TestVarInt_WriteAlignedAtEnd(t *testing.T) {
+	buf := make([]byte, 5)
+	for _, v := range VarInts {
+		n, err := pk.VarInt(v).WriteAlignedAtEnd(buf)
+		if err != nil {
+			t.Fatalf("Write to bytes.Buffer should never fail: %v", err)
+		}
+
+		var inVarInt pk.VarInt
+		if _, err := inVarInt.ReadFrom(bytes.NewReader(buf[n:])); err != nil {
+			t.Errorf("unpack %d error: %v", v, err)
+		} else if inVarInt != v {
+			t.Errorf("unpack should be %d, get %d", v, inVarInt)
+		}
+	}
+}
+
 var VarLongs = []pk.VarLong{0, 1, 2, 127, 128, 255, 2147483647, 9223372036854775807, -1, -2147483648, -9223372036854775808}
 
 var PackedVarLongs = [][]byte{
@@ -97,6 +114,23 @@ func TestVarLong_ReadFrom(t *testing.T) {
 		}
 		if vi != VarLongs[i] {
 			t.Errorf("unpack \"% x\" should be %d, get %d", v, VarLongs[i], vi)
+		}
+	}
+}
+
+func TestVarLong_WriteAlignedAtEnd(t *testing.T) {
+	buf := make([]byte, 10)
+	for _, v := range VarLongs {
+		n, err := pk.VarLong(v).WriteAlignedAtEnd(buf)
+		if err != nil {
+			t.Fatalf("Write to bytes.Buffer should never fail: %v", err)
+		}
+
+		var inVarLong pk.VarLong
+		if _, err := inVarLong.ReadFrom(bytes.NewReader(buf[n:])); err != nil {
+			t.Errorf("unpack %d error: %v", v, err)
+		} else if inVarLong != v {
+			t.Errorf("unpack should be %d, get %d", v, inVarLong)
 		}
 	}
 }
