@@ -290,6 +290,23 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
+func (v VarInt) Len() int {
+	switch {
+	case v < 0:
+		return MaxVarIntLen
+	case v < 1<<(7*1):
+		return 1
+	case v < 1<<(7*2):
+		return 2
+	case v < 1<<(7*3):
+		return 3
+	case v < 1<<(7*4):
+		return 4
+	default:
+		return 5
+	}
+}
+
 func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
 	vi := make([]byte, 0, MaxVarLongLen)
 	num := uint64(v)
@@ -326,6 +343,31 @@ func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 
 	*v = VarLong(V)
 	return
+}
+
+func (v VarLong) Len() int {
+	switch {
+	case v < 0:
+		return MaxVarLongLen
+	case v < 1<<(7*1):
+		return 1
+	case v < 1<<(7*2):
+		return 2
+	case v < 1<<(7*3):
+		return 3
+	case v < 1<<(7*4):
+		return 4
+	case v < 1<<(7*5):
+		return 5
+	case v < 1<<(7*6):
+		return 6
+	case v < 1<<(7*7):
+		return 7
+	case v < 1<<(7*8):
+		return 8
+	default:
+		return 9
+	}
 }
 
 func (p Position) WriteTo(w io.Writer) (n int64, err error) {
