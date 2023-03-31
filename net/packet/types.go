@@ -298,16 +298,18 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (v VarInt) Len() int {
-	num := uint32(v)
-	if num <= 0xFF>>1 {
+	switch {
+	case v < 0:
+		return MaxVarIntLen
+	case v < 1<<(7*1):
 		return 1
-	} else if num <= 0xFFFF>>2 {
+	case v < 1<<(7*2):
 		return 2
-	} else if num <= 0xFFFFFF>>3 {
+	case v < 1<<(7*3):
 		return 3
-	} else if num <= 0xFFFFFFFF>>4 {
+	case v < 1<<(7*4):
 		return 4
-	} else {
+	default:
 		return 5
 	}
 }
@@ -358,27 +360,27 @@ func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (v VarLong) Len() int {
-	num := uint64(v)
-	if num <= 0xFF>>1 {
+	switch {
+	case v < 0:
+		return MaxVarLongLen
+	case v < 1<<(7*1):
 		return 1
-	} else if num <= 0xFFFF>>2 {
+	case v < 1<<(7*2):
 		return 2
-	} else if num <= 0xFFFFFF>>3 {
+	case v < 1<<(7*3):
 		return 3
-	} else if num <= 0xFFFFFFFF>>4 {
+	case v < 1<<(7*4):
 		return 4
-	} else if num <= 0xFFFFFFFFFF>>5 {
+	case v < 1<<(7*5):
 		return 5
-	} else if num <= 0xFFFFFFFFFFFF>>6 {
+	case v < 1<<(7*6):
 		return 6
-	} else if num <= 0xFFFFFFFFFFFFFF>>7 {
+	case v < 1<<(7*7):
 		return 7
-	} else if num <= 0xFFFFFFFFFFFFFFFF>>8 {
+	case v < 1<<(7*8):
 		return 8
-	} else if num <= 0xFFFFFFFFFFFFFFFFFF>>9 {
+	default:
 		return 9
-	} else {
-		return 10
 	}
 }
 

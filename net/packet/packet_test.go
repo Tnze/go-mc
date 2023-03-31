@@ -4,6 +4,7 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"io"
 	"testing"
 
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -60,14 +61,20 @@ func TestVarInt_ReadFrom_tooLongData(t *testing.T) {
 	}
 }
 
-func TestVarInt_Len(t *testing.T) {
-	for i, v := range VarInts {
-		expected := len(PackedVarInts[i])
-		actual := pk.VarInt(v).Len()
-		if expected != actual {
-			t.Errorf("varint %d should be %d bytes long, got %v", v, expected, actual)
-		}
+func FuzzVarInt_Len(f *testing.F) {
+	for _, v := range VarInts {
+		f.Add(int32(v))
 	}
+	var buf bytes.Buffer
+	f.Fuzz(func(t *testing.T, v int32) {
+		defer buf.Reset()
+		if _, err := pk.VarInt(v).WriteTo(&buf); err != nil {
+			t.Fatal(err)
+		}
+		if a, b := buf.Len(), pk.VarInt(v).Len(); a != b {
+			t.Errorf("VarInt(%d) Length calculation error: calculated to be %d, actually %d", v, b, a)
+		}
+	})
 }
 
 var VarLongs = []pk.VarLong{0, 1, 2, 127, 128, 255, 2147483647, 9223372036854775807, -1, -2147483648, -9223372036854775808}
@@ -111,14 +118,20 @@ func TestVarLong_ReadFrom(t *testing.T) {
 	}
 }
 
-func TestVarLong_Len(t *testing.T) {
-	for i, v := range VarLongs {
-		expected := len(PackedVarLongs[i])
-		actual := pk.VarLong(v).Len()
-		if expected != actual {
-			t.Errorf("varlong %d should be %d bytes long, got %v", v, expected, actual)
-		}
+func FuzzVarLong_Len(f *testing.F) {
+	for _, v := range VarLongs {
+		f.Add(int64(v))
 	}
+	var buf bytes.Buffer
+	f.Fuzz(func(t *testing.T, v int64) {
+		defer buf.Reset()
+		if _, err := pk.VarLong(v).WriteTo(&buf); err != nil {
+			t.Fatal(err)
+		}
+		if a, b := buf.Len(), pk.VarLong(v).Len(); a != b {
+			t.Errorf("VarLong(%d) Length calculation error: calculated to be %d, actually %d", v, b, a)
+		}
+	})
 }
 
 //go:embed joingame_test.bin
@@ -190,4 +203,14 @@ func ExampleMarshal_setSlot() {
 	// 15 00 00 05 00
 	// 15 00 00 05 01 01 01 00
 	// 15 00 00 05 01 01 01 03 00 00 12 34 56 78
+}
+
+func BenchmarkPacket_Pack(b *testing.B) {
+	p := pk.Packet{ID: 0, Data: make([]byte, 64)}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := p.Pack(io.Discard, -1); err != nil {
+			b.Fatal(err)
+		}
+	}
 }
