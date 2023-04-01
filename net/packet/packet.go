@@ -63,103 +63,53 @@ func (p *Packet) packWithoutCompression(w io.Writer) error {
 	VarInt(p.ID).WriteTo(buffer)
 	buffer.Write(p.Data)
 
-	payloadLen := uint32(buffer.Len() - 3)
+	// Write length at front
+	payloadLen := VarInt(buffer.Len() - 3)
+	varIntOffset := 3 - payloadLen.Len()
+	payloadLen.WriteToBytes(buffer.Bytes()[varIntOffset:])
 
-	// Determine where to start writing the header based on the payload size
-	var headerStart int
-	if payloadLen <= 0xFF>>1 {
-		headerStart = 2
-	} else if payloadLen <= 0xFFFF>>2 {
-		headerStart = 1
-	} else if payloadLen <= 0xFFFFFF>>3 {
-		headerStart = 0
-	} else {
-		panic(fmt.Errorf("packet length %d is too large", payloadLen))
-	}
-
-	// Write the packet length at the beginning of the packet
-	for i := headerStart; payloadLen != 0; i++ {
-		b := byte(payloadLen & 0b01111111)
-		payloadLen >>= 7
-
-		if payloadLen != 0 {
-			b |= 0b10000000
-		}
-
-		buffer.Bytes()[i] = b
-	}
-	_, err := w.Write(buffer.Bytes()[headerStart:])
+	_, err := w.Write(buffer.Bytes()[varIntOffset:])
 	return err
 }
 
 func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 	buff := bufPool.Get().(*bytes.Buffer)
 	defer bufPool.Put(buff)
+	// Allocate room for the 'packet length' and 'data length' fields. Each can take up to 3 bytes
 	buff.Reset()
+	buff.Write([]byte{0, 0, 0, 0, 0, 0})
+
+	var writeStart int
 
 	if len(p.Data) < threshold {
-		_, err := VarInt(0).WriteTo(buff)
-		if err != nil {
-			return err
-		}
-		_, err = VarInt(p.ID).WriteTo(buff)
-		if err != nil {
-			return err
-		}
-		_, err = buff.Write(p.Data)
-		if err != nil {
-			return err
-		}
-		// Packet Length
-		_, err = VarInt(buff.Len()).WriteTo(w)
-		if err != nil {
-			return err
-		}
-		// Data Length + Packet ID + Data
-		_, err = buff.WriteTo(w)
-		if err != nil {
-			return err
-		}
+		VarInt(p.ID).WriteTo(buff)
+		buff.Write(p.Data)
+		// Packet is below compression threshold so 'data length' is 0
+		// Front of the packet is already initialized to 0, so just decrement the offset
+		writeStart = 5
 	} else {
 		zw := zlib.NewWriter(buff)
-		n1, err := VarInt(p.ID).WriteTo(zw)
-		if err != nil {
-			return err
-		}
-		n2, err := zw.Write(p.Data)
-		if err != nil {
-			return err
-		}
-		err = zw.Close()
+		varIntLen, _ := VarInt(p.ID).WriteTo(zw)
+		zw.Write(p.Data)
+
+		err := zw.Close()
 		if err != nil {
 			return err
 		}
 
-		dataLength := bufPool.Get().(*bytes.Buffer)
-		defer bufPool.Put(dataLength)
-		dataLength.Reset()
-		n3, err := VarInt(int(n1) + n2).WriteTo(dataLength)
-		if err != nil {
-			return err
-		}
-
-		// Packet Length
-		_, err = VarInt(int(n3) + buff.Len()).WriteTo(w)
-		if err != nil {
-			return err
-		}
-		// Data Length
-		_, err = dataLength.WriteTo(w)
-		if err != nil {
-			return err
-		}
-		// PacketID + Data
-		_, err = buff.WriteTo(w)
-		if err != nil {
-			return err
-		}
+		// Write 'data length' before ID + payload
+		uncompressedLen := VarInt(varIntLen + int64(len(p.Data)))
+		writeStart = 6 - uncompressedLen.Len()
+		uncompressedLen.WriteToBytes(buff.Bytes()[writeStart:])
 	}
-	return nil
+
+	// Write 'packet length' before all other fields
+	packetLen := VarInt(buff.Len() - writeStart)
+	start := writeStart - packetLen.Len()
+	VarInt(packetLen).WriteToBytes(buff.Bytes()[start:])
+
+	_, err := w.Write(buff.Bytes()[start:])
+	return err
 }
 
 // UnPack in-place decompression a packet

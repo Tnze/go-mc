@@ -252,21 +252,28 @@ func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
-	vi := make([]byte, 0, MaxVarIntLen)
+	vi := make([]byte, MaxVarIntLen)
+	nn := v.WriteToBytes(vi)
+	_, err = w.Write(vi[:nn])
+	return int64(nn), err
+}
+
+func (v VarInt) WriteToBytes(buf []byte) int {
 	num := uint32(v)
+	i := 0
 	for {
 		b := num & 0x7F
 		num >>= 7
 		if num != 0 {
 			b |= 0x80
 		}
-		vi = append(vi, byte(b))
+		buf[i] = byte(b)
+		i++
 		if num == 0 {
 			break
 		}
 	}
-	nn, err := w.Write(vi)
-	return int64(nn), err
+	return i
 }
 
 func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
@@ -308,21 +315,28 @@ func (v VarInt) Len() int {
 }
 
 func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
-	vi := make([]byte, 0, MaxVarLongLen)
+	vi := make([]byte, MaxVarLongLen)
+	nn := v.WriteToBytes(vi)
+	_, err = w.Write(vi[:nn])
+	return int64(nn), err
+}
+
+func (v VarLong) WriteToBytes(buf []byte) int {
 	num := uint64(v)
+	i := 0
 	for {
 		b := num & 0x7F
 		num >>= 7
 		if num != 0 {
 			b |= 0x80
 		}
-		vi = append(vi, byte(b))
+		buf[i] = byte(b)
+		i++
 		if num == 0 {
 			break
 		}
 	}
-	nn, err := w.Write(vi)
-	return int64(nn), err
+	return i
 }
 
 func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
