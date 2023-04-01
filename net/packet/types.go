@@ -252,12 +252,14 @@ func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
-	vi := make([]byte, MaxVarIntLen)
-	nn := v.WriteToBytes(vi)
-	_, err = w.Write(vi[:nn])
+	var vi [MaxVarIntLen]byte
+	nn := v.WriteToBytes(vi[:])
+	nn, err = w.Write(vi[:nn])
 	return int64(nn), err
 }
 
+// WriteToBytes encodes the VarInt into buf and returns the number of bytes written.
+// If the buffer is too small, WriteToBytes will panic.
 func (v VarInt) WriteToBytes(buf []byte) int {
 	num := uint32(v)
 	i := 0
@@ -297,6 +299,7 @@ func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
+// Len returns the number of bytes required to encode the VarInt.
 func (v VarInt) Len() int {
 	switch {
 	case v < 0:
@@ -315,12 +318,14 @@ func (v VarInt) Len() int {
 }
 
 func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
-	vi := make([]byte, MaxVarLongLen)
-	nn := v.WriteToBytes(vi)
-	_, err = w.Write(vi[:nn])
+	var vi [MaxVarLongLen]byte
+	nn := v.WriteToBytes(vi[:])
+	nn, err = w.Write(vi[:nn])
 	return int64(nn), err
 }
 
+// WriteToBytes encodes the VarLong into buf and returns the number of bytes written.
+// If the buffer is too small, WriteToBytes will panic.
 func (v VarLong) WriteToBytes(buf []byte) int {
 	num := uint64(v)
 	i := 0
@@ -359,6 +364,7 @@ func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
+// Len returns the number of bytes required to encode the VarLong.
 func (v VarLong) Len() int {
 	switch {
 	case v < 0:
