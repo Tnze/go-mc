@@ -106,11 +106,7 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 			case reflect.Uint8:
 				data = val.Bytes()
 			case reflect.Int8:
-				data = *(*[]byte)((unsafe.Pointer)(&reflect.SliceHeader{
-					Data: val.Pointer(),
-					Len:  val.Len(),
-					Cap:  val.Cap(),
-				}))
+				data = unsafe.Slice((*byte)(val.UnsafePointer()), val.Len())
 			}
 			_, err := e.w.Write(data)
 			return err
