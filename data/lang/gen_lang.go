@@ -60,9 +60,9 @@ func main() {
 
 	var list struct {
 		Objects map[string]struct {
-			Hash string
-			Size int64
-		}
+			Hash string `json:"hash"`
+			Size int64  `json:"size"`
+		} `json:"objects"`
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&list)
@@ -94,7 +94,8 @@ func main() {
 
 func lang(name, hash string) {
 	// download language
-	LangURL := "http://resources.download.minecraft.net/" + hash[:2] + "/" + hash
+	LangURL := "https://resources.download.minecraft.net/" + hash[:2] + "/" + hash
+	fmt.Println(name, ":", LangURL)
 	resp, err := http.Get(LangURL)
 	if err != nil {
 		panic(err)
@@ -164,7 +165,7 @@ func trans(m map[string]string) {
 
 func assetIndexURL() (string, error) {
 	// Pseudo code for get versionURL:
-	// $manifest = {https://launchermeta.mojang.com/mc/game/version_manifest.json}
+	// $manifest = {https://piston-meta.mojang.com/mc/game/version_manifest_v2.json}
 	// $latest = $manifest.latest.release
 	// $versionURL = {$manifest.versions[where .id == $latest ].url}
 	// $assetIndexURL = $version.assetIndex.url
@@ -178,7 +179,7 @@ func assetIndexURL() (string, error) {
 		} `json:"versions"`
 	}
 
-	manifestRes, err := http.Get("https://launchermeta.mojang.com/mc/game/version_manifest.json")
+	manifestRes, err := http.Get("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json")
 	if err != nil {
 		return "", fmt.Errorf("could not reach version manifest: %w", err)
 	}
@@ -190,7 +191,7 @@ func assetIndexURL() (string, error) {
 
 	var versionURL string
 	for _, v := range manifest.Versions {
-		if strings.EqualFold(manifest.Latest.Release, v.ID) {
+		if manifest.Latest.Release == v.ID {
 			versionURL = v.URL
 			break
 		}
