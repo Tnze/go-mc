@@ -6,6 +6,7 @@ import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -18,6 +19,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
@@ -94,15 +96,15 @@ public class GenBlocks {
 
     private static ListTag genBlockEntities() {
         ListTag list = new ListTag();
-        for (BlockEntityType blockEntity : BuiltInRegistries.BLOCK_ENTITY_TYPE) {
+        for (BlockEntityType<?> blockEntity : BuiltInRegistries.BLOCK_ENTITY_TYPE) {
+            ResourceLocation value = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity);
             ListTag validBlocksList = new ListTag();
-            Set<Block> validBlocks = blockEntity.validBlocks;
-            for (Block validBlock : validBlocks){
+            for (Block validBlock : blockEntity.validBlocks){
                 validBlocksList.add(StringTag.valueOf(BuiltInRegistries.BLOCK.getKey(validBlock).toString()));
             }
             CompoundTag be = new CompoundTag();
-            be.putString("Name", BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity).toString());
-            be.putString("ValidBlocks", BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity).toString());
+            be.putString("Name", Objects.requireNonNull(value).toString());
+            be.put("ValidBlocks", validBlocksList);
 
             list.add(be);
         }

@@ -37,7 +37,8 @@ const (
 
 // Game Clientbound
 const (
-	ClientboundAddEntity ClientboundPacketID = iota
+	BundleDelimiter ClientboundPacketID = iota
+	ClientboundAddEntity
 	ClientboundAddExperienceOrb
 	ClientboundAddPlayer
 	ClientboundAnimate
@@ -49,6 +50,7 @@ const (
 	ClientboundBlockUpdate
 	ClientboundBossEvent
 	ClientboundChangeDifficulty
+	ClientboundChunksBiomes
 	ClientboundClearTitles
 	ClientboundCommandSuggestions
 	ClientboundCommands
@@ -59,6 +61,7 @@ const (
 	ClientboundCooldown
 	ClientboundCustomChatCompletions
 	ClientboundCustomPayload
+	ClientboundDamageEvent
 	ClientboundDeleteChat
 	ClientboundDisconnect
 	ClientboundDisguisedChat
@@ -67,6 +70,7 @@ const (
 	ClientboundForgetLevelChunk
 	ClientboundGameEvent
 	ClientboundHorseScreenOpen
+	ClientboundHurtAnimation
 	ClientboundInitializeBorder
 	ClientboundKeepAlive
 	ClientboundLevelChunkWithLight
@@ -144,7 +148,6 @@ const (
 	ClientboundUpdateMobEffect
 	ClientboundUpdateRecipes
 	ClientboundUpdateTags
-	ClientboundPacketIDGuard
 )
 
 // Game Serverbound
@@ -155,6 +158,7 @@ const (
 	ServerboundChatAck
 	ServerboundChatCommand
 	ServerboundChat
+	ServerboundChatSessionUpdate
 	ServerboundClientCommand
 	ServerboundClientInformation
 	ServerboundCommandSuggestion
@@ -181,7 +185,6 @@ const (
 	ServerboundPlayerCommand
 	ServerboundPlayerInput
 	ServerboundPong
-	ServerboundChatSessionUpdate
 	ServerboundRecipeBookChangeSettings
 	ServerboundRecipeBookSeenRecipe
 	ServerboundRenameItem
@@ -200,5 +203,4 @@ const (
 	ServerboundTeleportToEntity
 	ServerboundUseItemOn
 	ServerboundUseItem
-	ServerboundPacketIDGuard
 )

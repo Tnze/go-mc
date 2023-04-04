@@ -41,6 +41,8 @@ var EntityList = [...]Entity{
 	SculkCatalystEntity{},
 	SculkShriekerEntity{},
 	ChiseledBookshelfEntity{},
+	SuspiciousSandEntity{},
+	DecoratedPotEntity{},
 }
 
 func (FurnaceEntity) ID() string           { return "minecraft:furnace" }
@@ -81,6 +83,8 @@ func (SculkSensorEntity) ID() string       { return "minecraft:sculk_sensor" }
 func (SculkCatalystEntity) ID() string     { return "minecraft:sculk_catalyst" }
 func (SculkShriekerEntity) ID() string     { return "minecraft:sculk_shrieker" }
 func (ChiseledBookshelfEntity) ID() string { return "minecraft:chiseled_bookshelf" }
+func (SuspiciousSandEntity) ID() string    { return "minecraft:suspicious_sand" }
+func (DecoratedPotEntity) ID() string      { return "minecraft:decorated_pot" }
 
 func (f FurnaceEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:furnace"
@@ -116,12 +120,14 @@ func (s SignEntity) IsValidBlock(block Block) bool {
 		"minecraft:spruce_sign",
 		"minecraft:birch_sign",
 		"minecraft:acacia_sign",
+		"minecraft:cherry_sign",
 		"minecraft:jungle_sign",
 		"minecraft:dark_oak_sign",
 		"minecraft:oak_wall_sign",
 		"minecraft:spruce_wall_sign",
 		"minecraft:birch_wall_sign",
 		"minecraft:acacia_wall_sign",
+		"minecraft:cherry_wall_sign",
 		"minecraft:jungle_wall_sign",
 		"minecraft:dark_oak_wall_sign",
 		"minecraft:crimson_sign",
@@ -144,6 +150,7 @@ func (h HangingSignEntity) IsValidBlock(block Block) bool {
 		"minecraft:spruce_hanging_sign",
 		"minecraft:birch_hanging_sign",
 		"minecraft:acacia_hanging_sign",
+		"minecraft:cherry_hanging_sign",
 		"minecraft:jungle_hanging_sign",
 		"minecraft:dark_oak_hanging_sign",
 		"minecraft:crimson_hanging_sign",
@@ -154,6 +161,7 @@ func (h HangingSignEntity) IsValidBlock(block Block) bool {
 		"minecraft:spruce_wall_hanging_sign",
 		"minecraft:birch_wall_hanging_sign",
 		"minecraft:acacia_wall_hanging_sign",
+		"minecraft:cherry_wall_hanging_sign",
 		"minecraft:jungle_wall_hanging_sign",
 		"minecraft:dark_oak_wall_hanging_sign",
 		"minecraft:crimson_wall_hanging_sign",
@@ -394,4 +402,12 @@ func (s SculkShriekerEntity) IsValidBlock(block Block) bool {
 
 func (c ChiseledBookshelfEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:chiseled_bookshelf"
+}
+
+func (s SuspiciousSandEntity) IsValidBlock(block Block) bool {
+	return block.ID() == "minecraft:suspicious_sand"
+}
+
+func (d DecoratedPotEntity) IsValidBlock(block Block) bool {
+	return block.ID() == "minecraft:decorated_pot"
 }
