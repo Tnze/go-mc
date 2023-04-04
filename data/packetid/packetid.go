@@ -148,6 +148,7 @@ const (
 	ClientboundUpdateMobEffect
 	ClientboundUpdateRecipes
 	ClientboundUpdateTags
+	ClientboundPacketIDGuard
 )
 
 // Game Serverbound
@@ -203,4 +204,5 @@ const (
 	ServerboundTeleportToEntity
 	ServerboundUseItemOn
 	ServerboundUseItem
+	ServerboundPacketIDGuard
 )
