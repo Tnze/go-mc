@@ -1,7 +1,6 @@
 package packet
 
 import (
-	"bytes"
 	"errors"
 	"io"
 	"math"
@@ -480,23 +479,49 @@ type nbtField struct {
 }
 
 func (n nbtField) WriteTo(w io.Writer) (int64, error) {
-	var buf bytes.Buffer
 	if n.V == nil {
-		buf.WriteByte(nbt.TagEnd)
-	} else if err := nbt.NewEncoder(&buf).Encode(n.V, n.FieldName); err != nil {
-		return 0, err
+		n, err := w.Write([]byte{nbt.TagEnd})
+		return int64(n), err
 	}
-	return buf.WriteTo(w)
+	// nbt Encode method does not count written bytes,
+	// so we warp the writer to count it.
+	cw := countingWriter{w: w}
+	err := nbt.NewEncoder(&cw).Encode(n.V, n.FieldName)
+	return cw.n, err
 }
 
 func (n nbtField) ReadFrom(r io.Reader) (int64, error) {
 	// LimitReader is used to count reader length
-	lr := &io.LimitedReader{R: r, N: math.MaxInt64}
-	_, err := nbt.NewDecoder(lr).Decode(n.V)
+	cr := countingReader{r: r}
+	_, err := nbt.NewDecoder(&cr).Decode(n.V)
 	if err != nil && errors.Is(err, nbt.ErrEND) {
 		err = nil
 	}
-	return math.MaxInt64 - lr.N, err
+	return cr.n, err
+}
+
+// countingWriter is a wrapper of io.Writer to externally count written bytes
+type countingWriter struct {
+	n int64
+	w io.Writer
+}
+
+func (c *countingWriter) Write(p []byte) (n int, err error) {
+	n, err = c.w.Write(p)
+	c.n += int64(n)
+	return
+}
+
+// countingReader is a wrapper of io.Reader to externally count read bytes
+type countingReader struct {
+	n int64
+	r io.Reader
+}
+
+func (c *countingReader) Read(p []byte) (n int, err error) {
+	n, err = c.r.Read(p)
+	c.n += int64(n)
+	return
 }
 
 func (b ByteArray) WriteTo(w io.Writer) (n int64, err error) {
