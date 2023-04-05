@@ -465,20 +465,25 @@ func (d *Double) ReadFrom(r io.Reader) (n int64, err error) {
 	return
 }
 
-// NBT encode a value as Named Binary Tag
+// NBT is used to write or read Named Binary Tag data from/to packets.
+//
+// When using as [FieldDecoder], unknown fields are not allowed by default.
+// For allow unknown fields, using [NBTField] instead.
 func NBT(v any, optionalTagName ...string) Field {
 	if len(optionalTagName) > 0 {
-		return nbtField{V: v, FieldName: optionalTagName[0]}
+		return NBTField{V: v, TagName: optionalTagName[0]}
 	}
-	return nbtField{V: v}
+	return NBTField{V: v}
 }
 
-type nbtField struct {
-	V         any
-	FieldName string
+type NBTField struct {
+	TagName string
+	V       any
+
+	AllowUnknownFields bool
 }
 
-func (n nbtField) WriteTo(w io.Writer) (int64, error) {
+func (n NBTField) WriteTo(w io.Writer) (int64, error) {
 	if n.V == nil {
 		n, err := w.Write([]byte{nbt.TagEnd})
 		return int64(n), err
@@ -486,18 +491,26 @@ func (n nbtField) WriteTo(w io.Writer) (int64, error) {
 	// nbt Encode method does not count written bytes,
 	// so we warp the writer to count it.
 	cw := countingWriter{w: w}
-	err := nbt.NewEncoder(&cw).Encode(n.V, n.FieldName)
+	err := nbt.NewEncoder(&cw).Encode(n.V, n.TagName)
 	return cw.n, err
 }
 
-func (n nbtField) ReadFrom(r io.Reader) (int64, error) {
+func (n NBTField) ReadFrom(r io.Reader) (int64, error) {
 	// LimitReader is used to count reader length
 	cr := countingReader{r: r}
-	_, err := nbt.NewDecoder(&cr).Decode(n.V)
-	if err != nil && errors.Is(err, nbt.ErrEND) {
+	decoder := nbt.NewDecoder(&cr)
+	if !n.AllowUnknownFields {
+		decoder.DisallowUnknownFields()
+	}
+	tagName, err := decoder.Decode(n.V)
+	if err != nil {
+		if !errors.Is(err, nbt.ErrEND) {
+			return cr.n, err
+		}
 		err = nil
 	}
-	return cr.n, err
+	n.TagName = tagName
+	return cr.n, nil
 }
 
 // countingWriter is a wrapper of io.Writer to externally count written bytes
