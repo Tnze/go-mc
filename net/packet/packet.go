@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-const MaxDataLength = 2097152
+const MaxDataLength = 0x200000
 
 // Packet define a net data package
 type Packet struct {
@@ -37,11 +37,10 @@ func (p Packet) Scan(fields ...FieldDecoder) error {
 	return nil
 }
 
-var bufPool = sync.Pool{
-	New: func() any {
-		return new(bytes.Buffer)
-	},
-}
+var (
+	bufPool  = sync.Pool{New: func() any { return new(bytes.Buffer) }}
+	zlibPool = sync.Pool{New: func() any { return zlib.NewWriter(io.Discard) }}
+)
 
 // Pack 打包一个数据包
 func (p *Packet) Pack(w io.Writer, threshold int) error {
@@ -55,61 +54,63 @@ func (p *Packet) Pack(w io.Writer, threshold int) error {
 func (p *Packet) packWithoutCompression(w io.Writer) error {
 	buffer := bufPool.Get().(*bytes.Buffer)
 	defer bufPool.Put(buffer)
-
-	// Pre-allocate room at the front of the packet for the length field
 	buffer.Reset()
-	buffer.Write([]byte{0, 0, 0})
 
-	VarInt(p.ID).WriteTo(buffer)
+	// Write Length to buffer
+	Length := VarInt(VarInt(p.ID).Len() + len(p.Data))
+	_, _ = Length.WriteTo(buffer)
+
+	// Write ID and Data to buffer
+	_, _ = VarInt(p.ID).WriteTo(buffer)
 	buffer.Write(p.Data)
 
-	// Write length at front
-	payloadLen := VarInt(buffer.Len() - 3)
-	varIntOffset := 3 - payloadLen.Len()
-	payloadLen.WriteToBytes(buffer.Bytes()[varIntOffset:])
-
-	_, err := w.Write(buffer.Bytes()[varIntOffset:])
+	// Write buffer to w
+	_, err := w.Write(buffer.Bytes())
 	return err
 }
 
 func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 	buff := bufPool.Get().(*bytes.Buffer)
 	defer bufPool.Put(buff)
-	// Allocate room for the 'packet length' and 'data length' fields. Each can take up to 3 bytes
 	buff.Reset()
-	buff.Write([]byte{0, 0, 0, 0, 0, 0})
 
-	var writeStart int
-
+	PacketID := VarInt(p.ID)
 	if len(p.Data) < threshold {
-		VarInt(p.ID).WriteTo(buff)
-		buff.Write(p.Data)
-		// Packet is below compression threshold so 'data length' is 0
-		// Front of the packet is already initialized to 0, so just decrement the offset
-		writeStart = 5
+		DataLength := VarInt(0) // uncompressed mark
+		PacketLength := VarInt(DataLength.Len() + PacketID.Len() + len(p.Data))
+		_, _ = PacketLength.WriteTo(buff)
+		_, _ = DataLength.WriteTo(buff)
+		_, _ = PacketID.WriteTo(buff)
+		_, _ = buff.Write(p.Data)
 	} else {
-		zw := zlib.NewWriter(buff)
-		varIntLen, _ := VarInt(p.ID).WriteTo(zw)
-		zw.Write(p.Data)
+		DataLength := VarInt(PacketID.Len() + len(p.Data))
 
-		err := zw.Close()
-		if err != nil {
+		buff.Write(make([]byte, MaxVarIntLen)) // padding for Packet Length
+		_, _ = DataLength.WriteTo(buff)
+		if err := compressPacket(buff, p.ID, p.Data); err != nil {
 			return err
 		}
 
-		// Write 'data length' before ID + payload
-		uncompressedLen := VarInt(varIntLen + int64(len(p.Data)))
-		writeStart = 6 - uncompressedLen.Len()
-		uncompressedLen.WriteToBytes(buff.Bytes()[writeStart:])
+		PacketLength := VarInt(buff.Len() - MaxVarIntLen)
+		packetLengthLen := PacketLength.Len()
+		buff.Next(MaxVarIntLen - packetLengthLen)
+		PacketLength.WriteToBytes(buff.Bytes()[:packetLengthLen])
 	}
 
-	// Write 'packet length' before all other fields
-	packetLen := VarInt(buff.Len() - writeStart)
-	start := writeStart - packetLen.Len()
-	VarInt(packetLen).WriteToBytes(buff.Bytes()[start:])
-
-	_, err := w.Write(buff.Bytes()[start:])
+	_, err := w.Write(buff.Bytes())
 	return err
+}
+
+func compressPacket(w io.Writer, PacketID int32, Data []byte) error {
+	zw := zlibPool.Get().(*zlib.Writer)
+	defer zlibPool.Put(zw)
+	zw.Reset(w)
+
+	_, _ = VarInt(PacketID).WriteTo(zw)
+	if _, err := zw.Write(Data); err != nil {
+		return err
+	}
+	return zw.Close()
 }
 
 // UnPack in-place decompression a packet
