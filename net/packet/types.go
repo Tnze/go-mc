@@ -467,7 +467,7 @@ func (d *Double) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 // NBT encode a value as Named Binary Tag
-func NBT(v interface{}, optionalTagName ...string) Field {
+func NBT(v any, optionalTagName ...string) Field {
 	if len(optionalTagName) > 0 {
 		return nbtField{V: v, FieldName: optionalTagName[0]}
 	}

@@ -54,7 +54,7 @@ func (g *Graph) Execute(ctx context.Context, cmd string) error {
 	}
 }
 
-type ParsedData interface{}
+type ParsedData any
 
 type HandlerFunc func(ctx context.Context, args []ParsedData) error
 

@@ -90,7 +90,7 @@ func (r *RCONConn) ReadPacket() (RequestID, Type int32, Payload string, err erro
 func (r *RCONConn) WritePacket(RequestID, Type int32, Payload string) error {
 	buf := new(bytes.Buffer)
 
-	for _, v := range []interface{}{
+	for _, v := range []any{
 		int32(4 + 4 + len(Payload) + 2), // Length
 		RequestID,                       // Request ID
 		Type,                            // Type

@@ -26,7 +26,7 @@ var (
 //
 // Note that Ary DO read or write the Len. You aren't need to do so by your self.
 type Ary[LEN VarInt | VarLong | Byte | UnsignedByte | Short | UnsignedShort | Int | Long] struct {
-	Ary interface{} // Slice or Pointer of Slice of FieldEncoder, FieldDecoder or both (Field)
+	Ary any // Slice or Pointer of Slice of FieldEncoder, FieldDecoder or both (Field)
 }
 
 func (a Ary[LEN]) WriteTo(w io.Writer) (n int64, err error) {

@@ -38,7 +38,7 @@ func (p Packet) Scan(fields ...FieldDecoder) error {
 }
 
 var bufPool = sync.Pool{
-	New: func() interface{} {
+	New: func() any {
 		return new(bytes.Buffer)
 	},
 }

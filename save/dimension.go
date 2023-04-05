@@ -38,8 +38,8 @@ type WorldGenSettings struct {
 }
 
 type DimensionGenerator struct {
-	Type      string                 `nbt:"type"`
-	Generator map[string]interface{} `nbt:"generator"`
+	Type      string         `nbt:"type"`
+	Generator map[string]any `nbt:"generator"`
 }
 
 var (
@@ -47,7 +47,7 @@ var (
 	DefaultDimensionsGenerators = map[string]DimensionGenerator{
 		"minecraft:overworld": {
 			Type: "minecraft:overworld",
-			Generator: map[string]interface{}{
+			Generator: map[string]any{
 				"type":     "minecraft:noise",
 				"settings": "minecraft:overworld",
 				"biome_source": map[string]string{
@@ -58,7 +58,7 @@ var (
 		},
 		"minecraft:the_end": {
 			Type: "minecraft:the_end",
-			Generator: map[string]interface{}{
+			Generator: map[string]any{
 				"type":     "minecraft:noise",
 				"settings": "minecraft:end",
 				"biome_source": map[string]string{
@@ -68,7 +68,7 @@ var (
 		},
 		"minecraft:the_nether": {
 			Type: "minecraft:the_nether",
-			Generator: map[string]interface{}{
+			Generator: map[string]any{
 				"type":     "minecraft:noise",
 				"settings": "minecraft:nether",
 				"biome_source": map[string]string{

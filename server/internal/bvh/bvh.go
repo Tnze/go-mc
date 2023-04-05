@@ -121,7 +121,7 @@ func (t *Tree[I, B, V]) Insert(leaf B, value V) (n *Node[I, B, V]) {
 	return
 }
 
-func (t *Tree[I, B, V]) Delete(n *Node[I, B, V]) interface{} {
+func (t *Tree[I, B, V]) Delete(n *Node[I, B, V]) any {
 	if n.parent == nil {
 		// n is the root
 		t.root = nil
@@ -204,11 +204,11 @@ type (
 	}
 )
 
-func (h searchHeap[I, V]) Len() int            { return len(h) }
-func (h searchHeap[I, V]) Less(i, j int) bool  { return h[i].inheritedCost < h[j].inheritedCost }
-func (h searchHeap[I, V]) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
-func (h *searchHeap[I, V]) Push(x interface{}) { *h = append(*h, x.(searchItem[I, V])) }
-func (h *searchHeap[I, V]) Pop() interface{} {
+func (h searchHeap[I, V]) Len() int           { return len(h) }
+func (h searchHeap[I, V]) Less(i, j int) bool { return h[i].inheritedCost < h[j].inheritedCost }
+func (h searchHeap[I, V]) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
+func (h *searchHeap[I, V]) Push(x any)        { *h = append(*h, x.(searchItem[I, V])) }
+func (h *searchHeap[I, V]) Pop() any {
 	old := *h
 	n := len(old)
 	x := old[n-1]

@@ -27,8 +27,8 @@ func TestUnmarshal_string(t *testing.T) {
 		t.Errorf("Unmarshal NBT fail: get %q, want %q", Name, "Bananrama")
 	}
 
-	// Unmarshal to interface{}
-	var infName interface{}
+	// Unmarshal to any
+	var infName any
 	if err := Unmarshal(data, &infName); err != nil {
 		t.Fatal(err)
 	}
@@ -210,7 +210,7 @@ func TestDecoder_Decode_bigTest(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var inf interface{}
+	var inf any
 	r, err = gzip.NewReader(bytes.NewReader(bigTestData[:]))
 	if err != nil {
 		t.Fatal(err)
@@ -313,7 +313,7 @@ func TestDecoder_Decode_LongArray(t *testing.T) {
 	}
 	var (
 		value    []int64
-		infValue interface{}
+		infValue any
 		want     = []int64{1, 2, 3}
 	)
 
@@ -342,7 +342,7 @@ func TestDecoder_Decode_ByteArray(t *testing.T) {
 	}
 	var (
 		value    []byte
-		infValue interface{}
+		infValue any
 		want     = []byte{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07}
 	)
 
@@ -355,7 +355,7 @@ func TestDecoder_Decode_ByteArray(t *testing.T) {
 	}
 	// t.Log(value)
 
-	// Unmarshal to interface{}
+	// Unmarshal to any
 	if err := Unmarshal(data, &infValue); err != nil {
 		t.Fatal(err)
 	}

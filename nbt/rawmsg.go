@@ -62,7 +62,7 @@ func (m RawMessage) String() string {
 }
 
 // Unmarshal decode the data into v.
-func (m RawMessage) Unmarshal(v interface{}) error {
+func (m RawMessage) Unmarshal(v any) error {
 	d := NewDecoder(bytes.NewReader(m.Data))
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr {

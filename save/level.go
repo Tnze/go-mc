@@ -46,7 +46,7 @@ type LevelData struct {
 	LastPlayed             int64
 	LevelName              string
 	MapFeatures            bool
-	Player                 map[string]interface{}
+	Player                 map[string]any
 	Raining                bool  `nbt:"raining"`
 	RainTime               int32 `nbt:"rainTime"`
 	RandomSeed             int64

@@ -43,7 +43,7 @@ func TestReadRegion(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			}
-			var b interface{}
+			var b any
 			_, err = nbt.NewDecoder(r).Decode(&b)
 			if err != nil {
 				t.Error(err)

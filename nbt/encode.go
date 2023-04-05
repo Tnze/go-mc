@@ -16,7 +16,7 @@ import (
 // Marshal is the shortcut of NewEncoder().Encode() with empty tag name.
 // Notices that repeatedly init buffers is low efficiency.
 // Using Encoder and Reset the buffer in each time is recommended in that cases.
-func Marshal(v interface{}) ([]byte, error) {
+func Marshal(v any) ([]byte, error) {
 	var buf bytes.Buffer
 	err := NewEncoder(&buf).Encode(v, "")
 	return buf.Bytes(), err
@@ -39,7 +39,7 @@ func NewEncoder(w io.Writer) *Encoder {
 // expect `[]int8`, `[]int32`, `[]int64`, `[]uint8`, `[]uint32` and `[]uint64`,
 // which TagByteArray, TagIntArray and TagLongArray.
 // To force encode them as TagList, add a struct field tag.
-func (e *Encoder) Encode(v interface{}, tagName string) error {
+func (e *Encoder) Encode(v any, tagName string) error {
 	t, val := getTagType(reflect.ValueOf(v))
 	return e.marshal(val, t, tagName)
 }
@@ -242,7 +242,7 @@ func getTagType(v reflect.Value) (byte, reflect.Value) {
 		}
 
 		// Prevent infinite loop if v is an interface pointing to its own address:
-		//     var v interface{}
+		//     var v any
 		//     v = &v
 		if v.Elem().Kind() == reflect.Interface && v.Elem().Elem() == v {
 			v = v.Elem()

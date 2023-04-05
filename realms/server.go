@@ -23,7 +23,7 @@ type Server struct {
 	MiniGameID           *int
 	MinigameImage        *string
 	ActiveSlot           int
-	// Slots                interface{}
+	// Slots                any
 	Member bool
 }
 

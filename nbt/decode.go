@@ -12,7 +12,7 @@ import (
 
 // Unmarshal decode binary NBT data and fill into v
 // This is a shortcut to `NewDecoder(bytes.NewReader(data)).Decode(v)`.
-func Unmarshal(data []byte, v interface{}) error {
+func Unmarshal(data []byte, v any) error {
 	_, err := NewDecoder(bytes.NewReader(data)).Decode(v)
 	return err
 }
@@ -28,7 +28,7 @@ func Unmarshal(data []byte, v interface{}) error {
 //
 // This method also return tag name of the root tag.
 // In real world, it is often empty, but the API should allow you to get it when ever you want.
-func (d *Decoder) Decode(v interface{}) (string, error) {
+func (d *Decoder) Decode(v any) (string, error) {
 	val := reflect.ValueOf(v)
 	if val.Kind() != reflect.Ptr {
 		return "", errors.New("nbt: non-pointer passed to Decode")
@@ -329,7 +329,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		default:
 			return errors.New("cannot parse TagList as " + vk.String())
 		case reflect.Interface:
-			buf = reflect.ValueOf(make([]interface{}, listLen))
+			buf = reflect.ValueOf(make([]any, listLen))
 		case reflect.Slice:
 			buf = reflect.MakeSlice(val.Type(), int(listLen), int(listLen))
 		case reflect.Array:
@@ -398,7 +398,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 				val.SetMapIndex(reflect.ValueOf(tn), v.Elem())
 			}
 		case reflect.Interface:
-			buf := make(map[string]interface{})
+			buf := make(map[string]any)
 			for {
 				tt, tn, err := d.readTag()
 				if err != nil {
@@ -407,7 +407,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 				if tt == TagEnd {
 					break
 				}
-				var value interface{}
+				var value any
 				if err = d.unmarshal(reflect.ValueOf(&value).Elem(), tt); err != nil {
 					return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 				}
@@ -467,7 +467,7 @@ func indirect(v reflect.Value, decodingNull bool) (Unmarshaler, encoding.TextUnm
 		}
 
 		// Prevent infinite loop if v is an interface pointing to its own address:
-		//     var v interface{}
+		//     var v any
 		//     v = &v
 		if v.Elem().Kind() == reflect.Interface && v.Elem().Elem() == v {
 			v = v.Elem()

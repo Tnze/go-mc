@@ -246,7 +246,7 @@ func (m Message) ClearString() string {
 
 	// handle translate
 	if m.Translate != "" {
-		args := make([]interface{}, len(m.With))
+		args := make([]any, len(m.With))
 		for i, v := range m.With {
 			args[i] = v.ClearString()
 		}
@@ -291,7 +291,7 @@ func (m Message) String() string {
 
 	// handle translate
 	if m.Translate != "" {
-		args := make([]interface{}, len(m.With))
+		args := make([]any, len(m.With))
 		for i, v := range m.With {
 			args[i] = v
 		}

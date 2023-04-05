@@ -112,12 +112,12 @@ func TestEncoder_Encode_interfaceArray(t *testing.T) {
 
 	tests := []struct {
 		name string
-		args []interface{}
+		args []any
 		want []byte
 	}{
 		{
 			name: "Two element interface array",
-			args: []interface{}{Struct1{3}, Struct2{0.3}},
+			args: []any{Struct1{3}, Struct2{0.3}},
 			want: []byte{
 				TagList, 0x00, 0x00 /*no name*/, TagCompound, 0, 0, 0, 2,
 				// 1st element
@@ -136,7 +136,7 @@ func TestEncoder_Encode_interfaceArray(t *testing.T) {
 			if err != nil {
 				t.Error(err)
 			} else if !bytes.Equal(data, tt.want) {
-				t.Errorf("Marshal([]interface{}) got = % 02x, want % 02x", data, tt.want)
+				t.Errorf("Marshal([]any) got = % 02x, want % 02x", data, tt.want)
 				return
 			}
 		})
@@ -242,7 +242,7 @@ func TestEncoder_Encode_map(t *testing.T) {
 }
 
 func TestEncoder_Encode_interface(t *testing.T) {
-	data := map[string]interface{}{
+	data := map[string]any{
 		"Key":   int32(12),
 		"Value": "Tnze",
 	}

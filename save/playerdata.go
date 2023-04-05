@@ -72,8 +72,8 @@ type PlayerData struct {
 type Item struct {
 	Count byte
 	Slot  byte
-	ID    string                 `nbt:"id"`
-	Tag   map[string]interface{} `nbt:"tag"`
+	ID    string         `nbt:"id"`
+	Tag   map[string]any `nbt:"tag"`
 }
 
 func ReadPlayerData(r io.Reader) (data PlayerData, err error) {

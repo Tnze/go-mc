@@ -54,7 +54,7 @@ func fetchKeyPair(accessToken string) (KeyPairResp, error) {
 	return keyPairResp, err
 }
 
-func post(endpoint string, accessToken string, resp interface{}) error {
+func post(endpoint string, accessToken string, resp any) error {
 	rowResp, err := rawPost(endpoint, accessToken)
 	if err != nil {
 		return fmt.Errorf("request fail: %v", err)

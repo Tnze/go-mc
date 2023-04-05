@@ -146,10 +146,10 @@ func ExamplePacket_Scan_joinGame() {
 		PreGamemode    pk.Byte
 		WorldNames     = []pk.Identifier{} // This cannot replace with "var DimensionNames []pk.Identifier" because "nil" has no type information
 		DimensionCodec struct {
-			DimensionType interface{} `nbt:"minecraft:dimension_type"`
-			WorldgenBiome interface{} `nbt:"minecraft:worldgen/biome"`
+			DimensionType any `nbt:"minecraft:dimension_type"`
+			WorldgenBiome any `nbt:"minecraft:worldgen/biome"`
 		}
-		Dimension                 interface{}
+		Dimension                 any
 		WorldName                 pk.Identifier
 		HashedSeed                pk.Long
 		MaxPlayers                pk.VarInt
@@ -181,7 +181,7 @@ func ExampleMarshal_setSlot() {
 		Present   bool
 		ItemID    int
 		ItemCount byte
-		NBT       interface{}
+		NBT       any
 	}{
 		{WindowID: 0, Slot: 5, Present: false},
 		{WindowID: 0, Slot: 5, Present: true, ItemID: 0x01, ItemCount: 1, NBT: pk.Byte(0)},
