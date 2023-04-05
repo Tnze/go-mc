@@ -410,19 +410,8 @@ func (p *Position) ReadFrom(r io.Reader) (n int64, err error) {
 	n += nn
 
 	x := int(v >> 38)
-	y := int(v & 0xFFF)
+	y := int(v << 52 >> 52)
 	z := int(v << 26 >> 38)
-
-	// 处理负数
-	if x >= 1<<25 {
-		x -= 1 << 26
-	}
-	if y >= 1<<11 {
-		y -= 1 << 12
-	}
-	if z >= 1<<25 {
-		z -= 1 << 26
-	}
 
 	p.X, p.Y, p.Z = x, y, z
 	return
@@ -486,7 +475,7 @@ func NBT(v interface{}, optionalTagName ...string) Field {
 }
 
 type nbtField struct {
-	V         interface{}
+	V         any
 	FieldName string
 }
 
