@@ -80,11 +80,21 @@ func ExampleMarshal_setSlot() {
 	// 15 00 00 05 01 01 01 03 00 00 12 34 56 78
 }
 
-func BenchmarkPacket_Pack(b *testing.B) {
+func BenchmarkPacket_Pack_packWithoutCompression(b *testing.B) {
 	p := pk.Packet{ID: 0, Data: make([]byte, 64)}
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if err := p.Pack(io.Discard, -1); err != nil {
+			b.Fatal(err)
+		}
+	}
+}
+
+func BenchmarkPacket_Pack_packWithCompression(b *testing.B) {
+	p := pk.Packet{ID: 0, Data: make([]byte, 64)}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if err := p.Pack(io.Discard, 32); err != nil {
 			b.Fatal(err)
 		}
 	}
