@@ -1,6 +1,6 @@
 module github.com/Tnze/go-mc
 
-go 1.18
+go 1.19
 
 require (
 	github.com/google/uuid v1.1.1
@@ -9,8 +9,5 @@ require (
 	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
 	golang.org/x/image v0.1.0
 )
-<<<<<<< Updated upstream
-=======
 
 replace github.com/maxsupermanhd/go-mc-ms-auth => github.com/Edouard127/go-mc-ms-auth v1.1.0
->>>>>>> Stashed changes

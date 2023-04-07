@@ -1,4 +1,4 @@
-package main
+package provider
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"crypto/sha1"
 	"crypto/sha256"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
@@ -18,20 +19,31 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/yggdrasil/user"
+	auth "github.com/maxsupermanhd/go-mc-ms-auth"
 )
 
 // Auth includes an account
-type Auth struct {
-	Name string
-	UUID string
-	AsTk string
+type Auth auth.Auth
+
+func (a *Auth) SignMessage(m string) []byte {
+	h := sha256.New()
+	h.Write([]byte(m))
+	hashed := h.Sum(nil)
+
+	block, _ := pem.Decode([]byte(a.KeyPair.Pair.PrivateKey))
+	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	signature, err := rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA256, hashed)
+	if err != nil {
+		panic(err)
+	}
+	return signature
 }
 
 func handleEncryptionRequest(c *Client, p pk.Packet) error {
-	// 创建AES对称加密密钥
+	// Creating AES symmetric encryption keys
 	key, encoStream, decoStream := newSymmetricEncryption()
 
 	// Read EncryptionRequest
@@ -40,24 +52,17 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	err := loginAuth(c.Auth, key, er) //向Mojang验证
-	if err != nil {
-		return fmt.Errorf("login fail: %v", err)
-	}
-
-	// 响应加密请求
-	// Write Encryption Key Response
-	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, &c.KeyPair)
-	if err != nil {
-		return fmt.Errorf("gen encryption key response fail: %v", err)
-	}
-
-	err = c.Conn.WritePacket(p)
-	if err != nil {
+	if err := loginAuth(c.Auth, key, er); err != nil {
 		return err
-	}
+	} // Verify with Mojang
 
-	// 设置连接加密
+	// Write Encryption Key Response
+	if p, err := genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, &c.Auth.KeyPair); err != nil {
+		return err
+	} else if err := c.Conn.WritePacket(p); !err.Is(basic.NoError) {
+		return fmt.Errorf("write encryption key response fail: %v", err)
+	}
+	// Set up connection encryption
 	c.Conn.SetCipher(encoStream, decoStream)
 	return nil
 }
@@ -96,7 +101,7 @@ func authDigest(serverID string, sharedSecret, publicKey []byte) string {
 	}
 
 	// Trim away zeroes
-	res := strings.TrimLeft(fmt.Sprintf("%x", hash), "0")
+	res := strings.TrimLeft(hex.EncodeToString(hash), "0")
 	if negative {
 		res = "-" + res
 	}
@@ -182,7 +187,7 @@ func newSymmetricEncryption() (key []byte, encoStream, decoStream cipher.Stream)
 	return
 }
 
-func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair *user.KeyPairResp) (erp pk.Packet, err error) {
+func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair *auth.KeyPair) (erp pk.Packet, err error) {
 	iPK, err := x509.ParsePKIXPublicKey(publicKey) // Decode Public Key
 	if err != nil {
 		err = fmt.Errorf("decode public key fail: %v", err)
@@ -195,7 +200,7 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 		return
 	}
 	if keyPair != nil {
-		privateKeyBlock, _ := pem.Decode([]byte(keyPair.KeyPair.PrivateKey))
+		privateKeyBlock, _ := pem.Decode([]byte(keyPair.Pair.PrivateKey))
 		privateKey, err := x509.ParsePKCS8PrivateKey(privateKeyBlock.Bytes)
 		if err != nil {
 			err = fmt.Errorf("decode user private key fail: %v", err)

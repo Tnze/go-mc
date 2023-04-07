@@ -1,11 +1,13 @@
-package main
+package provider
 
 import (
-	"encoding/hex"
+	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/internal/utils"
 	"github.com/Tnze/go-mc/offline"
 	"github.com/Tnze/go-mc/yggdrasil"
+	auth "github.com/maxsupermanhd/go-mc-ms-auth"
 	"log"
 	"testing"
 )
@@ -20,15 +22,19 @@ func TestExamplePingAndList(t *testing.T) {
 	log.Println("Delay:", delay)
 }
 
-func TestExampleClient_JoinServer_offline(t *testing.T) {
+func TestExampleClient_JoinServer_online(t *testing.T) {
 	c := NewClient()
-	c.Auth.Name = "Tnze" // set its name before login.
 
-	id := offline.NameToUUID(c.Auth.Name) // optional, get uuid of offline mode game
-	c.Auth.UUID = hex.EncodeToString(id[:])
+	if mcAuth, err := auth.GetMCcredentials(utils.GetCacheDirectory(), "88650e7e-efee-4857-b9a9-cf580a00ef43"); err != nil {
+		fmt.Printf("GetMCcredentials failed: %v\nWe can safely ignore this error if you are connecting on a offline server\n", err)
+		c.Auth.Name = "Steve"
+		c.Auth.UUID = offline.NameToUUID(c.Auth.Name).String()
+	} else {
+		c.Auth = Auth(mcAuth)
+	}
 
 	//Login
-	if err := c.JoinServer("127.0.0.1:25566"); !err.Is(basic.NoError) {
+	if err := c.JoinServer("127.0.0.1:25565"); !err.Is(basic.NoError) {
 		log.Fatal(err)
 	}
 	log.Println("Login success")

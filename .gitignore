@@ -21,3 +21,5 @@ data/packetid/generate.go
 .idea/
 .vscode/
 .github
+# Cache
+*.cache
