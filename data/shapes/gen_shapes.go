@@ -21,22 +21,22 @@ const (
 package shapes
 
 import (
-	"github.com/Tnze/go-mc/bot/core"
+	"github.com/Tnze/go-mc/bot/maths"
 )
 
 // Shape describes information about a block collision shape.
 type Shape struct {
-	Shapes map[int][]core.AxisAlignedBB[float64]
+	Shapes map[int][]maths.AxisAlignedBB[float64]
 }
 
 var (
 	{{- range $name, $shape := .}}
 		{{ (camelcase $name) }} = Shape{
-			Shapes: map[int][]core.AxisAlignedBB[float64]{
+			Shapes: map[int][]maths.AxisAlignedBB[float64]{
 				{{- range $k, $v := $shape}}
-				{{$k}}: []core.AxisAlignedBB[float64]{
+				{{$k}}: []maths.AxisAlignedBB[float64]{
 					{{- range $v}}
-						core.AxisAlignedBB[float64]{
+						maths.AxisAlignedBB[float64]{
 							MinX: {{index . 0}}, MinY: {{index . 1}}, MinZ: {{index . 2}},
 							MaxX: {{index . 3}}, MaxY: {{index . 4}}, MaxZ: {{index . 5}},
 						},
@@ -55,8 +55,8 @@ var BlockShapes = map[string]Shape{
 	{{- end}}
 }
 
-func GetShape(name string, data int) core.AxisAlignedBB[float64] {
-	// Contact me if you'd like to write 935 different fucking functions.
+func GetShape(name string, data int) maths.AxisAlignedBB[float64] {
+	// Contact me if you'd like to write 935 different functions.
 	return BlockShapes[name].Shapes[data][0]
 }
 `
