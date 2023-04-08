@@ -115,7 +115,7 @@ func ApplyPhysics(c *Client) basic.Error {
 			if getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0, 0.5, 0)); !err.Is(basic.NoError) {
 				return err
 			} else {
-				if blockUnder := block.StateList[getBlock]; blockUnder.ID() == (block.HoneyBlock{}).ID() {
+				if getBlock.Is(block.HoneyBlock{}) {
 					c.Player.Motion = c.Player.Motion.Offset(0, 0.42*core.HoneyBlockMultiplier, 0)
 				} else {
 					c.Player.Motion = c.Player.Motion.Offset(0, 0.42, 0)
@@ -164,9 +164,8 @@ func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
 	if !err.Is(basic.NoError) {
 		return err
 	}
-	blockUnder := block.StateList[getBlock]
 
-	if !blockUnder.Is(block.Water{}) && !blockUnder.Is(block.Lava{}) {
+	if !getBlock.Is(block.Water{}) && !getBlock.Is(block.Lava{}) {
 		acceleration := core.AirBornAcceleration
 		inertia := core.AirBornInertia
 
@@ -201,7 +200,7 @@ func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
 		acceleration := core.LiquidAcceleration
 		inertia := 0.0
 		gravity := core.WaterGravity
-		if blockUnder.Is(block.Water{}) {
+		if getBlock.Is(block.Water{}) {
 			inertia = core.WaterInertia
 			// TODO: Depth strider
 		} else {
@@ -248,7 +247,7 @@ func applyHeading(c *Client, strafe, forward, multiplier float64) {
 func moveEntity(c *Client) basic.Error {
 	if getBlock, err := c.World.GetBlock(c.Player.Position); !err.Is(basic.NoError) {
 		return err
-	} else if block.StateList[getBlock].Is(block.Cobweb{}) {
+	} else if getBlock.Is(block.Cobweb{}) {
 		c.Player.Motion = c.Player.Motion.OffsetMul(0.25, 0.05, 0.25)
 	}
 	dX, dY, dZ := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
@@ -391,13 +390,13 @@ func moveEntity(c *Client) basic.Error {
 				if getBlock, err := c.World.GetBlock(cursor); !err.Is(basic.NoError) {
 					continue
 				} else {
-					if block.StateList[getBlock].Is(block.SoulSand{}) {
+					if getBlock.Is(block.SoulSand{}) {
 						c.Player.Motion.X *= core.SoulSandMultiplier
 						c.Player.Motion.Z *= core.SoulSandMultiplier
-					} else if block.StateList[getBlock].Is(block.HoneyBlock{}) {
+					} else if getBlock.Is(block.HoneyBlock{}) {
 						c.Player.Motion.X *= core.HoneyBlockMultiplier
 						c.Player.Motion.Z *= core.HoneyBlockMultiplier
-					} else if block.StateList[getBlock].Is(block.Cobweb{}) {
+					} else if getBlock.Is(block.Cobweb{}) {
 						// Set cobweb to true
 					}
 				}
@@ -408,13 +407,13 @@ func moveEntity(c *Client) basic.Error {
 	if blockBelow, err := c.World.GetBlock(c.Player.Position.Offset(0, -0.5, 0)); !err.Is(basic.NoError) {
 		return err
 	} else {
-		if block.StateList[blockBelow].Is(block.SoulSand{}) {
+		if blockBelow.Is(block.SoulSand{}) {
 			c.Player.Motion.X *= core.SoulSandMultiplier
 			c.Player.Motion.Z *= core.SoulSandMultiplier
-		} else if block.StateList[blockBelow].Is(block.HoneyBlock{}) {
+		} else if blockBelow.Is(block.HoneyBlock{}) {
 			c.Player.Motion.X *= core.HoneyBlockMultiplier
 			c.Player.Motion.Z *= core.HoneyBlockMultiplier
-		} else if block.StateList[blockBelow].Is(block.Cobweb{}) {
+		} else if blockBelow.Is(block.Cobweb{}) {
 			// Set cobweb to true
 		}
 	}
@@ -422,19 +421,19 @@ func moveEntity(c *Client) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func getSurroundingBB(c *Client, bb core.AxisAlignedBB[float64]) []core.AxisAlignedBB[float64] {
-	var blocks []core.AxisAlignedBB[float64]
+func getSurroundingBB(c *Client, bb maths.AxisAlignedBB[float64]) []maths.AxisAlignedBB[float64] {
+	var blocks []maths.AxisAlignedBB[float64]
 	for y := bb.MinY; y < bb.MaxY; y++ {
 		for z := bb.MinZ; z < bb.MaxZ; z++ {
 			for x := bb.MinX; x < bb.MaxX; x++ {
 				if getBlock, err := c.World.GetBlock(maths.Vec3d[float64]{X: x, Y: y, Z: z}); !err.Is(basic.NoError) {
 					continue
 				} else {
-					if block.StateList[getBlock].IsAir() {
+					if getBlock.IsAir() {
 						continue
+					} else {
+						blocks = append(blocks, getBlock.GetCollisionBox())
 					}
-
-					blocks = append(blocks, block.StateList[getBlock].GetCollisionBox())
 				}
 			}
 		}

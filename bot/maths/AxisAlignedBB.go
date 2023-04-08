@@ -1,4 +1,4 @@
-package core
+package maths
 
 import (
 	"golang.org/x/exp/constraints"

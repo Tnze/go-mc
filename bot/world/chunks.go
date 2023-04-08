@@ -5,8 +5,9 @@ import (
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
+	"github.com/Tnze/go-mc/data/enums"
 	. "github.com/Tnze/go-mc/level"
-	block2 "github.com/Tnze/go-mc/level/block"
+	"github.com/Tnze/go-mc/level/block"
 	"math"
 	"reflect"
 )
@@ -97,12 +98,12 @@ func (w *World) isValidEntity(e *interface{}) bool {
 	return false
 }
 
-func (w *World) GetBlock(pos maths.Vec3d[float64]) (BlocksState, basic.Error) {
+func (w *World) GetBlock(pos maths.Vec3d[float64]) (block.Block, basic.Error) {
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
 	if chunk, ok := w.Columns[chunkPos]; ok {
 		return chunk.GetBlock(pos)
 	} else {
-		return -1, basic.Error{Err: basic.InvalidChunk, Info: fmt.Errorf("chunk not found")}
+		return block.StateList[block.ToStateID[block.Air{}]], basic.Error{Err: basic.InvalidChunk, Info: fmt.Errorf("chunk not found")}
 	}
 }
 
@@ -135,21 +136,22 @@ func (w *World) RayTrace(start, end maths.Vec3d[float64]) (core.RayTraceResult, 
 	}
 
 	for _, pos := range maths.RayTraceBlocks(start, end) {
-		block, err := w.GetBlock(pos)
-		if err.Is(basic.InvalidChunk) || block2.IsAir(block) {
+		block, _ := w.GetBlock(pos)
+		if block.IsAir() {
 			continue
+		} else {
+			return core.RayTraceResult{
+				Position: pos,
+				Side:     enums.GetClosestFacing(start, pos),
+				Block:    block,
+			}, basic.Error{Err: basic.NoError, Info: nil}
 		}
-		return core.RayTraceResult{
-			Position: pos,
-			Side:     core.GetClosestFacing(start, pos),
-			Block:    block2.StateList[block],
-		}, basic.Error{Err: basic.NoError, Info: nil}
 	}
 
 	return core.RayTraceResult{}, basic.Error{Err: basic.NoValue, Info: fmt.Errorf("no block found")}
 }
 
-func (w *World) GetBlockDensity(pos maths.Vec3d[float64], bb core.AxisAlignedBB[float64]) float64 {
+func (w *World) GetBlockDensity(pos maths.Vec3d[float64], bb maths.AxisAlignedBB[float64]) float64 {
 	d0 := 1.0 / ((bb.MaxX-bb.MinX)*2.0 + 1.0)
 	d1 := 1.0 / ((bb.MaxY-bb.MinY)*2.0 + 1.0)
 	d2 := 1.0 / ((bb.MaxZ-bb.MinZ)*2.0 + 1.0)
@@ -180,7 +182,7 @@ func (w *World) GetBlockDensity(pos maths.Vec3d[float64], bb core.AxisAlignedBB[
 	return 0
 }
 
-func (w *World) IsAABBInMaterial(bb core.AxisAlignedBB[float64]) bool {
+func (w *World) IsAABBInMaterial(bb maths.AxisAlignedBB[float64]) bool {
 	i := int32(math.Floor(bb.MinX))
 	j := int32(math.Floor(bb.MaxX))
 	k := int32(math.Floor(bb.MinY))
@@ -191,8 +193,8 @@ func (w *World) IsAABBInMaterial(bb core.AxisAlignedBB[float64]) bool {
 	for x := i; x <= j; x++ {
 		for y := k; y <= l; y++ {
 			for z := i1; z <= j1; z++ {
-				if block, err := w.GetBlock(maths.Vec3d[float64]{X: float64(x), Y: float64(y), Z: float64(z)}); !err.Is(basic.InvalidChunk) && !block2.IsAir(block) {
-					if block2.StateList[block].ID() == "minecraft:water" { //TODO: fix this
+				if getBlock, err := w.GetBlock(maths.Vec3d[float64]{X: float64(x), Y: float64(y), Z: float64(z)}); !err.Is(basic.InvalidChunk) && !getBlock.IsAir() {
+					if getBlock.IsLiquid() {
 						return false
 					}
 				}

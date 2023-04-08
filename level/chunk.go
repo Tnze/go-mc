@@ -48,16 +48,16 @@ type Chunk struct {
 	Status      ChunkStatus
 }
 
-func (c *Chunk) GetBlock(vec3d maths.Vec3d[float64]) (BlocksState, basic.Error) {
+func (c *Chunk) GetBlock(vec3d maths.Vec3d[float64]) (block.Block, basic.Error) {
 	X, Y, Z := int(vec3d.X), int(vec3d.Y), int(vec3d.Z)
 	Y += 64 // Offset so that Y=-64 is the index 0 of the array
 	if Y < 0 || Y >= len(c.Sections)*16 {
-		return block.ToStateID[block.Air{}], basic.Error{Err: basic.NoError, Info: fmt.Errorf("y=%d out of bound", Y)} // Safe check
+		return block.StateList[block.ToStateID[block.Air{}]], basic.Error{Err: basic.NoError, Info: fmt.Errorf("y=%d out of bound", Y)} // Safe check
 	}
 	if t := c.Sections[Y>>4]; t.States != nil {
-		return t.States.Get(Y&15<<8 | Z&15<<4 | X&15), basic.Error{Err: basic.NoError, Info: nil}
+		return block.StateList[t.States.Get(Y&15<<8|Z&15<<4|X&15)], basic.Error{Err: basic.NoError, Info: nil}
 	} else {
-		return block.ToStateID[block.Air{}], basic.Error{Err: basic.NoError, Info: fmt.Errorf("y=%d out of bound", Y)}
+		return block.StateList[block.ToStateID[block.Air{}]], basic.Error{Err: basic.NoError, Info: fmt.Errorf("y=%d out of bound", Y)}
 	}
 }
 

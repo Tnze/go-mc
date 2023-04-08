@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/data/entity"
+	"github.com/Tnze/go-mc/data/enums"
 	"github.com/google/uuid"
 )
 
@@ -15,9 +16,9 @@ type Entity struct {
 	Position            maths.Vec3d[float64]
 	Rotation            maths.Vec2d[float64]
 	Motion              maths.Vec3d[float64]
-	BoundingBox         AxisAlignedBB[float64] // TODO: Add bounding box
+	BoundingBox         maths.AxisAlignedBB[float64] // TODO: Add bounding box
 	Width, Height       float64
-	invulnerableDamages []DamageSource
+	invulnerableDamages []enums.DamageSource
 }
 
 func (e *Entity) SetSize(width, height float64) {
@@ -28,7 +29,7 @@ func (e *Entity) SetSize(width, height float64) {
 
 		if e.Width < f {
 			d0 := width / 2.0
-			e.BoundingBox = AxisAlignedBB[float64]{
+			e.BoundingBox = maths.AxisAlignedBB[float64]{
 				MinX: e.Position.X - d0,
 				MinY: e.Position.Y,
 				MinZ: e.Position.Z - d0,
@@ -39,7 +40,7 @@ func (e *Entity) SetSize(width, height float64) {
 		}
 
 		aabb := e.BoundingBox
-		e.BoundingBox = AxisAlignedBB[float64]{
+		e.BoundingBox = maths.AxisAlignedBB[float64]{
 			MinX: aabb.MinX,
 			MinY: aabb.MinY,
 			MinZ: aabb.MinZ,
@@ -70,11 +71,11 @@ func (e *Entity) SetMotion(motion maths.Vec3d[float64]) {
 	e.Motion = motion
 }
 
-func (e *Entity) AddInvulnerableDamage(damageSource DamageSource) {
+func (e *Entity) AddInvulnerableDamage(damageSource enums.DamageSource) {
 	e.invulnerableDamages = append(e.invulnerableDamages, damageSource)
 }
 
-func (e *Entity) IsInvulnerableTo(damageSource DamageSource) bool {
+func (e *Entity) IsInvulnerableTo(damageSource enums.DamageSource) bool {
 	for _, v := range e.invulnerableDamages {
 		if v == damageSource {
 			return true

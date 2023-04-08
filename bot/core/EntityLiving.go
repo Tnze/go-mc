@@ -3,6 +3,7 @@ package core
 import (
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/data/effects"
+	"github.com/Tnze/go-mc/data/enums"
 	"github.com/Tnze/go-mc/data/item"
 )
 
@@ -38,7 +39,7 @@ func (e *EntityLiving) IsPotionActive(effect effects.EffectStatus) bool {
 	return false
 }
 
-func (e *EntityLiving) IsInvulnerableTo(source DamageSource) bool {
+func (e *EntityLiving) IsInvulnerableTo(source enums.DamageSource) bool {
 	return e.Entity.IsInvulnerableTo(source)
 }
 

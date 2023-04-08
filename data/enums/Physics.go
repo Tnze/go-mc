@@ -1,4 +1,4 @@
-package core
+package enums
 
 const (
 	Gravity              = 0.08

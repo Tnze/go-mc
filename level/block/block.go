@@ -7,7 +7,7 @@ import (
 	"github.com/Tnze/go-mc/data/shapes"
 	"math/bits"
 
-	"github.com/Tnze/go-mc/bot/core"
+	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/nbt"
 )
 
@@ -24,14 +24,24 @@ func (b Block) Is(b2 IBlock) bool {
 }
 
 func (b Block) IsAir() bool {
-	return b.ID() == "minecraft:air"
+	switch b.IBlock {
+	case Air{}, CaveAir{}, VoidAir{}:
+		return true
+	default:
+		return false
+	}
 }
 
 func (b Block) IsLiquid() bool {
-	return b.ID() == "minecraft:water" || b.ID() == "minecraft:lava"
+	switch b.IBlock {
+	case Water{}, Lava{}:
+		return true
+	default:
+		return false
+	}
 }
 
-func (b Block) GetCollisionBox() core.AxisAlignedBB[float64] {
+func (b Block) GetCollisionBox() maths.AxisAlignedBB[float64] {
 	return shapes.GetShape(b.ID(), int(b.StateID()))
 }
 
