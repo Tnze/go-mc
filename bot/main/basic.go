@@ -234,9 +234,9 @@ func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func applyHeading(c *Client, strafe, forward, multipler float64) {
-	speed := math.Sqrt(float64(strafe*strafe + forward*forward))
-	speed = multipler / math.Max(speed, 1.0)
+func applyHeading(c *Client, strafe, forward, multiplier float64) {
+	speed := math.Sqrt(strafe*strafe + forward*forward)
+	speed = multiplier / math.Max(speed, 1.0)
 	strafe *= speed
 	forward *= speed
 
@@ -251,11 +251,11 @@ func moveEntity(c *Client) basic.Error {
 	} else if block.StateList[getBlock].Is(block.Cobweb{}) {
 		c.Player.Motion = c.Player.Motion.OffsetMul(0.25, 0.05, 0.25)
 	}
-	/*dX, dY, dZ := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
+	dX, dY, dZ := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
 	oDx, oDy, oDz := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
 
 	if c.Player.Controller.Sneak && c.Player.OnGround {
-		step := float32(0.5)
+		step := 0.5
 
 		for ; dX != 0 && len(getSurroundingBB(c, c.Player.BoundingBox.Offset(dX, 0, 0))) == 0; oDx = dX {
 			if dX < step && dX >= -step {
@@ -297,10 +297,10 @@ func moveEntity(c *Client) basic.Error {
 			oDx = dX
 			oDz = dZ
 		}
-	}*/
+	}
 
 	playerBB := c.Player.BoundingBox
-	/*queryBB := playerBB.Offset(dX, dY, dZ)
+	queryBB := playerBB.Offset(dX, dY, dZ)
 	collidingBB := getSurroundingBB(c, queryBB)
 	oldBB := c.Player.BoundingBox
 
@@ -323,7 +323,7 @@ func moveEntity(c *Client) basic.Error {
 		oVXC, oVYC, oVZC := dX, dY, dZ
 
 		// Step up blocks
-		dY = float32(core.StepHeight)
+		dY = core.StepHeight
 		queryBB = oldBB.Expand(c.Player.Motion.X, dY, oDz)
 		collidingBB = getSurroundingBB(c, queryBB)
 
@@ -374,13 +374,13 @@ func moveEntity(c *Client) basic.Error {
 		}
 	} else {
 		c.Player.OnGround = false
-	}*/
+	}
 
-	/*c.Player.Position = c.Player.Position.Offset(
+	c.Player.Position = c.Player.Position.Offset(
 		playerBB.MinX+0.3,
 		playerBB.MinY,
 		playerBB.MinZ+0.3,
-	)*/
+	)
 
 	// Apply block collision
 	playerBB = playerBB.Contract(0.001, 0.001, 0.001)
