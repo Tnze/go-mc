@@ -20,17 +20,28 @@ const (
 // Package shapes stores information about block collision shapes in Minecraft.
 package shapes
 
+import (
+	"github.com/Tnze/go-mc/bot/core"
+)
+
 // Shape describes information about a block collision shape.
 type Shape struct {
-	Shapes map[int][][6]float64
+	Shapes map[int][]core.AxisAlignedBB[float64]
 }
 
 var (
 	{{- range $name, $shape := .}}
 		{{ (camelcase $name) }} = Shape{
-			Shapes: map[int][][6]float64{
+			Shapes: map[int][]core.AxisAlignedBB[float64]{
 				{{- range $k, $v := $shape}}
-				{{$k}}: {{printf "%#v" $v}},
+				{{$k}}: []core.AxisAlignedBB[float64]{
+					{{- range $v}}
+						core.AxisAlignedBB[float64]{
+							MinX: {{index . 0}}, MinY: {{index . 1}}, MinZ: {{index . 2}},
+							MaxX: {{index . 3}}, MaxY: {{index . 4}}, MaxZ: {{index . 5}},
+						},
+					{{- end}}
+				},
 				{{- end}}
 			},
 		}
@@ -44,7 +55,7 @@ var BlockShapes = map[string]Shape{
 	{{- end}}
 }
 
-func GetShape(name string, data int) [6]float64 {
+func GetShape(name string, data int) core.AxisAlignedBB[float64] {
 	// Contact me if you'd like to write 935 different fucking functions.
 	return BlockShapes[name].Shapes[data][0]
 }
