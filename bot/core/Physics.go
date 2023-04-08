@@ -1,10 +1,5 @@
 package core
 
-import (
-	"github.com/Tnze/go-mc/level"
-	"github.com/Tnze/go-mc/level/block"
-)
-
 const (
 	Gravity              = 0.08
 	AirDrag              = 0.98
@@ -31,7 +26,7 @@ const (
 	SlowFalling          = 0.125
 )
 
-func Slipperiness(b level.BlocksState) float64 {
+/*func Slipperiness(b level.BlocksState) float64 {
 	if t, ok := slipperiness[b]; ok {
 		return t
 	} else {
@@ -46,4 +41,4 @@ var slipperiness = map[level.BlocksState]float64{
 	block.ToStateID[block.Ice{}]:        0.98,
 	block.ToStateID[block.PackedIce{}]:  0.98,
 	block.ToStateID[block.FrostedIce{}]: 0.98,
-}
+}*/

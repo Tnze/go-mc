@@ -67,8 +67,8 @@ func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) basic.Error {
 		int32(EntityID),
 		uuid.UUID(EntityUUID),
 		int32(TypeID),
-		float32(X), float32(Y), float32(Z),
-		float32(Pitch), float32(Yaw),
+		float64(X), float64(Y), float64(Z),
+		float64(Pitch), float64(Yaw),
 	)); err != nil {
 		return basic.Error{Err: basic.InvalidEntity, Info: err}
 	}
@@ -108,8 +108,8 @@ func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 		int32(EntityID),
 		uuid.UUID(PlayerUUID),
 		116, // Player type
-		float32(X), float32(Y), float32(Z),
-		float32(Pitch), float32(Yaw),
+		float64(X), float64(Y), float64(Z),
+		float64(Pitch), float64(Yaw),
 	)); err != nil {
 		return basic.Error{Err: basic.InvalidEntity, Info: err}
 	}
@@ -756,7 +756,7 @@ func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) basic.Error {
 
 	if _, entity, err := c.World.GetEntityByID(int32(EntityID)); err == nil {
 		if t, ok := entity.(*core.Entity); ok {
-			t.AddRelativePosition(maths.Vec3d{X: float32(DeltaX), Y: float32(DeltaY), Z: float32(DeltaZ)})
+			t.AddRelativePosition(maths.Vec3d[float64]{X: float64(DeltaX), Y: float64(DeltaY), Z: float64(DeltaZ)})
 		}
 	}
 
@@ -909,8 +909,8 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) basic.Error 
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SyncPlayerPosition packet: %w", err)}
 	}
 
-	position := maths.Vec3d{X: float32(X), Y: float32(Y), Z: float32(Z)}
-	rotation := maths.Vec2d{X: float32(Pitch), Y: float32(Yaw)}
+	position := maths.Vec3d[float64]{X: float64(X), Y: float64(Y), Z: float64(Z)}
+	rotation := maths.Vec2d[float64]{X: float64(Pitch), Y: float64(Yaw)}
 
 	if Flags&0x01 != 0 {
 		c.Player.Position = c.Player.Position.Add(position)
@@ -1264,13 +1264,7 @@ func (e *EventsListener) EntityVelocity(c *Client, p pk.Packet) basic.Error {
 	}
 
 	if _, e, err := c.World.GetEntityByID(int32(entityID)); err == nil {
-		if t, ok := (e).(*core.Entity); ok {
-			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
-		} else if t, ok := (e).(*core.EntityLiving); ok {
-			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
-		} else if t, ok := (e).(*core.EntityPlayer); ok {
-			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
-		} // I will probably make an interface, so I don't have to do this
+		e.(*core.Entity).SetMotion(maths.Vec3d[float64]{X: float64(velocityX) / 8000, Y: float64(velocityY) / 8000, Z: float64(velocityZ) / 8000})
 	} else {
 		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to find entity with ID %d", entityID)}
 	}

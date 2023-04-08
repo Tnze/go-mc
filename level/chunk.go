@@ -48,7 +48,7 @@ type Chunk struct {
 	Status      ChunkStatus
 }
 
-func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, basic.Error) {
+func (c *Chunk) GetBlock(vec3d maths.Vec3d[float64]) (BlocksState, basic.Error) {
 	X, Y, Z := int(vec3d.X), int(vec3d.Y), int(vec3d.Z)
 	Y += 64 // Offset so that Y=-64 is the index 0 of the array
 	if Y < 0 || Y >= len(c.Sections)*16 {
@@ -61,7 +61,7 @@ func (c *Chunk) GetBlock(vec3d maths.Vec3d) (BlocksState, basic.Error) {
 	}
 }
 
-func (c *Chunk) SetBlock(d maths.Vec3d, i int) {
+func (c *Chunk) SetBlock(d maths.Vec3d[float64], i int) {
 	X, Y, Z := int(d.X), int(d.Y), int(d.Z)
 	Y += 64 // Offset so that Y=-64 is the index 0 of the array
 	if Y < 0 || Y >= len(c.Sections)*16 {

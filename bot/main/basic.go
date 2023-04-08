@@ -33,9 +33,9 @@ func NewPlayer(settings basic.Settings) *Player {
 		EntityPlayer: &core.EntityPlayer{
 			EntityLiving: &core.EntityLiving{
 				Entity: &core.Entity{
-					Position: maths.Vec3d{},
-					Motion:   maths.Vec3d{},
-					Rotation: maths.Vec2d{},
+					Position: maths.Vec3d[float64]{},
+					Motion:   maths.Vec3d[float64]{},
+					Rotation: maths.Vec2d[float64]{},
 				},
 			},
 		},
@@ -125,9 +125,9 @@ func ApplyPhysics(c *Client) basic.Error {
 				if c.Player.Controller.Sprint {
 					yaw := math.Pi - c.Player.Rotation.Y
 					c.Player.Motion = c.Player.Motion.Offset(
-						float32(0.2*math.Cos(float64(yaw))),
+						0.2*math.Cos(yaw),
 						0,
-						float32(0.2*math.Sin(float64(yaw))),
+						0.2*math.Sin(yaw),
 					)
 				}
 				c.Player.jumpTicks = 10 // Auto jump cooldown
@@ -154,26 +154,26 @@ func ApplyPhysics(c *Client) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func moveEntityWithHeading(c *Client, strafe, forward float32) basic.Error {
-	gravityMultiplier := float32(1)
+func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
+	gravityMultiplier := 1.0
 	/*if c.Player.Motion.Y <= 0 && c.Player.Effects[core.EffectSlowFalling] > 0 {
 		gravityMultiplier = core.SlowFalling
 	}*/
 
-	getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0, 0.5, 0))
+	getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0.0, 0.5, 0.0))
 	if !err.Is(basic.NoError) {
 		return err
 	}
 	blockUnder := block.StateList[getBlock]
 
 	if !blockUnder.Is(block.Water{}) && !blockUnder.Is(block.Lava{}) {
-		acceleration := float32(core.AirBornAcceleration)
-		inertia := float32(core.AirBornInertia)
+		acceleration := core.AirBornAcceleration
+		inertia := core.AirBornInertia
 
-		if !block.IsAir(getBlock) && c.Player.OnGround {
+		/*if !block.IsAir(getBlock) && c.Player.OnGround {
 			inertia = float32(core.Slipperiness(getBlock) * core.AirBornInertia)
 			acceleration = 0.1 * (0.1627714 / (inertia * inertia * inertia))
-		}
+		}*/
 
 		applyHeading(c, strafe, forward, acceleration)
 		// Check if on ladder
@@ -198,15 +198,15 @@ func moveEntityWithHeading(c *Client, strafe, forward float32) basic.Error {
 	} else {
 		// In lava/water
 		lastY := c.Player.Motion.Y
-		acceleration := float32(core.LiquidAcceleration)
-		inertia := float32(0)
-		gravity := float32(core.WaterGravity)
+		acceleration := core.LiquidAcceleration
+		inertia := 0.0
+		gravity := core.WaterGravity
 		if blockUnder.Is(block.Water{}) {
-			inertia = float32(core.WaterInertia)
+			inertia = core.WaterInertia
 			// TODO: Depth strider
 		} else {
-			inertia = float32(core.LavaInertia)
-			gravity = float32(core.LavaGravity)
+			inertia = core.LavaInertia
+			gravity = core.LavaGravity
 		}
 		horizontalMotion := inertia
 
@@ -234,15 +234,15 @@ func moveEntityWithHeading(c *Client, strafe, forward float32) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func applyHeading(c *Client, strafe, forward, multipler float32) {
-	speed := float32(math.Sqrt(float64(strafe*strafe + forward*forward)))
-	speed = multipler / float32(math.Max(float64(speed), 1.0))
+func applyHeading(c *Client, strafe, forward, multipler float64) {
+	speed := math.Sqrt(float64(strafe*strafe + forward*forward))
+	speed = multipler / math.Max(speed, 1.0)
 	strafe *= speed
 	forward *= speed
 
 	yaw := math.Pi - c.Player.Rotation.Y
-	c.Player.Motion.X -= strafe*float32(math.Cos(float64(yaw))) + forward*float32(math.Sin(float64(yaw)))
-	c.Player.Motion.Z += forward*float32(math.Cos(float64(yaw))) - strafe*float32(math.Sin(float64(yaw)))
+	c.Player.Motion.X -= strafe*math.Cos(yaw) + forward*math.Sin(yaw)
+	c.Player.Motion.Z += forward*math.Cos(yaw) - strafe*math.Sin(yaw)
 }
 
 func moveEntity(c *Client) basic.Error {
@@ -385,9 +385,9 @@ func moveEntity(c *Client) basic.Error {
 	// Apply block collision
 	playerBB = playerBB.Contract(0.001, 0.001, 0.001)
 	cursor := maths.NullVec3d
-	for cursor.Y = float32(math.Floor(float64(playerBB.MinY))); cursor.Y < float32(math.Ceil(float64(playerBB.MaxY))); cursor.Y++ {
-		for cursor.Z = float32(math.Floor(float64(playerBB.MinZ))); cursor.Z < float32(math.Ceil(float64(playerBB.MaxZ))); cursor.Z++ {
-			for cursor.X = float32(math.Floor(float64(playerBB.MinX))); cursor.X < float32(math.Ceil(float64(playerBB.MaxX))); cursor.X++ {
+	for cursor.Y = math.Floor(playerBB.MinY); cursor.Y < math.Ceil(playerBB.MaxY); cursor.Y++ {
+		for cursor.Z = math.Floor(playerBB.MinZ); cursor.Z < math.Ceil(playerBB.MaxZ); cursor.Z++ {
+			for cursor.X = math.Floor(playerBB.MinX); cursor.X < math.Ceil(playerBB.MaxX); cursor.X++ {
 				if getBlock, err := c.World.GetBlock(cursor); !err.Is(basic.NoError) {
 					continue
 				} else {
@@ -422,20 +422,37 @@ func moveEntity(c *Client) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func getSurroundingBB(c *Client, bb core.AxisAlignedBB) []core.AxisAlignedBB {
-	return nil
+func getSurroundingBB(c *Client, bb core.AxisAlignedBB[float64]) []core.AxisAlignedBB[float64] {
+	var blocks []core.AxisAlignedBB[float64]
+	for y := bb.MinY; y < bb.MaxY; y++ {
+		for z := bb.MinZ; z < bb.MaxZ; z++ {
+			for x := bb.MinX; x < bb.MaxX; x++ {
+				if getBlock, err := c.World.GetBlock(maths.Vec3d[float64]{X: x, Y: y, Z: z}); !err.Is(basic.NoError) {
+					continue
+				} else {
+					if block.StateList[getBlock].IsAir() {
+						continue
+					}
+
+					blocks = append(blocks, block.StateList[getBlock].GetCollisionBox())
+				}
+			}
+		}
+	}
+
+	return blocks
 }
 
 func (p *Player) Jump(c *Client) error {
 	if p.OnGround {
-		p.Motion = p.Motion.Add(maths.Vec3d{X: 0, Y: 0.42, Z: 0})
+		p.Motion = p.Motion.Add(maths.Vec3d[float64]{X: 0, Y: 0.42, Z: 0})
 		p.OnGround = false
 	}
 
 	return nil
 }
 
-func (p *Player) WalkTo(c *Client, pos maths.Vec3d) error {
+func (p *Player) WalkTo(c *Client, pos maths.Vec3d[float64]) error {
 	path := c.World.PathFind(p.Position, pos)
 	for _, v := range path {
 		// Set the motion

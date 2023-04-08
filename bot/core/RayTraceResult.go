@@ -7,7 +7,7 @@ import (
 
 type RayTraceResult struct {
 	// The position of the ray trace
-	Position maths.Vec3d
+	Position maths.Vec3d[float64]
 	// The side of the block that was hit
 	Side EnumFacing
 	// The block that was hit

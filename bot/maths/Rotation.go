@@ -4,23 +4,23 @@ import (
 	"math"
 )
 
-func ProjectPosition(rotation Vec2d, distance float32, offsetY float32) Vec3d {
-	x := distance * float32(math.Sin(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.Y))))
-	y := float32(0)
+func ProjectPosition(rotation Vec2d[float64], distance float64, offsetY float64) Vec3d[float64] {
+	x := distance * math.Sin(ToRadians(rotation.X)) * math.Cos(ToRadians(rotation.Y))
+	y := 0.0
 	if rotation.Y > 0 {
-		y = distance * float32(-math.Sin(ToRadians(float64(rotation.Y))))
+		y = distance * -math.Sin(ToRadians(rotation.Y))
 	} else {
-		y = distance * float32(math.Sin(ToRadians(float64(rotation.Y))))
+		y = distance * math.Sin(ToRadians(rotation.Y))
 	}
-	z := distance * float32(math.Cos(ToRadians(float64(rotation.X)))*math.Cos(ToRadians(float64(rotation.X))))
-	return Vec3d{X: x, Y: y + offsetY, Z: z}
+	z := distance * math.Cos(ToRadians(rotation.X)) * math.Cos(ToRadians(rotation.X))
+	return Vec3d[float64]{X: x, Y: y + offsetY, Z: z}
 }
 
-func GetRotationFromVector(vec Vec3d) Vec2d {
-	xz := math.Hypot(float64(vec.X), float64(vec.Z))
-	y := normalizeAngle(ToDegrees(math.Atan2(float64(vec.Z), float64(vec.X))) - 90)
-	x := normalizeAngle(ToDegrees(-math.Atan2(float64(vec.Y), xz)))
-	return Vec2d{X: float32(x), Y: float32(y)}
+func GetRotationFromVector(vec Vec3d[float64]) Vec2d[float64] {
+	xz := math.Hypot(vec.X, vec.Z)
+	y := normalizeAngle(ToDegrees(math.Atan2(vec.Z, vec.X)) - 90)
+	x := normalizeAngle(ToDegrees(-math.Atan2(vec.Y, xz)))
+	return Vec2d[float64]{X: x, Y: y}
 }
 
 func ToDegrees(angle float64) float64 {
