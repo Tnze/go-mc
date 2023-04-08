@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"compress/gzip"
 	_ "embed"
+	"github.com/Tnze/go-mc/data/shapes"
 	"math/bits"
 
+	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/nbt"
 )
 
@@ -19,6 +21,22 @@ func (b Block) StateID() StateID {
 
 func (b Block) Is(b2 IBlock) bool {
 	return b.ID() == b2.ID()
+}
+
+func (b Block) IsAir() bool {
+	return b.ID() == "minecraft:air"
+}
+
+func (b Block) IsLiquid() bool {
+	return b.ID() == "minecraft:water" || b.ID() == "minecraft:lava"
+}
+
+func (b Block) GetCollisionBox() core.AxisAlignedBB[float64] {
+	aabb := shapes.GetShape(b.ID(), int(b.StateID()))
+	return core.AxisAlignedBB[float64]{
+		MinX: aabb[0], MinY: aabb[1], MinZ: aabb[2],
+		MaxX: aabb[3], MaxY: aabb[4], MaxZ: aabb[5],
+	}
 }
 
 type IBlock interface {
