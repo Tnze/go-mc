@@ -44,13 +44,17 @@ var (
 
 var BlockShapes = map[string]Shape{
 	{{- range $k, $v := .}}
-	"{{$k}}": {{(camelcase $k)}},
+	"minecraft:{{$k}}": {{(camelcase $k)}},
 	{{- end}}
 }
 
 func GetShape(name string, data int) [6]float64 {
-	// Contact me if you'd like to write 935 different functions.
-	return BlockShapes[name].Shapes[data][0]
+	block := BlockShapes[name]
+	if state, ok := block.Shapes[0]; ok {
+		return state[0]
+	} else {
+		return block.Shapes[data][0]
+	}
 }
 `
 )
@@ -90,10 +94,22 @@ func main() {
 
 		switch v.(type) {
 		case float64:
-			newShapes[k][0] = shapes.Shapes[fmt.Sprintf("%v", v)]
+			aabb := shapes.Shapes[fmt.Sprintf("%v", v)]
+			if len(aabb) == 0 {
+				aabb = [][6]float64{
+					{0, 0, 0, 0, 0, 0},
+				}
+			}
+			newShapes[k][0] = aabb
 		case []interface{}:
 			for _, v2 := range v.([]interface{}) {
-				newShapes[k][int(v2.(float64))] = shapes.Shapes[fmt.Sprintf("%v", v2)]
+				aabb := shapes.Shapes[fmt.Sprintf("%v", v)]
+				if len(aabb) == 0 {
+					aabb = [][6]float64{
+						{0, 0, 0, 0, 0, 0},
+					}
+				}
+				newShapes[k][int(v2.(float64))] = aabb
 			}
 		}
 	}
