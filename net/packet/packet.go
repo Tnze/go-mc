@@ -101,13 +101,13 @@ func (p *Packet) packWithCompression(w io.Writer, threshold int) error {
 	return err
 }
 
-func compressPacket(w io.Writer, PacketID int32, Data []byte) error {
+func compressPacket(w io.Writer, packetID int32, data []byte) error {
 	zw := zlibPool.Get().(*zlib.Writer)
 	defer zlibPool.Put(zw)
 	zw.Reset(w)
 
-	_, _ = VarInt(PacketID).WriteTo(zw)
-	if _, err := zw.Write(Data); err != nil {
+	_, _ = VarInt(packetID).WriteTo(zw)
+	if _, err := zw.Write(data); err != nil {
 		return err
 	}
 	return zw.Close()
