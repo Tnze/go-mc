@@ -42,7 +42,11 @@ func (b Block) IsLiquid() bool {
 }
 
 func (b Block) GetCollisionBox() maths.AxisAlignedBB[float64] {
-	return shapes.GetShape(b.ID(), int(b.StateID()))
+	aabb := shapes.GetShape(b.ID(), int(b.StateID()))
+	return maths.AxisAlignedBB[float64]{
+		MinX: aabb[0], MinY: aabb[1], MinZ: aabb[2],
+		MaxX: aabb[3], MaxY: aabb[4], MaxZ: aabb[5],
+	}
 }
 
 type IBlock interface {

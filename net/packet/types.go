@@ -57,7 +57,7 @@ type (
 	VarLong int64
 
 	//Position x as a 26-bit integer, followed by y as a 12-bit integer, followed by z as a 26-bit integer (all signed, two's complement)
-	Position maths.Vec3d
+	Position maths.Vec3d[float64]
 
 	//Angle is rotation angle in steps of 1/256 of a full turn
 	Angle Byte
@@ -348,7 +348,7 @@ func (p *Position) ReadFrom(r io.Reader) (n int64, err error) {
 		z -= 1 << 26
 	}
 
-	p.X, p.Y, p.Z = float32(x), float32(y), float32(z)
+	p.X, p.Y, p.Z = float64(x), float64(y), float64(z)
 	return
 }
 

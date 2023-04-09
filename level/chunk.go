@@ -224,14 +224,10 @@ func readStatesPalette(palette []save.BlockState, data []uint64) (blockCount int
 				return 0, nil, fmt.Errorf("unmarshal block properties fail: %v", err)
 			}
 		}
-		s, ok := block.ToStateID[b]
-		if !ok {
-			return 0, nil, fmt.Errorf("unknown block: %v", b)
-		}
-		if !block.IsAir(s) {
+		if b.IsAir() {
 			blockCount++
 		}
-		statePalette[i] = s
+		statePalette[i] = b.StateID()
 	}
 	paletteData = NewStatesPaletteContainerWithData(16*16*16, data, statePalette)
 	return
@@ -473,10 +469,9 @@ func (s *Section) GetBlock(i int) BlocksState {
 }
 
 func (s *Section) SetBlock(i int, v BlocksState) {
-	if block.IsAir(s.States.Get(i)) {
+	if s.States.Get(i) == 0 {
 		s.BlockCount--
-	}
-	if v != 0 {
+	} else {
 		s.BlockCount++
 	}
 	s.States.Set(i, v)

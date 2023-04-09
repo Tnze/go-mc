@@ -7,6 +7,7 @@ import (
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/bot/world"
+	"github.com/Tnze/go-mc/data/enums"
 	"github.com/Tnze/go-mc/data/packetid"
 	. "github.com/Tnze/go-mc/data/slots"
 	"github.com/Tnze/go-mc/level/block"
@@ -116,7 +117,7 @@ func ApplyPhysics(c *Client) basic.Error {
 				return err
 			} else {
 				if getBlock.Is(block.HoneyBlock{}) {
-					c.Player.Motion = c.Player.Motion.Offset(0, 0.42*core.HoneyBlockMultiplier, 0)
+					c.Player.Motion = c.Player.Motion.Offset(0, 0.42*enums.HoneyBlockMultiplier, 0)
 				} else {
 					c.Player.Motion = c.Player.Motion.Offset(0, 0.42, 0)
 				}
@@ -141,8 +142,8 @@ func ApplyPhysics(c *Client) basic.Error {
 	forward := (c.Player.Controller.Forward - c.Player.Controller.Back) * 0.98
 
 	if c.Player.Controller.Sneak {
-		strafe *= core.SneakSpeed
-		forward *= core.SneakSpeed
+		strafe *= enums.SneakSpeed
+		forward *= enums.SneakSpeed
 	}
 
 	if err := moveEntityWithHeading(c, strafe, forward); !err.Is(basic.NoError) {
@@ -166,8 +167,8 @@ func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
 	}
 
 	if !getBlock.Is(block.Water{}) && !getBlock.Is(block.Lava{}) {
-		acceleration := core.AirBornAcceleration
-		inertia := core.AirBornInertia
+		acceleration := enums.AirBornAcceleration
+		inertia := enums.AirBornInertia
 
 		/*if !block.IsAir(getBlock) && c.Player.OnGround {
 			inertia = float32(core.Slipperiness(getBlock) * core.AirBornInertia)
@@ -186,26 +187,26 @@ func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
 			c.Player.Motion.Y += (0.05 * c.Player.Effects[core.SlowFalling] - c.Player.Motion.Y) * 0.2
 		} else {}
 		*/
-		c.Player.Motion.Y -= core.Gravity * gravityMultiplier
+		c.Player.Motion.Y -= enums.Gravity * gravityMultiplier
 
 		// Apply friction
 		c.Player.Motion = c.Player.Motion.OffsetMul(
 			inertia,
-			core.AirDrag,
+			enums.AirDrag,
 			inertia,
 		)
 	} else {
 		// In lava/water
 		lastY := c.Player.Motion.Y
-		acceleration := core.LiquidAcceleration
+		acceleration := enums.LiquidAcceleration
 		inertia := 0.0
-		gravity := core.WaterGravity
+		gravity := enums.WaterGravity
 		if getBlock.Is(block.Water{}) {
-			inertia = core.WaterInertia
+			inertia = enums.WaterInertia
 			// TODO: Depth strider
 		} else {
-			inertia = core.LavaInertia
-			gravity = core.LavaGravity
+			inertia = enums.LavaInertia
+			gravity = enums.LavaGravity
 		}
 		horizontalMotion := inertia
 
@@ -226,7 +227,7 @@ func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
 		)
 
 		if len(getSurroundingBB(c, c.Player.BoundingBox.Offset(c.Player.Motion.X, c.Player.Motion.Y+0.6-c.Player.Position.Y+lastY, c.Player.Motion.Z))) == 0 {
-			c.Player.Motion.Y = core.OutOfLiquidImpulse
+			c.Player.Motion.Y = enums.OutOfLiquidImpulse
 		}
 	}
 
@@ -322,7 +323,7 @@ func moveEntity(c *Client) basic.Error {
 		oVXC, oVYC, oVZC := dX, dY, dZ
 
 		// Step up blocks
-		dY = core.StepHeight
+		dY = enums.StepHeight
 		queryBB = oldBB.Expand(c.Player.Motion.X, dY, oDz)
 		collidingBB = getSurroundingBB(c, queryBB)
 
@@ -391,11 +392,11 @@ func moveEntity(c *Client) basic.Error {
 					continue
 				} else {
 					if getBlock.Is(block.SoulSand{}) {
-						c.Player.Motion.X *= core.SoulSandMultiplier
-						c.Player.Motion.Z *= core.SoulSandMultiplier
+						c.Player.Motion.X *= enums.SoulSandMultiplier
+						c.Player.Motion.Z *= enums.SoulSandMultiplier
 					} else if getBlock.Is(block.HoneyBlock{}) {
-						c.Player.Motion.X *= core.HoneyBlockMultiplier
-						c.Player.Motion.Z *= core.HoneyBlockMultiplier
+						c.Player.Motion.X *= enums.HoneyBlockMultiplier
+						c.Player.Motion.Z *= enums.HoneyBlockMultiplier
 					} else if getBlock.Is(block.Cobweb{}) {
 						// Set cobweb to true
 					}
@@ -408,11 +409,11 @@ func moveEntity(c *Client) basic.Error {
 		return err
 	} else {
 		if blockBelow.Is(block.SoulSand{}) {
-			c.Player.Motion.X *= core.SoulSandMultiplier
-			c.Player.Motion.Z *= core.SoulSandMultiplier
+			c.Player.Motion.X *= enums.SoulSandMultiplier
+			c.Player.Motion.Z *= enums.SoulSandMultiplier
 		} else if blockBelow.Is(block.HoneyBlock{}) {
-			c.Player.Motion.X *= core.HoneyBlockMultiplier
-			c.Player.Motion.Z *= core.HoneyBlockMultiplier
+			c.Player.Motion.X *= enums.HoneyBlockMultiplier
+			c.Player.Motion.Z *= enums.HoneyBlockMultiplier
 		} else if blockBelow.Is(block.Cobweb{}) {
 			// Set cobweb to true
 		}

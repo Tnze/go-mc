@@ -9,19 +9,19 @@ import (
 type WorldInfo struct {
 	DimensionCodec      DimensionCodec
 	DimensionType       string
-	DimensionNames      []string    // Identifiers for all worlds on the server.
-	DimensionName       string      // Name of the world being spawned into.
-	HashedSeed          int64       // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
-	MaxPlayers          int32       // Was once used by the client to draw the player list, but now is ignored.
-	ViewDistance        int32       // Render distance (2-32).
-	SimulationDistance  int32       // The distance that the client will process specific things, such as entities.
-	ReducedDebugInfo    bool        // If true, a Notchian client shows reduced information on the debug screen. For servers in development, this should almost always be false.
-	EnableRespawnScreen bool        // Set to false when the doImmediateRespawn gamerule is true.
-	IsDebug             bool        // True if the world is a debug mode world; debug mode worlds cannot be modified and have predefined blocks.
-	IsFlat              bool        // True if the world is a superflat world; flat worlds have different void fog and a horizon at y=0 instead of y=63.
-	HasDeathLocation    bool        // If true, then the next two fields are present.
-	DeathDimensionName  string      // The name of the dimension the player died in.
-	DeathPosition       maths.Vec3d // The position the player died at.
+	DimensionNames      []string             // Identifiers for all worlds on the server.
+	DimensionName       string               // Name of the world being spawned into.
+	HashedSeed          int64                // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
+	MaxPlayers          int32                // Was once used by the client to draw the player list, but now is ignored.
+	ViewDistance        int32                // Render distance (2-32).
+	SimulationDistance  int32                // The distance that the client will process specific things, such as entities.
+	ReducedDebugInfo    bool                 // If true, a Notchian client shows reduced information on the debug screen. For servers in development, this should almost always be false.
+	EnableRespawnScreen bool                 // Set to false when the doImmediateRespawn gamerule is true.
+	IsDebug             bool                 // True if the world is a debug mode world; debug mode worlds cannot be modified and have predefined blocks.
+	IsFlat              bool                 // True if the world is a superflat world; flat worlds have different void fog and a horizon at y=0 instead of y=63.
+	HasDeathLocation    bool                 // If true, then the next two fields are present.
+	DeathDimensionName  string               // The name of the dimension the player died in.
+	DeathPosition       maths.Vec3d[float64] // The position the player died at.
 }
 
 type Dimension struct {
