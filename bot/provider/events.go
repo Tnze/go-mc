@@ -9,8 +9,6 @@ import (
 	"github.com/Tnze/go-mc/data/effects"
 	"github.com/Tnze/go-mc/level"
 	"github.com/Tnze/go-mc/net/transactions"
-	"github.com/Tnze/go-mc/data/item"
-	"github.com/Tnze/go-mc/level"
 	"time"
 	"unsafe"
 
@@ -36,7 +34,7 @@ func (e EventsListener) Attach(c *Client) {
 
 	c.Events.AddTicker(
 		TickHandler{Priority: int(^uint(0) >> 1), F: ApplyPhysics},
-    TickHandler{Priority: int(^uint(0) >> 1), F: RunTransactions},
+		TickHandler{Priority: int(^uint(0) >> 1), F: RunTransactions},
 	)
 }
 
@@ -447,7 +445,6 @@ func (e *EventsListener) SetContainerProperty(c *Client, p pk.Packet) basic.Erro
 		property pk.Short
 		value    pk.Short
 	)
-
 
 	if err := p.Scan(&windowID, &property, &value); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read WindowProperty packet: %w", err)}
