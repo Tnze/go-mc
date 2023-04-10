@@ -1,5 +1,10 @@
 package enums
 
+import (
+	"github.com/Tnze/go-mc/level"
+	"github.com/Tnze/go-mc/level/block"
+)
+
 const (
 	Gravity              = 0.08
 	AirDrag              = 0.98
@@ -9,7 +14,7 @@ const (
 	SprintSpeed          = 0.3
 	SneakSpeed           = 0.3
 	StepHeight           = 0.6
-	NegligeableVelocity  = 0.003
+	NegligibleVelocity   = 0.003
 	SoulSandMultiplier   = 0.4
 	HoneyBlockMultiplier = 0.4
 	LadderMaxSpeed       = 0.15
@@ -26,7 +31,7 @@ const (
 	SlowFalling          = 0.125
 )
 
-/*func Slipperiness(b level.BlocksState) float64 {
+func Slipperiness(b level.BlocksState) float64 {
 	if t, ok := slipperiness[b]; ok {
 		return t
 	} else {
@@ -41,4 +46,4 @@ var slipperiness = map[level.BlocksState]float64{
 	block.ToStateID[block.Ice{}]:        0.98,
 	block.ToStateID[block.PackedIce{}]:  0.98,
 	block.ToStateID[block.FrostedIce{}]: 0.98,
-}*/
+}

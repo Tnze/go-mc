@@ -73,6 +73,10 @@ func (v Vec3d[T]) Normalize() Vec3d[T] {
 	return Vec3d[T]{X: v.X / length, Y: v.Y / length, Z: v.Z / length}
 }
 
+func (v Vec3d[T]) Spread() (T, T, T) {
+	return v.X, v.Y, v.Z
+}
+
 func (v Vec3d[T]) ToChunkPos() [2]int32 {
 	return [2]int32{int32(v.X) >> 4, int32(v.Z) >> 4}
 }

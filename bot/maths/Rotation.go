@@ -16,11 +16,12 @@ func ProjectPosition(rotation Vec2d[float64], distance float64, offsetY float64)
 	return Vec3d[float64]{X: x, Y: y + offsetY, Z: z}
 }
 
-func GetRotationFromVector(vec Vec3d[float64]) Vec2d[float64] {
-	xz := math.Hypot(vec.X, vec.Z)
-	y := normalizeAngle(ToDegrees(math.Atan2(vec.Z, vec.X)) - 90)
-	x := normalizeAngle(ToDegrees(-math.Atan2(vec.Y, xz)))
-	return Vec2d[float64]{X: x, Y: y}
+func GetVectorFromRotation(rotation Vec2d[float64]) Vec3d[float64] {
+	f := math.Cos(ToRadians(-rotation.Y)*0.017453292 - math.Pi)
+	f1 := math.Sin(ToRadians(-rotation.Y)*0.017453292 - math.Pi)
+	f2 := -math.Cos(ToRadians(-rotation.X) * 0.017453292)
+	f3 := math.Sin(ToRadians(-rotation.X) * 0.017453292)
+	return Vec3d[float64]{X: f1 * f2, Y: f3, Z: f * f2}
 }
 
 func ToDegrees(angle float64) float64 {

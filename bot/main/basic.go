@@ -7,6 +7,7 @@ import (
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/bot/world"
+	"github.com/Tnze/go-mc/data/effects"
 	"github.com/Tnze/go-mc/data/enums"
 	"github.com/Tnze/go-mc/data/packetid"
 	. "github.com/Tnze/go-mc/data/slots"
@@ -21,10 +22,15 @@ type Player struct {
 	*core.EntityPlayer
 	*core.Controller
 	*screen.Manager
-	Settings  basic.Settings
-	isSpawn   bool
-	fallTicks float32
-	jumpTicks float32
+	Settings             basic.Settings
+	isSpawn              bool
+	fallTicks            float32
+	fallDistance         float32
+	stepHeight           float32
+	jumpTicks            float32
+	collidedHorizontally bool
+	collidedVertically   bool
+	collided             bool
 }
 
 func NewPlayer(settings basic.Settings) *Player {
@@ -38,6 +44,7 @@ func NewPlayer(settings basic.Settings) *Player {
 					Motion:   maths.Vec3d[float64]{},
 					Rotation: maths.Vec2d[float64]{},
 				},
+				ActivePotionEffects: make(map[int32]*effects.EffectStatus),
 			},
 		},
 		Controller: &core.Controller{},
@@ -87,14 +94,250 @@ func (p *Player) Chat(c *Client, msg string) error {
 	return nil
 }
 
-func ApplyPhysics(c *Client) basic.Error {
-	oldPos := c.Player.Position
-	c.Player.SetPosition(c.Player.Position.Add(c.Player.Motion))
-	if oldPos == c.Player.Position || c.Player.Motion.Length() < 0.0001 {
-		c.Player.Motion = maths.NullVec3d
-		return basic.Error{Err: basic.NoError, Info: nil}
+func (p *Player) handleJumpWater() {
+	p.Motion.Y += 0.03999999910593033
+}
+
+func (p *Player) handleJumpLava() {
+	p.Motion.Y += 0.03999999910593033
+}
+
+func (p *Player) Jump() {
+	p.Motion.Y += 0.42
+
+	if p.IsPotionActive(effects.JumpBoost) {
+		p.Motion.Y += 0.1 * float64(p.GetPotionEffect(effects.JumpBoost).Amplifier+1)
 	}
 
+	// TODO: Check if the player is sprinting
+}
+
+func (p *Player) travel(c *Client) error {
+	if getBlock, err := c.World.GetBlock(p.Position); !err.Is(basic.NoError) {
+		return err
+	} else {
+		if !getBlock.Is(block.Water{}) {
+			if !getBlock.Is(block.Lava{}) {
+				// Replace with elytra flying
+				if false {
+					if p.Motion.Y > -0.5 {
+						p.fallDistance = 1.0
+					}
+
+					vecRotation := maths.GetVectorFromRotation(p.Rotation)
+					f := p.Rotation.X * 0.017453292
+					d6 := math.Sqrt(vecRotation.X*vecRotation.X + vecRotation.Z*vecRotation.Z)
+					d8 := math.Sqrt(p.Motion.X*p.Motion.X + p.Motion.Z*p.Motion.Z)
+					d1 := vecRotation.Length()
+					f4 := math.Cos(f)
+					f4 = f4 * f4 * math.Min(1.0, d1/0.4)
+					p.Motion.Y += -0.08 + f4*0.06
+
+					if p.Motion.Y < 0.0 && d6 > 0.0 {
+						d2 := p.Motion.Y * -0.1 * f4
+						p.Motion.Y += d2
+						p.Motion.X += vecRotation.X * d2 / d6
+						p.Motion.Z += vecRotation.Z * d2 / d6
+					}
+
+					if f < 0.0 {
+						d10 := d8 * -math.Sin(f) * 0.04
+						p.Motion.Y += d10 * 3.2
+						p.Motion.X -= vecRotation.X * d10 / d6
+						p.Motion.Z -= vecRotation.Z * d10 / d6
+					}
+
+					if d6 > 0.0 {
+						p.Motion.X += (vecRotation.X/d6*d8 - p.Motion.X) * 0.1
+						p.Motion.Z += (vecRotation.Z/d6*d8 - p.Motion.Z) * 0.1
+					}
+
+					p.Motion.X *= 0.9900000095367432
+					p.Motion.Y *= 0.9800000190734863
+					p.Motion.Z *= 0.9900000095367432
+					p.move(enums.MoverTypeSelf, c, p.Motion)
+				} else {
+					f6 := 0.91
+
+					if p.OnGround {
+						position := maths.Vec3d[float64]{X: p.Position.X, Y: p.BoundingBox.MinY - 1, Z: p.Position.Z}
+						getBlock, _ := c.World.GetBlock(position)
+						f6 = enums.Slipperiness(getBlock.StateID())
+					}
+
+					//f7 := 0.16277136 / (f6 * f6 * f6)
+					f8 := 0.02
+					p.moveRelative(p.Motion, f8)
+					f6 = 0.91
+
+					if p.OnGround {
+						position := maths.Vec3d[float64]{X: p.Position.X, Y: p.BoundingBox.MinY - 1, Z: p.Position.Z}
+						getBlock, _ := c.World.GetBlock(position)
+						f6 = enums.Slipperiness(getBlock.StateID())
+					}
+
+					// TODO: Check if the player is on a ladder
+
+					p.move(enums.MoverTypeSelf, c, p.Motion)
+
+					// TODO: Check if the player is on a ladder and collided horizontally
+
+					if p.IsPotionActive(effects.Levitation) {
+						p.Motion.Y += (0.05*float64(p.GetPotionEffect(effects.Levitation).Amplifier+1) - p.Motion.Y) * 0.2
+					} else {
+						p.Motion.Y -= 0.08
+					}
+
+					p.Motion.Y *= 0.9800000190734863
+					p.Motion.X *= f6
+					p.Motion.Z *= f6
+				}
+			} else {
+				//d4 := p.Position.Y
+				p.moveRelative(p.Motion, 0.02)
+				p.move(enums.MoverTypeSelf, c, p.Motion)
+
+				p.Motion.X *= 0.5
+				p.Motion.Y *= 0.5
+				p.Motion.Z *= 0.5
+
+				p.Motion.Y -= 0.02
+
+				if p.collidedHorizontally /*&& p.isOffsetPositionInLiquid(p.Motion.X, p.Motion.Y+0.6000000238418579-p.Position.Y+d4, p.Motion.Z)*/ {
+					p.Motion.Y = 0.30000001192092896
+				}
+			}
+		} else {
+			//d0 := p.Position.Y
+			f1 := enums.WaterInertia
+			f2 := 0.02
+
+			// TODO: Get depth strider enchantment level
+
+			p.moveRelative(p.Motion, f2)
+			p.move(enums.MoverTypeSelf, c, p.Motion)
+			p.Motion.X *= f1
+			p.Motion.Y *= 0.800000011920929
+			p.Motion.Z *= f1
+
+			p.Motion.Y -= 0.02
+
+			if p.collidedHorizontally /*&& p.isOffsetPositionInLiquid(p.Motion.X, p.Motion.Y+0.6000000238418579-p.Position.Y+d0, p.Motion.Z)*/ {
+				p.Motion.Y = 0.30000001192092896
+			}
+		}
+	}
+
+	return nil
+}
+
+func (p *Player) move(moveType enums.MoverType, c *Client, motion maths.Vec3d[float64]) error {
+	if moveType == enums.MoverTypePiston {
+	}
+
+	x := motion.X
+	y := motion.Y
+	z := motion.Z
+
+	if getBlock, err := c.World.GetBlock(p.Position); !err.Is(basic.NoError) {
+		return err
+	} else {
+		if getBlock.Is(block.Cobweb{}) {
+			x *= 0.25
+			y *= 0.05000000074505806
+			z *= 0.25
+			p.Motion = maths.NullVec3d
+		}
+	}
+
+	if (moveType == enums.MoverTypePlayer || moveType == enums.MoverTypeSelf) && p.OnGround {
+		/*for ; x != 0.0 && len(c.World.GetCollisionBoxes(*p.Entity, p.BoundingBox.Offset(x, -1.0, 0.0))) == 0; x = motion.X {
+			if x < 0.05 && x >= -0.05 {
+				x = 0.0
+			} else if x > 0.0 {
+				x -= 0.05
+			} else {
+				x += 0.05
+			}
+		}
+
+		for ; z != 0.0 && len(c.World.GetCollisionBoxes(*p.Entity, p.BoundingBox.Offset(0.0, -1.0, z))) == 0; y = motion.Y {
+			if z < 0.05 && z >= -0.05 {
+				z = 0.0
+			} else if z > 0.0 {
+				z -= 0.05
+			} else {
+				z += 0.05
+			}
+		}
+
+		for ; x != 0.0 && z != 0.0 && len(c.World.GetCollisionBoxes(*p.Entity, p.BoundingBox.Offset(x, -1.0, z))) == 0; z = motion.Z {
+			if x < 0.05 && x >= -0.05 {
+				x = 0.0
+			} else if x > 0.0 {
+				x -= 0.05
+			} else {
+				x += 0.05
+			}
+
+			x = motion.X
+
+			if z < 0.05 && z >= -0.05 {
+				z = 0.0
+			} else if z > 0.0 {
+				z -= 0.05
+			} else {
+				z += 0.05
+			}
+		}*/
+
+		// TODO: Add entity collision
+
+		//flag := p.OnGround || y != motion.Y && y < 0.0
+
+		// TODO: Add step
+
+		p.collidedHorizontally = x != motion.X || z != motion.Z
+		p.collidedVertically = y != motion.Y
+		p.OnGround = p.collidedVertically && y < 0.0
+		p.collided = p.collidedHorizontally || p.collidedVertically
+		//j6 := math.Floor(p.Position.X)
+		//i1 := math.Floor(p.Position.Y - 0.20000000298023224)
+		//k6 := math.Floor(p.Position.Z)
+		//getBlock, _ := c.World.GetBlock(maths.Vec3d[float64]{X: j6, Y: i1, Z: k6})
+		if p.OnGround {
+			p.fallDistance = 0.0
+		} else if y < 0.0 {
+			p.fallDistance -= float32(y)
+		}
+
+		if x != motion.X {
+			p.Motion.X = 0.0
+		}
+
+		if y != motion.Y {
+			p.Motion.Y = 0.0
+		}
+
+		if z != motion.Z {
+			p.Motion.Z = 0.0
+		}
+	}
+	return nil
+}
+
+func (p *Player) moveRelative(motion maths.Vec3d[float64], friction float64) {
+}
+
+func (p *Player) updateFallState(y float64, onGround bool, getBlock block.Block) {
+	if onGround {
+		p.fallDistance = 0.0
+	} else if y < 0.0 {
+		p.fallDistance -= float32(y)
+	}
+}
+
+func ApplyPhysics(c *Client) basic.Error {
 	if err := c.Conn.WritePacket(
 		pk.Marshal(
 			packetid.SPacketPlayerPosition,
@@ -107,349 +350,38 @@ func ApplyPhysics(c *Client) basic.Error {
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("failed to send player position: %v", err)}
 	}
 
-	if c.Player.Controller.Jump {
-		if c.Player.jumpTicks > 0 {
-			c.Player.jumpTicks--
-		}
-		// TODO: Check if the player is in water or lava
-		if c.Player.OnGround && c.Player.jumpTicks == 0 {
-			if getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0, 0.5, 0)); !err.Is(basic.NoError) {
-				return err
-			} else {
-				if getBlock.Is(block.HoneyBlock{}) {
-					c.Player.Motion = c.Player.Motion.Offset(0, 0.42*enums.HoneyBlockMultiplier, 0)
-				} else {
-					c.Player.Motion = c.Player.Motion.Offset(0, 0.42, 0)
-				}
-
-				// TODO: Jump boost
-				if c.Player.Controller.Sprint {
-					yaw := math.Pi - c.Player.Rotation.Y
-					c.Player.Motion = c.Player.Motion.Offset(
-						0.2*math.Cos(yaw),
-						0,
-						0.2*math.Sin(yaw),
-					)
-				}
-				c.Player.jumpTicks = 10 // Auto jump cooldown
-			}
-		} else {
-			c.Player.jumpTicks = 0
-		}
+	if c.Player.jumpTicks > 0 {
+		c.Player.jumpTicks--
 	}
 
-	strafe := (c.Player.Controller.Right - c.Player.Controller.Left) * 0.98
-	forward := (c.Player.Controller.Forward - c.Player.Controller.Back) * 0.98
-
-	if c.Player.Controller.Sneak {
-		strafe *= enums.SneakSpeed
-		forward *= enums.SneakSpeed
-	}
-
-	if err := moveEntityWithHeading(c, strafe, forward); !err.Is(basic.NoError) {
-		return err
-	}
-
-	c.Player.SetLastPosition(c.Player.Position)
-
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func moveEntityWithHeading(c *Client, strafe, forward float64) basic.Error {
-	gravityMultiplier := 1.0
-	/*if c.Player.Motion.Y <= 0 && c.Player.Effects[core.EffectSlowFalling] > 0 {
-		gravityMultiplier = core.SlowFalling
+	/*if c.Player.Motion.Length() < enums.NegligibleVelocity {
+		c.Player.Motion = maths.NullVec3d
+		return basic.Error{Err: basic.NoError, Info: nil}
 	}*/
 
-	getBlock, err := c.World.GetBlock(c.Player.Position.Offset(0.0, 0.5, 0.0))
-	if !err.Is(basic.NoError) {
-		return err
-	}
-
-	if !getBlock.Is(block.Water{}) && !getBlock.Is(block.Lava{}) {
-		acceleration := enums.AirBornAcceleration
-		inertia := enums.AirBornInertia
-
-		/*if !block.IsAir(getBlock) && c.Player.OnGround {
-			inertia = float32(core.Slipperiness(getBlock) * core.AirBornInertia)
-			acceleration = 0.1 * (0.1627714 / (inertia * inertia * inertia))
-		}*/
-
-		applyHeading(c, strafe, forward, acceleration)
-		// Check if on ladder
-
-		if err := moveEntity(c); !err.Is(basic.NoError) {
-			return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("failed to move entity: %v", err)}
-		}
-
-		// Apply gravity
-		/*if c.Player.Effects[core.SlowFalling] > 0 {
-			c.Player.Motion.Y += (0.05 * c.Player.Effects[core.SlowFalling] - c.Player.Motion.Y) * 0.2
-		} else {}
-		*/
-		c.Player.Motion.Y -= enums.Gravity * gravityMultiplier
-
-		// Apply friction
-		c.Player.Motion = c.Player.Motion.OffsetMul(
-			inertia,
-			enums.AirDrag,
-			inertia,
-		)
-	} else {
-		// In lava/water
-		lastY := c.Player.Motion.Y
-		acceleration := enums.LiquidAcceleration
-		inertia := 0.0
-		gravity := enums.WaterGravity
-		if getBlock.Is(block.Water{}) {
-			inertia = enums.WaterInertia
-			// TODO: Depth strider
+	if c.Player.Controller.Jump {
+		if getBlock, err := c.World.GetBlock(c.Player.Position); !err.Is(basic.NoError) {
+			return err
 		} else {
-			inertia = enums.LavaInertia
-			gravity = enums.LavaGravity
+			if getBlock.Is(block.Water{}) {
+				c.Player.handleJumpWater()
+			} else if getBlock.Is(block.Lava{}) {
+				c.Player.handleJumpLava()
+			} else if c.Player.OnGround && c.Player.jumpTicks == 0 {
+				c.Player.Jump()
+				c.Player.jumpTicks = 10
+			}
 		}
-		horizontalMotion := inertia
-
-		applyHeading(c, strafe, forward, acceleration)
-		if err := moveEntity(c); !err.Is(basic.NoError) {
-			return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("failed to move entity: %v", err)}
-		}
-
-		c.Player.Motion = c.Player.Motion.OffsetMul(
-			horizontalMotion,
-			inertia,
-			horizontalMotion,
-		)
-		c.Player.Motion = c.Player.Motion.Offset(
-			0,
-			gravity*gravityMultiplier,
-			0,
-		)
-
-		if len(getSurroundingBB(c, c.Player.BoundingBox.Offset(c.Player.Motion.X, c.Player.Motion.Y+0.6-c.Player.Position.Y+lastY, c.Player.Motion.Z))) == 0 {
-			c.Player.Motion.Y = enums.OutOfLiquidImpulse
-		}
+	} else {
+		c.Player.jumpTicks = 0
 	}
+
+	// Start section: Travel
+	c.Player.travel(c)
+
+	c.Player.Position = c.Player.Position.Add(c.Player.Motion)
 
 	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func applyHeading(c *Client, strafe, forward, multiplier float64) {
-	speed := math.Sqrt(strafe*strafe + forward*forward)
-	speed = multiplier / math.Max(speed, 1.0)
-	strafe *= speed
-	forward *= speed
-
-	yaw := math.Pi - c.Player.Rotation.Y
-	c.Player.Motion.X -= strafe*math.Cos(yaw) + forward*math.Sin(yaw)
-	c.Player.Motion.Z += forward*math.Cos(yaw) - strafe*math.Sin(yaw)
-}
-
-func moveEntity(c *Client) basic.Error {
-	if getBlock, err := c.World.GetBlock(c.Player.Position); !err.Is(basic.NoError) {
-		return err
-	} else if getBlock.Is(block.Cobweb{}) {
-		c.Player.Motion = c.Player.Motion.OffsetMul(0.25, 0.05, 0.25)
-	}
-	dX, dY, dZ := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
-	oDx, oDy, oDz := c.Player.Motion.X, c.Player.Motion.Y, c.Player.Motion.Z
-
-	if c.Player.Controller.Sneak && c.Player.OnGround {
-		step := 0.5
-
-		for ; dX != 0 && len(getSurroundingBB(c, c.Player.BoundingBox.Offset(dX, 0, 0))) == 0; oDx = dX {
-			if dX < step && dX >= -step {
-				dX = 0
-			} else if dX > 0 {
-				dX -= step
-			} else {
-				dX += step
-			}
-		}
-
-		for ; dY != 0 && len(getSurroundingBB(c, c.Player.BoundingBox.Offset(0, 0, dZ))) == 0; oDz = dZ {
-			if dZ < step && dZ >= -step {
-				dZ = 0
-			} else if dZ > 0 {
-				dZ -= step
-			} else {
-				dZ += step
-			}
-		}
-
-		for dX != 0 && dZ != 0 && len(getSurroundingBB(c, c.Player.BoundingBox.Offset(dX, 0, dZ))) == 0 {
-			if dX < step && dX >= -step {
-				dX = 0
-			} else if dX > 0 {
-				dX -= step
-			} else {
-				dX += step
-			}
-
-			if dZ < step && dZ >= -step {
-				dZ = 0
-			} else if dZ > 0 {
-				dZ -= step
-			} else {
-				dZ += step
-			}
-
-			oDx = dX
-			oDz = dZ
-		}
-	}
-
-	playerBB := c.Player.BoundingBox
-	queryBB := playerBB.Offset(dX, dY, dZ)
-	collidingBB := getSurroundingBB(c, queryBB)
-	oldBB := c.Player.BoundingBox
-
-	for _, bb := range collidingBB {
-		dY = bb.CollideY(playerBB, dY)
-	}
-	playerBB = playerBB.Offset(0, dY, 0)
-
-	for _, bb := range collidingBB {
-		dX = bb.CollideX(playerBB, dX)
-	}
-	playerBB = playerBB.Offset(dX, 0, 0)
-
-	for _, bb := range collidingBB {
-		dZ = bb.CollideZ(playerBB, dZ)
-	}
-	playerBB = playerBB.Offset(0, 0, dZ)
-
-	if c.Player.OnGround || (oDy != dY && oDy < 0) && (dX != oDx || dZ != oDz) {
-		oVXC, oVYC, oVZC := dX, dY, dZ
-
-		// Step up blocks
-		dY = enums.StepHeight
-		queryBB = oldBB.Expand(c.Player.Motion.X, dY, oDz)
-		collidingBB = getSurroundingBB(c, queryBB)
-
-		BB1, BB2 := oldBB, oldBB
-		BB_XZ := BB1.Expand(dX, 0, dZ)
-
-		dY1, dY2 := oDy, oDy
-		for _, bb := range collidingBB {
-			dY1 = bb.CollideY(BB_XZ, dY1)
-			dY2 = bb.CollideY(BB1, dY2)
-		}
-		BB1 = BB1.Offset(0, dY1, 0)
-		BB2 = BB2.Offset(0, dY2, 0)
-
-		dX1, dX2 := oDx, oDx
-		for _, bb := range collidingBB {
-			dX1 = bb.CollideX(BB1, dX1)
-			dX2 = bb.CollideX(BB2, dX2)
-		}
-		BB1 = BB1.Offset(dX1, 0, 0)
-		BB2 = BB2.Offset(dX2, 0, 0)
-
-		dZ1, dZ2 := dZ, dZ
-		for _, bb := range collidingBB {
-			dZ1 = bb.CollideZ(BB1, dZ1)
-			dZ2 = bb.CollideZ(BB2, dZ2)
-		}
-		BB1 = BB1.Offset(0, 0, dZ1)
-		BB2 = BB2.Offset(0, 0, dZ2)
-
-		norm1, norm2 := dX1*dX1+dZ1*dZ1, dX2*dX2+dZ2*dZ2
-
-		if norm1 > norm2 {
-			dX, dY, dZ = dX1, -dY1, dZ1
-		} else {
-			dX, dY, dZ = dX2, -dY2, dZ2
-			playerBB = BB2
-		}
-
-		for _, bb := range collidingBB {
-			dY = bb.CollideY(playerBB, dY)
-		}
-		playerBB = playerBB.Offset(0, dY, 0)
-
-		if oVXC*oVXC+oVZC*oVZC >= dX*dX+dZ*dZ {
-			dX, dY, dZ = oVXC, oVYC, oVZC
-			playerBB = oldBB
-		}
-	} else {
-		c.Player.OnGround = false
-	}
-
-	c.Player.Position = c.Player.Position.Offset(
-		playerBB.MinX+0.3,
-		playerBB.MinY,
-		playerBB.MinZ+0.3,
-	)
-
-	// Apply block collision
-	playerBB = playerBB.Contract(0.001, 0.001, 0.001)
-	cursor := maths.NullVec3d
-	for cursor.Y = math.Floor(playerBB.MinY); cursor.Y < math.Ceil(playerBB.MaxY); cursor.Y++ {
-		for cursor.Z = math.Floor(playerBB.MinZ); cursor.Z < math.Ceil(playerBB.MaxZ); cursor.Z++ {
-			for cursor.X = math.Floor(playerBB.MinX); cursor.X < math.Ceil(playerBB.MaxX); cursor.X++ {
-				if getBlock, err := c.World.GetBlock(cursor); !err.Is(basic.NoError) {
-					continue
-				} else {
-					if getBlock.Is(block.SoulSand{}) {
-						c.Player.Motion.X *= enums.SoulSandMultiplier
-						c.Player.Motion.Z *= enums.SoulSandMultiplier
-					} else if getBlock.Is(block.HoneyBlock{}) {
-						c.Player.Motion.X *= enums.HoneyBlockMultiplier
-						c.Player.Motion.Z *= enums.HoneyBlockMultiplier
-					} else if getBlock.Is(block.Cobweb{}) {
-						// Set cobweb to true
-					}
-				}
-			}
-		}
-	}
-
-	if blockBelow, err := c.World.GetBlock(c.Player.Position.Offset(0, -0.5, 0)); !err.Is(basic.NoError) {
-		return err
-	} else {
-		if blockBelow.Is(block.SoulSand{}) {
-			c.Player.Motion.X *= enums.SoulSandMultiplier
-			c.Player.Motion.Z *= enums.SoulSandMultiplier
-		} else if blockBelow.Is(block.HoneyBlock{}) {
-			c.Player.Motion.X *= enums.HoneyBlockMultiplier
-			c.Player.Motion.Z *= enums.HoneyBlockMultiplier
-		} else if blockBelow.Is(block.Cobweb{}) {
-			// Set cobweb to true
-		}
-	}
-
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func getSurroundingBB(c *Client, bb maths.AxisAlignedBB[float64]) []maths.AxisAlignedBB[float64] {
-	var blocks []maths.AxisAlignedBB[float64]
-	for y := bb.MinY; y < bb.MaxY; y++ {
-		for z := bb.MinZ; z < bb.MaxZ; z++ {
-			for x := bb.MinX; x < bb.MaxX; x++ {
-				if getBlock, err := c.World.GetBlock(maths.Vec3d[float64]{X: x, Y: y, Z: z}); !err.Is(basic.NoError) {
-					continue
-				} else {
-					if getBlock.IsAir() {
-						continue
-					} else {
-						blocks = append(blocks, getBlock.GetCollisionBox())
-					}
-				}
-			}
-		}
-	}
-
-	return blocks
-}
-
-func (p *Player) Jump(c *Client) error {
-	if p.OnGround {
-		p.Motion = p.Motion.Add(maths.Vec3d[float64]{X: 0, Y: 0.42, Z: 0})
-		p.OnGround = false
-	}
-
-	return nil
 }
 
 func (p *Player) WalkTo(c *Client, pos maths.Vec3d[float64]) error {

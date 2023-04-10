@@ -27,11 +27,12 @@ func (t *TpsCalculator) Start() {
 
 	go func() {
 		for {
-			time.Sleep(time.Duration(50*t.TickAverage()) * time.Millisecond) // Synchronise with the server's TPS
+			time.Sleep(time.Duration(50/t.TickAverage()) * time.Millisecond) // Synchronise with the server's TPS
 			if t.callback != nil {
 				if err := t.callback(); !err.Is(basic.NoError) {
 					fmt.Println("Error in TPS callback:", err)
 				}
+				fmt.Println("Tick", t.TickRate)
 			}
 		}
 	}() // Create a new thread for the tick event to avoid the delay from the main thread
@@ -42,14 +43,14 @@ func (t *TpsCalculator) Update() {
 		t.Start()
 	}
 	if t.lastNTicks == nil {
-		t.lastNTicks = make([]float64, 5)
+		t.lastNTicks = make([]float64, 20)
 		for i := range t.lastNTicks {
 			t.lastNTicks[i] = 0.99 // Meh, workaround for the first ticks.
 		}
 	}
 	t.lastNTicks = append(t.lastNTicks, Clamp(time.Since(t.TimeLastUpdate).Seconds(), 0, 1))
 	t.lastNTicks = t.lastNTicks[1:]
-	t.TickRate = 1 / t.lastNTicks[0]
+	t.TickRate = 20 * t.lastNTicks[0]
 	t.TimeLastUpdate = time.Now()
 }
 
