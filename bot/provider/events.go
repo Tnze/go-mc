@@ -33,8 +33,8 @@ func (e EventsListener) Attach(c *Client) {
 	)
 
 	c.Events.AddTicker(
-		TickHandler{Priority: int(^uint(0) >> 1), F: applyPhysics},
-		TickHandler{Priority: int(^uint(0) >> 1), F: runTransactions},
+		TickHandler{Priority: int(^uint(0) >> 1), F: ApplyPhysics},
+		TickHandler{Priority: int(^uint(0) >> 1), F: RunTransactions},
 	)
 }
 
@@ -69,8 +69,8 @@ func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) basic.Error {
 		int32(EntityID),
 		uuid.UUID(EntityUUID),
 		int32(TypeID),
-		float32(X), float32(Y), float32(Z),
-		float32(Pitch), float32(Yaw),
+		float64(X), float64(Y), float64(Z),
+		float64(Pitch), float64(Yaw),
 	)); err != nil {
 		return basic.Error{Err: basic.InvalidEntity, Info: err}
 	}
@@ -110,8 +110,8 @@ func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 		int32(EntityID),
 		uuid.UUID(PlayerUUID),
 		116, // Player type
-		float32(X), float32(Y), float32(Z),
-		float32(Pitch), float32(Yaw),
+		float64(X), float64(Y), float64(Z),
+		float64(Pitch), float64(Yaw),
 	)); err != nil {
 		return basic.Error{Err: basic.InvalidEntity, Info: err}
 	}
@@ -312,8 +312,6 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
 
-	c.Player.Chat(c, "UwU")
-
 	// Get 2 random items from the inventory
 	var (
 		item1      *Slot
@@ -407,6 +405,17 @@ func (e *EventsListener) CloseContainer(c *Client, p pk.Packet) basic.Error {
 
 	if err := p.Scan(&windowID); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseContainer packet: %w", err)}
+	}
+
+	fmt.Println("CloseWindow", windowID)
+	return basic.Error{Err: basic.NoError, Info: nil}
+}
+
+func (e *EventsListener) CloseWindow(c *Client, p pk.Packet) basic.Error {
+	var windowID pk.Byte
+
+	if err := p.Scan(&windowID); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseWindow packet: %w", err)}
 	}
 
 	fmt.Println("CloseWindow", windowID)
@@ -610,7 +619,7 @@ func (e *EventsListener) ChunkData(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChunkData packet: %w", err)}
 	}
 
-	//fmt.Println("ChunkData", ChunkPos, len(Chunk.Sections), len(c.World.Columns))
+	fmt.Println("ChunkData", ChunkPos, len(Chunk.Sections), len(c.World.Columns))
 	c.World.Columns[ChunkPos] = &Chunk
 
 	return basic.Error{Err: basic.NoError, Info: nil}
@@ -698,7 +707,8 @@ func (e *EventsListener) JoinGame(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write ClientSettings packet: %w", err)}
 	}
 
-	c.Player.SetSize(0.6, 1.8) // Set the bounding box
+	c.Player.EntityPlayer = core.NewEntityPlayer(c.Player.GetID(), c.Player.GetUUID(), 116, 0, 0, 0, 0, 0)
+
 	// Add the player to the world
 	if err := c.World.AddEntity(c.Player.EntityPlayer); err != nil {
 		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to add player to the world: %w", err)}
@@ -755,7 +765,7 @@ func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) basic.Error {
 
 	if _, entity, err := c.World.GetEntityByID(int32(EntityID)); err == nil {
 		if t, ok := entity.(*core.Entity); ok {
-			t.AddRelativePosition(maths.Vec3d{X: float32(DeltaX), Y: float32(DeltaY), Z: float32(DeltaZ)})
+			t.AddRelativePosition(maths.Vec3d[float64]{X: float64(DeltaX), Y: float64(DeltaY), Z: float64(DeltaZ)})
 		}
 	}
 
@@ -908,8 +918,8 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) basic.Error 
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SyncPlayerPosition packet: %w", err)}
 	}
 
-	position := maths.Vec3d{X: float32(X), Y: float32(Y), Z: float32(Z)}
-	rotation := maths.Vec2d{X: float32(Pitch), Y: float32(Yaw)}
+	position := maths.Vec3d[float64]{X: float64(X), Y: float64(Y), Z: float64(Z)}
+	rotation := maths.Vec2d[float64]{X: float64(Pitch), Y: float64(Yaw)}
 
 	if Flags&0x01 != 0 {
 		c.Player.Position = c.Player.Position.Add(position)
@@ -1260,13 +1270,14 @@ func (e *EventsListener) EntityVelocity(c *Client, p pk.Packet) basic.Error {
 	}
 
 	if _, e, err := c.World.GetEntityByID(int32(entityID)); err == nil {
-		if t, ok := (e).(*core.Entity); ok {
-			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
-		} else if t, ok := (e).(*core.EntityLiving); ok {
-			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
-		} else if t, ok := (e).(*core.EntityPlayer); ok {
-			t.SetMotion(maths.Vec3d{X: float32(velocityX) / 8000, Y: float32(velocityY) / 8000, Z: float32(velocityZ) / 8000})
-		} // I will probably make an interface, so I don't have to do this
+		switch e.(type) {
+		case *core.Entity:
+			e.(*core.Entity).SetMotion(maths.Vec3d[float64]{X: float64(velocityX) / 8000, Y: float64(velocityY) / 8000, Z: float64(velocityZ) / 8000}.Spread())
+		case *core.EntityLiving:
+			e.(*core.EntityLiving).SetMotion(maths.Vec3d[float64]{X: float64(velocityX) / 8000, Y: float64(velocityY) / 8000, Z: float64(velocityZ) / 8000}.Spread())
+		case *core.EntityPlayer:
+			e.(*core.EntityPlayer).SetMotion(maths.Vec3d[float64]{X: float64(velocityX) / 8000, Y: float64(velocityY) / 8000, Z: float64(velocityZ) / 8000}.Spread())
+		}
 	} else {
 		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to find entity with ID %d", entityID)}
 	}
@@ -1558,14 +1569,14 @@ func (e *EventsListener) EntityEffect(c *Client, p pk.Packet) basic.Error {
 	}
 
 	if effect, ok := effects.ByID[int32(effectID)]; ok {
-		effectStatus := effects.EffectStatus{
+		effectStatus := &effects.EffectStatus{
 			ID:            int32(effectID),
 			Amplifier:     byte(amplifier),
 			Duration:      int32(duration),
 			ShowParticles: flags&0x01 == 0x01,
 			ShowIcon:      flags&0x04 == 0x04,
 		}
-		c.Player.ActivePotionEffects = append(c.Player.ActivePotionEffects, effectStatus)
+		c.Player.ActivePotionEffects[effectStatus.ID] = effectStatus
 		fmt.Println("EntityEffect", entityID, effect, amplifier, duration, flags, codec)
 	}
 	return basic.Error{Err: basic.NoError, Info: nil}

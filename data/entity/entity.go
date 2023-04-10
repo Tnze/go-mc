@@ -11,8 +11,8 @@ type TypeEntity struct {
 	InternalID  uint32
 	DisplayName string
 	Name        string
-	Width       float32
-	Height      float32
+	Width       float64
+	Height      float64
 	Type        string
 }
 

@@ -18,13 +18,13 @@ import (
 func TestWorld_PathFind(t *testing.T) {
 	tS := time.Now()
 	w := NewWorld()
-	point1, point2 := maths.Vec3d{X: 3644, Y: 4, Z: 354}, maths.Vec3d{X: 2205, Y: 255, Z: 3378}
+	point1, point2 := maths.Vec3d[float64]{X: 3644, Y: 4, Z: 354}, maths.Vec3d[float64]{X: 2205, Y: 255, Z: 3378}
 	path := w.PathFind(point1, point2)
 	DrawPath(path)
 	t.Log("Path found in", time.Since(tS))
 }
 
-func DrawPath(path []maths.Vec3d) {
+func DrawPath(path []maths.Vec3d[float64]) {
 	const (
 		gridSize  = 4096
 		pointSize = 8

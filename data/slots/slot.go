@@ -42,14 +42,22 @@ func (s *Slot) ReadFrom(r io.Reader) (n int64, err error) {
 	}.ReadFrom(r)
 }
 
-type ChangedSlots []*Slot
+type Container interface {
+	GetInventorySlots() []Slot
+	GetHotbarSlots() []Slot
+	OnSetSlot(i int, s Slot) error
+	OnClose() error
+}
 
-func (c *ChangedSlots) WriteTo(w io.Writer) (n int64, err error) {
-	if n, err = pk.VarInt(len(*c)).WriteTo(w); err != nil {
+type ChangedSlots map[int]*Slot
+
+func (c ChangedSlots) WriteTo(w io.Writer) (n int64, err error) {
+	n, err = pk.VarInt(len(c)).WriteTo(w)
+	if err != nil {
 		return
 	}
-	for _, v := range *c {
-		n1, err := v.Index.WriteTo(w)
+	for i, v := range c {
+		n1, err := pk.Short(i).WriteTo(w)
 		if err != nil {
 			return n + n1, err
 		}

@@ -1,4 +1,4 @@
-package core
+package enums
 
 type EnumHand int
 
