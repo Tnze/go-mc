@@ -10,6 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	auth "github.com/maxsupermanhd/go-mc-ms-auth"
 	"io"
 	"net"
 	"strconv"
@@ -19,7 +20,6 @@ import (
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/yggdrasil/user"
 )
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
@@ -75,14 +75,13 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("handshake: %w", err)}
 	}
 	// Login Start
-	c.KeyPair, err = user.GetOrFetchKeyPair(c.Auth.AsTk)
 	if err := c.Conn.WritePacket(pk.Marshal(
 		packetid.SPacketLoginStart,
 		pk.String(c.Auth.Name),
-		pk.Boolean(err == nil),
+		pk.Boolean(false), // TODO: Support online mode
 		pk.Opt{
-			If:    err == nil,
-			Value: keyPair(c.KeyPair),
+			If:    false, // TODO
+			Value: keyPair(c.Auth.KeyPair),
 		},
 	)); !err.Is(basic.NoError) {
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("login start: %w", err)}
@@ -152,14 +151,14 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 	}
 }
 
-type keyPair user.KeyPairResp
+type keyPair auth.KeyPair
 
 func (k keyPair) WriteTo(w io.Writer) (int64, error) {
-	block, _ := pem.Decode([]byte(k.KeyPair.PublicKey))
+	block, _ := pem.Decode([]byte(k.Pair.PublicKey))
 	if block == nil {
 		return 0, errors.New("pem decode error: no data is found")
 	}
-	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignature)
+	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignatureV2)
 	if err != nil {
 		return 0, err
 	}

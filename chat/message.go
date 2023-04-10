@@ -134,13 +134,16 @@ func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 
 // ReadFrom decode Message in a ChatMsg packet
 func (m *Message) ReadFrom(r io.Reader) (int64, error) {
-	var Len pk.VarInt
-	if n, err := Len.ReadFrom(r); err != nil {
+	var code pk.String
+	if n, err := code.ReadFrom(r); err != nil {
 		return n, err
+	} else {
+		if err := json.Unmarshal([]byte(code), m); err != nil {
+			return n, err
+		} else {
+			return n, nil
+		}
 	}
-	lr := &io.LimitedReader{R: r, N: int64(Len)}
-	err := json.NewDecoder(lr).Decode(m)
-	return int64(Len) - lr.N, err
 }
 
 // WriteTo encode Message into a ChatMsg packet
