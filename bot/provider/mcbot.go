@@ -2,7 +2,7 @@
 // or just ping it for getting information.
 //
 // Runnable example could be found at examples/ .
-package main
+package provider
 
 import (
 	"context"
