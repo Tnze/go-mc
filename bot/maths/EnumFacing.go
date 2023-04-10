@@ -1,8 +1,4 @@
-package core
-
-import (
-	"github.com/Tnze/go-mc/bot/maths"
-)
+package maths
 
 type EnumFacing int8
 
@@ -17,27 +13,27 @@ const (
 
 var EnumFacingValues = []EnumFacing{DOWN, UP, NORTH, SOUTH, WEST, EAST}
 
-func (f EnumFacing) Vector() (v maths.Vec3d) {
+func (f EnumFacing) Vector() (v Vec3d[float64]) {
 	switch f {
 	case DOWN:
-		v = maths.Vec3d{Y: -1}
+		v = Vec3d[float64]{Y: -1}
 	case UP:
-		v = maths.Vec3d{Y: 1}
+		v = Vec3d[float64]{Y: 1}
 	case NORTH:
-		v = maths.Vec3d{Z: -1}
+		v = Vec3d[float64]{Z: -1}
 	case SOUTH:
-		v = maths.Vec3d{Z: 1}
+		v = Vec3d[float64]{Z: 1}
 	case WEST:
-		v = maths.Vec3d{X: -1}
+		v = Vec3d[float64]{X: -1}
 	case EAST:
-		v = maths.Vec3d{X: 1}
+		v = Vec3d[float64]{X: 1}
 	}
 	return
 }
 
-func GetClosestFacing(eyePos, blockPos maths.Vec3d) EnumFacing {
+func GetClosestFacing(eyePos, blockPos Vec3d[float64]) EnumFacing {
 	var closest EnumFacing
-	var minDiff float32
+	var minDiff float64
 	for _, side := range GetVisibleSides(eyePos, blockPos) {
 		diff := eyePos.DistanceTo(blockPos.Add(side.Vector().Center()))
 		if minDiff == 0 || diff < minDiff {
@@ -48,7 +44,7 @@ func GetClosestFacing(eyePos, blockPos maths.Vec3d) EnumFacing {
 	return closest
 }
 
-func GetVisibleSides(eyePos, blockPos maths.Vec3d) []EnumFacing {
+func GetVisibleSides(eyePos, blockPos Vec3d[float64]) []EnumFacing {
 	var sides []EnumFacing
 	blockCenter := blockPos.Center()
 	axis := checkAxis(eyePos.X-blockCenter.X, WEST)
@@ -70,7 +66,7 @@ func (f EnumFacing) GetOpposite() EnumFacing {
 	return EnumFacingValues[(f+3)%6]
 }
 
-func checkAxis(diff float32, negativeSide EnumFacing) EnumFacing {
+func checkAxis(diff float64, negativeSide EnumFacing) EnumFacing {
 	if diff < -0.5 {
 		return negativeSide
 	} else if diff > 0.5 {

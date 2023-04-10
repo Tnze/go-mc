@@ -1,4 +1,4 @@
-package core
+package enums
 
 import (
 	"github.com/Tnze/go-mc/level"
@@ -14,7 +14,7 @@ const (
 	SprintSpeed          = 0.3
 	SneakSpeed           = 0.3
 	StepHeight           = 0.6
-	NegligeableVelocity  = 0.003
+	NegligibleVelocity   = 0.003
 	SoulSandMultiplier   = 0.4
 	HoneyBlockMultiplier = 0.4
 	LadderMaxSpeed       = 0.15

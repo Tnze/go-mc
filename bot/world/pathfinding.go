@@ -6,16 +6,16 @@ import (
 )
 
 type Node struct {
-	point   maths.Vec3d // The point is a vector3d
-	parent  *Node       // The parent node in the search tree
-	f, g, h float64     // f, g, and h values used by the A* algorithm
+	point   maths.Vec3d[float64] // The point is a vector3d
+	parent  *Node                // The parent node in the search tree
+	f, g, h float64              // f, g, and h values used by the A* algorithm
 }
 
-func euclideanDistance(a, b maths.Vec3d) float64 {
-	return math.Sqrt(math.Pow(float64(a.X-b.X), 2) + math.Pow(float64(a.Y-b.Y), 2) + math.Pow(float64(a.Z-b.Z), 2))
+func euclideanDistance(a, b maths.Vec3d[float64]) float64 {
+	return math.Sqrt(math.Pow(a.X-b.X, 2) + math.Pow(a.Y-b.Y, 2) + math.Pow(a.Z-b.Z, 2))
 }
 
-func (w *World) PathFind(start, end maths.Vec3d) []maths.Vec3d {
+func (w *World) PathFind(start, end maths.Vec3d[float64]) []maths.Vec3d[float64] {
 	startNode := &Node{point: start, f: 0, g: 0, h: 0}
 	endNode := &Node{point: end, f: 0, g: 0, h: 0}
 	openList := []*Node{startNode}
@@ -36,7 +36,7 @@ func (w *World) PathFind(start, end maths.Vec3d) []maths.Vec3d {
 		closedList = append(closedList, currentNode)
 
 		if currentNode.point == endNode.point {
-			path := make([]maths.Vec3d, 0)
+			path := make([]maths.Vec3d[float64], 0)
 			current := currentNode
 			for current != nil {
 				path = append(path, current.point)
@@ -54,10 +54,10 @@ func (w *World) PathFind(start, end maths.Vec3d) []maths.Vec3d {
 			openList = append(openList, newNode)
 		}
 	}
-	return make([]maths.Vec3d, 0)
+	return make([]maths.Vec3d[float64], 0)
 }
 
-func contains(list []*Node, node maths.Vec3d) bool {
+func contains(list []*Node, node maths.Vec3d[float64]) bool {
 	for _, n := range list {
 		if n.point == node {
 			return true
@@ -66,15 +66,15 @@ func contains(list []*Node, node maths.Vec3d) bool {
 	return false
 }
 
-func backtrace(node []maths.Vec3d) []maths.Vec3d {
+func backtrace(node []maths.Vec3d[float64]) []maths.Vec3d[float64] {
 	for i := 0; i < len(node)/2; i++ {
 		node[i], node[len(node)-i-1] = node[len(node)-i-1], node[i]
 	}
 	return node
 }
 
-func filterNeighbors(w *World, points []maths.Vec3d, end maths.Vec3d) maths.Vec3d {
-	var closestPoint maths.Vec3d
+func filterNeighbors(w *World, points []maths.Vec3d[float64], end maths.Vec3d[float64]) maths.Vec3d[float64] {
+	var closestPoint maths.Vec3d[float64]
 	for _, point := range points {
 		if euclideanDistance(point, end) < euclideanDistance(closestPoint, end) {
 			closestPoint = point
