@@ -312,6 +312,8 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
 
+	c.Player.Chat(c, "UwU")
+
 	// Get 2 random items from the inventory
 	var (
 		item1      *Slot

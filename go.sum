@@ -1,5 +1,5 @@
-github.com/Edouard127/go-mc-ms-auth v1.1.1-0.20230407185324-b83a1ee41ed5 h1:tTYooBQD4FUCCjnzbgdGcz7xGhxQAb++CK5Oktn5Ljc=
-github.com/Edouard127/go-mc-ms-auth v1.1.1-0.20230407185324-b83a1ee41ed5/go.mod h1:RbPXeclPzkVsmdyXTXAALE+2gTXPRXAwxsWPr65mycA=
+github.com/Edouard127/go-mc-ms-auth v1.1.0 h1:IZU1BTEUMN4vPxSzPIXNYmzn2gyAgd1pNVk7yVwezHY=
+github.com/Edouard127/go-mc-ms-auth v1.1.0/go.mod h1:RbPXeclPzkVsmdyXTXAALE+2gTXPRXAwxsWPr65mycA=
 github.com/google/uuid v1.1.1 h1:Gkbcsh/GbpXz7lPftLA3P6TYMwjCLYm83jiFQZF/3gY=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/iancoleman/strcase v0.1.3 h1:dJBk1m2/qjL1twPLf68JND55vvivMupZ4wIzE8CTdBw=
