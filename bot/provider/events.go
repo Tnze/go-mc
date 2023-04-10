@@ -406,25 +406,8 @@ func (e *EventsListener) CloseContainer(c *Client, p pk.Packet) basic.Error {
 	if err := p.Scan(&windowID); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseContainer packet: %w", err)}
 	}
-	c.Player.Manager.StateID = int32(StateID)
-	// copy the slot data to container
-	container, ok := c.Player.Manager.Screens[int(ContainerID)]
-	if !ok {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to find container with id %d", ContainerID)}
-	}
-	for i, v := range SlotData {
-		err := container.OnSetSlot(i, v)
-		if !err.Is(basic.NoError) {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", i, err)}
-		}
-		/*if m.events.SetSlot != nil {
-			if err := m.events.SetSlot(int(ContainerID), i); err != nil {
-				return basic.Error{err}
-			}
-		}*/
-	}
 
-	fmt.Println("SetWindowContent", ContainerID, StateID, SlotData, CarriedItem)
+	fmt.Println("CloseWindow", windowID)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
