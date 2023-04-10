@@ -3,6 +3,7 @@ package grids
 import (
 	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
+	"github.com/Tnze/go-mc/data/item"
 	"github.com/Tnze/go-mc/data/slots"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -22,6 +23,15 @@ func (g *GenericInventory) GetInventorySlots() []slots.Slot {
 }
 func (g *GenericInventory) GetHotbarSlots() []slots.Slot {
 	return g.Slots[len(g.Slots)-9:]
+}
+
+func (g *GenericInventory) GetItem(item item.Item, predicate func(slot slots.Slot) bool) slots.Slot {
+	for i := range g.Slots {
+		if g.Slots[i].ID == pk.VarInt(item.ID) && predicate(g.Slots[i]) {
+			return g.Slots[i]
+		}
+	}
+	return slots.Slot{}
 }
 
 /* Getter & Setter */
