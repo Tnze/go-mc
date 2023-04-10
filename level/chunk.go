@@ -48,6 +48,14 @@ type Chunk struct {
 	Status      ChunkStatus
 }
 
+func (c *Chunk) IsBlockLoaded(vec3d maths.Vec3d[float64]) bool {
+	if _, err := c.GetBlock(vec3d); err.Err != basic.NoError {
+		return false
+	} else {
+		return true
+	}
+}
+
 func (c *Chunk) GetBlock(vec3d maths.Vec3d[float64]) (block.Block, basic.Error) {
 	X, Y, Z := int(vec3d.X), int(vec3d.Y), int(vec3d.Z)
 	Y += 64 // Offset so that Y=-64 is the index 0 of the array

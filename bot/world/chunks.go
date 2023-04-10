@@ -8,46 +8,45 @@ import (
 	. "github.com/Tnze/go-mc/level"
 	"github.com/Tnze/go-mc/level/block"
 	"math"
-	"reflect"
 )
 
 type World struct {
-	Columns  map[ChunkPos]*Chunk
-	entities []*interface{}
+	Columns        map[ChunkPos]*Chunk
+	entities       map[int32]*core.EntityInterface
+	entitiesLiving map[int32]*core.EntityLivingInterface
+	entitiesPlayer map[int32]*core.EntityPlayerInterface
 }
 
 func NewWorld() (w *World) {
 	w = &World{
-		Columns: make(map[ChunkPos]*Chunk),
+		Columns:        make(map[ChunkPos]*Chunk),
+		entities:       make(map[int32]*core.EntityInterface),
+		entitiesLiving: make(map[int32]*core.EntityLivingInterface),
+		entitiesPlayer: make(map[int32]*core.EntityPlayerInterface),
 	}
 	return
 }
 
-func (w *World) AddEntity(e interface{}) error {
+func (w *World) AddEntity(e core.EntityInterface) error {
 	if w.isValidEntity(&e) {
-		w.entities = append(w.entities, &e)
+		w.entities[e.GetID()] = &e
 		return nil
 	}
 	return fmt.Errorf("invalid entity")
 }
 
-func (w *World) RemoveEntity(e interface{}) error {
-	if w.isValidEntity(&e) {
-		if i, _, err := w.GetEntityByID(e.(*core.Entity).ID); err == nil {
-			w.entities = append(w.entities[:i], w.entities[i+1:]...)
-			return nil
-		} else {
-			return err
-		}
+func (w *World) RemoveEntity(e *core.EntityInterface) error {
+	if w.isValidEntity(e) {
+		delete(w.entities, (*e).GetID())
 	}
 	return fmt.Errorf("invalid entity")
 }
 
-func (w *World) GetEntities() []*interface{} {
+func (w *World) GetEntities() map[int32]*core.EntityInterface {
 	return w.entities
 }
 
-func (w *World) GetEntitiesByType(t interface{}) []*interface{} {
+/*func (w *World) GetEntitiesByType(t interface{}) []*interface{} {
 	var entities []*interface{}
 	for _, e := range w.entities {
 		if reflect.TypeOf(*e) == reflect.TypeOf(t) {
@@ -55,46 +54,27 @@ func (w *World) GetEntitiesByType(t interface{}) []*interface{} {
 		}
 	}
 	return entities
-}
+}*/
 
-func (w *World) GetEntityByID(id int32) (int, interface{}, error) {
+func (w *World) GetEntityByID(id int32) (int32, interface{}, error) {
 	for i, e := range w.entities {
-		if t, ok := (*e).(*core.Entity); ok {
-			if t.ID == id {
-				return i, *e, nil
-			}
-		} else if t, ok := (*e).(*core.EntityLiving); ok {
-			if t.ID == id {
-				return i, *e, nil
-			}
-		} else if t, ok := (*e).(*core.EntityPlayer); ok {
-			if t.ID == id {
-				return i, *e, nil
-			}
+		if w.isValidEntity(e) && id == (*e).GetID() {
+			return i, *e, nil
 		}
 	}
 	return -1, nil, fmt.Errorf("entity not found")
 }
 
-/*
-isValidEntity
-
-	@param interface{} - The entity to check
-	@return bool - Whether the entity is valid
-
-	@description
-		If the return value is true, then we do not need to do more type assertions because we know that the entity is valid.
-		So it will always at least have the properties of core.Entity.
-*/
-func (w *World) isValidEntity(e *interface{}) bool {
-	if _, ok := (*e).(core.Entity); ok {
+func (w *World) isValidEntity(e *core.EntityInterface) bool {
+	/*if _, ok := (*e).(core.Entity); ok {
 		return true
 	} else if _, ok := (*e).(*core.EntityLiving); ok {
 		return true
 	} else if _, ok := (*e).(*core.EntityPlayer); ok {
 		return true
 	}
-	return false
+	return false*/
+	return true
 }
 
 func (w *World) GetBlock(pos maths.Vec3d[float64]) (block.Block, basic.Error) {
@@ -124,7 +104,15 @@ func (w *World) GetNeighbors(block maths.Vec3d[float64]) []maths.Vec3d[float64] 
 	}
 }
 
-func (w *World) isChunkLoaded(pos ChunkPos) bool {
+func (w *World) IsBlockLoaded(pos maths.Vec3d[float64]) bool {
+	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
+	if chunk, ok := w.Columns[chunkPos]; ok {
+		return chunk.IsBlockLoaded(pos)
+	}
+	return false
+}
+
+func (w *World) IsChunkLoaded(pos ChunkPos) bool {
 	_, ok := w.Columns[pos]
 	return ok
 }
@@ -199,4 +187,34 @@ func (w *World) IsAABBInMaterial(bb maths.AxisAlignedBB[float64]) bool {
 		}
 	}
 	return true
+}
+
+func (w *World) GetCollisionBoxes(e core.Entity, aabb maths.AxisAlignedBB[float64]) []maths.AxisAlignedBB[float64] {
+	var boxes []maths.AxisAlignedBB[float64]
+	/*for _, entity := range w.GetEntitiesInAABB(aabb) {
+		if entity != e {
+			boxes = append(boxes, entity.GetBoundingBox())
+		}
+	}*/
+	return boxes
+}
+
+func (w *World) GetEntitiesInAABB(bb maths.AxisAlignedBB[float64]) []interface{} {
+	var entities []interface{}
+	/*for _, e := range w.entities {
+		if bb.IntersectsWith(e) {
+			entities = append(entities, e)
+		}
+	}*/
+	return entities
+}
+
+func (w *World) GetEntitiesInAABBExcludingEntity(e core.Entity, bb maths.AxisAlignedBB[float64]) []interface{} {
+	var entities []interface{}
+	/*for _, entity := range w.entities {
+		if entity != e && bb.IntersectsWith(entity) {
+			entities = append(entities, entity)
+		}
+	}*/
+	return entities
 }
