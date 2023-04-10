@@ -1,4 +1,5 @@
 package provider
+
 import (
 	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -47,12 +48,13 @@ func NewPlayer(settings basic.Settings) *Player {
 				},
 				ActivePotionEffects: make(map[int32]*effects.EffectStatus),
 			},
+			Screens: make(map[int]Container),
 		},
-		Controller: &core.Controller{},
-		Manager:    screen.NewManager(),
-    Transactions: transactions.NewTransactions(),
-		Settings:   settings,
-		isSpawn:    false,
+		Controller:   &core.Controller{},
+		Manager:      screen.NewManager(),
+		Transactions: transactions.NewTransactions(),
+		Settings:     settings,
+		isSpawn:      false,
 	}
 }
 
