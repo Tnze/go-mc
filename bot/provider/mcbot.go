@@ -10,7 +10,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	auth "github.com/maxsupermanhd/go-mc-ms-auth"
+	"github.com/Tnze/go-mc/yggdrasil/user"
 	"io"
 	"net"
 	"strconv"
@@ -79,10 +79,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 		packetid.SPacketLoginStart,
 		pk.String(c.Auth.Name),
 		pk.Boolean(false), // TODO: Support online mode
-		pk.Opt{
-			If:    false, // TODO
-			Value: keyPair(c.Auth.KeyPair),
-		},
+		//keyPair(c.Auth.KeyPair),
 	)); !err.Is(basic.NoError) {
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("login start: %w", err)}
 	}
@@ -151,10 +148,10 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 	}
 }
 
-type keyPair auth.KeyPair
+type keyPair user.KeyPairResp
 
 func (k keyPair) WriteTo(w io.Writer) (int64, error) {
-	block, _ := pem.Decode([]byte(k.Pair.PublicKey))
+	block, _ := pem.Decode([]byte(k.KeyPair.PublicKey))
 	if block == nil {
 		return 0, errors.New("pem decode error: no data is found")
 	}

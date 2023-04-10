@@ -33,7 +33,7 @@ func (a *Auth) SignMessage(m string) []byte {
 	h.Write([]byte(m))
 	hashed := h.Sum(nil)
 
-	block, _ := pem.Decode([]byte(a.KeyPair.Pair.PrivateKey))
+	block, _ := pem.Decode([]byte(a.KeyPair.KeyPair.PrivateKey))
 	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	signature, err := rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA256, hashed)
 	if err != nil {
@@ -200,7 +200,7 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 		return
 	}
 	if keyPair != nil {
-		privateKeyBlock, _ := pem.Decode([]byte(keyPair.Pair.PrivateKey))
+		privateKeyBlock, _ := pem.Decode([]byte(keyPair.KeyPair.PrivateKey))
 		privateKey, err := x509.ParsePKCS8PrivateKey(privateKeyBlock.Bytes)
 		if err != nil {
 			err = fmt.Errorf("decode user private key fail: %v", err)
