@@ -6,6 +6,7 @@ import (
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/bot/screen"
+	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/data/effects"
 	"github.com/Tnze/go-mc/level"
 	"github.com/Tnze/go-mc/net/transactions"
@@ -719,25 +720,13 @@ func (e *EventsListener) JoinGame(c *Client, p pk.Packet) basic.Error {
 }
 
 func (e *EventsListener) Map(c *Client, p pk.Packet) basic.Error {
-	/*var itemDamage pk.VarInt
-	var scale pk.Byte
-	var trackingPosition pk.Boolean
-	var icons []struct {
-		Direction pk.Byte
-		X         pk.Byte
-		Y         pk.Byte
-	}
-	var columns pk.VarInt
-	var rows pk.VarInt
-	var x pk.VarInt
-	var z pk.VarInt
-	var data pk.ByteArray
+	var Map world.Map
 
-	if err := p.Scan(&itemDamage, &scale, &trackingPosition, &icons, &columns, &rows, &x, &z, &data); err != nil {
-		return err
+	if err := p.Scan(&Map); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Map packet: %w", err)}
 	}
 
-	fmt.Println("Map", itemDamage, scale, trackingPosition, icons, columns, rows, x, z, data)*/
+	fmt.Println("MapData", Map)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
@@ -942,7 +931,7 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) basic.Error 
 		}
 	}
 
-	fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
+	//fmt.Println("SyncPlayerPosition", position, rotation, TeleportID, Dismount)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 

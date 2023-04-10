@@ -32,7 +32,6 @@ func (t *TpsCalculator) Start() {
 				if err := t.callback(); !err.Is(basic.NoError) {
 					fmt.Println("Error in TPS callback:", err)
 				}
-				fmt.Println("Tick", t.TickRate)
 			}
 		}
 	}() // Create a new thread for the tick event to avoid the delay from the main thread
