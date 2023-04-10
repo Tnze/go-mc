@@ -380,7 +380,6 @@ func (c *Chunk) ReadFrom(r io.Reader) (int64, error) {
 			break
 		}
 		if dl < 200 { // whole chunk structure is 207 if completely empty?
-			log.Printf("Leaving %d bytes behind while parsing chunk data!", dl)
 			break
 		}
 		ss := &Section{

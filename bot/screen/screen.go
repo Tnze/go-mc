@@ -2,50 +2,60 @@ package screen
 
 import (
 	"github.com/Tnze/go-mc/bot/basic"
+	"github.com/Tnze/go-mc/data/grids"
 	"github.com/Tnze/go-mc/data/slots"
-	pk "github.com/Tnze/go-mc/net/packet"
-	"io"
 )
 
 type Manager struct {
 	Screens       map[int]Container
-	CurrentScreen int
-	Inventory     Inventory
-	Cursor        slots.Slot
-	// The last received State ID from server
+	CurrentScreen *Container
+	Inventory     *grids.GenericInventory
+	Cursor        *slots.Slot
+	HeldItem      *slots.Slot
+	// The last state received from the server
 	StateID int32
 }
 
 func NewManager() *Manager {
-	m := &Manager{
-		Screens: make(map[int]Container),
+	return &Manager{
+		Screens:   fillContainers(),
+		Inventory: new(grids.GenericInventory),
 	}
-	m.Screens[0] = &m.Inventory
-	return m
 }
 
-type ChangedSlots map[int]*slots.Slot
-
-func (c ChangedSlots) WriteTo(w io.Writer) (n int64, err error) {
-	n, err = pk.VarInt(len(c)).WriteTo(w)
-	if err != nil {
-		return
+func fillContainers() map[int]Container {
+	return map[int]Container{
+		0:  grids.NewGeneric_9x1(),
+		1:  grids.NewGeneric_9x2(),
+		2:  grids.NewGeneric_9x3(),
+		3:  grids.NewGeneric_9x4(),
+		4:  grids.NewGeneric_9x5(),
+		5:  grids.NewGeneric_9x6(),
+		6:  grids.NewGeneric_3x3(),
+		7:  grids.NewAnvil(),
+		8:  grids.NewBeacon(),
+		9:  grids.NewBlastFurnace(),
+		10: grids.NewBrewingStand(),
+		11: grids.NewCraftingTable(),
+		12: grids.NewEnchantmentTable(),
+		13: grids.NewFurnace(),
+		14: grids.NewGrindstone(),
+		15: grids.NewHopper(),
+		//16: grids.NewLectern(), // TODO: This is the only one that is not a container
+		17: grids.NewLoom(),
+		18: grids.NewMerchant(),
+		19: grids.NewShulkerBox(),
+		20: grids.NewSmithingTable(),
+		21: grids.NewSmoker(),
+		22: grids.NewCartographyTable(),
+		23: grids.NewStonercutter(),
 	}
-	for i, v := range c {
-		n1, err := pk.Short(i).WriteTo(w)
-		if err != nil {
-			return n + n1, err
-		}
-		n2, err := v.WriteTo(w)
-		if err != nil {
-			return n + n1 + n2, err
-		}
-		n += n1 + n2
-	}
-	return
 }
 
 type Container interface {
-	OnSetSlot(i int, s slots.Slot) basic.Error
-	onClose() basic.Error
+	GetSlot(int) *slots.Slot
+	GetInventorySlot(int) *slots.Slot
+	GetHotbarSlot(int) *slots.Slot
+	SetSlot(int, slots.Slot) basic.Error
+	OnClose() basic.Error
 }

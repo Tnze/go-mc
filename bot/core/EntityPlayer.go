@@ -1,5 +1,4 @@
 package core
-
 import (
 	. "github.com/Tnze/go-mc/data/slots"
 	"github.com/google/uuid"
@@ -8,8 +7,6 @@ import (
 type EntityPlayer struct {
 	*EntityLiving
 	DisplayName string
-	Cursor      *Slot
-	Screens     map[int]Container
 	expBar      float32
 	TotalExp    int32
 	Level       int32

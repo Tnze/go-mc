@@ -1,5 +1,4 @@
 package provider
-
 import (
 	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -13,6 +12,7 @@ import (
 	. "github.com/Tnze/go-mc/data/slots"
 	"github.com/Tnze/go-mc/level/block"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/transactions"
 	"math"
 )
 
@@ -22,6 +22,7 @@ type Player struct {
 	*core.EntityPlayer
 	*core.Controller
 	*screen.Manager
+	*transactions.Transactions
 	Settings             basic.Settings
 	isSpawn              bool
 	fallTicks            float32
@@ -49,6 +50,7 @@ func NewPlayer(settings basic.Settings) *Player {
 		},
 		Controller: &core.Controller{},
 		Manager:    screen.NewManager(),
+    Transactions: transactions.NewTransactions(),
 		Settings:   settings,
 		isSpawn:    false,
 	}
@@ -92,6 +94,20 @@ func (p *Player) Chat(c *Client, msg string) error {
 	}
 
 	return nil
+}
+
+func RunTransactions(c *Client) basic.Error {
+	if t := c.Player.Transactions.Next(); t == nil {
+		return basic.Error{Err: basic.NoError, Info: nil}
+	} else {
+		for _, v := range t.Packets {
+			if err := c.Conn.WritePacket(*v); !err.Is(basic.NoError) {
+				return basic.Error{Err: basic.WriterError, Info: err}
+			}
+		}
+	}
+
+	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
 func (p *Player) handleJumpWater() {
@@ -397,13 +413,13 @@ func (p *Player) WalkTo(c *Client, pos maths.Vec3d[float64]) error {
 
 func (p *Player) ContainerClick(c *Client, id int, slot int16, button byte, mode int32, slots ChangedSlots, carried *Slot) error {
 	return c.Conn.WritePacket(pk.Marshal(
-		packetid.CPacketSetContainerSlot,
+		packetid.SPacketClickWindow,
 		pk.UnsignedByte(id),
 		pk.VarInt(p.Manager.StateID),
 		pk.Short(slot),
 		pk.Byte(button),
 		pk.VarInt(mode),
-		slots,
+		&slots,
 		carried,
 	))
 }

@@ -5,7 +5,10 @@ import (
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
+	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/data/effects"
+	"github.com/Tnze/go-mc/level"
+	"github.com/Tnze/go-mc/net/transactions"
 	"github.com/Tnze/go-mc/data/item"
 	"github.com/Tnze/go-mc/level"
 	"time"
@@ -32,7 +35,8 @@ func (e EventsListener) Attach(c *Client) {
 	)
 
 	c.Events.AddTicker(
-		TickHandler{Priority: 0, F: ApplyPhysics},
+		TickHandler{Priority: int(^uint(0) >> 1), F: ApplyPhysics},
+    TickHandler{Priority: int(^uint(0) >> 1), F: RunTransactions},
 	)
 }
 
@@ -310,6 +314,37 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
 
+	// Get 2 random items from the inventory
+	var (
+		item1      *Slot
+		item2      *Slot
+		item1Index int32
+		item2Index int32
+	)
+	for i, v := range c.Player.Inventory.Slots {
+		if v.ID != 0 {
+			if item1 == nil {
+				item1 = &v
+				item1Index = int32(i)
+			} else if item2 == nil {
+				item2 = &v
+				item2Index = int32(i)
+				break
+			}
+		}
+	}
+
+	if item1 == nil || item2 == nil {
+		return basic.Error{Err: basic.NoError, Info: nil}
+	}
+	// Create a new inventory transaction
+	builder := transactions.TransactionBuilder{
+		WindowID: 0,
+		StateID:  pk.VarInt(c.Player.StateID),
+		Actions:  transactions.SwitchSlot(item1Index, item1, item2Index, item2),
+	}
+	c.Player.Transactions.Post(builder.Build())
+
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
@@ -330,20 +365,7 @@ func (e *EventsListener) MultiBlockChange(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ConfirmTransaction(c *Client, p pk.Packet) basic.Error {
-	var windowID pk.Byte
-	var actionNumber pk.Short
-	var accepted pk.Boolean
-
-	if err := p.Scan(&windowID, &actionNumber, &accepted); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ConfirmTransaction packet: %w", err)}
-	}
-
-	fmt.Println("ConfirmTransaction", windowID, actionNumber, accepted)
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func (e *EventsListener) SetWindowContent(c *Client, p pk.Packet) basic.Error {
+func (e *EventsListener) SetContainerContent(c *Client, p pk.Packet) basic.Error {
 	var (
 		ContainerID pk.UnsignedByte
 		StateID     pk.VarInt
@@ -356,7 +378,35 @@ func (e *EventsListener) SetWindowContent(c *Client, p pk.Packet) basic.Error {
 		pk.Array(&SlotData),
 		&CarriedItem,
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan SetWindowContent")}
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan SetContainerContent")}
+	}
+
+	c.Player.Manager.StateID = int32(StateID)
+	var container screen.Container
+	if ContainerID == 0 {
+		container = c.Player.Inventory
+	} else {
+		container, _ = c.Player.Manager.Screens[int(ContainerID)] // Let's assume that the container exists
+	}
+
+	// copy the slot data to container
+	for i, v := range SlotData {
+		if err := container.SetSlot(i, v); !err.Is(basic.NoError) {
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", i, err)}
+		}
+	}
+
+	fmt.Println("SetContainerContent", ContainerID, StateID, SlotData, CarriedItem)
+	return basic.Error{Err: basic.NoError, Info: nil}
+}
+
+func (e *EventsListener) CloseContainer(c *Client, p pk.Packet) basic.Error {
+	var (
+		windowID pk.Byte
+	)
+
+	if err := p.Scan(&windowID); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseContainer packet: %w", err)}
 	}
 	c.Player.Manager.StateID = int32(StateID)
 	// copy the slot data to container
@@ -391,40 +441,13 @@ func (e *EventsListener) CloseWindow(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) OpenWindow(c *Client, p pk.Packet) basic.Error {
+func (e *EventsListener) SetContainerProperty(c *Client, p pk.Packet) basic.Error {
 	var (
-		windowID    pk.Byte
-		windowType  pk.String
-		windowTitle pk.String
-		slotCount   pk.Byte
-		entityID    pk.Int
+		windowID pk.Byte
+		property pk.Short
+		value    pk.Short
 	)
 
-	if err := p.Scan(&windowID, &windowType, &windowTitle, &slotCount, &entityID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read OpenWindow packet: %w", err)}
-	}
-
-	fmt.Println("OpenWindow", windowID, windowType, windowTitle, slotCount, entityID)
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func (e *EventsListener) WindowItems(c *Client, p pk.Packet) basic.Error {
-	/*var windowID pk.Byte
-	var count pk.Short
-	var items []pk.Slot
-
-	if err := p.Scan(&windowID, &count, &items); err != nil {
-		return err
-	}
-
-	fmt.Println("WindowItems", windowID, count, items)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-func (e *EventsListener) WindowProperty(c *Client, p pk.Packet) basic.Error {
-	var windowID pk.Byte
-	var property pk.Short
-	var value pk.Short
 
 	if err := p.Scan(&windowID, &property, &value); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read WindowProperty packet: %w", err)}
@@ -434,7 +457,7 @@ func (e *EventsListener) WindowProperty(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetSlot(c *Client, p pk.Packet) (err basic.Error) {
+func (e *EventsListener) SetContainerSlot(c *Client, p pk.Packet) (err basic.Error) {
 	var (
 		ContainerID pk.Byte
 		StateID     pk.VarInt
@@ -446,19 +469,24 @@ func (e *EventsListener) SetSlot(c *Client, p pk.Packet) (err basic.Error) {
 	}
 
 	c.Player.Manager.StateID = int32(StateID)
-	if ContainerID == -1 && SlotID == -1 {
-		c.Player.Manager.Cursor = SlotData
-	} else if ContainerID == -2 {
-		err = c.Player.Manager.Inventory.OnSetSlot(int(SlotID), SlotData)
-	} else if c, ok := c.Player.Manager.Screens[int(ContainerID)]; ok {
-		err = c.OnSetSlot(int(SlotID), SlotData)
+	switch ContainerID {
+	case -1:
+		c.Player.Manager.Cursor = &SlotData
+	case -2:
+		if err := c.Player.Manager.Inventory.SetSlot(int(SlotID), SlotData); !err.Is(basic.NoError) {
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", SlotID, err)}
+		}
+	default:
+		if container, ok := c.Player.Manager.Screens[int(ContainerID)]; !ok {
+			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to find container with id %d", ContainerID)}
+		} else {
+			if err := container.SetSlot(int(SlotID), SlotData); !err.Is(basic.NoError) {
+				return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", SlotID, err)}
+			}
+		}
 	}
 
-	/*if m.events.SetSlot != nil {
-		if err := m.events.SetSlot(int(ContainerID), int(SlotID)); err != nil {
-			return basic.Error{err}
-		}
-	}*/
+	fmt.Println("SetSlot", ContainerID, StateID, SlotID, SlotData)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
@@ -1082,19 +1110,16 @@ func (e *EventsListener) Camera(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) HeldItemChange(c *Client, p pk.Packet) basic.Error {
+func (e *EventsListener) SetHeldItem(c *Client, p pk.Packet) basic.Error {
 	var slot pk.Short
 
 	if err := p.Scan(&slot); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read HeldItemChange packet: %w", err)}
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SetHeldItem packet: %w", err)}
 	}
 
-	newSlot, err := c.Player.Inventory.GetHotbarSlotById(uint8(slot))
-	if !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read HeldItemChange packet: %w", err)}
-	}
+	c.Player.Manager.HeldItem = c.Player.Manager.Inventory.GetHotbarSlot(int(slot))
 
-	fmt.Println("HeldItemChange", slot, "New Item:", item.ByID[item.ID(newSlot.ID)].Name)
+	fmt.Println("SetHeldItem", slot)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
@@ -1574,5 +1599,34 @@ func (e *EventsListener) EntityEffect(c *Client, p pk.Packet) basic.Error {
 		c.Player.ActivePotionEffects[effectStatus.ID] = effectStatus
 		fmt.Println("EntityEffect", entityID, effect, amplifier, duration, flags, codec)
 	}
+	return basic.Error{Err: basic.NoError, Info: nil}
+}
+
+func (e EventsListener) LookAt(client *Client, packet pk.Packet) basic.Error {
+	var (
+		targetEnum   pk.VarInt
+		X, Y, Z      pk.Double
+		isEntity     pk.Boolean
+		entityID     pk.VarInt
+		entityTarget pk.VarInt
+	)
+
+	if err := packet.Scan(
+		pk.Tuple{
+			&targetEnum,
+			&X, &Y, &Z,
+			pk.Opt{
+				If: &isEntity,
+				Value: pk.Tuple{
+					&entityID,
+					&entityTarget,
+				},
+			},
+		},
+	); err != nil {
+		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read LookAt packet: %w", err)}
+	}
+
+	fmt.Println("LookAt", targetEnum, X, Y, Z, isEntity, entityID, entityTarget)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
