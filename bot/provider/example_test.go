@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/internal/utils"
 	"github.com/Tnze/go-mc/offline"
 	"github.com/Tnze/go-mc/yggdrasil"
+	auth "github.com/maxsupermanhd/go-mc-ms-auth"
 	"log"
 	"testing"
 )

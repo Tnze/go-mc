@@ -154,7 +154,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 type keyPair auth.KeyPair
 
 func (k keyPair) WriteTo(w io.Writer) (int64, error) {
-	block, _ := pem.Decode([]byte(k.Pair.PublicKey))
+	block, _ := pem.Decode([]byte(k.KeyPair.PublicKey))
 	if block == nil {
 		return 0, errors.New("pem decode error: no data is found")
 	}
