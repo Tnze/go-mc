@@ -305,11 +305,11 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 	var (
 		json     pk.String
 		position pk.Byte
-		/*msg      chat.Message
-		pos      pk.VarInt*/
+		msg      chat.Message
+		pos      pk.VarInt
 	)
 
-	if err := p.Scan(&json, &position); err != nil {
+	if err := p.Scan(&json, &position, &msg, &pos); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
 	}
 
@@ -343,6 +343,8 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 		Actions:  transactions.SwitchSlot(item1Index, item1, item2Index, item2),
 	}
 	c.Player.Transactions.Post(builder.Build())
+
+	fmt.Println("ChatMessage", msg.Text)
 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
