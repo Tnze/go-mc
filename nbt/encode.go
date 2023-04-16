@@ -9,7 +9,6 @@ import (
 	"math"
 	"reflect"
 	"strconv"
-	"strings"
 	"unsafe"
 )
 
@@ -182,24 +181,26 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 
 		switch val.Kind() {
 		case reflect.Struct:
-			n := val.NumField()
-			for i := 0; i < n; i++ {
-				f := val.Type().Field(i)
-				v := val.Field(i)
-				tag := f.Tag.Get("nbt")
-				if (f.PkgPath != "" && !f.Anonymous) || tag == "-" {
-					continue // Private field
-				}
-
-				tagProps := parseTag(f, v, tag)
-				if tagProps.OmitEmpty && isEmptyValue(v) {
+			fields := typeFields(val.Type())
+			for _, t := range fields.fields {
+				v := val.Field(t.index)
+				if t.omitEmpty && isEmptyValue(v) {
 					continue
 				}
-				if tagProps.Type == TagNone {
-					return fmt.Errorf("encode %q error: unsupport type %v", tagProps.Name, v.Type())
+				typ, v := getTagType(v)
+				if typ == TagNone {
+					return fmt.Errorf("encode %q error: unsupport type %v", t.name, v.Type())
 				}
 
-				if err := e.marshal(val.Field(i), tagProps.Type, tagProps.Name); err != nil {
+				if t.list {
+					if IsArrayTag(typ) {
+						typ = TagList // override the parsed type
+					} else {
+						return fmt.Errorf("invalid use of ,list struct tag, trying to encode %v as TagList", v.Type())
+					}
+				}
+
+				if err := e.marshal(v, typ, t.name); err != nil {
 					return err
 				}
 			}
@@ -317,37 +318,6 @@ func getTagTypeByType(vk reflect.Type) byte {
 	default:
 		return TagNone
 	}
-}
-
-type tagProps struct {
-	Name      string
-	Type      byte
-	OmitEmpty bool
-}
-
-func parseTag(f reflect.StructField, v reflect.Value, tagName string) (result tagProps) {
-	if strings.HasSuffix(tagName, ",omitempty") {
-		result.OmitEmpty = true
-		tagName = tagName[:len(tagName)-10]
-	}
-
-	if tagName != "" {
-		result.Name = tagName
-	} else {
-		result.Name = f.Name
-	}
-
-	nbtType := f.Tag.Get("nbt_type")
-	result.Type, _ = getTagType(v)
-	if strings.Contains(nbtType, "list") {
-		if IsArrayTag(result.Type) {
-			result.Type = TagList // for expanding the array to a standard list
-		} else {
-			panic("list is only supported for array types ([]byte, []int, []long)")
-		}
-	}
-
-	return
 }
 
 func (e *Encoder) writeTag(tagType byte, tagName string) error {

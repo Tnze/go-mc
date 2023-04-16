@@ -355,7 +355,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		default:
 			return errors.New("cannot parse TagCompound as " + vk.String())
 		case reflect.Struct:
-			tinfo := getTypeInfo(val.Type())
+			tinfo := typeFields(val.Type())
 			for {
 				tt, tn, err := d.readTag()
 				if err != nil {

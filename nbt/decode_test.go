@@ -149,13 +149,13 @@ type BigTestStruct struct {
 			Value float32 `nbt:"value"`
 		} `nbt:"egg"`
 	} `nbt:"nested compound test"`
-	ListTest  []int64 `nbt:"listTest (long)" nbt_type:"list"`
+	ListTest  []int64 `nbt:"listTest (long),list"`
 	ListTest2 [2]struct {
 		Name      string `nbt:"name"`
 		CreatedOn int64  `nbt:"created-on"`
 	} `nbt:"listTest (compound)"`
 	ByteTest      byte    `nbt:"byteTest"`
-	ByteArrayTest []byte  `nbt:"byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))"`
+	ByteArrayTest []byte  `nbtkey:"byteArrayTest (the first 1000 values of (n*n*255+n*7)%100, starting with n=0 (0, 62, 34, 16, 8, ...))"`
 	DoubleTest    float64 `nbt:"doubleTest"`
 }
 
@@ -444,5 +444,47 @@ func TestDecoder_Decode_ErrorUnknownField(t *testing.T) {
 	d.DisallowUnknownFields()
 	if _, err := d.Decode(&v); err == nil || !strings.Contains(err.Error(), "unknown field") {
 		t.Errorf("should return an error unmarshalling unknown field")
+	}
+}
+
+func TestDecoder_Decode_keysWithComma(t *testing.T) {
+	data := []byte{
+		TagCompound, 0, 1, 'S',
+		TagString, 0, 1, 'T',
+		0, 4, 'T', 'n', 'z', 'e',
+		TagEnd,
+	}
+	var s struct {
+		T string `nbt:"t,omitempty"`
+	}
+
+	if _, err := NewDecoder(bytes.NewReader(data)).Decode(&s); err != nil {
+		t.Errorf("decode error: %v", err)
+	}
+
+	want := "Tnze"
+	if s.T != want {
+		t.Errorf("unmarshal error: got %q, want %q", s.T, want)
+	}
+}
+
+func TestDecoder_Decode_keysWithComma2(t *testing.T) {
+	data := []byte{
+		TagCompound, 0, 1, 'S',
+		TagString, 0, 11, 't', ',', 'o', 'm', 'i', 't', 'e', 'm', 'p', 't', 'y',
+		0, 4, 'T', 'n', 'z', 'e',
+		TagEnd,
+	}
+	var s struct {
+		T string `nbtkey:"t,omitempty"`
+	}
+
+	if _, err := NewDecoder(bytes.NewReader(data)).Decode(&s); err != nil {
+		t.Errorf("decode error: %v", err)
+	}
+
+	want := "Tnze"
+	if s.T != want {
+		t.Errorf("unmarshal error: got %q, want %q", s.T, want)
 	}
 }

@@ -8,6 +8,7 @@ import (
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -76,9 +77,6 @@ func (e *encryptionRequest) ReadFrom(r io.Reader) (int64, error) {
 // authDigest computes a special SHA-1 digest required for Minecraft web
 // authentication on Premium servers (online-mode=true).
 // Source: http://wiki.vg/Protocol_Encryption#Server
-//
-// Also many, many thanks to SirCmpwn and his wonderful gist (C#):
-// https://gist.github.com/SirCmpwn/404223052379e82f91e6
 func authDigest(serverID string, sharedSecret, publicKey []byte) string {
 	h := sha1.New()
 	h.Write([]byte(serverID))
@@ -93,7 +91,7 @@ func authDigest(serverID string, sharedSecret, publicKey []byte) string {
 	}
 
 	// Trim away zeroes
-	res := strings.TrimLeft(fmt.Sprintf("%x", hash), "0")
+	res := strings.TrimLeft(hex.EncodeToString(hash), "0")
 	if negative {
 		res = "-" + res
 	}
