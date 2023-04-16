@@ -21,12 +21,7 @@ const (
 	TagCompound
 	TagIntArray
 	TagLongArray
-	TagNone = 0xFF
 )
-
-func IsArrayTag(ty byte) bool {
-	return ty == TagByteArray || ty == TagIntArray || ty == TagLongArray
-}
 
 type DecoderReader = interface {
 	io.ByteReader

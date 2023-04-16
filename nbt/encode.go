@@ -188,14 +188,15 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 					continue
 				}
 				typ, v := getTagType(v)
-				if typ == TagNone {
+				if typ == TagEnd {
 					return fmt.Errorf("encode %q error: unsupport type %v", t.name, v.Type())
 				}
 
 				if t.list {
-					if IsArrayTag(typ) {
+					switch typ {
+					case TagByteArray, TagIntArray, TagLongArray:
 						typ = TagList // override the parsed type
-					} else {
+					default:
 						return fmt.Errorf("invalid use of ,list struct tag, trying to encode %v as TagList", v.Type())
 					}
 				}
@@ -214,7 +215,7 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 					tagName = r.Key().String()
 				}
 				tagType, tagValue := getTagType(r.Value())
-				if tagType == TagNone {
+				if tagType == TagEnd {
 					return fmt.Errorf("encoding %q error: unsupport type %v", tagName, tagValue.Type())
 				}
 
@@ -316,7 +317,7 @@ func getTagTypeByType(vk reflect.Type) byte {
 	case reflect.Struct, reflect.Map:
 		return TagCompound
 	default:
-		return TagNone
+		return TagEnd
 	}
 }
 
