@@ -47,7 +47,7 @@ func NewBitStorage(bits, length int, data []uint64) (b *BitStorage) {
 		valuesPerLong: 64 / bits,
 	}
 	dataLen := calcBitStorageSize(bits, length)
-	if data != nil {
+	if len(data) != 0 {
 		if len(data) != dataLen {
 			panic(newBitStorageErr{ArrlLen: len(data), WantLen: dataLen})
 		}
