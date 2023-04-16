@@ -78,21 +78,16 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 	if err := c.Conn.WritePacket(pk.Marshal(
 		packetid.SPacketLoginStart,
 		pk.String(c.Auth.Name),
-		pk.Boolean(false), // TODO: Support online mode
-		pk.Opt{
-			If:    false, // TODO
-			Value: keyPair(c.Auth.KeyPair),
-		},
+		pk.Boolean(true),
+		keyPair(c.Auth.KeyPair),
 	)); !err.Is(basic.NoError) {
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("login start: %w", err)}
 	}
 	for {
 		//Receive Packet
 		var p pk.Packet
-		if err := c.Conn.ReadPacket(&p); !err.Is(basic.NoError) {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("read packet: %w", err)}
-		}
-
+		c.Conn.ReadPacket(&p)
+		
 		//Handle Packet
 		switch p.ID {
 		case packetid.CPacketLoginDisconnect:
@@ -100,6 +95,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 			if err := p.Scan(&reason); err != nil {
 				return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("login disconnect: %w", err)}
 			}
+			return basic.Error{Err: basic.NoError, Info: fmt.Errorf("login disconnect: %s", reason)}
 
 		case packetid.CPacketEncryptionRequest:
 			if err := handleEncryptionRequest(c, p); err != nil {
@@ -158,7 +154,7 @@ func (k keyPair) WriteTo(w io.Writer) (int64, error) {
 	if block == nil {
 		return 0, errors.New("pem decode error: no data is found")
 	}
-	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignatureV2)
+	signature, err := base64.StdEncoding.DecodeString(k.PublicKeySignature)
 	if err != nil {
 		return 0, err
 	}

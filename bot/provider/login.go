@@ -2,17 +2,14 @@ package provider
 
 import (
 	"bytes"
-	"crypto"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha1"
-	"crypto/sha256"
 	"crypto/x509"
 	"encoding/hex"
 	"encoding/json"
-	"encoding/pem"
 	"fmt"
 	"github.com/Tnze/go-mc/data/packetid"
 	"io"
@@ -28,22 +25,8 @@ import (
 // Auth includes an account
 type Auth auth.Auth
 
-func (a *Auth) SignMessage(m string) []byte {
-	h := sha256.New()
-	h.Write([]byte(m))
-	hashed := h.Sum(nil)
-
-	block, _ := pem.Decode([]byte(a.KeyPair.KeyPair.PrivateKey))
-	priv, err := x509.ParsePKCS8PrivateKey(block.Bytes)
-	signature, err := rsa.SignPKCS1v15(rand.Reader, priv.(*rsa.PrivateKey), crypto.SHA256, hashed)
-	if err != nil {
-		panic(err)
-	}
-	return signature
-}
-
 func handleEncryptionRequest(c *Client, p pk.Packet) error {
-	// Creating AES symmetric encryption keys
+	// 创建AES对称加密密钥
 	key, encoStream, decoStream := newSymmetricEncryption()
 
 	// Read EncryptionRequest
@@ -52,17 +35,23 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 		return err
 	}
 
-	if err := loginAuth(c.Auth, key, er); err != nil {
-		return err
-	} // Verify with Mojang
+	err := loginAuth(c.Auth, key, er) // 向Mojang验证
+	if err != nil {
+		return fmt.Errorf("login fail: %v", err)
+	}
 
+	// 响应加密请求
 	// Write Encryption Key Response
-	if p, err := genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken, &c.Auth.KeyPair); err != nil {
-		return err
-	} else if err := c.Conn.WritePacket(p); !err.Is(basic.NoError) {
+	p, err = genEncryptionKeyResponse(key, er.PublicKey, er.VerifyToken)
+	if err != nil {
+		return fmt.Errorf("gen encryption key response fail: %v", err)
+	}
+
+	if err := c.Conn.WritePacket(p); !err.Is(basic.NoError) {
 		return fmt.Errorf("write encryption key response fail: %v", err)
 	}
-	// Set up connection encryption
+
+	// 设置加密流
 	c.Conn.SetCipher(encoStream, decoStream)
 	return nil
 }
@@ -84,9 +73,6 @@ func (e *encryptionRequest) ReadFrom(r io.Reader) (int64, error) {
 // authDigest computes a special SHA-1 digest required for Minecraft web
 // authentication on Premium servers (online-mode=true).
 // Source: http://wiki.vg/Protocol_Encryption#Server
-//
-// Also many, many thanks to SirCmpwn and his wonderful gist (C#):
-// https://gist.github.com/SirCmpwn/404223052379e82f91e6
 func authDigest(serverID string, sharedSecret, publicKey []byte) string {
 	h := sha1.New()
 	h.Write([]byte(serverID))
@@ -187,7 +173,7 @@ func newSymmetricEncryption() (key []byte, encoStream, decoStream cipher.Stream)
 	return
 }
 
-func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPair *auth.KeyPair) (erp pk.Packet, err error) {
+func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte) (erp pk.Packet, err error) {
 	iPK, err := x509.ParsePKIXPublicKey(publicKey) // Decode Public Key
 	if err != nil {
 		err = fmt.Errorf("decode public key fail: %v", err)
@@ -199,47 +185,16 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte, keyPai
 		err = fmt.Errorf("encryption share secret fail: %v", err)
 		return
 	}
-	if keyPair != nil {
-		privateKeyBlock, _ := pem.Decode([]byte(keyPair.KeyPair.PrivateKey))
-		privateKey, err := x509.ParsePKCS8PrivateKey(privateKeyBlock.Bytes)
-		if err != nil {
-			err = fmt.Errorf("decode user private key fail: %v", err)
-			return erp, err
-		}
 
-		var l pk.Long
-		if _, err := l.ReadFrom(rand.Reader); err != nil {
-			err = fmt.Errorf("generate random number fail: %v", err)
-			return erp, err
-		}
-
-		key := privateKey.(*rsa.PrivateKey)
-		hash := sha256.New()
-		hash.Write(verifyToken)
-		_, _ = l.WriteTo(hash)
-		signedData, err := key.Sign(rand.Reader, hash.Sum(nil), crypto.SHA256)
-		if err != nil {
-			err = fmt.Errorf("sign verifyToken fail: %v", err)
-			return erp, err
-		}
-		return pk.Marshal(
-			packetid.SPacketEncryptionResponse,
-			pk.ByteArray(cryptPK),
-			pk.Boolean(false),
-			l,
-			pk.ByteArray(signedData),
-		), nil
-	} else {
-		verifyT, err := rsa.EncryptPKCS1v15(rand.Reader, rsaKey, verifyToken)
-		if err != nil {
-			err = fmt.Errorf("encryption verfy tokenfail: %v", err)
-			return erp, err
-		}
-		return pk.Marshal(
-			packetid.SPacketEncryptionResponse,
-			pk.ByteArray(cryptPK),
-			pk.Boolean(true),
-			pk.ByteArray(verifyT),
-		), nil
+	verifyT, err := rsa.EncryptPKCS1v15(rand.Reader, rsaKey, verifyToken)
+	if err != nil {
+		err = fmt.Errorf("encryption verfy tokenfail: %v", err)
+		return erp, err
 	}
+	return pk.Marshal(
+		packetid.SPacketEncryptionResponse,
+		pk.ByteArray(cryptPK),
+		pk.Boolean(true),
+		pk.ByteArray(verifyT),
+	), nil
 }
