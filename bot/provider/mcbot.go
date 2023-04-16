@@ -42,20 +42,21 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 	const Handshake = 0x00
 	// Split Host and Port
 	host, portStr, err := net.SplitHostPort(addr)
-	var port uint64
+	var port int64
+
 	if err != nil {
-		var addrErr *net.AddrError
-		const missingPort = "missing port in address"
-		if errors.As(err, &addrErr) && addrErr.Err == missingPort {
-			host = addr
-			port = 25565
+		_, records, err := net.LookupSRV("minecraft", "tcp", host)
+		if err == nil && len(records) > 0 {
+			addr = net.JoinHostPort(addr, strconv.Itoa(int(records[0].Port)))
+			return c.join(ctx, d, addr)
 		} else {
-			return basic.Error{Err: basic.NullValue, Info: fmt.Errorf("split host and port: %w", err)}
+			addr = net.JoinHostPort(addr, strconv.Itoa(DefaultPort))
+			return c.join(ctx, d, addr)
 		}
 	} else {
-		port, err = strconv.ParseUint(portStr, 0, 16)
+		port, err = strconv.ParseInt(portStr, 0, 16)
 		if err != nil {
-			return basic.Error{Err: basic.NullValue, Info: fmt.Errorf("parse port: %w", err)}
+			return basic.Error{Err: basic.DialError, Info: fmt.Errorf("parse port: %w", err)}
 		}
 	}
 
@@ -87,7 +88,7 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 		//Receive Packet
 		var p pk.Packet
 		c.Conn.ReadPacket(&p)
-		
+
 		//Handle Packet
 		switch p.ID {
 		case packetid.CPacketLoginDisconnect:
