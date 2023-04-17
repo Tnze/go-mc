@@ -5,6 +5,12 @@ import (
 	"errors"
 	"strconv"
 )
+
+type PropertiesEnum interface {
+    String() string
+    MarshalText() (text []byte, err error)
+}
+
 {{range $prop := .}}
 type {{.Name}} byte
 

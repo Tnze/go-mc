@@ -6,6 +6,11 @@ import (
 	"strconv"
 )
 
+type PropertiesEnum interface {
+	String() string
+	MarshalText() (text []byte, err error)
+}
+
 type AttachFace byte
 
 const (

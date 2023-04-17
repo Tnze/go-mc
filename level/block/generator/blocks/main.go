@@ -44,7 +44,7 @@ func main() {
 
 func readBlockStates(states *[]State) {
 	// open block_states data file
-	f, err := os.Open("./level/block/blocks.nbt")
+	f, err := os.Open("blocks.nbt")
 	if err != nil {
 		log.Panic(err)
 	}
