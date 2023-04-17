@@ -19,6 +19,7 @@ const (
 	Dispenser
 	Dropper
 	Sign
+	HangingSign
 	MobSpawner
 	Piston
 	BrewingStand
@@ -47,6 +48,9 @@ const (
 	SculkSensor
 	SculkCatalyst
 	SculkShrieker
+	ChiseledBookshelf
+	SuspiciousSand
+	DecoratedPot
 )
 
 var names = []string{
@@ -58,6 +62,7 @@ var names = []string{
 	"minecraft:dispenser",
 	"minecraft:dropper",
 	"minecraft:sign",
+	"minecraft:hanging_sign",
 	"minecraft:mob_spawner",
 	"minecraft:piston",
 	"minecraft:brewing_stand",
@@ -86,4 +91,7 @@ var names = []string{
 	"minecraft:sculk_sensor",
 	"minecraft:sculk_catalyst",
 	"minecraft:sculk_shrieker",
+	"minecraft:chiseled_bookshelf",
+	"minecraft:suspicious_sand",
+	"minecraft:decorated_pot",
 }
