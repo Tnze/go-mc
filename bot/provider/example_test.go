@@ -35,7 +35,7 @@ func TestExampleClient_JoinServer_online(t *testing.T) {
 	}
 
 	//Login
-	if err := c.JoinServer("test.2b2t.org"); !err.Is(basic.NoError) {
+	if err := c.JoinServer("localhost:25565"); !err.Is(basic.NoError) {
 		log.Fatal(err)
 	}
 	log.Println("Login success")

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/Tnze/go-mc/chat"
 	"net"
 	"os"
 	"strconv"
@@ -14,6 +15,24 @@ import (
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
+
+type Status struct {
+	Version struct {
+		Name     string `json:"name"`
+		Protocol int    `json:"protocol"`
+	}
+	Players struct {
+		Max    int `json:"max"`
+		Online int `json:"online"`
+		Sample []struct {
+			Name string `json:"name"`
+			ID   string `json:"id"`
+		} `json:"sample"`
+	}
+	Description        chat.Message `json:"description"`
+	Favicon            string       `json:"favicon"`
+	EnforcesSecureChat bool         `json:"enforcesSecureChat"`
+}
 
 // PingAndList check server status and list online player.
 // Returns a JSON data with server status, and the delay.
@@ -63,42 +82,42 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 	}
 	// Split Host and Port
 	host, portStr, err := net.SplitHostPort(addr)
-	var port uint64
+	var port int64
+
 	if err != nil {
-		var addrErr *net.AddrError
-		const missingPort = "missing port in address"
-		if errors.As(err, &addrErr) && addrErr.Err == missingPort {
-			host, port, err = addr, DefaultPort, nil
+		_, records, err := net.LookupSRV("minecraft", "tcp", host)
+		if err == nil && len(records) > 0 {
+			addr = net.JoinHostPort(addr, strconv.Itoa(int(records[0].Port)))
+			return pingAndList(ctx, addr, conn)
 		} else {
-			return nil, 0, LoginErr{"split address", err}
+			addr = net.JoinHostPort(addr, strconv.Itoa(DefaultPort))
+			return pingAndList(ctx, addr, conn)
 		}
 	} else {
-		port, err = strconv.ParseUint(portStr, 0, 16)
+		port, err = strconv.ParseInt(portStr, 0, 16)
 		if err != nil {
-			return nil, 0, LoginErr{"parse port", err}
+			return nil, 0, err
 		}
 	}
 
 	const Handshake = 0x00
 	//握手
-	err = conn.WritePacket(pk.Marshal(
+	if err := conn.WritePacket(pk.Marshal(
 		Handshake,                  //Handshake packet ID
 		pk.VarInt(ProtocolVersion), //Protocol version
 		pk.String(host),            //Server's address
 		pk.UnsignedShort(port),
 		pk.Byte(1),
-	))
-	if err != nil {
-		return nil, 0, fmt.Errorf("bot: send handshake packect fail: %v", err)
+	)); !err.Is(basic.NoError) {
+		return nil, 0, LoginErr{"send handshake packet", err}
 	}
 
 	//LIST
 	//请求服务器状态
-	err = conn.WritePacket(pk.Marshal(
+	if err := conn.WritePacket(pk.Marshal(
 		packetid.CPacketEncryptionRequest,
-	))
-	if err != nil {
-		return nil, 0, fmt.Errorf("bot: send list packect fail: %v", err)
+	)); !err.Is(basic.NoError) {
+		return nil, 0, fmt.Errorf("bot: send list packet fail: %v", err)
 	}
 
 	var p pk.Packet
@@ -109,29 +128,28 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 	var s pk.String
 	err = p.Scan(&s)
 	if err != nil {
-		return nil, 0, fmt.Errorf("bot: scan list packect fail: %v", err)
+		return nil, 0, fmt.Errorf("bot: scan list packet fail: %v", err)
 	}
 
 	//PING
 	startTime := time.Now()
-	err = conn.WritePacket(pk.Marshal(
+	if err := conn.WritePacket(pk.Marshal(
 		packetid.CPacketStatusPing,
 		pk.Long(startTime.Unix()),
-	))
-	if err != nil {
-		return nil, 0, fmt.Errorf("bot: send ping packect fail: %v", err)
+	)); !err.Is(basic.NoError) {
+		return nil, 0, fmt.Errorf("bot: send ping packet fail: %v", err)
 	}
 
-	if err = conn.ReadPacket(&p); err != nil {
-		return nil, 0, fmt.Errorf("bot: recv pong packect fail: %v", err)
+	if err := conn.ReadPacket(&p); !err.Is(basic.NoError) {
+		return nil, 0, fmt.Errorf("bot: recv pong packet fail: %v", err)
 	}
 	var t pk.Long
 	err = p.Scan(&t)
 	if err != nil {
-		return nil, 0, fmt.Errorf("bot: scan pong packect fail: %v", err)
+		return nil, 0, fmt.Errorf("bot: scan pong packet fail: %v", err)
 	}
 	if t != pk.Long(startTime.Unix()) {
-		return nil, 0, fmt.Errorf("bot: pong packect no match: %v", err)
+		return nil, 0, fmt.Errorf("bot: pong packet no match: %v", err)
 	}
 
 	return []byte(s), time.Since(startTime), err
