@@ -49,7 +49,7 @@ type EventsListener struct {
 	// The position coordinates and rotation are absolute or relative depends on the flags.
 	// The flag byte is a bitfield, specifies whether each coordinate value is absolute or relative.
 	// For more information, see https://wiki.vg/Protocol#Synchronize_Player_Position
-	Teleported func(x, y, z float64, yaw, pitch float32, flags byte, teleportID int32, dismountVehicle bool) error
+	Teleported func(x, y, z float64, yaw, pitch float32, flags byte, teleportID int32) error
 }
 
 // attach your event listener to the client.
@@ -117,21 +117,20 @@ func attachUpdateHealth(c *bot.Client, healthChangeHandler func(health float32, 
 	})
 }
 
-func attachPlayerPosition(c *bot.Client, handler func(x, y, z float64, yaw, pitch float32, flag byte, teleportID int32, dismountVehicle bool) error) {
+func attachPlayerPosition(c *bot.Client, handler func(x, y, z float64, yaw, pitch float32, flag byte, teleportID int32) error) {
 	c.Events.AddListener(bot.PacketHandler{
 		Priority: 64, ID: packetid.ClientboundPlayerPosition,
 		F: func(p pk.Packet) error {
 			var (
-				X, Y, Z         pk.Double
-				Yaw, Pitch      pk.Float
-				Flags           pk.Byte
-				TeleportID      pk.VarInt
-				DismountVehicle pk.Boolean
+				X, Y, Z    pk.Double
+				Yaw, Pitch pk.Float
+				Flags      pk.Byte
+				TeleportID pk.VarInt
 			)
-			if err := p.Scan(&X, &Y, &Z, &Yaw, &Pitch, &Flags, &TeleportID, &DismountVehicle); err != nil {
+			if err := p.Scan(&X, &Y, &Z, &Yaw, &Pitch, &Flags, &TeleportID); err != nil {
 				return Error{err}
 			}
-			return handler(float64(X), float64(Y), float64(Z), float32(Yaw), float32(Pitch), byte(Flags), int32(TeleportID), bool(DismountVehicle))
+			return handler(float64(X), float64(Y), float64(Z), float32(Yaw), float32(Pitch), byte(Flags), int32(TeleportID))
 		},
 	})
 }
