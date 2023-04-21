@@ -24,7 +24,7 @@ func NewBlock(name string, property *BlockProperty) *Block {
 }
 
 func (b *Block) StateID() StateID {
-	return ToStateID[*b]
+	return ToStateID[b]
 }
 
 func (b *Block) Is(other *Block) bool {
@@ -53,7 +53,7 @@ func (b *Block) GetCollisionBox() maths.AxisAlignedBB[float64] {
 var blockStates []byte
 
 var ToStateID map[*Block]StateID
-var StateList []Block
+var StateList []*Block
 
 // BitsPerBlock indicates how many bits are needed to represent all possible
 // block states. This value is used to determine the size of the global palette.
@@ -76,8 +76,8 @@ func init() {
 	if _, err = nbt.NewDecoder(z).Decode(&states); err != nil {
 		panic(err)
 	}
-	ToStateID = make(map[Block]StateID, len(states))
-	StateList = make([]Block, 0, len(states))
+	ToStateID = make(map[*Block]StateID, len(states))
+	StateList = make([]*Block, 0, len(states))
 	for _, state := range states {
 		block := FromID[state.Name]
 		if state.Properties.Type != nbt.TagEnd {
