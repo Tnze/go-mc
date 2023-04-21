@@ -1,3 +1,6 @@
+//go:build generate
+// +build generate
+
 package main
 
 import (
@@ -5,7 +8,7 @@ import (
 	"compress/gzip"
 	_ "embed"
 	"fmt"
-	"go/format"
+	"github.com/Tnze/go-mc/level/block"
 	"log"
 	"os"
 	"text/template"
@@ -22,17 +25,23 @@ var temp = template.Must(template.
 	Funcs(template.FuncMap{
 		"UpperTheFirst": generateutils.UpperTheFirst,
 		"ToGoTypeName":  generateutils.ToGoTypeName,
-		"GetType":       GetType,
-		"Generator":     func() string { return "generator/blocks/main.go" },
+		"ToStructLiteral": func(s interface{}) string {
+			return fmt.Sprintf("%#v", s)[6:]
+		},
+		"GetType":   GetType,
+		"Generator": func() string { return "generator/blocks/main.go" },
 	}).
 	Parse(tempSource),
 )
 
 type State struct {
-	Name string
-	Meta map[string]string
+	Name       string
+	Meta       map[string]string
+	Properties block.BlockProperty
 }
 
+//go:generate go run $GOFILE
+//go:generate go fmt blocks.go
 func main() {
 	fmt.Println("Generating source file...")
 	var states []State
@@ -67,12 +76,7 @@ func genSourceFile(states []State) {
 		log.Panic(err)
 	}
 
-	formattedSource, err := format.Source(source.Bytes())
-	if err != nil {
-		panic(err)
-	}
-
-	err = os.WriteFile("blocks.go", formattedSource, 0666)
+	err := os.WriteFile("blocks.go", source.Bytes(), 0666)
 	if err != nil {
 		panic(err)
 	}

@@ -12,45 +12,39 @@ import (
 )
 
 type Block struct {
-	IBlock
+	*BlockProperty
+	Name string
 }
 
-func (b Block) StateID() StateID {
-	return ToStateID[b]
-}
-
-func (b Block) Is(b2 IBlock) bool {
-	return b.ID() == b2.ID()
-}
-
-func (b Block) IsAir() bool {
-	switch b.IBlock {
-	case Air{}, CaveAir{}, VoidAir{}:
-		return true
-	default:
-		return false
+func NewBlock(name string, property *BlockProperty) *Block {
+	return &Block{
+		BlockProperty: property,
+		Name:          name,
 	}
 }
 
-func (b Block) IsLiquid() bool {
-	switch b.IBlock {
-	case Water{}, Lava{}:
-		return true
-	default:
-		return false
-	}
+func (b *Block) StateID() StateID {
+	return ToStateID[*b]
 }
 
-func (b Block) GetCollisionBox() maths.AxisAlignedBB[float64] {
-	aabb := shapes.GetShape(b.ID(), int(b.StateID()))
+func (b *Block) Is(other *Block) bool {
+	return b.Name == other.Name && b.StateID() == other.StateID()
+}
+
+func (b *Block) IsAir() bool {
+	return b.BlockProperty.IsAir
+}
+
+func (b *Block) IsLiquid() bool {
+	return b.Is(Water) || b.Is(Lava)
+}
+
+func (b *Block) GetCollisionBox() maths.AxisAlignedBB[float64] {
+	aabb := shapes.GetShape(b.Name, int(b.StateID()))
 	return maths.AxisAlignedBB[float64]{
 		MinX: aabb[0], MinY: aabb[1], MinZ: aabb[2],
 		MaxX: aabb[3], MaxY: aabb[4], MaxZ: aabb[5],
 	}
-}
-
-type IBlock interface {
-	ID() string
 }
 
 // This file stores all possible block states into a TAG_List with gzip compressed.
@@ -58,7 +52,7 @@ type IBlock interface {
 //go:embed block_states.nbt
 var blockStates []byte
 
-var ToStateID map[IBlock]StateID
+var ToStateID map[*Block]StateID
 var StateList []Block
 
 // BitsPerBlock indicates how many bits are needed to represent all possible
@@ -82,7 +76,7 @@ func init() {
 	if _, err = nbt.NewDecoder(z).Decode(&states); err != nil {
 		panic(err)
 	}
-	ToStateID = make(map[IBlock]StateID, len(states))
+	ToStateID = make(map[Block]StateID, len(states))
 	StateList = make([]Block, 0, len(states))
 	for _, state := range states {
 		block := FromID[state.Name]

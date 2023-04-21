@@ -21,3 +21,7 @@ func ToGoTypeName(name string) string {
 	}
 	return strings.Join(words, "")
 }
+
+func ToMinecraftName(name string) string {
+	return "minecraft:" + strings.ToLower(name)
+}

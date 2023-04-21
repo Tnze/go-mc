@@ -1,9 +1,11 @@
+//go:build generate
+// +build generate
+
 package main
 
 import (
 	"bytes"
 	_ "embed"
-	"go/format"
 	"log"
 	"os"
 	"strings"
@@ -59,6 +61,8 @@ var EnumProperties = []EnumProperty{
 //go:embed properties_enum.go.tmpl
 var tempSource string
 
+//go:generate go run $GOFILE
+//go:generate go fmt blocks.go
 func main() {
 	var source bytes.Buffer
 	err := template.Must(template.
@@ -74,11 +78,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	formattedSource, err := format.Source(source.Bytes())
-	if err != nil {
-		log.Panic(err)
-	}
-	err = os.WriteFile("properties_enum.go", formattedSource, 0666)
+	err = os.WriteFile("properties_enum.go", source.Bytes(), 0666)
 	if err != nil {
 		log.Panic(err)
 	}
