@@ -110,7 +110,7 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 		blockEntities[i].Type = block.EntityTypes[tmp.ID]
 	}
 
-	bitsForHeight := bits.Len( /* chunk height in blocks */ uint(secs) * 16)
+	bitsForHeight := bits.Len( /* chunk height in blocks */ uint(secs)*16 + 1)
 	return &Chunk{
 		Sections: sections,
 		HeightMaps: HeightMaps{
@@ -271,7 +271,7 @@ func (c *Chunk) WriteTo(w io.Writer) (int64, error) {
 			WorldSurface   []uint64 `nbt:"WORLD_SURFACE"`
 		}{
 			MotionBlocking: c.HeightMaps.MotionBlocking.Raw(),
-			WorldSurface:   c.HeightMaps.MotionBlocking.Raw(),
+			WorldSurface:   c.HeightMaps.WorldSurface.Raw(),
 		}),
 		pk.ByteArray(data),
 		pk.Array(c.BlockEntity),
@@ -302,6 +302,10 @@ func (c *Chunk) ReadFrom(r io.Reader) (int64, error) {
 	if err != nil {
 		return n, err
 	}
+
+	bitsForHeight := bits.Len( /* chunk height in blocks */ uint(len(c.Sections))*16 + 1)
+	c.HeightMaps.MotionBlocking = NewBitStorage(bitsForHeight, 16*16, heightmaps.MotionBlocking)
+	c.HeightMaps.WorldSurface = NewBitStorage(bitsForHeight, 16*16, heightmaps.WorldSurface)
 
 	err = c.PutData(data)
 	return n, err
