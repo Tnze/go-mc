@@ -38,6 +38,12 @@ type LevelData struct {
 			}
 		} `nbt:"1"`
 	}
+	DragonFight struct {
+		Gateways           []int32
+		DragonKilled       bool
+		NeedsStateScanning bool
+		PreviouslyKilled   bool
+	}
 	GameRules              map[string]string
 	WorldGenSettings       WorldGenSettings
 	GameType               int32
@@ -50,6 +56,8 @@ type LevelData struct {
 	Raining                bool  `nbt:"raining"`
 	RainTime               int32 `nbt:"rainTime"`
 	RandomSeed             int64
+	ScheduledEvents        []nbt.RawMessage
+	ServerBrands           []string
 	SizeOnDisk             int64
 	SpawnAngle             float32
 	SpawnX, SpawnY, SpawnZ int32
@@ -62,6 +70,7 @@ type LevelData struct {
 		Series   string
 		Snapshot byte
 	}
+	StorageVersion             int32 `nbt:"version"`
 	WanderingTraderId          []int32
 	WanderingTraderSpawnChance int32
 	WanderingTraderSpawnDelay  int32
@@ -82,6 +91,8 @@ type CustomBossEvent struct {
 }
 
 func ReadLevel(r io.Reader) (data Level, err error) {
-	_, err = nbt.NewDecoder(r).Decode(&data)
+	decoder := nbt.NewDecoder(r)
+	decoder.DisallowUnknownFields()
+	_, err = decoder.Decode(&data)
 	return
 }
