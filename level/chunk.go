@@ -107,19 +107,16 @@ func ChunkFromSave(c *save.Chunk) (*Chunk, error) {
 		blockEntities[i].Type = block.EntityTypes[tmp.ID]
 	}
 
-	motionBlocking := c.Heightmaps.MotionBlocking
-	motionBlockingNoLeaves := c.Heightmaps.MotionBlockingNoLeaves
-	oceanFloor := c.Heightmaps.OceanFloor
-	worldSurface := c.Heightmaps.WorldSurface
-
 	bitsForHeight := bits.Len( /* chunk height in blocks */ uint(secs) * 16)
 	return &Chunk{
 		Sections: sections,
 		HeightMaps: HeightMaps{
-			MotionBlocking:         NewBitStorage(bitsForHeight, 16*16, motionBlocking),
-			MotionBlockingNoLeaves: NewBitStorage(bitsForHeight, 16*16, motionBlockingNoLeaves),
-			OceanFloor:             NewBitStorage(bitsForHeight, 16*16, oceanFloor),
-			WorldSurface:           NewBitStorage(bitsForHeight, 16*16, worldSurface),
+			WorldSurface:           NewBitStorage(bitsForHeight, 16*16, c.Heightmaps["WORLD_SURFACE_WG"]),
+			WorldSurfaceWG:         NewBitStorage(bitsForHeight, 16*16, c.Heightmaps["WORLD_SURFACE"]),
+			OceanFloorWG:           NewBitStorage(bitsForHeight, 16*16, c.Heightmaps["OCEAN_FLOOR_WG"]),
+			OceanFloor:             NewBitStorage(bitsForHeight, 16*16, c.Heightmaps["OCEAN_FLOOR"]),
+			MotionBlocking:         NewBitStorage(bitsForHeight, 16*16, c.Heightmaps["MOTION_BLOCKING"]),
+			MotionBlockingNoLeaves: NewBitStorage(bitsForHeight, 16*16, c.Heightmaps["MOTION_BLOCKING_NO_LEAVES"]),
 		},
 		BlockEntity: blockEntities,
 		Status:      ChunkStatus(c.Status),
@@ -188,7 +185,12 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) (err error) {
 		s.BlockLight = v.BlockLight
 	}
 	dst.Sections = sections
-	dst.Heightmaps.MotionBlocking = c.HeightMaps.MotionBlocking.Raw()
+	dst.Heightmaps["WORLD_SURFACE_WG"] = c.HeightMaps.WorldSurfaceWG.Raw()
+	dst.Heightmaps["WORLD_SURFACE"] = c.HeightMaps.WorldSurface.Raw()
+	dst.Heightmaps["OCEAN_FLOOR_WG"] = c.HeightMaps.OceanFloorWG.Raw()
+	dst.Heightmaps["OCEAN_FLOOR"] = c.HeightMaps.OceanFloor.Raw()
+	dst.Heightmaps["MOTION_BLOCKING"] = c.HeightMaps.MotionBlocking.Raw()
+	dst.Heightmaps["MOTION_BLOCKING_NO_LEAVES"] = c.HeightMaps.MotionBlockingNoLeaves.Raw()
 	dst.Status = string(c.Status)
 	return
 }
@@ -314,10 +316,12 @@ func (c *Chunk) PutData(data []byte) error {
 }
 
 type HeightMaps struct {
-	MotionBlocking         *BitStorage
-	MotionBlockingNoLeaves *BitStorage
-	OceanFloor             *BitStorage
-	WorldSurface           *BitStorage
+	WorldSurfaceWG         *BitStorage // test = NOT_AIR
+	WorldSurface           *BitStorage // test = NOT_AIR
+	OceanFloorWG           *BitStorage // test = MATERIAL_MOTION_BLOCKING
+	OceanFloor             *BitStorage // test = MATERIAL_MOTION_BLOCKING
+	MotionBlocking         *BitStorage // test = BlocksMotion or isFluid
+	MotionBlockingNoLeaves *BitStorage // test = BlocksMotion or isFluid
 }
 
 type BlockEntity struct {

@@ -1,29 +1,47 @@
 package save
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/Tnze/go-mc/save/region"
 )
 
 func TestColumn(t *testing.T) {
-	r, err := region.Open("testdata/region/r.0.0.mca")
+	files, err := filepath.Glob("testdata/region/r.*.*.mca")
 	if err != nil {
-		t.Fatal(err)
+		return
 	}
-	defer r.Close()
+	for _, filename := range files {
+		r, err := region.Open(filename)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	var c Chunk
-	data, err := r.ReadSector(0, 0)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = c.Load(data)
-	if err != nil {
-		t.Fatal(err)
-	}
+		for x := 0; x < 32; x++ {
+			for z := 0; z < 32; z++ {
+				if !r.ExistSector(x, z) {
+					continue
+				}
 
-	t.Logf("%+v", c)
+				data, err := r.ReadSector(x, z)
+				if err != nil {
+					t.Fatalf("read %s sec (%d, %d) fail: %v", filepath.Base(filename), x, z, err)
+				}
+
+				var c Chunk
+				err = c.Load(data)
+				if err != nil {
+					t.Fatalf("read %s sec (%d, %d) fail: %v", filepath.Base(filename), x, z, err)
+				}
+			}
+		}
+
+		err = r.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 }
 
 func BenchmarkColumn_Load(b *testing.B) {

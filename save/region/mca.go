@@ -233,9 +233,9 @@ func (r *Region) ExistSector(x, z int) bool {
 	return r.offsets[z][x] != 0
 }
 
-// PadToFullSector writes zeros to the end of the file to make size a multiple of 4096
-// Legacy versions of Minecraft require this
-// Need to be called right before Close
+// PadToFullSector writes zeros to the end of the file to make size a multiple of 4096.
+// Legacy versions of Minecraft require this.
+// Need to be called right before Close.
 func (r *Region) PadToFullSector() error {
 	size, err := r.f.Seek(0, io.SeekEnd)
 	if err != nil {
