@@ -94,3 +94,24 @@ func (c *Chunk) Data(compressingType byte) ([]byte, error) {
 	err := nbt.NewEncoder(w).Encode(c, "")
 	return buff.Bytes(), err
 }
+
+type Entities struct {
+	Pos, Motion  [3]float64
+	Rotation     [3]float32
+	FallDistance float32
+	Fire, Air    int16
+
+	OnGround       bool
+	Invulnerable   bool
+	PortalCooldown int32
+	UUID           [4]int32
+
+	CustomName        string
+	CustomNameVisible bool
+	Silent            bool
+	NoGravity         bool
+	Glowing           bool
+	TicksFrozen       int32
+	HasVisualFire     bool
+	Tags              []string
+}
