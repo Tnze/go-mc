@@ -7,9 +7,7 @@ import (
 	"io"
 	"math/bits"
 	"strconv"
-	"strings"
 
-	"github.com/Tnze/go-mc/level/biome"
 	"github.com/Tnze/go-mc/level/block"
 	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -59,7 +57,12 @@ func EmptyChunk(secs int) *Chunk {
 	return &Chunk{
 		Sections: sections,
 		HeightMaps: HeightMaps{
-			MotionBlocking: NewBitStorage(bits.Len(uint(secs)*16), 16*16, nil),
+			WorldSurfaceWG:         NewBitStorage(bits.Len(uint(secs)*16+1), 16*16, nil),
+			WorldSurface:           NewBitStorage(bits.Len(uint(secs)*16+1), 16*16, nil),
+			OceanFloorWG:           NewBitStorage(bits.Len(uint(secs)*16+1), 16*16, nil),
+			OceanFloor:             NewBitStorage(bits.Len(uint(secs)*16+1), 16*16, nil),
+			MotionBlocking:         NewBitStorage(bits.Len(uint(secs)*16+1), 16*16, nil),
+			MotionBlockingNoLeaves: NewBitStorage(bits.Len(uint(secs)*16+1), 16*16, nil),
 		},
 		Status: StatusEmpty,
 	}
@@ -145,13 +148,12 @@ func readStatesPalette(palette []save.BlockState, data []uint64) (paletteData *P
 	return
 }
 
-func readBiomesPalette(palette []string, data []uint64) (*PaletteContainer[BiomesState], error) {
+func readBiomesPalette(palette []save.BiomeState, data []uint64) (*PaletteContainer[BiomesState], error) {
 	biomesRawPalette := make([]BiomesState, len(palette))
-	var ok bool
 	for i, v := range palette {
-		biomesRawPalette[i], ok = biome.BiomesIDs[strings.TrimPrefix(v, "minecraft:")]
-		if !ok {
-			return nil, fmt.Errorf("unknown biomes: %s", v)
+		err := biomesRawPalette[i].UnmarshalText([]byte(v))
+		if err != nil {
+			return nil, err
 		}
 	}
 	return NewBiomesPaletteContainerWithData(4*4*4, data, biomesRawPalette), nil
@@ -180,7 +182,10 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) (err error) {
 		if err != nil {
 			return
 		}
-		biomes.Palette, biomes.Data = writeBiomesPalette(v.Biomes)
+		biomes.Palette, biomes.Data, err = writeBiomesPalette(v.Biomes)
+		if err != nil {
+			return
+		}
 		s.SkyLight = v.SkyLight
 		s.BlockLight = v.BlockLight
 	}
@@ -198,6 +203,7 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) (err error) {
 func writeStatesPalette(paletteData *PaletteContainer[BlocksState]) (palette []save.BlockState, data []uint64, err error) {
 	rawPalette := paletteData.palette.export()
 	palette = make([]save.BlockState, len(rawPalette))
+
 	var buffer bytes.Buffer
 	for i, v := range rawPalette {
 		b := block.StateList[v]
@@ -213,19 +219,27 @@ func writeStatesPalette(paletteData *PaletteContainer[BlocksState]) (palette []s
 			return
 		}
 	}
-	data = append(data, paletteData.data.Raw()...)
 
+	data = make([]uint64, len(paletteData.data.Raw()))
+	copy(data, paletteData.data.Raw())
 	return
 }
 
-func writeBiomesPalette(paletteData *PaletteContainer[BiomesState]) (palette []string, data []uint64) {
+func writeBiomesPalette(paletteData *PaletteContainer[BiomesState]) (palette []save.BiomeState, data []uint64, err error) {
 	rawPalette := paletteData.palette.export()
-	palette = make([]string, len(rawPalette))
-	for i, v := range rawPalette {
-		palette[i] = biome.BiomesNames[v]
-	}
-	data = append(data, paletteData.data.Raw()...)
+	palette = make([]save.BiomeState, len(rawPalette))
 
+	var biomeID []byte
+	for i, v := range rawPalette {
+		biomeID, err = v.MarshalText()
+		if err != nil {
+			return
+		}
+		palette[i] = save.BiomeState(biomeID)
+	}
+
+	data = make([]uint64, len(paletteData.data.Raw()))
+	copy(data, paletteData.data.Raw())
 	return
 }
 

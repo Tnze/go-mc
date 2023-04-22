@@ -34,22 +34,23 @@ type Chunk struct {
 
 type Section struct {
 	Y           int8
-	BlockStates struct {
-		Palette []BlockState `nbt:"palette"`
-		Data    []uint64     `nbt:"data"`
-	} `nbt:"block_states"`
-	Biomes struct {
-		Palette []string `nbt:"palette"`
-		Data    []uint64 `nbt:"data"`
-	} `nbt:"biomes"`
-	SkyLight   []byte
-	BlockLight []byte
+	BlockStates PaletteContainer[BlockState] `nbt:"block_states"`
+	Biomes      PaletteContainer[BiomeState] `nbt:"biomes"`
+	SkyLight    []byte
+	BlockLight  []byte
+}
+
+type PaletteContainer[T any] struct {
+	Palette []T      `nbt:"palette"`
+	Data    []uint64 `nbt:"data"`
 }
 
 type BlockState struct {
 	Name       string
 	Properties nbt.RawMessage
 }
+
+type BiomeState string
 
 // Load read column data from []byte
 func (c *Chunk) Load(data []byte) (err error) {
@@ -70,7 +71,7 @@ func (c *Chunk) Load(data []byte) (err error) {
 	}
 
 	d := nbt.NewDecoder(r)
-	//d.DisallowUnknownFields()
+	// d.DisallowUnknownFields()
 	_, err = d.Decode(c)
 	return
 }
@@ -87,6 +88,8 @@ func (c *Chunk) Data(compressingType byte) ([]byte, error) {
 		w = gzip.NewWriter(&buff)
 	case 2:
 		w = zlib.NewWriter(&buff)
+	case 3:
+		w = &buff
 	}
 	err := nbt.NewEncoder(w).Encode(c, "")
 	return buff.Bytes(), err

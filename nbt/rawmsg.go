@@ -9,8 +9,11 @@ import (
 )
 
 // RawMessage stores the raw binary data of NBT.
-// This is usable if you want to store an unknown NBT data and parse it later.
-// Notice that this struct doesn't store the tag name. To convert RawMessage to valid NBT binary value:
+// This is usable if you want to store an unknown NBT data and use it later.
+//
+// Notice that this struct doesn't store the root tag name.
+//
+// To convert RawMessage to valid NBT binary value:
 // Encoder.Encode(RawMessage, Name) = []byte{ Type (1 byte) | n (2 byte) | Name (n byte) | Data}.
 type RawMessage struct {
 	Type byte

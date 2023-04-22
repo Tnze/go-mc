@@ -195,7 +195,7 @@ func (b *BitStorage) WriteTo(w io.Writer) (int64, error) {
 }
 
 // Fix recalculate BitStorage internal values for given bits.
-// Typically, you should call this method after ReadFrom is called, internal data is changed.
+// Typically, you should call this method after ReadFrom is called, which cause internal data is changed.
 func (b *BitStorage) Fix(bits int) error {
 	if bits == 0 {
 		b.mask = 0
