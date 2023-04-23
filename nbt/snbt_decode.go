@@ -254,6 +254,12 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			return tagType, err
 		}
 	case scanBeginList: // TAG_List<TAG_List>
+		if writeTag {
+			err = e.writeTag(TagList, tagName)
+			if err != nil {
+				return tagType, err
+			}
+		}
 		var elemType byte
 		for {
 			if d.opcode == scanSkipSpace {
@@ -291,6 +297,12 @@ func writeListOrArray(e *Encoder, d *decodeState, writeTag bool, tagName string)
 			return
 		}
 	case scanBeginCompound: // TAG_List<TAG_Compound>
+		if writeTag {
+			err = e.writeTag(TagList, tagName)
+			if err != nil {
+				return tagType, err
+			}
+		}
 		for {
 			if d.opcode == scanSkipSpace {
 				d.scanWhile(scanSkipSpace)
