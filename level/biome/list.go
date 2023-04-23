@@ -2,101 +2,114 @@ package biome
 
 import (
 	"errors"
+	"hash/maphash"
 	"math/bits"
 )
 
 type Type int
 
+var hashSeed = maphash.MakeSeed()
+
 func (t Type) MarshalText() (text []byte, err error) {
 	if t >= 0 && int(t) < len(biomesNames) {
-		return []byte(biomesNames[t]), nil
+		return biomesNames[t], nil
 	}
 	return nil, errors.New("invalid type")
 }
 
 func (t *Type) UnmarshalText(text []byte) error {
 	var ok bool
-	*t, ok = biomesIDs[string(text)]
+	*t, ok = biomesIDs[maphash.Bytes(hashSeed, text)]
 	if ok {
 		return nil
 	}
-	return errors.New("unknown type")
+	return errors.New("invalid type")
+}
+
+// String returns the biome id. Debugging purposes only.
+func (t Type) String() string {
+	if t >= 0 && int(t) < len(biomesNames) {
+		return string(biomesNames[t])
+	}
+	return "<invalid biome type>"
 }
 
 var (
+	// BitsPerBiome reports how many bits are required to represent all possible biomes.
 	BitsPerBiome int
-	biomesIDs    map[string]Type
-	biomesNames  = []string{
-		"minecraft:the_void",
-		"minecraft:plains",
-		"minecraft:sunflower_plains",
-		"minecraft:snowy_plains",
-		"minecraft:ice_spikes",
-		"minecraft:desert",
-		"minecraft:swamp",
-		"minecraft:mangrove_swamp",
-		"minecraft:forest",
-		"minecraft:flower_forest",
-		"minecraft:birch_forest",
-		"minecraft:dark_forest",
-		"minecraft:old_growth_birch_forest",
-		"minecraft:old_growth_pine_taiga",
-		"minecraft:old_growth_spruce_taiga",
-		"minecraft:taiga",
-		"minecraft:snowy_taiga",
-		"minecraft:savanna",
-		"minecraft:savanna_plateau",
-		"minecraft:windswept_hills",
-		"minecraft:windswept_gravelly_hills",
-		"minecraft:windswept_forest",
-		"minecraft:windswept_savanna",
-		"minecraft:jungle",
-		"minecraft:sparse_jungle",
-		"minecraft:bamboo_jungle",
-		"minecraft:badlands",
-		"minecraft:eroded_badlands",
-		"minecraft:wooded_badlands",
-		"minecraft:meadow",
-		"minecraft:grove",
-		"minecraft:snowy_slopes",
-		"minecraft:frozen_peaks",
-		"minecraft:jagged_peaks",
-		"minecraft:stony_peaks",
-		"minecraft:river",
-		"minecraft:frozen_river",
-		"minecraft:beach",
-		"minecraft:snowy_beach",
-		"minecraft:stony_shore",
-		"minecraft:warm_ocean",
-		"minecraft:lukewarm_ocean",
-		"minecraft:deep_lukewarm_ocean",
-		"minecraft:ocean",
-		"minecraft:deep_ocean",
-		"minecraft:cold_ocean",
-		"minecraft:deep_cold_ocean",
-		"minecraft:frozen_ocean",
-		"minecraft:deep_frozen_ocean",
-		"minecraft:mushroom_fields",
-		"minecraft:dripstone_caves",
-		"minecraft:lush_caves",
-		"minecraft:deep_dark",
-		"minecraft:nether_wastes",
-		"minecraft:warped_forest",
-		"minecraft:crimson_forest",
-		"minecraft:soul_sand_valley",
-		"minecraft:basalt_deltas",
-		"minecraft:the_end",
-		"minecraft:end_highlands",
-		"minecraft:end_midlands",
-		"minecraft:small_end_islands",
-		"minecraft:end_barrens",
+	biomesIDs    map[uint64]Type
+	biomesNames  = [][]byte{
+		[]byte("minecraft:the_void"),
+		[]byte("minecraft:plains"),
+		[]byte("minecraft:sunflower_plains"),
+		[]byte("minecraft:snowy_plains"),
+		[]byte("minecraft:ice_spikes"),
+		[]byte("minecraft:desert"),
+		[]byte("minecraft:swamp"),
+		[]byte("minecraft:mangrove_swamp"),
+		[]byte("minecraft:forest"),
+		[]byte("minecraft:flower_forest"),
+		[]byte("minecraft:birch_forest"),
+		[]byte("minecraft:dark_forest"),
+		[]byte("minecraft:old_growth_birch_forest"),
+		[]byte("minecraft:old_growth_pine_taiga"),
+		[]byte("minecraft:old_growth_spruce_taiga"),
+		[]byte("minecraft:taiga"),
+		[]byte("minecraft:snowy_taiga"),
+		[]byte("minecraft:savanna"),
+		[]byte("minecraft:savanna_plateau"),
+		[]byte("minecraft:windswept_hills"),
+		[]byte("minecraft:windswept_gravelly_hills"),
+		[]byte("minecraft:windswept_forest"),
+		[]byte("minecraft:windswept_savanna"),
+		[]byte("minecraft:jungle"),
+		[]byte("minecraft:sparse_jungle"),
+		[]byte("minecraft:bamboo_jungle"),
+		[]byte("minecraft:badlands"),
+		[]byte("minecraft:eroded_badlands"),
+		[]byte("minecraft:wooded_badlands"),
+		[]byte("minecraft:meadow"),
+		[]byte("minecraft:grove"),
+		[]byte("minecraft:snowy_slopes"),
+		[]byte("minecraft:frozen_peaks"),
+		[]byte("minecraft:jagged_peaks"),
+		[]byte("minecraft:stony_peaks"),
+		[]byte("minecraft:river"),
+		[]byte("minecraft:frozen_river"),
+		[]byte("minecraft:beach"),
+		[]byte("minecraft:snowy_beach"),
+		[]byte("minecraft:stony_shore"),
+		[]byte("minecraft:warm_ocean"),
+		[]byte("minecraft:lukewarm_ocean"),
+		[]byte("minecraft:deep_lukewarm_ocean"),
+		[]byte("minecraft:ocean"),
+		[]byte("minecraft:deep_ocean"),
+		[]byte("minecraft:cold_ocean"),
+		[]byte("minecraft:deep_cold_ocean"),
+		[]byte("minecraft:frozen_ocean"),
+		[]byte("minecraft:deep_frozen_ocean"),
+		[]byte("minecraft:mushroom_fields"),
+		[]byte("minecraft:dripstone_caves"),
+		[]byte("minecraft:lush_caves"),
+		[]byte("minecraft:deep_dark"),
+		[]byte("minecraft:nether_wastes"),
+		[]byte("minecraft:warped_forest"),
+		[]byte("minecraft:crimson_forest"),
+		[]byte("minecraft:soul_sand_valley"),
+		[]byte("minecraft:basalt_deltas"),
+		[]byte("minecraft:the_end"),
+		[]byte("minecraft:end_highlands"),
+		[]byte("minecraft:end_midlands"),
+		[]byte("minecraft:small_end_islands"),
+		[]byte("minecraft:end_barrens"),
 	}
 )
 
 func init() {
 	BitsPerBiome = bits.Len(uint(len(biomesNames)))
-	biomesIDs = make(map[string]Type, len(biomesNames))
+	biomesIDs = make(map[uint64]Type, len(biomesNames))
 	for i, v := range biomesNames {
-		biomesIDs[v] = Type(i)
+		h := maphash.Bytes(hashSeed, v)
+		biomesIDs[h] = Type(i)
 	}
 }
