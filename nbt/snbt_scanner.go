@@ -8,7 +8,7 @@ const (
 	scanBeginCompound          // begin TAG_Compound (after left-brace )
 	scanBeginList              // begin TAG_List (after left-bracket)
 	scanListValue              // just finished read list value (after comma)
-	scanListType               // just finished read list type (after "B;" or "L;")
+	scanListType               // just finished read list type (after "B;", "I;" or "L;")
 	scanCompoundTagName        // just finished read tag name (before colon)
 	scanCompoundValue          // just finished read value (after comma)
 	scanSkipSpace              // space byte; can skip; known to be last "continue" result
