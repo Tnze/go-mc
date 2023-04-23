@@ -234,7 +234,7 @@ func stateArrayT(s *scanner, c byte) int {
 		return scanSkipSpace
 	}
 	if c == ']' { // empty array
-		return scanEndValue
+		return stateEndValue(s, c)
 	}
 	return stateBeginValue(s, c)
 }

@@ -9,7 +9,7 @@ func TestSNBT_checkScanCode(t *testing.T) {
 	// t.SkipNow()
 	var s scanner
 	s.reset()
-	for _, c := range []byte(`{b:[vanilla],c:0D}`) {
+	for _, c := range []byte(`{a:[B;]}`) {
 		t.Logf("[%c] - %d", c, s.step(&s, c))
 	}
 	t.Logf("[%c] - %d", ' ', s.eof())
@@ -74,6 +74,7 @@ func TestSNBT_list(t *testing.T) {
 		`[B,C,D]`, `[L, "abc"]`,  // List of string (like array)
 		`[B; 01B, 02B, 3B, 10B, 127B]`, // Array
 		`[I;]`, `[B;   ]`,              // Empty array
+		`{a:[],b:[B;]}`, // List or Array in TagCompound
 	}
 	var s scanner
 	scan := func(str string) bool {
