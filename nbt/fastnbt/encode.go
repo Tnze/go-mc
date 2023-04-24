@@ -12,6 +12,10 @@ func (v *Value) TagType() byte { return v.tag }
 func (v *Value) MarshalNBT(w io.Writer) (err error) {
 	switch v.tag {
 	case nbt.TagEnd:
+		_, err = w.Write([]byte{0})
+		if err != nil {
+			return err
+		}
 
 	case nbt.TagByte, nbt.TagShort, nbt.TagInt, nbt.TagLong, nbt.TagFloat, nbt.TagDouble,
 		nbt.TagByteArray, nbt.TagString, nbt.TagIntArray, nbt.TagLongArray:

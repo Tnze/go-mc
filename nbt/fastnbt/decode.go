@@ -1,16 +1,13 @@
 package fastnbt
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"io"
 
 	"github.com/Tnze/go-mc/nbt"
 )
-
-//func (v *Value) Parse(data []byte) {
-//	// TODO
-//}
 
 func (v *Value) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
 	v.tag = tagType
@@ -49,7 +46,7 @@ func (v *Value) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
 		}
 
 		v.data = append(v.data[:0], make([]byte, 4+n)...)
-		v.data[0], v.data[1], v.data[2], v.data[3] = byte(n>>24), byte(n>>16), byte(n>>8), byte(n)
+		binary.BigEndian.PutUint32(v.data, uint32(n))
 
 		_, err = io.ReadFull(r, v.data[4:])
 		if err != nil {
@@ -63,7 +60,7 @@ func (v *Value) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
 		}
 
 		v.data = append(v.data[:0], make([]byte, 2+n)...)
-		v.data[0], v.data[1] = byte(n>>8), byte(n)
+		binary.BigEndian.PutUint16(v.data, uint16(n))
 
 		_, err = io.ReadFull(r, v.data[2:])
 		if err != nil {
@@ -119,7 +116,7 @@ func (v *Value) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
 		}
 
 		v.data = append(v.data[:0], make([]byte, 4+n*4)...)
-		v.data[0], v.data[1], v.data[2], v.data[3] = byte(n>>24), byte(n>>16), byte(n>>8), byte(n)
+		binary.BigEndian.PutUint32(v.data, uint32(n))
 
 		_, err = io.ReadFull(r, v.data[4:])
 		if err != nil {
@@ -133,7 +130,7 @@ func (v *Value) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
 		}
 
 		v.data = append(v.data[:0], make([]byte, 4+n*8)...)
-		v.data[0], v.data[1], v.data[2], v.data[3] = byte(n>>24), byte(n>>16), byte(n>>8), byte(n)
+		binary.BigEndian.PutUint32(v.data, uint32(n))
 
 		_, err = io.ReadFull(r, v.data[4:])
 		if err != nil {
@@ -161,14 +158,13 @@ func readTag(r nbt.DecoderReader) (tagType byte, tagName string, err error) {
 func readInt16(r nbt.DecoderReader) (int16, error) {
 	var data [2]byte
 	_, err := io.ReadFull(r, data[:])
-	return int16(data[0])<<8 | int16(data[1]), err
+	return int16(binary.BigEndian.Uint16(data[:])), err
 }
 
 func readInt32(r nbt.DecoderReader) (int32, error) {
 	var data [4]byte
 	_, err := io.ReadFull(r, data[:])
-	return int32(data[0])<<24 | int32(data[1])<<16 |
-		int32(data[2])<<8 | int32(data[3]), err
+	return int32(binary.BigEndian.Uint32(data[:])), err
 }
 
 func readString(r nbt.DecoderReader) (string, error) {
