@@ -1,7 +1,9 @@
-package fastnbt
+package dynbt
 
 import (
 	"bytes"
+	"math/rand"
+	"reflect"
 	"testing"
 
 	"github.com/Tnze/go-mc/nbt"
@@ -37,11 +39,27 @@ func TestValue_new(t *testing.T) {
 	}
 
 	byteArray := make([]byte, 1000)
-	for n := 0; n < 1000; n++ {
+	for n := range byteArray {
 		byteArray[n] = byte((n*n*255 + n*7) % 100)
 	}
 	if val := NewByteArray(byteArray); !bytes.Equal(byteArray, val.ByteArray()) {
 		t.Error("encode byteArray error")
+	}
+
+	intArray := make([]int32, 250)
+	for n := range intArray {
+		intArray[n] = rand.Int31()
+	}
+	if val := NewIntArray(intArray); !reflect.DeepEqual(intArray, val.IntArray()) {
+		t.Error("encode intArray error")
+	}
+
+	longArray := make([]int64, 125)
+	for n := range longArray {
+		longArray[n] = rand.Int63()
+	}
+	if val := NewLongArray(longArray); !reflect.DeepEqual(longArray, val.LongArray()) {
+		t.Error("encode longArray error")
 	}
 
 	val := NewCompound()

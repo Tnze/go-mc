@@ -1,4 +1,4 @@
-package fastnbt
+package dynbt
 
 import (
 	"errors"

@@ -428,6 +428,22 @@ func TestDecoder_Decode_textUnmarshaler(t *testing.T) {
 	if b != true {
 		t.Errorf("b should be true")
 	}
+
+	var s struct {
+		A TextBool
+	}
+	data = []byte{
+		TagCompound, 0, 0,
+		TagString, 0, 1, 'A', 0, 4, 't', 'r', 'u', 'e',
+		TagEnd,
+	}
+	_, err = NewDecoder(bytes.NewReader(data)).Decode(&s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s.A != true {
+		t.Errorf("s.A should be true")
+	}
 }
 
 func TestDecoder_Decode_ErrorUnknownField(t *testing.T) {

@@ -1,4 +1,21 @@
-package fastnbt
+// Package dynbt is a library that provides dynamic NBT operation APIs.
+//
+// Dynamically represented NBT value is useful in many cases, for example,
+//   - You want to store custom structural values at runtime.
+//   - You want to query or modify the data later. (Otherwise use the [nbt.RawMessage])
+//   - You don't know what type the data is at compile time. (Otherwise use the [nbt.RawMessage] too)
+//
+// The [*Value] provides a group of APIs on top of the [nbt] package.
+// [*Value] implements [nbt.Marshaler] and [nbt.Unmarshaler] interfaces.
+// It can be used as a field of struct, or element of slice, map, etc.
+// The pointer type should always be used, unless used as fields for structures
+//
+// Notice that querying Tags in Compound use a linear search, so it's not recommended to use it in a large Compound.
+// The better choice is map[string]*Value for dynamic accessing a large Compound.
+//
+// This package tries its best to not copy data if possible.
+// It returns the underlying data in some cases. Don't modify them!
+package dynbt
 
 import (
 	"encoding/binary"
@@ -60,6 +77,24 @@ func NewByteArray(v []byte) *Value {
 	data := make([]byte, 4, 4+len(v))
 	binary.BigEndian.PutUint32(data, uint32(len(v)))
 	return &Value{tag: nbt.TagByteArray, data: append(data, v...)}
+}
+
+func NewIntArray(v []int32) *Value {
+	data := make([]byte, 4+len(v)*4)
+	binary.BigEndian.PutUint32(data, uint32(len(v)))
+	for i, j := 0, 4; i < len(v); i, j = i+1, j+4 {
+		binary.BigEndian.PutUint32(data[j:], uint32(v[i]))
+	}
+	return &Value{tag: nbt.TagIntArray, data: data}
+}
+
+func NewLongArray(v []int64) *Value {
+	data := make([]byte, 4+len(v)*8)
+	binary.BigEndian.PutUint32(data, uint32(len(v)))
+	for i, j := 0, 4; i < len(v); i, j = i+1, j+8 {
+		binary.BigEndian.PutUint64(data[j:], uint64(v[i]))
+	}
+	return &Value{tag: nbt.TagLongArray, data: data}
 }
 
 func NewString(str string) *Value {
@@ -126,10 +161,16 @@ func (v *Value) Double() float64 {
 }
 
 func (v *Value) List() []*Value {
+	if v.tag != nbt.TagList {
+		return nil
+	}
 	return v.list
 }
 
 func (v *Value) Compound() *Compound {
+	if v.tag != nbt.TagCompound {
+		return nil
+	}
 	return &v.comp
 }
 
@@ -141,10 +182,25 @@ func (v *Value) ByteArray() []byte {
 }
 
 func (v *Value) IntArray() []int32 {
+	if v.tag != nbt.TagIntArray {
+		return nil
+	}
 	length := binary.BigEndian.Uint32(v.data)
 	ret := make([]int32, length)
-	for i := uint32(0); i < length; i += 4 {
-		ret[i] = int32(binary.BigEndian.Uint32(v.data[i:]))
+	for i, j := uint32(0), 4; i < length; i, j = i+1, j+4 {
+		ret[i] = int32(binary.BigEndian.Uint32(v.data[j:]))
+	}
+	return ret
+}
+
+func (v *Value) LongArray() []int64 {
+	if v.tag != nbt.TagLongArray {
+		return nil
+	}
+	length := binary.BigEndian.Uint32(v.data)
+	ret := make([]int64, length)
+	for i, j := uint32(0), 4; i < length; i, j = i+1, j+8 {
+		ret[i] = int64(binary.BigEndian.Uint64(v.data[j:]))
 	}
 	return ret
 }

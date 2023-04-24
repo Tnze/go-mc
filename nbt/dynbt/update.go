@@ -1,4 +1,4 @@
-package fastnbt
+package dynbt
 
 import "github.com/Tnze/go-mc/nbt"
 
