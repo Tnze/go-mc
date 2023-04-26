@@ -44,7 +44,7 @@ func (e *Encoder) Encode(v any, tagName string) error {
 }
 
 func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error {
-	if err := e.writeTag(tagType, tagName); err != nil {
+	if err := writeTag(e.w, tagType, tagName); err != nil {
 		return err
 	}
 	if val.CanInterface() {
@@ -75,18 +75,18 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 		}
 		return err
 	case TagShort:
-		return e.writeInt16(int16(val.Int()))
+		return writeInt16(e.w, int16(val.Int()))
 	case TagInt:
-		return e.writeInt32(int32(val.Int()))
+		return writeInt32(e.w, int32(val.Int()))
 	case TagFloat:
-		return e.writeInt32(int32(math.Float32bits(float32(val.Float()))))
+		return writeInt32(e.w, int32(math.Float32bits(float32(val.Float()))))
 	case TagLong:
-		return e.writeInt64(val.Int())
+		return writeInt64(e.w, val.Int())
 	case TagDouble:
-		return e.writeInt64(int64(math.Float64bits(val.Float())))
+		return writeInt64(e.w, int64(math.Float64bits(val.Float())))
 	case TagByteArray, TagIntArray, TagLongArray:
 		n := val.Len()
-		if err := e.writeInt32(int32(n)); err != nil {
+		if err := writeInt32(e.w, int32(n)); err != nil {
 			return err
 		}
 
@@ -126,9 +126,9 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 					return errors.New("value typed " + elem.Type().String() + "is not allowed in Tag 0x" + strconv.FormatUint(uint64(tagType), 16))
 				}
 				if tagType == TagIntArray {
-					err = e.writeInt32(int32(v))
+					err = writeInt32(e.w, int32(v))
 				} else if tagType == TagLongArray {
-					err = e.writeInt64(v)
+					err = writeInt64(e.w, v)
 				}
 				if err != nil {
 					return err
@@ -168,7 +168,7 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 		} else {
 			str = []byte(val.String())
 		}
-		if err := e.writeInt16(int16(len(str))); err != nil {
+		if err := writeInt16(e.w, int16(len(str))); err != nil {
 			return err
 		}
 		_, err := e.w.Write(str)
@@ -334,15 +334,15 @@ func getTagTypeByType(vk reflect.Type) byte {
 	}
 }
 
-func (e *Encoder) writeTag(tagType byte, tagName string) error {
-	if _, err := e.w.Write([]byte{tagType}); err != nil {
+func writeTag(w io.Writer, tagType byte, tagName string) error {
+	if _, err := w.Write([]byte{tagType}); err != nil {
 		return err
 	}
 	bName := []byte(tagName)
-	if err := e.writeInt16(int16(len(bName))); err != nil {
+	if err := writeInt16(w, int16(len(bName))); err != nil {
 		return err
 	}
-	_, err := e.w.Write(bName)
+	_, err := w.Write(bName)
 	return err
 }
 
@@ -351,24 +351,24 @@ func (e *Encoder) writeListHeader(elementType byte, n int) (err error) {
 		return
 	}
 	// Write length of strings
-	if err = e.writeInt32(int32(n)); err != nil {
+	if err = writeInt32(e.w, int32(n)); err != nil {
 		return
 	}
 	return nil
 }
 
-func (e *Encoder) writeInt16(n int16) error {
-	_, err := e.w.Write([]byte{byte(n >> 8), byte(n)})
+func writeInt16(w io.Writer, n int16) error {
+	_, err := w.Write([]byte{byte(n >> 8), byte(n)})
 	return err
 }
 
-func (e *Encoder) writeInt32(n int32) error {
-	_, err := e.w.Write([]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
+func writeInt32(w io.Writer, n int32) error {
+	_, err := w.Write([]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
 	return err
 }
 
-func (e *Encoder) writeInt64(n int64) error {
-	_, err := e.w.Write([]byte{
+func writeInt64(w io.Writer, n int64) error {
+	_, err := w.Write([]byte{
 		byte(n >> 56), byte(n >> 48), byte(n >> 40), byte(n >> 32),
 		byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n),
 	})

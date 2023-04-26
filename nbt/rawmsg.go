@@ -44,10 +44,10 @@ func (m *RawMessage) UnmarshalNBT(tagType byte, r DecoderReader) error {
 	return nil
 }
 
-// String convert the data into the SNBT(Stringified NBT) format.
+// String converts the data into the SNBT(Stringified NBT) format.
 // The output is valid for using in in-game command.
 // Expect two exceptions:
-// - Empty string "" if there is only an TagEnd in the NBT (aka: []byte{0}).
+// - Empty string "" if there is only a TagEnd in the NBT (aka: []byte{0}).
 // - "<Invalid: $Err>" if the content is not valid NBT data.
 func (m RawMessage) String() string {
 	if m.Type == TagEnd {
