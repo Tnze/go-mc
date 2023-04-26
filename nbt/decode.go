@@ -8,6 +8,7 @@ import (
 	"io"
 	"math"
 	"reflect"
+	"strings"
 )
 
 // Unmarshal decode binary NBT data and fill into v
@@ -351,11 +352,19 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 		}
 
 	case TagCompound:
+		u, ut, val, assign := indirect(val, false)
+		if assign != nil {
+			defer assign()
+		}
+		if u != nil {
+			return u.UnmarshalNBT(tagType, d.r)
+		}
+		if ut != nil {
+			return errors.New("cannot decode TagCompound as string")
+		}
 		switch vk := val.Kind(); vk {
-		default:
-			return errors.New("cannot parse TagCompound as " + vk.String())
 		case reflect.Struct:
-			tinfo := typeFields(val.Type())
+			fields := cachedTypeFields(val.Type())
 			for {
 				tt, tn, err := d.readTag()
 				if err != nil {
@@ -364,9 +373,37 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 				if tt == TagEnd {
 					break
 				}
-				field := tinfo.findIndexByName(tn)
-				if field != -1 {
-					err = d.unmarshal(val.Field(field), tt)
+				var f *field
+				if i, ok := fields.nameIndex[tn]; ok {
+					f = &fields.list[i]
+				} else {
+					// Fall back to linear search.
+					for i := range fields.list {
+						ff := &fields.list[i]
+						if strings.EqualFold(ff.name, tn) {
+							f = ff
+							break
+						}
+					}
+				}
+				if f != nil {
+					val := val
+					for _, i := range f.index {
+						if val.Kind() == reflect.Pointer {
+							if val.IsNil() {
+								// If a struct embeds a pointer to an unexported type,
+								// it is not possible to set a newly allocated value
+								// since the field is unexported.
+								if !val.CanSet() {
+									return fmt.Errorf("cannot set embedded pointer to unexported struct: %v", val.Type().Elem())
+								}
+								val.Set(reflect.New(val.Type().Elem()))
+							}
+							val = val.Elem()
+						}
+						val = val.Field(i)
+					}
+					err = d.unmarshal(val, tt)
 					if err != nil {
 						return fmt.Errorf("fail to decode tag %q: %w", tn, err)
 					}
@@ -377,11 +414,12 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 				}
 			}
 		case reflect.Map:
-			if val.Type().Key().Kind() != reflect.String {
+			vt := val.Type()
+			if vt.Key().Kind() != reflect.String {
 				return errors.New("cannot parse TagCompound as " + val.Type().String())
 			}
 			if val.IsNil() {
-				val.Set(reflect.MakeMap(val.Type()))
+				val.Set(reflect.MakeMap(vt))
 			}
 			for {
 				tt, tn, err := d.readTag()
@@ -414,6 +452,8 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 				buf[tn] = value
 			}
 			val.Set(reflect.ValueOf(buf))
+		default:
+			return errors.New("cannot parse TagCompound as " + vk.String())
 		}
 	}
 

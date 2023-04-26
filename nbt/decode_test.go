@@ -466,7 +466,7 @@ func TestDecoder_Decode_ErrorUnknownField(t *testing.T) {
 func TestDecoder_Decode_keysWithComma(t *testing.T) {
 	data := []byte{
 		TagCompound, 0, 1, 'S',
-		TagString, 0, 1, 'T',
+		TagString, 0, 1, 't',
 		0, 4, 'T', 'n', 'z', 'e',
 		TagEnd,
 	}

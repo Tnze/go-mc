@@ -6,7 +6,7 @@ The API is very similar to the standard library `encoding/json`.
 (But fix some its problem)
 If you (high probability) have used that, it is easy to use this.
 
-## Supported Struct Tags
+## Supported Struct Tags and Options
 
 - `nbt` - The primary tag name. See below.
 - `nbtkey` - The key name of the field (Used to support commas `,` in tag names)
@@ -49,7 +49,7 @@ type MyStruct struct {
 }
 ```
 
-### The `nbtkey`
+### The `nbtkey` tag
 
 Common issue with JSON standard libraries: inability to specify keys containing commas for structures.
 (e.g `{"a,b" : "c"}`)

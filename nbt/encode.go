@@ -181,9 +181,22 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 
 		switch val.Kind() {
 		case reflect.Struct:
-			fields := typeFields(val.Type())
-			for _, t := range fields.fields {
-				v := val.Field(t.index)
+			fields := cachedTypeFields(val.Type())
+		FieldLoop:
+			for i := range fields.list {
+				t := &fields.list[i]
+
+				v := val
+				for _, i := range t.index {
+					if v.Kind() == reflect.Pointer {
+						if v.IsNil() {
+							continue FieldLoop
+						}
+						v = v.Elem()
+					}
+					v = v.Field(i)
+				}
+
 				if t.omitEmpty && isEmptyValue(v) {
 					continue
 				}
@@ -192,7 +205,7 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 					return fmt.Errorf("encode %q error: unsupport type %v", t.name, v.Type())
 				}
 
-				if t.list {
+				if t.asList {
 					switch typ {
 					case TagByteArray, TagIntArray, TagLongArray:
 						typ = TagList // override the parsed type
