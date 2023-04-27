@@ -158,6 +158,13 @@ func (p *PaletteContainer[T]) WriteTo(w io.Writer) (n int64, err error) {
 	}.WriteTo(w)
 }
 
+// Palette export the raw palette values for @maxsupermanhd.
+// Others shouldn't call this because this might be removed
+// after max doesn't need it anymore.
+func (p *PaletteContainer[T]) Palette() []T {
+	return p.palette.export()
+}
+
 type paletteCfg[T State] interface {
 	bits(int) int
 	create(bits int) palette[T]
