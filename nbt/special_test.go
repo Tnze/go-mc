@@ -80,3 +80,25 @@ func TestMarshal_anonymousPointerNesting(t *testing.T) {
 		t.Errorf("Marshal nesting anonymous struct error, got %q, want %q", snbt, want)
 	}
 }
+
+func TestMarshal_anonymousNonStruct(t *testing.T) {
+	type A [3]int32
+	type B struct{ *A }
+	type C struct{ B }
+
+	val := C{B{&A{0, -1, 3}}}
+
+	data, err := nbt.Marshal(val)
+	if err != nil {
+		panic(err)
+	}
+
+	var snbt nbt.StringifiedMessage
+	if err := nbt.Unmarshal(data, &snbt); err != nil {
+		panic(err)
+	}
+	want := `{A:[I;0I,-1I,3I]}`
+	if string(snbt) != want {
+		t.Errorf("Marshal nesting anonymous struct error, got %q, want %q", snbt, want)
+	}
+}
