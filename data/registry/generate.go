@@ -7,6 +7,7 @@ import (
 	"go/format"
 	"log"
 	"os"
+	"path/filepath"
 	"text/template"
 
 	"github.com/Tnze/go-mc/internal/generateutils"
@@ -49,7 +50,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	r := registries["minecraft:block_entity_type"]
+	generateRegistry(registries["minecraft:block_entity_type"], "BlockEntityType", "blockentitytype")
+	generateRegistry(registries["minecraft:entity_type"], "EntityType", "entitytype")
+}
+
+func generateRegistry(r registry, typeName, packageName string) {
 	entries := make([]string, len(r.Entries))
 	for name, v := range r.Entries {
 		entries[v.ProtocolID] = name
@@ -57,10 +62,10 @@ func main() {
 
 	var buff bytes.Buffer
 	err := temp.Execute(&buff, tempData{
-		PackageName: "blockentitytype",
+		PackageName: packageName,
 		Default:     r.Default,
 		Entries:     entries,
-		TypeName:    "BlockEntityType",
+		TypeName:    typeName,
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -71,7 +76,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = os.WriteFile("blockentitytype/blockentitytype.go", formattedSource, 0o666)
+	err = os.WriteFile(filepath.Join(packageName, packageName+".go"), formattedSource, 0o666)
 	if err != nil {
 		log.Fatal(err)
 	}
