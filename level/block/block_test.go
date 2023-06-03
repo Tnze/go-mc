@@ -11,22 +11,17 @@ func TestBlock(t *testing.T) {
 }
 
 func TestBlockStateHolder(t *testing.T) {
-	var block = NewBlock("air", NewBlockProperty(nil).setHasCollision(false).setIsAir(true))
-	var stateHolder = NewBlockState(&block, map[uint64]any{
-		FacingProperty.HashCode():   North,
-		Age15Property.HashCode():    0,
-		MoistureProperty.HashCode(): 0,
-		BedPartProperty.HashCode():  BedPartFoot,
-	})
+	var block = TurtleEgg
+
+	fmt.Println("Default state id", block.GetDefaultValue())
 
 	// Initial print
-	fmt.Println(stateHolder.GetValue(Age15Property), stateHolder.GetValue(MoistureProperty), stateHolder.GetValue(BedPartProperty))
+	fmt.Println(block.GetValue(HatchProperty), block.GetValue(EggsProperty), ToStateID[block])
 
 	// Simulate a block update
-	stateHolder.SetValue(Age15Property, 1)
-	stateHolder.SetValue(MoistureProperty, 5)
-	stateHolder.SetValue(BedPartProperty, BedPartHead)
+	block.SetValue(HatchProperty, 1)
+	block.SetValue(EggsProperty, 3)
 
 	// Updated print
-	fmt.Println(stateHolder.GetValue(Age15Property), stateHolder.GetValue(MoistureProperty), stateHolder.GetValue(BedPartProperty))
+	fmt.Println(block.GetValue(HatchProperty), block.GetValue(EggsProperty), ToStateID[block])
 }

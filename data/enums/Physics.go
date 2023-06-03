@@ -40,10 +40,10 @@ func Slipperiness(b level.BlocksState) float64 {
 }
 
 var slipperiness = map[level.BlocksState]float64{
-	block.ToStateID[block.SoulSand{}]:   SoulSandMultiplier,
-	block.ToStateID[block.HoneyBlock{}]: HoneyBlockMultiplier,
-	block.ToStateID[block.SlimeBlock{}]: 0.8,
-	block.ToStateID[block.Ice{}]:        0.98,
-	block.ToStateID[block.PackedIce{}]:  0.98,
-	block.ToStateID[block.FrostedIce{}]: 0.98,
+	block.ToStateID[block.SoulSand]:   SoulSandMultiplier,
+	block.ToStateID[block.HoneyBlock]: HoneyBlockMultiplier,
+	block.ToStateID[block.SlimeBlock]: 0.8,
+	block.ToStateID[block.Ice]:        0.98,
+	block.ToStateID[block.PackedIce]:  0.98,
+	block.ToStateID[block.FrostedIce]: 0.98,
 }

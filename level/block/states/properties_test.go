@@ -1,4 +1,4 @@
-package block
+package states
 
 import (
 	"fmt"

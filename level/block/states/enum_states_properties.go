@@ -1,41 +1,7 @@
-package block
+package states
 
 var (
-	Attached               = NewPropertyBoolean("attached")
-	BottomProperty         = NewPropertyBoolean("bottom")
-	Conditional            = NewPropertyBoolean("conditional")
-	Disarmed               = NewPropertyBoolean("disarmed")
-	Drag                   = NewPropertyBoolean("drag")
-	Enabled                = NewPropertyBoolean("enabled")
-	Extended               = NewPropertyBoolean("extended")
-	Eye                    = NewPropertyBoolean("eye")
-	Falling                = NewPropertyBoolean("falling")
-	Hanging                = NewPropertyBoolean("hanging")
-	HasBottle0             = NewPropertyBoolean("has_bottle_0")
-	HasBottle1             = NewPropertyBoolean("has_bottle_1")
-	HasBottle2             = NewPropertyBoolean("has_bottle_2")
-	HasRecord              = NewPropertyBoolean("has_record")
-	HasBook                = NewPropertyBoolean("has_book")
-	Inverted               = NewPropertyBoolean("inverted")
-	InWall                 = NewPropertyBoolean("in_wall")
-	Lit                    = NewPropertyBoolean("lit")
-	Locked                 = NewPropertyBoolean("locked")
-	Occupied               = NewPropertyBoolean("occupied")
-	Open                   = NewPropertyBoolean("open")
-	Persistent             = NewPropertyBoolean("persistent")
-	Powered                = NewPropertyBoolean("powered")
-	Short                  = NewPropertyBoolean("short")
-	SignalFire             = NewPropertyBoolean("signal_fire")
-	Snowy                  = NewPropertyBoolean("snowy")
-	Triggered              = NewPropertyBoolean("triggered")
-	Unstable               = NewPropertyBoolean("unstable")
-	Waterlogged            = NewPropertyBoolean("waterlogged")
-	VineEnd                = NewPropertyBoolean("vine_end")
-	Berries                = NewPropertyBoolean("berries")
-	Bloom                  = NewPropertyBoolean("bloom")
-	Shrieking              = NewPropertyBoolean("shrieking")
-	CanSummon              = NewPropertyBoolean("can_summon")
-	HorizontalAxisProperty = NewPropertyEnum[Axis]("axis", map[string]Axis{
+	HorizontalAxisPropertyProperty = NewPropertyEnum[Axis]("axis", map[string]Axis{
 		"x": X,
 		"z": Z,
 	})
@@ -44,25 +10,19 @@ var (
 		"y": Y,
 		"z": Z,
 	})
-	UpProperty     = NewPropertyBoolean("up")
-	DownProperty   = NewPropertyBoolean("down")
-	NorthProperty  = NewPropertyBoolean("north")
-	SouthProperty  = NewPropertyBoolean("south")
-	WestProperty   = NewPropertyBoolean("west")
-	EastProperty   = NewPropertyBoolean("east")
 	FacingProperty = NewPropertyEnum[Direction]("facing", map[string]Direction{
-		"north": North,
-		"east":  East,
-		"south": South,
-		"west":  West,
+		"north": DirectionNorth,
+		"east":  DirectionEast,
+		"south": DirectionSouth,
+		"west":  DirectionWest,
 	})
 	HorizontalFacingProperty = NewPropertyEnum[Direction]("facing", map[string]Direction{
-		"north": North,
-		"east":  East,
-		"south": South,
-		"west":  West,
+		"north": DirectionNorth,
+		"east":  DirectionEast,
+		"south": DirectionSouth,
+		"west":  DirectionWest,
 	})
-	Orientation = NewPropertyEnum[FrontAndTop]("orientation", map[string]FrontAndTop{
+	OrientationProperty = NewPropertyEnum[FrontAndTop]("orientation", map[string]FrontAndTop{
 		"down_east":  DownEast,
 		"down_north": DownNorth,
 		"down_south": DownSouth,
@@ -132,8 +92,8 @@ var (
 		"upper": DoubleBlockHalfUpper,
 	})
 	HalfProperty = NewPropertyEnum[Half]("half", map[string]Half{
-		"top":    Top,
-		"bottom": Bottom,
+		"top":    HalfTop,
+		"bottom": HalfBottom,
 	})
 	RailShapeProperty = NewPropertyEnum[RailShape]("shape", map[string]RailShape{
 		"north_south":     RailShapeNorthSouth,
@@ -155,34 +115,16 @@ var (
 		"ascending_north": RailShapeAscendingNorth,
 		"ascending_south": RailShapeAscendingSouth,
 	})
-	Age1Property                 = NewPropertyInteger("age", 0, 1)
-	Age2Property                 = NewPropertyInteger("age", 0, 2)
-	Age3Property                 = NewPropertyInteger("age", 0, 3)
-	Age5Property                 = NewPropertyInteger("age", 0, 5)
-	Age7Property                 = NewPropertyInteger("age", 0, 7)
-	Age15Property                = NewPropertyInteger("age", 0, 15)
-	Age25Property                = NewPropertyInteger("age", 0, 25)
-	BitesProperty                = NewPropertyInteger("bites", 0, 6)
-	CandlesProperty              = NewPropertyInteger("candles", 1, 4)
-	DelayProperty                = NewPropertyInteger("delay", 1, 4)
-	DistanceProperty             = NewPropertyInteger("distance", 1, 7)
-	EggsProperty                 = NewPropertyInteger("eggs", 1, 4)
-	HatchProperty                = NewPropertyInteger("hatch", 0, 2)
-	LayersProperty               = NewPropertyInteger("layers", 1, 8)
-	LevelCauldronProperty        = NewPropertyInteger("level", 1, 3)
-	LevelComposterProperty       = NewPropertyInteger("level", 0, 8)
-	LevelFlowingProperty         = NewPropertyInteger("level", 1, 8)
-	LevelHoneyProperty           = NewPropertyInteger("level", 0, 5)
-	LevelProperty                = NewPropertyInteger("level", 0, 15)
-	MoistureProperty             = NewPropertyInteger("moisture", 0, 7)
-	NoteProperty                 = NewPropertyInteger("note", 0, 24)
-	PicklesProperty              = NewPropertyInteger("pickles", 1, 4)
-	RedstoneSignalProperty       = NewPropertyInteger("signal", 0, 15)
-	StagesProperty               = NewPropertyInteger("stage", 0, 1)
-	StabilityProperty            = NewPropertyInteger("distance", 0, 2)
-	RespawnAnchorChargesProperty = NewPropertyInteger("charges", 0, 4)
-	Rotation16Property           = NewPropertyInteger("rotation", 0, 15)
-	BedPartProperty              = NewPropertyEnum[BedPart]("part", map[string]BedPart{
+	/*LevelCauldronProperty        = block.NewPropertyInteger("level", 1, 3)
+	LevelComposterProperty       = block.NewPropertyInteger("level", 0, 8)
+	LevelFlowingProperty         = block.NewPropertyInteger("level", 1, 8)
+	LevelHoneyProperty           = block.NewPropertyInteger("level", 0, 5)
+	RedstoneSignalProperty       = block.NewPropertyInteger("signal", 0, 15)
+	StagesProperty               = block.NewPropertyInteger("stage", 0, 1)
+	StabilityProperty            = block.NewPropertyInteger("distance", 0, 2)
+	RespawnAnchorChargesProperty = block.NewPropertyInteger("charges", 0, 4)
+	Rotation16Property           = block.NewPropertyInteger("rotation", 0, 15)*/
+	BedPartProperty = NewPropertyEnum[BedPart]("part", map[string]BedPart{
 		"head": BedPartHead,
 		"foot": BedPartFoot,
 	})
@@ -199,7 +141,7 @@ var (
 		"left":  DoorHingeSideLeft,
 		"right": DoorHingeSideRight,
 	})
-	NoteInstrumentProperty = NewPropertyEnum[NoteBlockInstrument]("instrument", map[string]NoteBlockInstrument{
+	InstrumentProperty = NewPropertyEnum[NoteBlockInstrument]("instrument", map[string]NoteBlockInstrument{
 		"harp":           NoteBlockInstrumentHarp,
 		"basedrum":       NoteBlockInstrumentBasedrum,
 		"snare":          NoteBlockInstrumentSnare,
@@ -218,7 +160,7 @@ var (
 		"pling":          NoteBlockInstrumentPling,
 	})
 	PistonTypeProperty = NewPropertyEnum[PistonType]("type", map[string]PistonType{
-		"normal": PistonTypeNormal,
+		"normal": PistonTypeDefault,
 		"sticky": PistonTypeSticky,
 	})
 	SlabTypeProperty = NewPropertyEnum[SlabType]("type", map[string]SlabType{
@@ -233,7 +175,7 @@ var (
 		"outer_left":  StairsShapeOuterLeft,
 		"outer_right": StairsShapeOuterRight,
 	})
-	StructureBlockModeProperty = NewPropertyEnum[StructureMode]("mode", map[string]StructureMode{
+	StructureModeProperty = NewPropertyEnum[StructureMode]("mode", map[string]StructureMode{
 		"save":   StructureModeSave,
 		"load":   StructureModeLoad,
 		"corner": StructureModeCorner,
@@ -251,8 +193,8 @@ var (
 		"full":     TiltFull,
 	})
 	VerticalDirectionProperty = NewPropertyEnum[Direction]("direction", map[string]Direction{
-		"up":   Up,
-		"down": Down,
+		"up":   DirectionUp,
+		"down": DirectionDown,
 	})
 	DripstoneThicknessProperty = NewPropertyEnum[DripstoneThickness]("thickness", map[string]DripstoneThickness{
 		"tip_merge": DripstoneThicknessTipMerge,

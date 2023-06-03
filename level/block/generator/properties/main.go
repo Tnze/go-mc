@@ -26,7 +26,7 @@ var EnumProperties = []EnumProperty{
 	{Name: "BellAttachType", Values: []string{"floor", "ceiling", "single_wall", "double_wall"}},
 	{Name: "ChestType", Values: []string{"single", "left", "right"}},
 	{Name: "ComparatorMode", Values: []string{"compare", "subtract"}},
-	{Name: "Direction", TrimPrefix: true, Values: []string{"down", "up", "north", "south", "west", "east"}},
+	{Name: "Direction", TrimPrefix: true, Values: []string{"direction_down", "direction_up", "direction_north", "direction_south", "direction_west", "direction_east"}},
 	{Name: "Axis", TrimPrefix: true, Values: []string{"x", "y", "z"}},
 	{Name: "DoorHingeSide", Values: []string{"left", "right"}},
 	{Name: "DoubleBlockHalf", Values: []string{"upper", "lower"}},
@@ -38,7 +38,7 @@ var EnumProperties = []EnumProperty{
 		"chime", "xylophone", "iron_xylophone", "cow_bell",
 		"didgeridoo", "bit", "banjo", "pling",
 	}},
-	{Name: "PistonType", Values: []string{"normal", "sticky"}},
+	{Name: "PistonType", Values: []string{"default", "sticky"}},
 	{Name: "RailShape", Values: []string{
 		"north_south", "east_west",
 		"ascending_east", "ascending_west", "ascending_north", "ascending_south",
@@ -58,7 +58,7 @@ var EnumProperties = []EnumProperty{
 	}},
 }
 
-//go:embed properties_enum.go.tmpl
+//go:embed data_states.go.tmpl
 var tempSource string
 
 //go:generate go run $GOFILE
@@ -66,7 +66,7 @@ var tempSource string
 func main() {
 	var source bytes.Buffer
 	err := template.Must(template.
-		New("properties_enum").
+		New("data_states").
 		Funcs(template.FuncMap{
 			"UpperTheFirst": UpperTheFirst,
 			"ToLower":       strings.ToLower,
@@ -78,7 +78,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	err = os.WriteFile("properties_enum.go", source.Bytes(), 0666)
+	err = os.WriteFile("data_states.go", source.Bytes(), 0666)
 	if err != nil {
 		log.Panic(err)
 	}

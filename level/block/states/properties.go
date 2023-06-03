@@ -1,4 +1,4 @@
-package block
+package states
 
 import (
 	"github.com/Tnze/go-mc/internal/utils"
@@ -7,13 +7,12 @@ import (
 )
 
 type Property[Type any] interface {
+	GetName() string
 	GetValue(other string) any
-	CanUpdate(other any) bool
+	CanUpdate(other uint32) bool // other is either an int, PropertyEnum or bool
+	GetValues() []any
 	HashCode() uint64
 }
-
-type Integer int
-type Boolean bool
 
 type PropertyInteger[Type constraints.Integer] struct {
 	Property[int]
@@ -30,13 +29,17 @@ func fillInteger(min, max int) []int {
 	return values
 }
 
-func NewPropertyInteger(name string, min, max int) PropertyInteger[int] {
-	return PropertyInteger[int]{
+func NewPropertyInteger(name string, min, max int) *PropertyInteger[int] {
+	return &PropertyInteger[int]{
 		name:   name,
 		min:    min,
 		max:    max,
 		values: fillInteger(min, max),
 	}
+}
+
+func (p PropertyInteger[Type]) GetName() string {
+	return p.name
 }
 
 func (p PropertyInteger[Type]) GetValue(other string) any {
@@ -48,11 +51,16 @@ func (p PropertyInteger[Type]) GetValue(other string) any {
 	return p.min
 }
 
-func (p PropertyInteger[Type]) CanUpdate(other any) bool {
-	if value, ok := other.(int); ok {
-		return value >= p.min && value <= p.max
+func (p PropertyInteger[Type]) CanUpdate(other uint32) bool {
+	return p.min <= int(other) && int(other) <= p.max
+}
+
+func (p PropertyInteger[Type]) GetValues() []any {
+	values := make([]any, len(p.values))
+	for i, value := range p.values {
+		values[i] = value
 	}
-	return false
+	return values
 }
 
 func (p PropertyInteger[Type]) HashCode() uint64 {
@@ -72,11 +80,15 @@ type PropertyBoolean[Type bool] struct {
 	values []Type
 }
 
-func NewPropertyBoolean(name string) PropertyBoolean[bool] {
-	return PropertyBoolean[bool]{
+func NewPropertyBoolean(name string) *PropertyBoolean[bool] {
+	return &PropertyBoolean[bool]{
 		name:   name,
 		values: []bool{true, false},
 	}
+}
+
+func (p PropertyBoolean[Type]) GetName() string {
+	return p.name
 }
 
 func (p PropertyBoolean[Type]) GetValue(other string) any {
@@ -86,11 +98,16 @@ func (p PropertyBoolean[Type]) GetValue(other string) any {
 	return false
 }
 
-func (p PropertyBoolean[Type]) CanUpdate(other any) bool {
-	if _, ok := other.(bool); ok {
-		return true
+func (p PropertyBoolean[Type]) CanUpdate(other uint32) bool {
+	return true // For now we will assume that all booleans are valid
+}
+
+func (p PropertyBoolean[Type]) GetValues() []any {
+	values := make([]any, len(p.values))
+	for i, value := range p.values {
+		values[i] = value
 	}
-	return false
+	return values
 }
 
 func (p PropertyBoolean[Type]) HashCode() uint64 {
@@ -115,25 +132,41 @@ type PropertyEnum[Type PropertiesEnum] struct {
 	names map[string]Type
 }
 
-func NewPropertyEnum[Type PropertiesEnum](name string, names map[string]Type) PropertyEnum[Type] {
-	return PropertyEnum[Type]{
+func NewPropertyEnum[Type PropertiesEnum](name string, names map[string]Type) *PropertyEnum[Type] {
+	return &PropertyEnum[Type]{
 		name:  name,
 		names: names,
 	}
 }
 
+func (p PropertyEnum[Type]) GetName() string {
+	return p.name
+}
+
 func (p PropertyEnum[Type]) GetValue(other string) any {
-	if value, ok := p.names[other]; ok {
-		return value
+	for _, value := range p.names {
+		if value.String() == other {
+			return value
+		}
 	}
 	panic("invalid value")
 }
 
-func (p PropertyEnum[Type]) CanUpdate(other any) bool {
-	if _, ok := other.(PropertiesEnum); ok {
-		return true
+func (p PropertyEnum[Type]) CanUpdate(other uint32) bool {
+	for _, value := range p.names {
+		if value.Value() == byte(other) {
+			return true
+		}
 	}
 	return false
+}
+
+func (p PropertyEnum[Type]) GetValues() []any {
+	var values []any
+	for _, value := range p.names {
+		values = append(values, value)
+	}
+	return values
 }
 
 func (p PropertyEnum[Type]) HashCode() uint64 {
@@ -143,53 +176,4 @@ func (p PropertyEnum[Type]) HashCode() uint64 {
 		h = h*31 + uint64(len(value.String()))
 	}
 	return h
-}
-
-func (b Boolean) MarshalText() (text []byte, err error) {
-	return []byte(strconv.FormatBool(bool(b))), nil
-}
-
-func (b *Boolean) UnmarshalText(text []byte) (err error) {
-	*((*bool)(b)), err = strconv.ParseBool(string(text))
-	return
-}
-
-func (i Integer) MarshalText() (text []byte, err error) {
-	return []byte(strconv.Itoa(int(i))), nil
-}
-
-func (i *Integer) UnmarshalText(text []byte) (err error) {
-	*((*int)(i)), err = strconv.Atoi(string(text))
-	return
-}
-
-func (f FrontAndTop) Directions() (front, top Direction) {
-	switch f {
-	case DownEast:
-		return Down, East
-	case DownNorth:
-		return Down, North
-	case DownSouth:
-		return Down, South
-	case DownWest:
-		return Down, West
-	case UpEast:
-		return Up, East
-	case UpNorth:
-		return Up, North
-	case UpSouth:
-		return Up, South
-	case UpWest:
-		return Up, West
-	case WestUp:
-		return West, Up
-	case EastUp:
-		return East, Up
-	case NorthUp:
-		return North, Up
-	case SouthUp:
-		return South, Up
-	default:
-		panic("invalid FrontAndTop")
-	}
 }

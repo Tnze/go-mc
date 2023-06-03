@@ -10,4 +10,10 @@ require (
 	golang.org/x/image v0.1.0
 )
 
+require (
+	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
+	golang.org/x/tools v0.8.0 // indirect
+)
+
 replace github.com/maxsupermanhd/go-mc-ms-auth => github.com/Edouard127/go-mc-ms-auth v1.1.1-0.20230407185324-b83a1ee41ed5
