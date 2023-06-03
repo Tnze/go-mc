@@ -23,15 +23,15 @@ import (
 
 type EventsListener struct{}
 
-func (e EventsListener) Attach(c *Client) {
+func Attach(c *Client) {
 	c.Events.AddListener(
-		PacketHandler{Priority: 64, ID: packetid.CPacketLogin, F: e.JoinGame},
-		PacketHandler{Priority: 64, ID: packetid.CPacketKeepAlive, F: e.KeepAlive},
-		PacketHandler{Priority: 64, ID: packetid.CPacketChatMessage, F: e.ChatMessage},
-		PacketHandler{Priority: 64, ID: packetid.CPacketSystemMessage, F: e.ChatMessage},
-		PacketHandler{Priority: 64, ID: packetid.CPacketDisconnect, F: e.Disconnect},
-		PacketHandler{Priority: 64, ID: packetid.CPacketUpdateHealth, F: e.UpdateHealth},
-		PacketHandler{Priority: int(^uint(0) >> 1), ID: packetid.CPacketSetTime, F: e.TimeUpdate},
+		PacketHandler{Priority: 64, ID: packetid.CPacketLogin, F: JoinGame},
+		PacketHandler{Priority: 64, ID: packetid.CPacketKeepAlive, F: KeepAlive},
+		PacketHandler{Priority: 64, ID: packetid.CPacketChatMessage, F: ChatMessage},
+		PacketHandler{Priority: 64, ID: packetid.CPacketSystemMessage, F: ChatMessage},
+		PacketHandler{Priority: 64, ID: packetid.CPacketDisconnect, F: Disconnect},
+		PacketHandler{Priority: 64, ID: packetid.CPacketUpdateHealth, F: UpdateHealth},
+		PacketHandler{Priority: int(^uint(0) >> 1), ID: packetid.CPacketSetTime, F: TimeUpdate},
 	)
 
 	c.Events.AddTicker(
@@ -52,7 +52,7 @@ type PlayerMessage struct {
 	TimeStamp         time.Time
 }
 
-func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) basic.Error {
+func SpawnEntity(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID            pk.VarInt
 		EntityUUID          pk.UUID
@@ -81,7 +81,7 @@ func (e *EventsListener) SpawnEntity(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnExperienceOrb(c *Client, p pk.Packet) basic.Error {
+func SpawnExperienceOrb(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID pk.VarInt
 		x, y, z  pk.Double
@@ -95,7 +95,7 @@ func (e *EventsListener) SpawnExperienceOrb(c *Client, p pk.Packet) basic.Error 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) basic.Error {
+func SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID   pk.VarInt
 		PlayerUUID pk.UUID
@@ -121,7 +121,7 @@ func (e *EventsListener) SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityAnimation(c *Client, p pk.Packet) basic.Error {
+func EntityAnimation(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID  pk.VarInt
 		animation pk.Byte
@@ -134,7 +134,7 @@ func (e *EventsListener) EntityAnimation(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) AwardStatistics(c *Client, p pk.Packet) basic.Error {
+func AwardStatistics(c *Client, p pk.Packet) basic.Error {
 	/*var count pk.VarInt
 	var statistics []struct {
 		Name  pk.String
@@ -149,7 +149,7 @@ func (e *EventsListener) AwardStatistics(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetBlockDestroyStage(c *Client, p pk.Packet) basic.Error {
+func SetBlockDestroyStage(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID pk.VarInt
 		location pk.Position
@@ -163,7 +163,7 @@ func (e *EventsListener) SetBlockDestroyStage(c *Client, p pk.Packet) basic.Erro
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BlockEntityData(c *Client, p pk.Packet) basic.Error {
+func BlockEntityData(c *Client, p pk.Packet) basic.Error {
 	/*var location pk.Position
 	var action pk.Byte
 	var nbtData pk
@@ -176,7 +176,7 @@ func (e *EventsListener) BlockEntityData(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BlockAction(c *Client, p pk.Packet) basic.Error {
+func BlockAction(c *Client, p pk.Packet) basic.Error {
 	var (
 		location    pk.Position
 		actionID    pk.Byte
@@ -191,7 +191,7 @@ func (e *EventsListener) BlockAction(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BlockChange(c *Client, p pk.Packet) basic.Error {
+func BlockChange(c *Client, p pk.Packet) basic.Error {
 	var (
 		location  pk.Position
 		blockType pk.VarInt
@@ -204,7 +204,7 @@ func (e *EventsListener) BlockChange(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) BossBar(c *Client, p pk.Packet) basic.Error {
+func BossBar(c *Client, p pk.Packet) basic.Error {
 	var uuid pk.UUID
 	var action pk.Byte
 
@@ -267,7 +267,7 @@ func (e *EventsListener) BossBar(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ServerDifficulty(c *Client, p pk.Packet) basic.Error {
+func ServerDifficulty(c *Client, p pk.Packet) basic.Error {
 	var difficulty pk.Byte
 
 	if err := p.Scan(&difficulty); err != nil {
@@ -277,7 +277,7 @@ func (e *EventsListener) ServerDifficulty(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) TabComplete(c *Client, p pk.Packet) basic.Error {
+func TabComplete(c *Client, p pk.Packet) basic.Error {
 	/*var count pk.VarInt
 	var matches []pk.String
 
@@ -289,7 +289,7 @@ func (e *EventsListener) TabComplete(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
+func ChatMessage(c *Client, p pk.Packet) basic.Error {
 	var (
 		message chat.Message
 	)
@@ -334,7 +334,7 @@ func (e *EventsListener) ChatMessage(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) MultiBlockChange(c *Client, p pk.Packet) basic.Error {
+func MultiBlockChange(c *Client, p pk.Packet) basic.Error {
 	/*var chunkX pk.Int
 	var chunkZ pk.Int
 	var recordCount pk.VarInt
@@ -351,7 +351,7 @@ func (e *EventsListener) MultiBlockChange(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetContainerContent(c *Client, p pk.Packet) basic.Error {
+func SetContainerContent(c *Client, p pk.Packet) basic.Error {
 	var (
 		ContainerID pk.UnsignedByte
 		StateID     pk.VarInt
@@ -376,20 +376,14 @@ func (e *EventsListener) SetContainerContent(c *Client, p pk.Packet) basic.Error
 	}
 
 	// copy the slot data to container
-	for i, v := range SlotData {
-		if err := container.SetSlot(i, v); !err.Is(basic.NoError) {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", i, err)}
-		}
-	}
+	container.ApplyData(SlotData)
 
 	fmt.Println("SetContainerContent", ContainerID, StateID, SlotData, CarriedItem)
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CloseContainer(c *Client, p pk.Packet) basic.Error {
-	var (
-		windowID pk.Byte
-	)
+func CloseContainer(c *Client, p pk.Packet) basic.Error {
+	var windowID pk.Byte
 
 	if err := p.Scan(&windowID); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseContainer packet: %w", err)}
@@ -398,7 +392,7 @@ func (e *EventsListener) CloseContainer(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CloseWindow(c *Client, p pk.Packet) basic.Error {
+func CloseWindow(c *Client, p pk.Packet) basic.Error {
 	var windowID pk.Byte
 
 	if err := p.Scan(&windowID); err != nil {
@@ -408,7 +402,7 @@ func (e *EventsListener) CloseWindow(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetContainerProperty(c *Client, p pk.Packet) basic.Error {
+func SetContainerProperty(c *Client, p pk.Packet) basic.Error {
 	var (
 		windowID pk.Byte
 		property pk.Short
@@ -422,7 +416,7 @@ func (e *EventsListener) SetContainerProperty(c *Client, p pk.Packet) basic.Erro
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetContainerSlot(c *Client, p pk.Packet) (err basic.Error) {
+func SetContainerSlot(c *Client, p pk.Packet) (err basic.Error) {
 	var (
 		ContainerID pk.Byte
 		StateID     pk.VarInt
@@ -454,7 +448,7 @@ func (e *EventsListener) SetContainerSlot(c *Client, p pk.Packet) (err basic.Err
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetCooldown(c *Client, p pk.Packet) basic.Error {
+func SetCooldown(c *Client, p pk.Packet) basic.Error {
 	var (
 		itemID pk.VarInt
 		ticks  pk.VarInt
@@ -467,7 +461,7 @@ func (e *EventsListener) SetCooldown(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PluginMessage(c *Client, p pk.Packet) basic.Error {
+func PluginMessage(c *Client, p pk.Packet) basic.Error {
 	var (
 		channel pk.String
 		data    pk.ByteArray
@@ -480,7 +474,7 @@ func (e *EventsListener) PluginMessage(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) NamedSoundEffect(c *Client, p pk.Packet) basic.Error {
+func NamedSoundEffect(c *Client, p pk.Packet) basic.Error {
 	var (
 		soundName      pk.String
 		soundCategory  pk.Byte
@@ -496,7 +490,7 @@ func (e *EventsListener) NamedSoundEffect(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Disconnect(c *Client, p pk.Packet) basic.Error {
+func Disconnect(c *Client, p pk.Packet) basic.Error {
 	var reason chat.Message
 	if err := p.Scan(&reason); err != nil {
 		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan Disconnect: %w", err)}
@@ -506,7 +500,7 @@ func (e *EventsListener) Disconnect(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityStatus(c *Client, p pk.Packet) basic.Error {
+func EntityStatus(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 	var entityStatus pk.Byte
 
@@ -517,7 +511,7 @@ func (e *EventsListener) EntityStatus(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Explosion(c *Client, p pk.Packet) basic.Error {
+func Explosion(c *Client, p pk.Packet) basic.Error {
 	var (
 		x, y, z    pk.Float
 		radius     pk.Float
@@ -545,7 +539,7 @@ func (e *EventsListener) Explosion(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UnloadChunk(c *Client, p pk.Packet) basic.Error {
+func UnloadChunk(c *Client, p pk.Packet) basic.Error {
 	var chunk level.ChunkPos
 
 	if err := p.Scan(&chunk); err != nil {
@@ -556,7 +550,7 @@ func (e *EventsListener) UnloadChunk(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ChangeGameState(c *Client, p pk.Packet) basic.Error {
+func ChangeGameState(c *Client, p pk.Packet) basic.Error {
 	var reason pk.UnsignedByte
 	var value pk.Float
 
@@ -567,7 +561,7 @@ func (e *EventsListener) ChangeGameState(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) KeepAlive(c *Client, p pk.Packet) basic.Error {
+func KeepAlive(c *Client, p pk.Packet) basic.Error {
 	var keepAliveID pk.Long
 
 	if err := p.Scan(&keepAliveID); err != nil {
@@ -592,7 +586,7 @@ func (e *EventsListener) KeepAlive(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ChunkData(c *Client, p pk.Packet) basic.Error {
+func ChunkData(c *Client, p pk.Packet) basic.Error {
 	var (
 		ChunkPos level.ChunkPos
 		Chunk    level.Chunk
@@ -609,7 +603,7 @@ func (e *EventsListener) ChunkData(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Effect(c *Client, p pk.Packet) basic.Error {
+func Effect(c *Client, p pk.Packet) basic.Error {
 	var effectID pk.Int
 	var location pk.Position
 	var data pk.Int
@@ -622,7 +616,7 @@ func (e *EventsListener) Effect(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Particle(c *Client, p pk.Packet) basic.Error {
+func Particle(c *Client, p pk.Packet) basic.Error {
 	/*var particleID pk.String
 	var longDistance pk.Boolean
 	var x pk.Float
@@ -643,7 +637,7 @@ func (e *EventsListener) Particle(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) JoinGame(c *Client, p pk.Packet) basic.Error {
+func JoinGame(c *Client, p pk.Packet) basic.Error {
 	if err := p.Scan(
 		(*pk.Int)(&c.Player.ID),
 		(*pk.Boolean)(&c.Player.Hardcore),
@@ -700,7 +694,7 @@ func (e *EventsListener) JoinGame(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Map(c *Client, p pk.Packet) basic.Error {
+func Map(c *Client, p pk.Packet) basic.Error {
 	var Map world.Map
 
 	if err := p.Scan(&Map); err != nil {
@@ -710,7 +704,7 @@ func (e *EventsListener) Map(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Entity(c *Client, p pk.Packet) basic.Error {
+func Entity(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 
 	if err := p.Scan(&entityID); err != nil {
@@ -720,7 +714,7 @@ func (e *EventsListener) Entity(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) basic.Error {
+func EntityPosition(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID               pk.VarInt
 		DeltaX, DeltaY, DeltaZ pk.Short
@@ -740,7 +734,7 @@ func (e *EventsListener) EntityPosition(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityPositionRotation(c *Client, p pk.Packet) basic.Error {
+func EntityPositionRotation(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID               pk.VarInt
 		DeltaX, DeltaY, DeltaZ pk.Short
@@ -755,7 +749,7 @@ func (e *EventsListener) EntityPositionRotation(c *Client, p pk.Packet) basic.Er
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityHeadRotation(c *Client, p pk.Packet) basic.Error {
+func EntityHeadRotation(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID pk.VarInt
 		HeadYaw  pk.Angle
@@ -768,7 +762,7 @@ func (e *EventsListener) EntityHeadRotation(c *Client, p pk.Packet) basic.Error 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityRotation(c *Client, p pk.Packet) basic.Error {
+func EntityRotation(c *Client, p pk.Packet) basic.Error {
 	var (
 		EntityID   pk.VarInt
 		Yaw, Pitch pk.Angle
@@ -782,7 +776,7 @@ func (e *EventsListener) EntityRotation(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) VehicleMove(c *Client, p pk.Packet) basic.Error {
+func VehicleMove(c *Client, p pk.Packet) basic.Error {
 	var (
 		X, Y, Z    pk.Double
 		Yaw, Pitch pk.Float
@@ -795,7 +789,7 @@ func (e *EventsListener) VehicleMove(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) OpenSignEditor(c *Client, p pk.Packet) basic.Error {
+func OpenSignEditor(c *Client, p pk.Packet) basic.Error {
 	var location pk.Position
 
 	if err := p.Scan(&location); err != nil {
@@ -805,7 +799,7 @@ func (e *EventsListener) OpenSignEditor(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CraftRecipeResponse(c *Client, p pk.Packet) basic.Error {
+func CraftRecipeResponse(c *Client, p pk.Packet) basic.Error {
 	var windowID pk.UnsignedByte
 	var recipe pk.String
 
@@ -816,7 +810,7 @@ func (e *EventsListener) CraftRecipeResponse(c *Client, p pk.Packet) basic.Error
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerAbilities(c *Client, p pk.Packet) basic.Error {
+func PlayerAbilities(c *Client, p pk.Packet) basic.Error {
 	var flags pk.UnsignedByte
 	var flyingSpeed pk.Float
 	var fov pk.Float
@@ -828,7 +822,7 @@ func (e *EventsListener) PlayerAbilities(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CombatEvent(c *Client, p pk.Packet) basic.Error {
+func CombatEvent(c *Client, p pk.Packet) basic.Error {
 	var event pk.Byte
 	var duration pk.Int
 	var entityID pk.Int
@@ -842,7 +836,7 @@ func (e *EventsListener) CombatEvent(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerInfo(c *Client, p pk.Packet) basic.Error {
+func PlayerInfo(c *Client, p pk.Packet) basic.Error {
 	/*var action pk.Byte
 	var players []struct {
 		UUID       pk.UUID
@@ -865,7 +859,7 @@ func (e *EventsListener) PlayerInfo(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) basic.Error {
+func SyncPlayerPosition(c *Client, p pk.Packet) basic.Error {
 	var (
 		X, Y, Z    pk.Double
 		Yaw, Pitch pk.Float
@@ -905,7 +899,7 @@ func (e *EventsListener) SyncPlayerPosition(c *Client, p pk.Packet) basic.Error 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerPositionAndLook(c *Client, p pk.Packet) basic.Error {
+func PlayerPositionAndLook(c *Client, p pk.Packet) basic.Error {
 	var (
 		x          pk.Double
 		y          pk.Double
@@ -923,7 +917,7 @@ func (e *EventsListener) PlayerPositionAndLook(c *Client, p pk.Packet) basic.Err
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UseBed(c *Client, p pk.Packet) basic.Error {
+func UseBed(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 	var location pk.Position
 
@@ -934,7 +928,7 @@ func (e *EventsListener) UseBed(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UnlockRecipes(c *Client, p pk.Packet) basic.Error {
+func UnlockRecipes(c *Client, p pk.Packet) basic.Error {
 	/*var action pk.Byte
 	var craftingBookOpen pk.Boolean
 	var filter pk.Boolean
@@ -948,7 +942,7 @@ func (e *EventsListener) UnlockRecipes(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) DestroyEntities(c *Client, p pk.Packet) basic.Error {
+func DestroyEntities(c *Client, p pk.Packet) basic.Error {
 	/*var entityIDs []pk.Int
 
 	if err := p.Scan(&entityIDs); err != nil {
@@ -959,7 +953,7 @@ func (e *EventsListener) DestroyEntities(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) RemoveEntityEffect(c *Client, p pk.Packet) basic.Error {
+func RemoveEntityEffect(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.Int
 	var effectID pk.Byte
 
@@ -970,7 +964,7 @@ func (e *EventsListener) RemoveEntityEffect(c *Client, p pk.Packet) basic.Error 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ResourcePackSend(c *Client, p pk.Packet) basic.Error {
+func ResourcePackSend(c *Client, p pk.Packet) basic.Error {
 	var (
 		url  pk.String
 		hash pk.String
@@ -983,7 +977,7 @@ func (e *EventsListener) ResourcePackSend(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Respawn(c *Client, p pk.Packet) basic.Error {
+func Respawn(c *Client, p pk.Packet) basic.Error {
 	var copyMeta bool
 	if err := p.Scan(
 		(*pk.String)(&c.Player.DimensionType),
@@ -1001,7 +995,7 @@ func (e *EventsListener) Respawn(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SelectAdvancementTab(c *Client, p pk.Packet) basic.Error {
+func SelectAdvancementTab(c *Client, p pk.Packet) basic.Error {
 	var hasID pk.Boolean
 	var identifier pk.String
 
@@ -1012,7 +1006,7 @@ func (e *EventsListener) SelectAdvancementTab(c *Client, p pk.Packet) basic.Erro
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) WorldBorder(c *Client, p pk.Packet) basic.Error {
+func WorldBorder(c *Client, p pk.Packet) basic.Error {
 	var (
 		action         pk.Byte
 		radius         pk.Double
@@ -1032,7 +1026,7 @@ func (e *EventsListener) WorldBorder(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Camera(c *Client, p pk.Packet) basic.Error {
+func Camera(c *Client, p pk.Packet) basic.Error {
 	var cameraID pk.Int
 
 	if err := p.Scan(&cameraID); err != nil {
@@ -1042,7 +1036,7 @@ func (e *EventsListener) Camera(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetHeldItem(c *Client, p pk.Packet) basic.Error {
+func SetHeldItem(c *Client, p pk.Packet) basic.Error {
 	var slot pk.Short
 
 	if err := p.Scan(&slot); err != nil {
@@ -1054,7 +1048,7 @@ func (e *EventsListener) SetHeldItem(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) DisplayScoreboard(c *Client, p pk.Packet) basic.Error {
+func DisplayScoreboard(c *Client, p pk.Packet) basic.Error {
 	var position pk.Byte
 	var name pk.String
 
@@ -1065,7 +1059,7 @@ func (e *EventsListener) DisplayScoreboard(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityMetadata(c *Client, p pk.Packet) basic.Error {
+func EntityMetadata(c *Client, p pk.Packet) basic.Error {
 	var (
 		err      error
 		EntityID pk.VarInt
@@ -1193,7 +1187,7 @@ func (e *EventsListener) EntityMetadata(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) AttachEntity(c *Client, p pk.Packet) basic.Error {
+func AttachEntity(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID  pk.Int
 		vehicleID pk.Int
@@ -1207,7 +1201,7 @@ func (e *EventsListener) AttachEntity(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityVelocity(c *Client, p pk.Packet) basic.Error {
+func EntityVelocity(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID                        pk.VarInt
 		velocityX, velocityY, velocityZ pk.Short
@@ -1227,13 +1221,13 @@ func (e *EventsListener) EntityVelocity(c *Client, p pk.Packet) basic.Error {
 			e.(*core.EntityPlayer).SetMotion(maths.Vec3d[float64]{X: float64(velocityX) / 8000, Y: float64(velocityY) / 8000, Z: float64(velocityZ) / 8000}.Spread())
 		}
 	} else {
-		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to find entity with ID %d", entityID)}
+		return basic.Error{Err: basic.NoError, Info: nil}
 	}
 
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityEquipment(c *Client, p pk.Packet) basic.Error {
+func EntityEquipment(c *Client, p pk.Packet) basic.Error {
 	/*var entityID pk.Int
 	var slot pk.Short
 	var item pk.Slot
@@ -1246,7 +1240,7 @@ func (e *EventsListener) EntityEquipment(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetExperience(c *Client, p pk.Packet) basic.Error {
+func SetExperience(c *Client, p pk.Packet) basic.Error {
 	var (
 		experienceBar   pk.Float
 		levelInt        pk.VarInt
@@ -1261,7 +1255,7 @@ func (e *EventsListener) SetExperience(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UpdateHealth(c *Client, p pk.Packet) basic.Error {
+func UpdateHealth(c *Client, p pk.Packet) basic.Error {
 	var (
 		health         pk.Float
 		food           pk.VarInt
@@ -1280,7 +1274,7 @@ func (e *EventsListener) UpdateHealth(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) ScoreboardObjective(c *Client, p pk.Packet) basic.Error {
+func ScoreboardObjective(c *Client, p pk.Packet) basic.Error {
 	var (
 		name           pk.String
 		mode           pk.Byte
@@ -1296,7 +1290,7 @@ func (e *EventsListener) ScoreboardObjective(c *Client, p pk.Packet) basic.Error
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SetPassengers(c *Client, p pk.Packet) basic.Error {
+func SetPassengers(c *Client, p pk.Packet) basic.Error {
 	/*var entityID pk.Int
 	var passengerCount pk.VarInt
 	var passengers pk.Ary[]pk.VarInt
@@ -1308,7 +1302,7 @@ func (e *EventsListener) SetPassengers(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Teams(c *Client, p pk.Packet) basic.Error {
+func Teams(c *Client, p pk.Packet) basic.Error {
 	/*var name pk.String
 	var mode pk.Byte
 	var teamName pk.String
@@ -1329,7 +1323,7 @@ func (e *EventsListener) Teams(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) UpdateScore(c *Client, p pk.Packet) basic.Error {
+func UpdateScore(c *Client, p pk.Packet) basic.Error {
 	var name pk.String
 	var action pk.Byte
 	var objectiveName pk.String
@@ -1342,7 +1336,7 @@ func (e *EventsListener) UpdateScore(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SpawnPosition(c *Client, p pk.Packet) basic.Error {
+func SpawnPosition(c *Client, p pk.Packet) basic.Error {
 	var location pk.Position
 
 	if err := p.Scan(&location); err != nil {
@@ -1352,7 +1346,7 @@ func (e *EventsListener) SpawnPosition(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) TimeUpdate(c *Client, p pk.Packet) basic.Error {
+func TimeUpdate(c *Client, p pk.Packet) basic.Error {
 	var (
 		WorldAge  pk.Long
 		TimeOfDay pk.Long
@@ -1366,7 +1360,7 @@ func (e *EventsListener) TimeUpdate(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Title(c *Client, p pk.Packet) basic.Error {
+func Title(c *Client, p pk.Packet) basic.Error {
 	var (
 		action    pk.Byte
 		fadeIn    pk.Int
@@ -1384,7 +1378,7 @@ func (e *EventsListener) Title(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) SoundEffect(c *Client, p pk.Packet) basic.Error {
+func SoundEffect(c *Client, p pk.Packet) basic.Error {
 	var (
 		soundID        pk.VarInt
 		soundCategory  pk.VarInt
@@ -1400,7 +1394,7 @@ func (e *EventsListener) SoundEffect(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) PlayerListHeaderAndFooter(c *Client, p pk.Packet) basic.Error {
+func PlayerListHeaderAndFooter(c *Client, p pk.Packet) basic.Error {
 	var (
 		header pk.String
 		footer pk.String
@@ -1413,7 +1407,7 @@ func (e *EventsListener) PlayerListHeaderAndFooter(c *Client, p pk.Packet) basic
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) CollectItem(c *Client, p pk.Packet) basic.Error {
+func CollectItem(c *Client, p pk.Packet) basic.Error {
 	var (
 		collectedEntityID pk.Int
 		collectorEntityID pk.Int
@@ -1427,7 +1421,7 @@ func (e *EventsListener) CollectItem(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityTeleport(c *Client, p pk.Packet) basic.Error {
+func EntityTeleport(c *Client, p pk.Packet) basic.Error {
 	var entityID pk.VarInt
 	var x pk.Double
 	var y pk.Double
@@ -1443,7 +1437,7 @@ func (e *EventsListener) EntityTeleport(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) Advancements(c *Client, p pk.Packet) basic.Error {
+func Advancements(c *Client, p pk.Packet) basic.Error {
 	var action pk.Byte
 	var data pk.String
 
@@ -1454,7 +1448,7 @@ func (e *EventsListener) Advancements(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityProperties(c *Client, p pk.Packet) basic.Error {
+func EntityProperties(c *Client, p pk.Packet) basic.Error {
 	/*var entityID pk.Int
 	var count pk.VarInt
 	var properties pk.Ary[]pk.String
@@ -1467,7 +1461,7 @@ func (e *EventsListener) EntityProperties(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e *EventsListener) EntityEffect(c *Client, p pk.Packet) basic.Error {
+func EntityEffect(c *Client, p pk.Packet) basic.Error {
 	var (
 		entityID   pk.VarInt
 		effectID   pk.VarInt
@@ -1515,7 +1509,7 @@ func (e *EventsListener) EntityEffect(c *Client, p pk.Packet) basic.Error {
 	return basic.Error{Err: basic.NoError, Info: nil}
 }
 
-func (e EventsListener) LookAt(client *Client, packet pk.Packet) basic.Error {
+func LookAt(client *Client, packet pk.Packet) basic.Error {
 	var (
 		targetEnum   pk.VarInt
 		X, Y, Z      pk.Double

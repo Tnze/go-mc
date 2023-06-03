@@ -58,7 +58,18 @@ func (w *World) GetEntities() map[int32]*core.EntityInterface {
 
 func (w *World) GetEntityByID(id int32) (int32, interface{}, error) {
 	for i, e := range w.entities {
+		fmt.Printf("Entity: %v, ID: %d, Search: %d\n", *e, (*e).GetID(), id)
 		if w.isValidEntity(e) && id == (*e).GetID() {
+			return i, *e, nil
+		}
+	}
+	for i, e := range w.entitiesLiving {
+		if id == (*e).GetID() {
+			return i, *e, nil
+		}
+	}
+	for i, e := range w.entitiesPlayer {
+		if id == (*e).GetID() {
 			return i, *e, nil
 		}
 	}

@@ -40,36 +40,36 @@ func TestExampleClient_JoinServer_online(t *testing.T) {
 	}
 	log.Println("Login success")
 
-	c.EventHandlers.Attach(c)
+	Attach(c)
 	//Register event handlers
 	c.Events.AddListener(
 		/* Inventory transactions */
-		PacketHandler{ID: packetid.CPacketSetContainerContent, Priority: 0, F: c.EventHandlers.SetContainerContent},
-		PacketHandler{ID: packetid.CPacketSetContainerSlot, Priority: 0, F: c.EventHandlers.SetContainerSlot},
-		PacketHandler{ID: packetid.CPacketSetContainerProperty, Priority: 0, F: c.EventHandlers.SetContainerProperty},
+		PacketHandler{ID: packetid.CPacketSetContainerContent, Priority: 0, F: SetContainerContent},
+		PacketHandler{ID: packetid.CPacketSetContainerSlot, Priority: 0, F: SetContainerSlot},
+		PacketHandler{ID: packetid.CPacketSetContainerProperty, Priority: 0, F: SetContainerProperty},
 
 		/* Physic */
-		PacketHandler{ID: packetid.CPacketChunkData, Priority: 0, F: c.EventHandlers.ChunkData},
-		PacketHandler{ID: packetid.CPacketExplosion, Priority: 0, F: c.EventHandlers.Explosion},
+		PacketHandler{ID: packetid.CPacketChunkData, Priority: 0, F: ChunkData},
+		PacketHandler{ID: packetid.CPacketExplosion, Priority: 0, F: Explosion},
 
 		/* Entities */
-		PacketHandler{ID: packetid.CPacketSpawnEntity, Priority: 0, F: c.EventHandlers.SpawnEntity},
-		PacketHandler{ID: packetid.CPacketSpawnExperienceOrb, Priority: 0, F: c.EventHandlers.SpawnExperienceOrb},
-		PacketHandler{ID: packetid.CPacketSpawnPlayer, Priority: 0, F: c.EventHandlers.SpawnPlayer},
-		PacketHandler{ID: packetid.CPacketEntityAnimation, Priority: 0, F: c.EventHandlers.EntityAnimation},
-		PacketHandler{ID: packetid.CPacketBlockEntityData, Priority: 0, F: c.EventHandlers.BlockEntityData},
-		PacketHandler{ID: packetid.CPacketBlockAction, Priority: 0, F: c.EventHandlers.BlockAction},
-		PacketHandler{ID: packetid.CPacketBlockUpdate, Priority: 0, F: c.EventHandlers.BlockChange},
-		PacketHandler{ID: packetid.CPacketEntityPosition, Priority: 0, F: c.EventHandlers.EntityPosition},
-		PacketHandler{ID: packetid.CPacketEntityPositionRotation, Priority: 0, F: c.EventHandlers.EntityPositionRotation},
-		PacketHandler{ID: packetid.CPacketEntityRotation, Priority: 0, F: c.EventHandlers.EntityRotation},
-		PacketHandler{ID: packetid.CPacketVehicleMove, Priority: 0, F: c.EventHandlers.VehicleMove},
-		PacketHandler{ID: packetid.CPacketLookAt, Priority: 0, F: c.EventHandlers.LookAt},
-		PacketHandler{ID: packetid.CPacketSyncPosition, Priority: 0, F: c.EventHandlers.SyncPlayerPosition},
-		PacketHandler{ID: packetid.CPacketEntityEffect, Priority: 0, F: c.EventHandlers.EntityEffect},
-		PacketHandler{ID: packetid.CPacketEntityVelocity, Priority: 0, F: c.EventHandlers.EntityVelocity},
+		PacketHandler{ID: packetid.CPacketSpawnEntity, Priority: 0, F: SpawnEntity},
+		PacketHandler{ID: packetid.CPacketSpawnExperienceOrb, Priority: 0, F: SpawnExperienceOrb},
+		PacketHandler{ID: packetid.CPacketSpawnPlayer, Priority: 0, F: SpawnPlayer},
+		PacketHandler{ID: packetid.CPacketEntityAnimation, Priority: 0, F: EntityAnimation},
+		PacketHandler{ID: packetid.CPacketBlockEntityData, Priority: 0, F: BlockEntityData},
+		PacketHandler{ID: packetid.CPacketBlockAction, Priority: 0, F: BlockAction},
+		PacketHandler{ID: packetid.CPacketBlockUpdate, Priority: 0, F: BlockChange},
+		PacketHandler{ID: packetid.CPacketEntityPosition, Priority: 0, F: EntityPosition},
+		PacketHandler{ID: packetid.CPacketEntityPositionRotation, Priority: 0, F: EntityPositionRotation},
+		PacketHandler{ID: packetid.CPacketEntityRotation, Priority: 0, F: EntityRotation},
+		PacketHandler{ID: packetid.CPacketVehicleMove, Priority: 0, F: VehicleMove},
+		PacketHandler{ID: packetid.CPacketLookAt, Priority: 0, F: LookAt},
+		PacketHandler{ID: packetid.CPacketSyncPosition, Priority: 0, F: SyncPlayerPosition},
+		PacketHandler{ID: packetid.CPacketEntityEffect, Priority: 0, F: EntityEffect},
+		PacketHandler{ID: packetid.CPacketEntityVelocity, Priority: 0, F: EntityVelocity},
 
-		PacketHandler{ID: packetid.CPacketPlayerAbilities, Priority: 0, F: c.EventHandlers.PlayerAbilities},
+		PacketHandler{ID: packetid.CPacketPlayerAbilities, Priority: 0, F: PlayerAbilities},
 	)
 
 	//JoinGame
@@ -91,37 +91,36 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 	}
 	log.Println("Login success")
 
-	c.EventHandlers.Attach(c)
+	Attach(c)
 	//Register event handlers
 	c.Events.AddListener(
 		/* Inventory transactions */
-		PacketHandler{ID: packetid.CPacketSetContainerContent, Priority: 0, F: c.EventHandlers.SetContainerContent},
-		PacketHandler{ID: packetid.CPacketSetContainerSlot, Priority: 0, F: c.EventHandlers.SetContainerSlot},
-		PacketHandler{ID: packetid.CPacketSetContainerProperty, Priority: 0, F: c.EventHandlers.SetContainerProperty},
+		PacketHandler{ID: packetid.CPacketSetContainerContent, Priority: 0, F: SetContainerContent},
+		PacketHandler{ID: packetid.CPacketSetContainerSlot, Priority: 0, F: SetContainerSlot},
+		PacketHandler{ID: packetid.CPacketSetContainerProperty, Priority: 0, F: SetContainerProperty},
 
 		/* Physic */
-		PacketHandler{ID: packetid.CPacketChunkData, Priority: 0, F: c.EventHandlers.ChunkData},
-		PacketHandler{ID: packetid.CPacketExplosion, Priority: 0, F: c.EventHandlers.Explosion},
+		PacketHandler{ID: packetid.CPacketChunkData, Priority: 0, F: ChunkData},
+		PacketHandler{ID: packetid.CPacketExplosion, Priority: 0, F: Explosion},
 
 		/* Entities */
-		PacketHandler{ID: packetid.CPacketSpawnEntity, Priority: 0, F: c.EventHandlers.SpawnEntity},
-		PacketHandler{ID: packetid.CPacketSpawnExperienceOrb, Priority: 0, F: c.EventHandlers.SpawnExperienceOrb},
-		PacketHandler{ID: packetid.CPacketSpawnPlayer, Priority: 0, F: c.EventHandlers.SpawnPlayer},
-		PacketHandler{ID: packetid.CPacketEntityAnimation, Priority: 0, F: c.EventHandlers.EntityAnimation},
-		PacketHandler{ID: packetid.CPacketBlockEntityData, Priority: 0, F: c.EventHandlers.BlockEntityData},
-		PacketHandler{ID: packetid.CPacketBlockAction, Priority: 0, F: c.EventHandlers.BlockAction},
-		PacketHandler{ID: packetid.CPacketBlockUpdate, Priority: 0, F: c.EventHandlers.BlockChange},
-		PacketHandler{ID: packetid.CPacketEntityPosition, Priority: 0, F: c.EventHandlers.EntityPosition},
-		PacketHandler{ID: packetid.CPacketEntityPositionRotation, Priority: 0, F: c.EventHandlers.EntityPositionRotation},
-		PacketHandler{ID: packetid.CPacketEntityRotation, Priority: 0, F: c.EventHandlers.EntityRotation},
-		PacketHandler{ID: packetid.CPacketVehicleMove, Priority: 0, F: c.EventHandlers.VehicleMove},
-		PacketHandler{ID: packetid.CPacketLookAt, Priority: 0, F: c.EventHandlers.LookAt},
-		PacketHandler{ID: packetid.CPacketSyncPosition, Priority: 0, F: c.EventHandlers.SyncPlayerPosition},
-		PacketHandler{ID: packetid.CPacketEntityEffect, Priority: 0, F: c.EventHandlers.EntityEffect},
-		PacketHandler{ID: packetid.CPacketEntityVelocity, Priority: 0, F: c.EventHandlers.EntityVelocity},
+		PacketHandler{ID: packetid.CPacketSpawnEntity, Priority: 0, F: SpawnEntity},
+		PacketHandler{ID: packetid.CPacketSpawnExperienceOrb, Priority: 0, F: SpawnExperienceOrb},
+		PacketHandler{ID: packetid.CPacketSpawnPlayer, Priority: 0, F: SpawnPlayer},
+		PacketHandler{ID: packetid.CPacketEntityAnimation, Priority: 0, F: EntityAnimation},
+		PacketHandler{ID: packetid.CPacketBlockEntityData, Priority: 0, F: BlockEntityData},
+		PacketHandler{ID: packetid.CPacketBlockAction, Priority: 0, F: BlockAction},
+		PacketHandler{ID: packetid.CPacketBlockUpdate, Priority: 0, F: BlockChange},
+		PacketHandler{ID: packetid.CPacketEntityPosition, Priority: 0, F: EntityPosition},
+		PacketHandler{ID: packetid.CPacketEntityPositionRotation, Priority: 0, F: EntityPositionRotation},
+		PacketHandler{ID: packetid.CPacketEntityRotation, Priority: 0, F: EntityRotation},
+		PacketHandler{ID: packetid.CPacketVehicleMove, Priority: 0, F: VehicleMove},
+		PacketHandler{ID: packetid.CPacketLookAt, Priority: 0, F: LookAt},
+		PacketHandler{ID: packetid.CPacketSyncPosition, Priority: 0, F: SyncPlayerPosition},
+		PacketHandler{ID: packetid.CPacketEntityEffect, Priority: 0, F: EntityEffect},
+		PacketHandler{ID: packetid.CPacketEntityVelocity, Priority: 0, F: EntityVelocity},
 
-		PacketHandler{ID: packetid.CPacketPlayerAbilities, Priority: 0, F: c.EventHandlers.PlayerAbilities},
-		PacketHandler{ID: packetid.CPacketMapData, Priority: 0, F: c.EventHandlers.Map},
+		PacketHandler{ID: packetid.CPacketPlayerAbilities, Priority: 0, F: PlayerAbilities},
 	)
 
 	//JoinGame

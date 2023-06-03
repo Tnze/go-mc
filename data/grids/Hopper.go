@@ -2,12 +2,8 @@ package grids
 
 type Hopper struct { // Also minecart with hopper
 	*Generic
-	Type int
 }
 
-func NewHopper() *Hopper {
-	return &Hopper{
-		Generic: InitGenericContainer(41, 5, 1),
-		Type:    15,
-	}
+func NewHopper(inventory *GenericInventory) *Hopper {
+	return &Hopper{InitGenericContainer("minecraft:hopper", 15, 5, inventory)}
 }

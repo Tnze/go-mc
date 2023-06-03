@@ -2,12 +2,8 @@ package grids
 
 type Grindstone struct {
 	*Generic
-	Type int
 }
 
-func NewGrindstone() *Grindstone {
-	return &Grindstone{
-		Generic: InitGenericContainer(39, 3, 1),
-		Type:    14,
-	}
+func NewGrindstone(inventory *GenericInventory) *Grindstone {
+	return &Grindstone{InitGenericContainer("minecraft:grindstone", 14, 3, inventory)}
 }

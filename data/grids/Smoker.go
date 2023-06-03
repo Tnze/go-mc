@@ -2,12 +2,8 @@ package grids
 
 type Smoker struct {
 	*Generic
-	Type int
 }
 
-func NewSmoker() *Smoker {
-	return &Smoker{
-		Generic: InitGenericContainer(39, 3, 1),
-		Type:    21,
-	}
+func NewSmoker(inventory *GenericInventory) *Smoker {
+	return &Smoker{InitGenericContainer("minecraft:smoker", 21, 3, inventory)}
 }

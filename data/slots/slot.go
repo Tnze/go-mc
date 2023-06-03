@@ -13,6 +13,10 @@ type Slot struct {
 	NBT   nbt.RawMessage
 }
 
+func (s *Slot) GetIndex() int {
+	return int(s.Index)
+}
+
 func (s *Slot) WriteTo(w io.Writer) (n int64, err error) {
 	var present pk.Boolean = s.ID != 0 && s.Count != 0
 	return pk.Tuple{
