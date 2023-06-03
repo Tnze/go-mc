@@ -134,8 +134,8 @@ func (p *Player) travel(c *Client) error {
 	if getBlock, err := c.World.GetBlock(p.Position); !err.Is(basic.NoError) {
 		return err
 	} else {
-		if !getBlock.Is(block.Water{}) {
-			if !getBlock.Is(block.Lava{}) {
+		if getBlock != block.Water {
+			if getBlock != block.Lava {
 				// Replace with elytra flying
 				if false {
 					if p.Motion.Y > -0.5 {
@@ -260,7 +260,7 @@ func (p *Player) move(moveType enums.MoverType, c *Client, motion maths.Vec3d[fl
 	if getBlock, err := c.World.GetBlock(p.Position); !err.Is(basic.NoError) {
 		return err
 	} else {
-		if getBlock.Is(block.Cobweb{}) {
+		if getBlock == block.Cobweb {
 			x *= 0.25
 			y *= 0.05000000074505806
 			z *= 0.25
@@ -381,13 +381,16 @@ func ApplyPhysics(c *Client) basic.Error {
 		if getBlock, err := c.World.GetBlock(c.Player.Position); !err.Is(basic.NoError) {
 			return err
 		} else {
-			if getBlock.Is(block.Water{}) {
+			switch getBlock {
+			case block.Water:
 				c.Player.handleJumpWater()
-			} else if getBlock.Is(block.Lava{}) {
+			case block.Lava:
 				c.Player.handleJumpLava()
-			} else if c.Player.OnGround && c.Player.jumpTicks == 0 {
-				c.Player.Jump()
-				c.Player.jumpTicks = 10
+			default:
+				if c.Player.OnGround && c.Player.jumpTicks == 0 {
+					c.Player.Jump()
+					c.Player.jumpTicks = 10
+				}
 			}
 		}
 	} else {

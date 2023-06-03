@@ -88,12 +88,25 @@ func (w *World) isValidEntity(e *core.EntityInterface) bool {
 	return true
 }
 
-func (w *World) GetBlock(pos maths.Vec3d[float64]) (block.Block, basic.Error) {
+func (w *World) GetBlock(pos maths.Vec3d[float64]) (*block.Block, basic.Error) {
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
 	if chunk, ok := w.Columns[chunkPos]; ok {
 		return chunk.GetBlock(pos)
 	} else {
-		return block.StateList[block.ToStateID[block.Air{}]], basic.Error{Err: basic.InvalidChunk, Info: fmt.Errorf("chunk not found")}
+		return block.Air, basic.Error{Err: basic.InvalidChunk, Info: fmt.Errorf("chunk not found")}
+	}
+}
+
+func (w *World) MustGetBlock(pos maths.Vec3d[float64]) *block.Block {
+	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
+	if chunk, ok := w.Columns[chunkPos]; ok {
+		getBlock, err := chunk.GetBlock(pos)
+		if err.Err != basic.NoError {
+			panic(fmt.Errorf("got error while forcingly getting block: %s", err.Info.Error()))
+		}
+		return getBlock
+	} else {
+		return block.Air
 	}
 }
 
