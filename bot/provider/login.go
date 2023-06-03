@@ -16,7 +16,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
 	auth "github.com/maxsupermanhd/go-mc-ms-auth"
@@ -47,7 +46,7 @@ func handleEncryptionRequest(c *Client, p pk.Packet) error {
 		return fmt.Errorf("gen encryption key response fail: %v", err)
 	}
 
-	if err := c.Conn.WritePacket(p); !err.Is(basic.NoError) {
+	if err := c.Conn.WritePacket(p); err != nil {
 		return fmt.Errorf("write encryption key response fail: %v", err)
 	}
 

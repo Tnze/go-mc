@@ -2,7 +2,6 @@ package world
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	. "github.com/Tnze/go-mc/level"
@@ -88,12 +87,12 @@ func (w *World) isValidEntity(e *core.EntityInterface) bool {
 	return true
 }
 
-func (w *World) GetBlock(pos maths.Vec3d[float64]) (*block.Block, basic.Error) {
+func (w *World) GetBlock(pos maths.Vec3d[float64]) (*block.Block, error) {
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
 	if chunk, ok := w.Columns[chunkPos]; ok {
 		return chunk.GetBlock(pos)
 	} else {
-		return block.Air, basic.Error{Err: basic.InvalidChunk, Info: fmt.Errorf("chunk not found")}
+		return block.Air, fmt.Errorf("chunk not found")
 	}
 }
 
@@ -101,8 +100,8 @@ func (w *World) MustGetBlock(pos maths.Vec3d[float64]) *block.Block {
 	chunkPos := ChunkPos{int32(pos.X) >> 4, int32(pos.Z) >> 4}
 	if chunk, ok := w.Columns[chunkPos]; ok {
 		getBlock, err := chunk.GetBlock(pos)
-		if err.Err != basic.NoError {
-			panic(fmt.Errorf("got error while forcingly getting block: %s", err.Info.Error()))
+		if err != nil {
+			panic(fmt.Errorf("got error while forcingly getting block: %s", err))
 		}
 		return getBlock
 	} else {
@@ -141,23 +140,23 @@ func (w *World) IsChunkLoaded(pos ChunkPos) bool {
 	return ok
 }
 
-func (w *World) RayTrace(start, end maths.Vec3d[float64]) (maths.RayTraceResult, basic.Error) {
+func (w *World) RayTrace(start, end maths.Vec3d[float64]) (maths.RayTraceResult, error) {
 	if start == maths.NullVec3d && end == maths.NullVec3d {
-		return maths.RayTraceResult{}, basic.Error{Err: basic.NullValue, Info: fmt.Errorf("start and end cannot be null")}
+		return maths.RayTraceResult{}, fmt.Errorf("start and end are null vectors")
 	}
 
 	for _, pos := range maths.RayTraceBlocks(start, end) {
-		block, _ := w.GetBlock(pos)
-		if block.IsAir() {
+		getBlock, _ := w.GetBlock(pos)
+		if getBlock.IsAir() {
 			continue
 		} else {
 			return maths.RayTraceResult{
 				Position: pos,
-			}, basic.Error{Err: basic.NoError, Info: nil}
+			}, nil
 		}
 	}
 
-	return maths.RayTraceResult{}, basic.Error{Err: basic.NoValue, Info: fmt.Errorf("no block found")}
+	return maths.RayTraceResult{}, fmt.Errorf("no block found")
 }
 
 func (w *World) GetBlockDensity(pos maths.Vec3d[float64], bb maths.AxisAlignedBB[float64]) float64 {
@@ -178,7 +177,7 @@ func (w *World) GetBlockDensity(pos maths.Vec3d[float64], bb maths.AxisAlignedBB
 					d6 := bb.MinY + (bb.MaxY-bb.MinY)*f1
 					d7 := bb.MinZ + (bb.MaxZ-bb.MinZ)*f2
 
-					if _, err := w.RayTrace(maths.Vec3d[float64]{X: d5 + d3, Y: d6, Z: d7 + d4}, pos); err.Is(basic.NoValue) {
+					if _, err := w.RayTrace(maths.Vec3d[float64]{X: d5 + d3, Y: d6, Z: d7 + d4}, pos); err != nil {
 						j2++
 					}
 					k2++
@@ -202,7 +201,7 @@ func (w *World) IsAABBInMaterial(bb maths.AxisAlignedBB[float64]) bool {
 	for x := i; x <= j; x++ {
 		for y := k; y <= l; y++ {
 			for z := i1; z <= j1; z++ {
-				if getBlock, err := w.GetBlock(maths.Vec3d[float64]{X: float64(x), Y: float64(y), Z: float64(z)}); !err.Is(basic.InvalidChunk) && !getBlock.IsAir() {
+				if getBlock := w.MustGetBlock(maths.Vec3d[float64]{X: float64(x), Y: float64(y), Z: float64(z)}); !getBlock.IsAir() {
 					if getBlock.IsLiquid() {
 						return false
 					}

@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
@@ -45,7 +44,7 @@ type PlayerSample struct {
 func (s *Server) acceptListPing(conn *net.Conn) {
 	var p pk.Packet
 	for i := 0; i < 2; i++ { // Ping or List. Only allow check twice
-		if err := conn.ReadPacket(&p); !err.Is(basic.NoError) {
+		if err := conn.ReadPacket(&p); err != nil {
 			return
 		}
 
@@ -54,12 +53,12 @@ func (s *Server) acceptListPing(conn *net.Conn) {
 			if resp, err := s.listResp(); err != nil {
 				break
 			} else {
-				if err := conn.WritePacket(pk.Marshal(packetid.CPacketStatusResponse, pk.String(resp))); !err.Is(basic.NoError) {
+				if err := conn.WritePacket(pk.Marshal(packetid.CPacketStatusResponse, pk.String(resp))); err != nil {
 					return
 				}
 			}
 		case packetid.SPacketPongResponse: //Ping
-			if err := conn.WritePacket(p); !err.Is(basic.NoError) {
+			if err := conn.WritePacket(p); err != nil {
 				return
 			}
 		}

@@ -17,7 +17,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/CFB8"
@@ -81,7 +80,7 @@ func encryptionRequest(conn *net.Conn, publicKey []byte) ([]byte, error) {
 		pk.String(""),
 		pk.ByteArray(publicKey),
 		pk.ByteArray(verifyToken[:]),
-	)); !err.Is(basic.NoError) {
+	)); err != nil {
 		return nil, err
 	}
 	return verifyToken[:], nil
@@ -89,7 +88,7 @@ func encryptionRequest(conn *net.Conn, publicKey []byte) ([]byte, error) {
 
 func encryptionResponse(conn *net.Conn, profilePubKey *rsa.PublicKey, nonce []byte, key *rsa.PrivateKey) ([]byte, error) {
 	var p pk.Packet
-	if err := conn.ReadPacket(&p); !err.Is(basic.NoError) {
+	if err := conn.ReadPacket(&p); err != nil {
 		return nil, err
 	}
 	if p.ID != packetid.SPacketEncryptionResponse {

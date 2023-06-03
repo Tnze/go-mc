@@ -3,7 +3,6 @@ package provider
 import (
 	"encoding/hex"
 	"fmt"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/internal/utils"
 	"github.com/Tnze/go-mc/offline"
@@ -35,7 +34,7 @@ func TestExampleClient_JoinServer_online(t *testing.T) {
 	}
 
 	//Login
-	if err := c.JoinServer("localhost:25565"); !err.Is(basic.NoError) {
+	if err := c.JoinServer("localhost:25565"); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
@@ -73,7 +72,7 @@ func TestExampleClient_JoinServer_online(t *testing.T) {
 	)
 
 	//JoinGame
-	if err := c.HandleGame(); !err.Is(basic.NoError) {
+	if err := c.HandleGame(); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -86,7 +85,7 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 	c.Auth.UUID = hex.EncodeToString(id[:])
 
 	//Login
-	if err := c.JoinServer("127.0.0.1"); !err.Is(basic.NoError) {
+	if err := c.JoinServer("127.0.0.1"); err != nil {
 		log.Fatal(err)
 	}
 	log.Println("Login success")
@@ -124,7 +123,7 @@ func TestExampleClient_JoinServer_offline(t *testing.T) {
 	)
 
 	//JoinGame
-	if err := c.HandleGame(); !err.Is(basic.NoError) {
+	if err := c.HandleGame(); err != nil {
 		log.Fatal(err)
 	}
 }

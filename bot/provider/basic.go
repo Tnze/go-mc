@@ -58,18 +58,15 @@ func NewPlayer(settings basic.Settings) *Player {
 	}
 }
 
-func (p *Player) Respawn(c *Client) error {
+func (p *Player) Respawn(c *Client) (err error) {
 	const PerformRespawn = 0
 
-	err := c.Conn.WritePacket(pk.Marshal(
+	err = c.Conn.WritePacket(pk.Marshal(
 		packetid.SPacketClientCommand,
 		pk.VarInt(PerformRespawn),
 	))
-	if !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: err}
-	}
 
-	return nil
+	return
 }
 
 func (p *Player) Chat(c *Client, msg string) error {
@@ -91,25 +88,25 @@ func (p *Player) Chat(c *Client, msg string) error {
 		signature,
 		signaturePreview,*/
 	))
-	if !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: err}
+	if err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func RunTransactions(c *Client) basic.Error {
+func RunTransactions(c *Client) error {
 	if t := c.Player.Transactions.Next(); t == nil {
-		return basic.Error{Err: basic.NoError, Info: nil}
+		return nil
 	} else {
 		for _, v := range t.Packets {
-			if err := c.Conn.WritePacket(*v); !err.Is(basic.NoError) {
-				return basic.Error{Err: basic.WriterError, Info: err}
+			if err := c.Conn.WritePacket(*v); err != nil {
+				return err
 			}
 		}
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
 func (p *Player) handleJumpWater() {
@@ -131,7 +128,7 @@ func (p *Player) Jump() {
 }
 
 func (p *Player) travel(c *Client) error {
-	if getBlock, err := c.World.GetBlock(p.Position); !err.Is(basic.NoError) {
+	if getBlock, err := c.World.GetBlock(p.Position); err != nil {
 		return err
 	} else {
 		if getBlock != block.Water {
@@ -257,7 +254,7 @@ func (p *Player) move(moveType enums.MoverType, c *Client, motion maths.Vec3d[fl
 	y := motion.Y
 	z := motion.Z
 
-	if getBlock, err := c.World.GetBlock(p.Position); !err.Is(basic.NoError) {
+	if getBlock, err := c.World.GetBlock(p.Position); err != nil {
 		return err
 	} else {
 		if getBlock == block.Cobweb {
@@ -355,7 +352,7 @@ func (p *Player) updateFallState(y float64, onGround bool, getBlock block.Block)
 	}
 }
 
-func ApplyPhysics(c *Client) basic.Error {
+func ApplyPhysics(c *Client) error {
 	if err := c.Conn.WritePacket(
 		pk.Marshal(
 			packetid.SPacketPlayerPosition,
@@ -364,8 +361,8 @@ func ApplyPhysics(c *Client) basic.Error {
 			pk.Double(c.Player.Position.Z),
 			pk.Boolean(c.Player.OnGround),
 		),
-	); !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("failed to send player position: %v", err)}
+	); err != nil {
+		return fmt.Errorf("failed to send player position: %v", err)
 	}
 
 	if c.Player.jumpTicks > 0 {
@@ -378,7 +375,7 @@ func ApplyPhysics(c *Client) basic.Error {
 	}*/
 
 	if c.Player.Controller.Jump {
-		if getBlock, err := c.World.GetBlock(c.Player.Position); !err.Is(basic.NoError) {
+		if getBlock, err := c.World.GetBlock(c.Player.Position); err != nil {
 			return err
 		} else {
 			switch getBlock {
@@ -402,7 +399,7 @@ func ApplyPhysics(c *Client) basic.Error {
 
 	c.Player.Position = c.Player.Position.Add(c.Player.Motion)
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
 func (p *Player) WalkTo(c *Client, pos maths.Vec3d[float64]) error {

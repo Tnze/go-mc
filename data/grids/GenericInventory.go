@@ -2,7 +2,6 @@ package grids
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/item"
 	"github.com/Tnze/go-mc/data/slots"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -12,9 +11,7 @@ type GenericInventory struct {
 	Slots [46]slots.Slot
 }
 
-func (g *GenericInventory) OnClose() basic.Error {
-	return basic.Error{Err: basic.NoError, Info: nil}
-}
+func (g *GenericInventory) OnClose() error { return nil }
 
 /* Slot data */
 
@@ -39,12 +36,12 @@ func (g *GenericInventory) ApplyData(i []slots.Slot) {
 /* Getter & Setter */
 
 func (g *GenericInventory) GetSlot(i int) *slots.Slot { return &g.Slots[i] }
-func (g *GenericInventory) SetSlot(i int, s slots.Slot) basic.Error {
+func (g *GenericInventory) SetSlot(i int, s slots.Slot) error {
 	if i < 0 || i >= len(g.Slots) {
-		return basic.Error{Err: basic.OutOfBound, Info: fmt.Errorf("slot index %d out of bounds. maximum index is %d", i, len(g.Slots)-1)}
+		return fmt.Errorf("slot index %d out of bounds. maximum index is %d", i, len(g.Slots)-1)
 	}
 	g.Slots[i] = s
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
 func (g *GenericInventory) GetCraftingOutput() *slots.Slot { return &g.Slots[0] }

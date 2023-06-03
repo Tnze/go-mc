@@ -28,7 +28,6 @@ package server
 
 import (
 	"errors"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -83,7 +82,7 @@ func (s *Server) acceptConn(conn *net.Conn) {
 				if err := conn.WritePacket(pk.Marshal(
 					packetid.CPacketDisconnect,
 					loginErr.reason,
-				)); !err.Is(basic.NoError) {
+				)); err != nil {
 					return
 				}
 			}

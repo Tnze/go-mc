@@ -1,7 +1,6 @@
 package screen
 
 import (
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/grids"
 	"github.com/Tnze/go-mc/data/slots"
 )
@@ -55,7 +54,7 @@ func fillContainers(inventory *grids.GenericInventory) map[int]Container {
 
 type Container interface {
 	GetSlot(int) *slots.Slot
-	SetSlot(int, slots.Slot) basic.Error
+	SetSlot(int, slots.Slot) error
 	ApplyData([]slots.Slot)
-	OnClose() basic.Error
+	OnClose() error
 }

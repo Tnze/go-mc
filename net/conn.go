@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Tnze/go-mc/bot/basic"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -204,19 +203,19 @@ func WrapConn(conn net.Conn) *Conn {
 func (c *Conn) Close() error { return c.Socket.Close() }
 
 // ReadPacket read a Packet from Conn.
-func (c *Conn) ReadPacket(p *pk.Packet) basic.Error {
+func (c *Conn) ReadPacket(p *pk.Packet) error {
 	if err := p.UnPack(c.Reader, c.threshold); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("read packet: %w", err)}
+		return fmt.Errorf("read packet: %w", err)
 	}
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
 // WritePacket write a Packet to Conn.
-func (c *Conn) WritePacket(p pk.Packet) basic.Error {
+func (c *Conn) WritePacket(p pk.Packet) error {
 	if err := p.Pack(c.Writer, c.threshold); err != nil {
-		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("write packet: %w", err)}
+		return fmt.Errorf("write packet: %w", err)
 	}
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
 // SetCipher load the decode/encode stream to this Conn

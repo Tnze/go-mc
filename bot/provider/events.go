@@ -2,7 +2,6 @@ package provider
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/bot/core"
 	"github.com/Tnze/go-mc/bot/maths"
 	"github.com/Tnze/go-mc/bot/screen"
@@ -52,7 +51,7 @@ type PlayerMessage struct {
 	TimeStamp         time.Time
 }
 
-func SpawnEntity(c *Client, p pk.Packet) basic.Error {
+func SpawnEntity(c *Client, p pk.Packet) error {
 	var (
 		EntityID            pk.VarInt
 		EntityUUID          pk.UUID
@@ -64,7 +63,7 @@ func SpawnEntity(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&EntityID, &EntityUUID, &TypeID, &X, &Y, &Z, &Pitch, &Yaw, &HeadYaw, &Data, &vX, &vY, &vZ); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnEntity packet: %w", err)}
+		return fmt.Errorf("unable to read SpawnEntity packet: %w", err)
 	}
 
 	if err := c.World.AddEntity(core.NewEntity(
@@ -74,14 +73,14 @@ func SpawnEntity(c *Client, p pk.Packet) basic.Error {
 		float64(X), float64(Y), float64(Z),
 		float64(Pitch), float64(Yaw),
 	)); err != nil {
-		return basic.Error{Err: basic.InvalidEntity, Info: err}
+		return err
 	}
 
 	fmt.Println("SpawnEntity", EntityID, EntityUUID, TypeID, X, Y, Z, Pitch, Yaw, HeadYaw, Data, vX, vY, vZ)
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SpawnExperienceOrb(c *Client, p pk.Packet) basic.Error {
+func SpawnExperienceOrb(c *Client, p pk.Packet) error {
 	var (
 		entityID pk.VarInt
 		x, y, z  pk.Double
@@ -89,13 +88,13 @@ func SpawnExperienceOrb(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&entityID, &x, &y, &z, &count); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnExperienceOrb packet: %w", err)}
+		return fmt.Errorf("unable to read SpawnExperienceOrb packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SpawnPlayer(c *Client, p pk.Packet) basic.Error {
+func SpawnPlayer(c *Client, p pk.Packet) error {
 	var (
 		EntityID   pk.VarInt
 		PlayerUUID pk.UUID
@@ -104,7 +103,7 @@ func SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&EntityID, &PlayerUUID, &X, &Y, &Z, &Yaw, &Pitch); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnPlayer packet: %w", err)}
+		return fmt.Errorf("unable to read SpawnPlayer packet: %w", err)
 	}
 
 	if err := c.World.AddEntity(core.NewEntity(
@@ -114,27 +113,27 @@ func SpawnPlayer(c *Client, p pk.Packet) basic.Error {
 		float64(X), float64(Y), float64(Z),
 		float64(Pitch), float64(Yaw),
 	)); err != nil {
-		return basic.Error{Err: basic.InvalidEntity, Info: err}
+		return err
 	}
 
 	fmt.Println("SpawnPlayer", EntityID, PlayerUUID.String(), X, Y, Z, Yaw, Pitch)
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityAnimation(c *Client, p pk.Packet) basic.Error {
+func EntityAnimation(c *Client, p pk.Packet) error {
 	var (
 		entityID  pk.VarInt
 		animation pk.Byte
 	)
 
 	if err := p.Scan(&entityID, &animation); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Animation packet: %w", err)}
+		return fmt.Errorf("unable to read Animation packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func AwardStatistics(c *Client, p pk.Packet) basic.Error {
+func AwardStatistics(c *Client, p pk.Packet) error {
 	/*var count pk.VarInt
 	var statistics []struct {
 		Name  pk.String
@@ -146,10 +145,10 @@ func AwardStatistics(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("Statistics", count, statistics)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SetBlockDestroyStage(c *Client, p pk.Packet) basic.Error {
+func SetBlockDestroyStage(c *Client, p pk.Packet) error {
 	var (
 		entityID pk.VarInt
 		location pk.Position
@@ -157,13 +156,13 @@ func SetBlockDestroyStage(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&entityID, &location, &stage); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BlockBreakAnimation packet: %w", err)}
+		return fmt.Errorf("unable to read BlockBreakAnimation packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func BlockEntityData(c *Client, p pk.Packet) basic.Error {
+func BlockEntityData(c *Client, p pk.Packet) error {
 	/*var location pk.Position
 	var action pk.Byte
 	var nbtData pk
@@ -173,10 +172,10 @@ func BlockEntityData(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("UpdateBlockEntity", location, action, nbtData)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func BlockAction(c *Client, p pk.Packet) basic.Error {
+func BlockAction(c *Client, p pk.Packet) error {
 	var (
 		location    pk.Position
 		actionID    pk.Byte
@@ -185,31 +184,33 @@ func BlockAction(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&location, &actionID, &actionParam, &blockType); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BlockAction packet: %w", err)}
+		return fmt.Errorf("unable to read BlockAction packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func BlockChange(c *Client, p pk.Packet) basic.Error {
+func BlockChange(c *Client, p pk.Packet) error {
 	var (
 		location  pk.Position
 		blockType pk.VarInt
 	)
 
 	if err := p.Scan(&location, &blockType); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BlockChange packet: %w", err)}
+		return fmt.Errorf("unable to read BlockChange packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func BossBar(c *Client, p pk.Packet) basic.Error {
+func BossBar(c *Client, p pk.Packet) error {
 	var uuid pk.UUID
 	var action pk.Byte
 
-	if err := p.Scan(&uuid, &action); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
+	var err error
+
+	if err = p.Scan(&uuid, &action); err != nil {
+		return fmt.Errorf("unable to read BossBar packet: %w", err)
 	}
 
 	switch action {
@@ -222,62 +223,44 @@ func BossBar(c *Client, p pk.Packet) basic.Error {
 			flags     pk.Byte
 		)
 
-		if err := p.Scan(&title, &health, &color, &divisions, &flags); err != nil {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
+		if err = p.Scan(&title, &health, &color, &divisions, &flags); err != nil {
+			return fmt.Errorf("unable to read BossBar packet: %w", err)
 		}
 
 	case 1:
 		var health pk.Float
 
-		if err := p.Scan(&health); err != nil {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
-		}
-
+		err = p.Scan(&health)
 	case 2:
 		var title pk.String
 
-		if err := p.Scan(&title); err != nil {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
-		}
-
+		err = p.Scan(&title)
 	case 3:
 		var color pk.Byte
 
-		if err := p.Scan(&color); err != nil {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
-		}
-
+		err = p.Scan(&color)
 	case 4:
 		var division pk.Byte
 
-		if err := p.Scan(&division); err != nil {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
-		}
-
+		err = p.Scan(&division)
 	case 5:
 		var flags pk.Byte
 
-		if err := p.Scan(&flags); err != nil {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read BossBar packet: %w", err)}
-		}
+		err = p.Scan(&flags)
 	case 6:
 		//fmt.Println("BossBar", uuid, action)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func ServerDifficulty(c *Client, p pk.Packet) basic.Error {
+func ServerDifficulty(c *Client, p pk.Packet) (err error) {
 	var difficulty pk.Byte
 
-	if err := p.Scan(&difficulty); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ServerDifficulty packet: %w", err)}
-	}
-
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return p.Scan(&difficulty)
 }
 
-func TabComplete(c *Client, p pk.Packet) basic.Error {
+func TabComplete(c *Client, p pk.Packet) error {
 	/*var count pk.VarInt
 	var matches []pk.String
 
@@ -286,16 +269,14 @@ func TabComplete(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("TabComplete", count, matches)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func ChatMessage(c *Client, p pk.Packet) basic.Error {
-	var (
-		message chat.Message
-	)
+func ChatMessage(c *Client, p pk.Packet) error {
+	var message chat.Message
 
 	if err := p.Scan(&message); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChatMessage packet: %w", err)}
+		return fmt.Errorf("unable to read ChatMessage packet: %w", err)
 	}
 	/*
 		// Get 2 random items from the inventory
@@ -319,7 +300,7 @@ func ChatMessage(c *Client, p pk.Packet) basic.Error {
 		}
 
 		if item1 == nil || item2 == nil {
-			return basic.Error{Err: basic.NoError, Info: nil}
+			return nil
 		}
 		// Create a new inventory transaction
 		builder := transactions.TransactionBuilder{
@@ -331,10 +312,10 @@ func ChatMessage(c *Client, p pk.Packet) basic.Error {
 
 	fmt.Println("ChatMessage", message)
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func MultiBlockChange(c *Client, p pk.Packet) basic.Error {
+func MultiBlockChange(c *Client, p pk.Packet) error {
 	/*var chunkX pk.Int
 	var chunkZ pk.Int
 	var recordCount pk.VarInt
@@ -348,23 +329,24 @@ func MultiBlockChange(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("MultiBlockChange", chunkX, chunkZ, recordCount, records)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SetContainerContent(c *Client, p pk.Packet) basic.Error {
+func SetContainerContent(c *Client, p pk.Packet) error {
 	var (
 		ContainerID pk.UnsignedByte
 		StateID     pk.VarInt
 		SlotData    []Slot
 		CarriedItem Slot
 	)
+
 	if err := p.Scan(
 		&ContainerID,
 		&StateID,
 		pk.Array(&SlotData),
 		&CarriedItem,
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan SetContainerContent")}
+		return fmt.Errorf("failed to scan SetContainerContent: %w", err)
 	}
 
 	c.Player.Manager.StateID = int32(StateID)
@@ -379,30 +361,30 @@ func SetContainerContent(c *Client, p pk.Packet) basic.Error {
 	container.ApplyData(SlotData)
 
 	fmt.Println("SetContainerContent", ContainerID, StateID, SlotData, CarriedItem)
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func CloseContainer(c *Client, p pk.Packet) basic.Error {
+func CloseContainer(c *Client, p pk.Packet) error {
 	var windowID pk.Byte
 
 	if err := p.Scan(&windowID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseContainer packet: %w", err)}
+		return fmt.Errorf("unable to read CloseContainer packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func CloseWindow(c *Client, p pk.Packet) basic.Error {
+func CloseWindow(c *Client, p pk.Packet) error {
 	var windowID pk.Byte
 
 	if err := p.Scan(&windowID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CloseWindow packet: %w", err)}
+		return fmt.Errorf("unable to read CloseWindow packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SetContainerProperty(c *Client, p pk.Packet) basic.Error {
+func SetContainerProperty(c *Client, p pk.Packet) error {
 	var (
 		windowID pk.Byte
 		property pk.Short
@@ -410,21 +392,21 @@ func SetContainerProperty(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&windowID, &property, &value); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read WindowProperty packet: %w", err)}
+		return fmt.Errorf("unable to read WindowProperty packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SetContainerSlot(c *Client, p pk.Packet) (err basic.Error) {
+func SetContainerSlot(c *Client, p pk.Packet) (err error) {
 	var (
 		ContainerID pk.Byte
 		StateID     pk.VarInt
 		SlotID      pk.Short
 		SlotData    Slot
 	)
-	if err := p.Scan(&ContainerID, &StateID, &SlotID, &SlotData); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan SetSlot")}
+	if err = p.Scan(&ContainerID, &StateID, &SlotID, &SlotData); err != nil {
+		return fmt.Errorf("failed to scan SetSlot: %w", err)
 	}
 
 	c.Player.Manager.StateID = int32(StateID)
@@ -432,49 +414,45 @@ func SetContainerSlot(c *Client, p pk.Packet) (err basic.Error) {
 	case -1:
 		c.Player.Manager.Cursor = &SlotData
 	case -2:
-		if err := c.Player.Manager.Inventory.SetSlot(int(SlotID), SlotData); !err.Is(basic.NoError) {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", SlotID, err)}
-		}
+		err = c.Player.Manager.Inventory.SetSlot(int(SlotID), SlotData)
 	default:
 		if container, ok := c.Player.Manager.Screens[int(ContainerID)]; !ok {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to find container with id %d", ContainerID)}
+			return fmt.Errorf("failed to find container with id %d", ContainerID)
 		} else {
-			if err := container.SetSlot(int(SlotID), SlotData); !err.Is(basic.NoError) {
-				return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to set slot %d: %w", SlotID, err)}
-			}
+			err = container.SetSlot(int(SlotID), SlotData)
 		}
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return
 }
 
-func SetCooldown(c *Client, p pk.Packet) basic.Error {
+func SetCooldown(c *Client, p pk.Packet) error {
 	var (
 		itemID pk.VarInt
 		ticks  pk.VarInt
 	)
 
 	if err := p.Scan(&itemID, &ticks); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SetCooldown packet: %w", err)}
+		return fmt.Errorf("unable to read SetCooldown packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func PluginMessage(c *Client, p pk.Packet) basic.Error {
+func PluginMessage(c *Client, p pk.Packet) error {
 	var (
 		channel pk.String
 		data    pk.ByteArray
 	)
 
 	if err := p.Scan(&channel, &data); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PluginMessage packet: %w", err)}
+		return fmt.Errorf("unable to read PluginMessage packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func NamedSoundEffect(c *Client, p pk.Packet) basic.Error {
+func NamedSoundEffect(c *Client, p pk.Packet) error {
 	var (
 		soundName      pk.String
 		soundCategory  pk.Byte
@@ -484,34 +462,34 @@ func NamedSoundEffect(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&soundName, &soundCategory, &effectPosition, &volume, &pitch); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read NamedSoundEffect packet: %w", err)}
+		return fmt.Errorf("unable to read NamedSoundEffect packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Disconnect(c *Client, p pk.Packet) basic.Error {
+func Disconnect(c *Client, p pk.Packet) error {
 	var reason chat.Message
 	if err := p.Scan(&reason); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("failed to scan Disconnect: %w", err)}
+		return fmt.Errorf("failed to scan Disconnect: %w", err)
 	}
 
 	fmt.Println("Disconnect:", reason)
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityStatus(c *Client, p pk.Packet) basic.Error {
+func EntityStatus(c *Client, p pk.Packet) error {
 	var entityID pk.Int
 	var entityStatus pk.Byte
 
 	if err := p.Scan(&entityID, &entityStatus); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityStatus packet: %w", err)}
+		return fmt.Errorf("unable to read EntityStatus packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Explosion(c *Client, p pk.Packet) basic.Error {
+func Explosion(c *Client, p pk.Packet) error {
 	var (
 		x, y, z    pk.Float
 		radius     pk.Float
@@ -521,51 +499,51 @@ func Explosion(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&x, &y, &z, &radius, &records); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Explosion packet: %w", err)}
+		return fmt.Errorf("unable to read Explosion packet: %w", err)
 	}
 
 	data = make([][3]pk.VarInt, records)
 	for i := pk.VarInt(0); i < records; i++ {
 		if err := p.Scan(&data[i][0], &data[i][1], &data[i][2]); err != nil {
-			return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Explosion packet: %w", err)}
+			return fmt.Errorf("unable to read Explosion packet: %w", err)
 		}
 	}
 
 	if err := p.Scan(&mX, &mY, &mZ); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Explosion packet: %w", err)}
+		return fmt.Errorf("unable to read Explosion packet: %w", err)
 	}
 
 	fmt.Println("Explosion", x, y, z, radius, records, data, mX, mY, mZ)
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func UnloadChunk(c *Client, p pk.Packet) basic.Error {
+func UnloadChunk(c *Client, p pk.Packet) error {
 	var chunk level.ChunkPos
 
 	if err := p.Scan(&chunk); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UnloadChunk packet: %w", err)}
+		return fmt.Errorf("unable to read UnloadChunk packet: %w", err)
 	}
 
 	delete(c.World.Columns, chunk)
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func ChangeGameState(c *Client, p pk.Packet) basic.Error {
+func ChangeGameState(c *Client, p pk.Packet) error {
 	var reason pk.UnsignedByte
 	var value pk.Float
 
 	if err := p.Scan(&reason, &value); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChangeGameState packet: %w", err)}
+		return fmt.Errorf("unable to read ChangeGameState packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func KeepAlive(c *Client, p pk.Packet) basic.Error {
+func KeepAlive(c *Client, p pk.Packet) error {
 	var keepAliveID pk.Long
 
 	if err := p.Scan(&keepAliveID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read KeepAlive packet: %w", err)}
+		return fmt.Errorf("unable to read KeepAlive packet: %w", err)
 	}
 
 	if err := c.Conn.WritePacket(
@@ -573,20 +551,19 @@ func KeepAlive(c *Client, p pk.Packet) basic.Error {
 			packetid.SPacketKeepAlive,
 			keepAliveID,
 		),
-	); !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write KeepAlive packet: %w", err)}
+	); err != nil {
+		return fmt.Errorf("unable to write KeepAlive packet: %w", err)
 	}
 
-	fmt.Println("KeepAlive", keepAliveID)
-
+	// DEV
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	fmt.Println("Alloc = ", m.Alloc/1024/1024, "MiB", "\tTotalAlloc = ", m.TotalAlloc/1024/1024, "MiB", "\tSys = ", m.Sys/1024/1024, "MiB", "\tNumGC = ", m.NumGC)
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func ChunkData(c *Client, p pk.Packet) basic.Error {
+func ChunkData(c *Client, p pk.Packet) error {
 	var (
 		ChunkPos level.ChunkPos
 		Chunk    level.Chunk
@@ -595,28 +572,28 @@ func ChunkData(c *Client, p pk.Packet) basic.Error {
 	if err := p.Scan(
 		&ChunkPos, &Chunk,
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ChunkData packet: %w", err)}
+		return fmt.Errorf("unable to read ChunkData packet: %w", err)
 	}
 
 	c.World.Columns[ChunkPos] = &Chunk
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Effect(c *Client, p pk.Packet) basic.Error {
+func Effect(c *Client, p pk.Packet) error {
 	var effectID pk.Int
 	var location pk.Position
 	var data pk.Int
 	var disableRelativeVolume pk.Boolean
 
 	if err := p.Scan(&effectID, &location, &data, &disableRelativeVolume); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Effect packet: %w", err)}
+		return fmt.Errorf("unable to read Effect packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Particle(c *Client, p pk.Packet) basic.Error {
+func Particle(c *Client, p pk.Packet) error {
 	/*var particleID pk.String
 	var longDistance pk.Boolean
 	var x pk.Float
@@ -634,10 +611,10 @@ func Particle(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("Particle", particleID, longDistance, x, y, z, offsetX, offsetY, offsetZ, particleData, particleCount, data)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func JoinGame(c *Client, p pk.Packet) basic.Error {
+func JoinGame(c *Client, p pk.Packet) error {
 	if err := p.Scan(
 		(*pk.Int)(&c.Player.ID),
 		(*pk.Boolean)(&c.Player.Hardcore),
@@ -660,14 +637,14 @@ func JoinGame(c *Client, p pk.Packet) basic.Error {
 			Value: (*pk.Position)(&c.Player.WorldInfo.DeathPosition),
 		},
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read JoinGame packet: %w", err)}
+		return fmt.Errorf("unable to read JoinGame packet: %w", err)
 	}
 	if err := c.Conn.WritePacket(pk.Marshal( //PluginMessage packet
 		packetid.SPacketPluginMessage,
 		pk.Identifier("minecraft:brand"),
 		pk.String(c.Player.Settings.Brand),
-	)); !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write PluginMessage packet: %w", err)}
+	)); err != nil {
+		return fmt.Errorf("unable to write PluginMessage packet: %w", err)
 	}
 
 	if err := c.Conn.WritePacket(pk.Marshal(
@@ -680,41 +657,41 @@ func JoinGame(c *Client, p pk.Packet) basic.Error {
 		pk.VarInt(c.Player.Settings.MainHand),
 		pk.Boolean(c.Player.Settings.EnableTextFiltering),
 		pk.Boolean(c.Player.Settings.AllowListing),
-	)); !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write ClientSettings packet: %w", err)}
+	)); err != nil {
+		return fmt.Errorf("unable to write ClientSettings packet: %w", err)
 	}
 
 	c.Player.EntityPlayer = core.NewEntityPlayer(c.Player.GetID(), c.Player.GetUUID(), 116, 0, 0, 0, 0, 0)
 
 	// Add the player to the world
 	if err := c.World.AddEntity(c.Player.EntityPlayer); err != nil {
-		return basic.Error{Err: basic.InvalidEntity, Info: fmt.Errorf("unable to add player to the world: %w", err)}
+		return fmt.Errorf("unable to add player to the world: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Map(c *Client, p pk.Packet) basic.Error {
+func Map(c *Client, p pk.Packet) error {
 	var Map world.Map
 
 	if err := p.Scan(&Map); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Map packet: %w", err)}
+		return fmt.Errorf("unable to read Map packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Entity(c *Client, p pk.Packet) basic.Error {
+func Entity(c *Client, p pk.Packet) error {
 	var entityID pk.Int
 
 	if err := p.Scan(&entityID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Entity packet: %w", err)}
+		return fmt.Errorf("unable to read Entity packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityPosition(c *Client, p pk.Packet) basic.Error {
+func EntityPosition(c *Client, p pk.Packet) error {
 	var (
 		EntityID               pk.VarInt
 		DeltaX, DeltaY, DeltaZ pk.Short
@@ -722,7 +699,7 @@ func EntityPosition(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&EntityID, &DeltaX, &DeltaY, &DeltaZ, &OnGround); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityPosition packet: %w", err)}
+		return fmt.Errorf("unable to read EntityPosition packet: %w", err)
 	}
 
 	if _, entity, err := c.World.GetEntityByID(int32(EntityID)); err == nil {
@@ -731,10 +708,10 @@ func EntityPosition(c *Client, p pk.Packet) basic.Error {
 		}
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityPositionRotation(c *Client, p pk.Packet) basic.Error {
+func EntityPositionRotation(c *Client, p pk.Packet) error {
 	var (
 		EntityID               pk.VarInt
 		DeltaX, DeltaY, DeltaZ pk.Short
@@ -743,26 +720,26 @@ func EntityPositionRotation(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&EntityID, &DeltaX, &DeltaY, &DeltaZ, &Yaw, &Pitch, &OnGround); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityPositionRotation packet: %w", err)}
+		return fmt.Errorf("unable to read EntityPositionRotation packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityHeadRotation(c *Client, p pk.Packet) basic.Error {
+func EntityHeadRotation(c *Client, p pk.Packet) error {
 	var (
 		EntityID pk.VarInt
 		HeadYaw  pk.Angle
 	)
 
 	if err := p.Scan(&EntityID, &HeadYaw); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityHeadRotation packet: %w", err)}
+		return fmt.Errorf("unable to read EntityHeadRotation packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityRotation(c *Client, p pk.Packet) basic.Error {
+func EntityRotation(c *Client, p pk.Packet) error {
 	var (
 		EntityID   pk.VarInt
 		Yaw, Pitch pk.Angle
@@ -770,73 +747,73 @@ func EntityRotation(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&EntityID, &Yaw, &Pitch, &OnGround); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityRotation packet: %w", err)}
+		return fmt.Errorf("unable to read EntityRotation packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func VehicleMove(c *Client, p pk.Packet) basic.Error {
+func VehicleMove(c *Client, p pk.Packet) error {
 	var (
 		X, Y, Z    pk.Double
 		Yaw, Pitch pk.Float
 	)
 
 	if err := p.Scan(&X, &Y, &Z, &Yaw, &Pitch); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read VehicleMove packet: %w", err)}
+		return fmt.Errorf("unable to read VehicleMove packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func OpenSignEditor(c *Client, p pk.Packet) basic.Error {
+func OpenSignEditor(c *Client, p pk.Packet) error {
 	var location pk.Position
 
 	if err := p.Scan(&location); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read OpenSignEditor packet: %w", err)}
+		return fmt.Errorf("unable to read OpenSignEditor packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func CraftRecipeResponse(c *Client, p pk.Packet) basic.Error {
+func CraftRecipeResponse(c *Client, p pk.Packet) error {
 	var windowID pk.UnsignedByte
 	var recipe pk.String
 
 	if err := p.Scan(&windowID, &recipe); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CraftRecipeResponse packet: %w", err)}
+		return fmt.Errorf("unable to read CraftRecipeResponse packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func PlayerAbilities(c *Client, p pk.Packet) basic.Error {
+func PlayerAbilities(c *Client, p pk.Packet) error {
 	var flags pk.UnsignedByte
 	var flyingSpeed pk.Float
 	var fov pk.Float
 
 	if err := p.Scan(&flags, &flyingSpeed, &fov); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PlayerAbilities packet: %w", err)}
+		return fmt.Errorf("unable to read PlayerAbilities packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func CombatEvent(c *Client, p pk.Packet) basic.Error {
+func CombatEvent(c *Client, p pk.Packet) error {
 	var event pk.Byte
 	var duration pk.Int
 	var entityID pk.Int
 	var message pk.String
 
 	if err := p.Scan(&event, &duration, &entityID, &message); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CombatEvent packet: %w", err)}
+		return fmt.Errorf("unable to read CombatEvent packet: %w", err)
 	}
 
 	fmt.Println("CombatEvent", event, duration, entityID, message)
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func PlayerInfo(c *Client, p pk.Packet) basic.Error {
+func PlayerInfo(c *Client, p pk.Packet) error {
 	/*var action pk.Byte
 	var players []struct {
 		UUID       pk.UUID
@@ -856,10 +833,10 @@ func PlayerInfo(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("PlayerInfo", action, players)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SyncPlayerPosition(c *Client, p pk.Packet) basic.Error {
+func SyncPlayerPosition(c *Client, p pk.Packet) error {
 	var (
 		X, Y, Z    pk.Double
 		Yaw, Pitch pk.Float
@@ -869,7 +846,7 @@ func SyncPlayerPosition(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&X, &Y, &Z, &Yaw, &Pitch, &Flags, &TeleportID, &Dismount); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SyncPlayerPosition packet: %w", err)}
+		return fmt.Errorf("unable to read SyncPlayerPosition packet: %w", err)
 	}
 
 	position := maths.Vec3d[float64]{X: float64(X), Y: float64(Y), Z: float64(Z)}
@@ -891,15 +868,15 @@ func SyncPlayerPosition(c *Client, p pk.Packet) basic.Error {
 				packetid.SPacketTeleportConfirm,
 				TeleportID,
 			),
-		); !err.Is(basic.NoError) {
-			return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("unable to write TeleportConfirm packet: %w", err)}
+		); err != nil {
+			return fmt.Errorf("unable to write TeleportConfirm packet: %w", err)
 		}
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func PlayerPositionAndLook(c *Client, p pk.Packet) basic.Error {
+func PlayerPositionAndLook(c *Client, p pk.Packet) error {
 	var (
 		x          pk.Double
 		y          pk.Double
@@ -911,24 +888,24 @@ func PlayerPositionAndLook(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&x, &y, &z, &yaw, &pitch, &flags, &teleportID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PlayerPositionAndLook packet: %w", err)}
+		return fmt.Errorf("unable to read PlayerPositionAndLook packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func UseBed(c *Client, p pk.Packet) basic.Error {
+func UseBed(c *Client, p pk.Packet) error {
 	var entityID pk.Int
 	var location pk.Position
 
 	if err := p.Scan(&entityID, &location); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UseBed packet: %w", err)}
+		return fmt.Errorf("unable to read UseBed packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func UnlockRecipes(c *Client, p pk.Packet) basic.Error {
+func UnlockRecipes(c *Client, p pk.Packet) error {
 	/*var action pk.Byte
 	var craftingBookOpen pk.Boolean
 	var filter pk.Boolean
@@ -939,10 +916,10 @@ func UnlockRecipes(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("UnlockRecipes", action, craftingBookOpen, filter, recipes)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func DestroyEntities(c *Client, p pk.Packet) basic.Error {
+func DestroyEntities(c *Client, p pk.Packet) error {
 	/*var entityIDs []pk.Int
 
 	if err := p.Scan(&entityIDs); err != nil {
@@ -950,34 +927,34 @@ func DestroyEntities(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("DestroyEntities", entityIDs)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func RemoveEntityEffect(c *Client, p pk.Packet) basic.Error {
+func RemoveEntityEffect(c *Client, p pk.Packet) error {
 	var entityID pk.Int
 	var effectID pk.Byte
 
 	if err := p.Scan(&entityID, &effectID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read RemoveEntityEffect packet: %w", err)}
+		return fmt.Errorf("unable to read RemoveEntityEffect packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func ResourcePackSend(c *Client, p pk.Packet) basic.Error {
+func ResourcePackSend(c *Client, p pk.Packet) error {
 	var (
 		url  pk.String
 		hash pk.String
 	)
 
 	if err := p.Scan(&url, &hash); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ResourcePackSend packet: %w", err)}
+		return fmt.Errorf("unable to read ResourcePackSend packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Respawn(c *Client, p pk.Packet) basic.Error {
+func Respawn(c *Client, p pk.Packet) error {
 	var copyMeta bool
 	if err := p.Scan(
 		(*pk.String)(&c.Player.DimensionType),
@@ -989,24 +966,24 @@ func Respawn(c *Client, p pk.Packet) basic.Error {
 		(*pk.Boolean)(&c.Player.IsFlat),
 		(*pk.Boolean)(&copyMeta),
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Respawn packet: %w", err)}
+		return fmt.Errorf("unable to read Respawn packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SelectAdvancementTab(c *Client, p pk.Packet) basic.Error {
+func SelectAdvancementTab(c *Client, p pk.Packet) error {
 	var hasID pk.Boolean
 	var identifier pk.String
 
 	if err := p.Scan(&hasID, &identifier); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SelectAdvancementTab packet: %w", err)}
+		return fmt.Errorf("unable to read SelectAdvancementTab packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func WorldBorder(c *Client, p pk.Packet) basic.Error {
+func WorldBorder(c *Client, p pk.Packet) error {
 	var (
 		action         pk.Byte
 		radius         pk.Double
@@ -1020,46 +997,46 @@ func WorldBorder(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&action, &radius, &oldRadius, &speed, &x, &z, &portalBoundary, &warningTime, &warningBlocks); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read WorldBorder packet: %w", err)}
+		return fmt.Errorf("unable to read WorldBorder packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Camera(c *Client, p pk.Packet) basic.Error {
+func Camera(c *Client, p pk.Packet) error {
 	var cameraID pk.Int
 
 	if err := p.Scan(&cameraID); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Camera packet: %w", err)}
+		return fmt.Errorf("unable to read Camera packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SetHeldItem(c *Client, p pk.Packet) basic.Error {
+func SetHeldItem(c *Client, p pk.Packet) error {
 	var slot pk.Short
 
 	if err := p.Scan(&slot); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SetHeldItem packet: %w", err)}
+		return fmt.Errorf("unable to read SetHeldItem packet: %w", err)
 	}
 
 	c.Player.Manager.HeldItem = c.Player.Manager.Inventory.GetHotbarSlot(int(slot))
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func DisplayScoreboard(c *Client, p pk.Packet) basic.Error {
+func DisplayScoreboard(c *Client, p pk.Packet) error {
 	var position pk.Byte
 	var name pk.String
 
 	if err := p.Scan(&position, &name); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read DisplayScoreboard packet: %w", err)}
+		return fmt.Errorf("unable to read DisplayScoreboard packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityMetadata(c *Client, p pk.Packet) basic.Error {
+func EntityMetadata(c *Client, p pk.Packet) error {
 	var (
 		err      error
 		EntityID pk.VarInt
@@ -1080,7 +1057,7 @@ func EntityMetadata(c *Client, p pk.Packet) basic.Error {
 			Value: &Metadata.Type,
 		},
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityMetadata packet: %w", err)}
+		return fmt.Errorf("unable to read EntityMetadata packet: %w", err)
 	}
 	switch Metadata.Type {
 	case 0:
@@ -1181,13 +1158,13 @@ func EntityMetadata(c *Client, p pk.Packet) basic.Error {
 	}
 
 	if err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityMetadata packet: %w", err)}
+		return fmt.Errorf("unable to read EntityMetadata packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func AttachEntity(c *Client, p pk.Packet) basic.Error {
+func AttachEntity(c *Client, p pk.Packet) error {
 	var (
 		entityID  pk.Int
 		vehicleID pk.Int
@@ -1195,20 +1172,20 @@ func AttachEntity(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&entityID, &vehicleID, &leash); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read AttachEntity packet: %w", err)}
+		return fmt.Errorf("unable to read AttachEntity packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityVelocity(c *Client, p pk.Packet) basic.Error {
+func EntityVelocity(c *Client, p pk.Packet) error {
 	var (
 		entityID                        pk.VarInt
 		velocityX, velocityY, velocityZ pk.Short
 	)
 
 	if err := p.Scan(&entityID, &velocityX, &velocityY, &velocityZ); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityVelocity packet: %w", err)}
+		return fmt.Errorf("unable to read EntityVelocity packet: %w", err)
 	}
 
 	if _, e, err := c.World.GetEntityByID(int32(entityID)); err == nil {
@@ -1221,13 +1198,13 @@ func EntityVelocity(c *Client, p pk.Packet) basic.Error {
 			e.(*core.EntityPlayer).SetMotion(maths.Vec3d[float64]{X: float64(velocityX) / 8000, Y: float64(velocityY) / 8000, Z: float64(velocityZ) / 8000}.Spread())
 		}
 	} else {
-		return basic.Error{Err: basic.NoError, Info: nil}
+		return nil
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityEquipment(c *Client, p pk.Packet) basic.Error {
+func EntityEquipment(c *Client, p pk.Packet) error {
 	/*var entityID pk.Int
 	var slot pk.Short
 	var item pk.Slot
@@ -1237,10 +1214,10 @@ func EntityEquipment(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("EntityEquipment", entityID, slot, item)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SetExperience(c *Client, p pk.Packet) basic.Error {
+func SetExperience(c *Client, p pk.Packet) error {
 	var (
 		experienceBar   pk.Float
 		levelInt        pk.VarInt
@@ -1248,14 +1225,14 @@ func SetExperience(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&experienceBar, &levelInt, &totalExperience); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SetExperience packet: %w", err)}
+		return fmt.Errorf("unable to read SetExperience packet: %w", err)
 	}
 
 	c.Player.SetExp(float32(experienceBar), int32(levelInt), int32(totalExperience))
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func UpdateHealth(c *Client, p pk.Packet) basic.Error {
+func UpdateHealth(c *Client, p pk.Packet) error {
 	var (
 		health         pk.Float
 		food           pk.VarInt
@@ -1263,18 +1240,18 @@ func UpdateHealth(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&health, &food, &foodSaturation); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UpdateHealth packet: %w", err)}
+		return fmt.Errorf("unable to read UpdateHealth packet: %w", err)
 	}
 
 	if respawn := c.Player.SetHealth(float32(health)); respawn {
 		if err := c.Player.Respawn(c); err != nil {
-			return basic.Error{Err: basic.NoError, Info: err}
+			return nil
 		}
 	}
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func ScoreboardObjective(c *Client, p pk.Packet) basic.Error {
+func ScoreboardObjective(c *Client, p pk.Packet) error {
 	var (
 		name           pk.String
 		mode           pk.Byte
@@ -1284,13 +1261,13 @@ func ScoreboardObjective(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&name, &mode, &objectiveName, &objectiveValue, &type_); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read ScoreboardObjective packet: %w", err)}
+		return fmt.Errorf("unable to read ScoreboardObjective packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SetPassengers(c *Client, p pk.Packet) basic.Error {
+func SetPassengers(c *Client, p pk.Packet) error {
 	/*var entityID pk.Int
 	var passengerCount pk.VarInt
 	var passengers pk.Ary[]pk.VarInt
@@ -1299,10 +1276,10 @@ func SetPassengers(c *Client, p pk.Packet) basic.Error {
 		return err
 	}*/
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Teams(c *Client, p pk.Packet) basic.Error {
+func Teams(c *Client, p pk.Packet) error {
 	/*var name pk.String
 	var mode pk.Byte
 	var teamName pk.String
@@ -1320,33 +1297,33 @@ func Teams(c *Client, p pk.Packet) basic.Error {
 		return err
 	}*/
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func UpdateScore(c *Client, p pk.Packet) basic.Error {
+func UpdateScore(c *Client, p pk.Packet) error {
 	var name pk.String
 	var action pk.Byte
 	var objectiveName pk.String
 	var value pk.VarInt
 
 	if err := p.Scan(&name, &action, &objectiveName, &value); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read UpdateScore packet: %w", err)}
+		return fmt.Errorf("unable to read UpdateScore packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SpawnPosition(c *Client, p pk.Packet) basic.Error {
+func SpawnPosition(c *Client, p pk.Packet) error {
 	var location pk.Position
 
 	if err := p.Scan(&location); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SpawnPosition packet: %w", err)}
+		return fmt.Errorf("unable to read SpawnPosition packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func TimeUpdate(c *Client, p pk.Packet) basic.Error {
+func TimeUpdate(c *Client, p pk.Packet) error {
 	var (
 		WorldAge  pk.Long
 		TimeOfDay pk.Long
@@ -1355,12 +1332,12 @@ func TimeUpdate(c *Client, p pk.Packet) basic.Error {
 	c.TPS.Update()
 
 	if err := p.Scan(&WorldAge, &TimeOfDay); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read TimeUpdate packet: %w", err)}
+		return fmt.Errorf("unable to read TimeUpdate packet: %w", err)
 	}
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Title(c *Client, p pk.Packet) basic.Error {
+func Title(c *Client, p pk.Packet) error {
 	var (
 		action    pk.Byte
 		fadeIn    pk.Int
@@ -1372,13 +1349,13 @@ func Title(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&action, &fadeIn, &stay, &fadeOut, &title, &subtitle, &actionBar); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Title packet: %w", err)}
+		return fmt.Errorf("unable to read Title packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func SoundEffect(c *Client, p pk.Packet) basic.Error {
+func SoundEffect(c *Client, p pk.Packet) error {
 	var (
 		soundID        pk.VarInt
 		soundCategory  pk.VarInt
@@ -1388,26 +1365,26 @@ func SoundEffect(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&soundID, &soundCategory, &effectPosition, &volume, &pitch); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read SoundEffect packet: %w", err)}
+		return fmt.Errorf("unable to read SoundEffect packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func PlayerListHeaderAndFooter(c *Client, p pk.Packet) basic.Error {
+func PlayerListHeaderAndFooter(c *Client, p pk.Packet) error {
 	var (
 		header pk.String
 		footer pk.String
 	)
 
 	if err := p.Scan(&header, &footer); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read PlayerListHeaderAndFooter packet: %w", err)}
+		return fmt.Errorf("unable to read PlayerListHeaderAndFooter packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func CollectItem(c *Client, p pk.Packet) basic.Error {
+func CollectItem(c *Client, p pk.Packet) error {
 	var (
 		collectedEntityID pk.Int
 		collectorEntityID pk.Int
@@ -1415,13 +1392,13 @@ func CollectItem(c *Client, p pk.Packet) basic.Error {
 	)
 
 	if err := p.Scan(&collectedEntityID, &collectorEntityID, &pickupCount); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read CollectItem packet: %w", err)}
+		return fmt.Errorf("unable to read CollectItem packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityTeleport(c *Client, p pk.Packet) basic.Error {
+func EntityTeleport(c *Client, p pk.Packet) error {
 	var entityID pk.VarInt
 	var x pk.Double
 	var y pk.Double
@@ -1431,24 +1408,24 @@ func EntityTeleport(c *Client, p pk.Packet) basic.Error {
 	var onGround pk.Boolean
 
 	if err := p.Scan(&entityID, &x, &y, &z, &yaw, &pitch, &onGround); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityTeleport packet: %w", err)}
+		return fmt.Errorf("unable to read EntityTeleport packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func Advancements(c *Client, p pk.Packet) basic.Error {
+func Advancements(c *Client, p pk.Packet) error {
 	var action pk.Byte
 	var data pk.String
 
 	if err := p.Scan(&action, &data); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read Advancements packet: %w", err)}
+		return fmt.Errorf("unable to read Advancements packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityProperties(c *Client, p pk.Packet) basic.Error {
+func EntityProperties(c *Client, p pk.Packet) error {
 	/*var entityID pk.Int
 	var count pk.VarInt
 	var properties pk.Ary[]pk.String
@@ -1458,10 +1435,10 @@ func EntityProperties(c *Client, p pk.Packet) basic.Error {
 	}
 
 	fmt.Println("EntityProperties", entityID, count, properties)*/
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func EntityEffect(c *Client, p pk.Packet) basic.Error {
+func EntityEffect(c *Client, p pk.Packet) error {
 	var (
 		entityID   pk.VarInt
 		effectID   pk.VarInt
@@ -1493,7 +1470,7 @@ func EntityEffect(c *Client, p pk.Packet) basic.Error {
 			},
 		},
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read EntityEffect packet: %w", err)}
+		return fmt.Errorf("unable to read EntityEffect packet: %w", err)
 	}
 
 	if _, ok := effects.ByID[int32(effectID)]; ok {
@@ -1506,10 +1483,10 @@ func EntityEffect(c *Client, p pk.Packet) basic.Error {
 		}
 		c.Player.ActivePotionEffects[effectStatus.ID] = effectStatus
 	}
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }
 
-func LookAt(client *Client, packet pk.Packet) basic.Error {
+func LookAt(client *Client, packet pk.Packet) error {
 	var (
 		targetEnum   pk.VarInt
 		X, Y, Z      pk.Double
@@ -1531,8 +1508,8 @@ func LookAt(client *Client, packet pk.Packet) basic.Error {
 			},
 		},
 	); err != nil {
-		return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("unable to read LookAt packet: %w", err)}
+		return fmt.Errorf("unable to read LookAt packet: %w", err)
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }

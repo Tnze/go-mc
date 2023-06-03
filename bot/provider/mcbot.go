@@ -1,4 +1,4 @@
-// Package bot implements a simple Minecraft client that can join a server
+// Package provider bot implements a simple Minecraft client that can join a server
 // or just ping it for getting information.
 //
 // Runnable example could be found at examples/ .
@@ -15,7 +15,6 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
@@ -28,7 +27,7 @@ const DefaultPort = mcnet.DefaultPort
 
 // JoinServer connect a Minecraft server for playing the game.
 // Using roughly the same way to parse address as minecraft.
-func (c *Client) JoinServer(addr string) (err basic.Error) {
+func (c *Client) JoinServer(addr string) (err error) {
 	return c.join(context.Background(), &mcnet.DefaultDialer, addr)
 }
 
@@ -38,7 +37,7 @@ func (c *Client) JoinServerWithDialer(d *net.Dialer, addr string) (err error) {
 	return c.join(context.Background(), dialer, addr)
 }
 
-func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.Error {
+func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) error {
 	const Handshake = 0x00
 	// Split Host and Port
 	host, portStr, err := net.SplitHostPort(addr)
@@ -56,13 +55,13 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 	} else {
 		port, err = strconv.ParseInt(portStr, 0, 16)
 		if err != nil {
-			return basic.Error{Err: basic.DialError, Info: fmt.Errorf("parse port: %w", err)}
+			return fmt.Errorf("parse port: %w", err)
 		}
 	}
 
 	// Dial connection
 	if c.Conn, err = d.DialMCContext(ctx, addr); err != nil {
-		return basic.Error{Err: basic.DialError, Info: fmt.Errorf("dial connection: %w", err)}
+		return fmt.Errorf("dial connection: %w", err)
 	}
 
 	// Handshake
@@ -72,8 +71,8 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 		pk.String(host),
 		pk.UnsignedShort(port),
 		pk.VarInt(2),
-	)); !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("handshake: %w", err)}
+	)); err != nil {
+		return fmt.Errorf("handshake: %w", err)
 	}
 	// Login Start
 	if err := c.Conn.WritePacket(pk.Marshal(
@@ -87,8 +86,8 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 			},
 			Else: pk.Boolean(false),
 		},
-	)); !err.Is(basic.NoError) {
-		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("login start: %w", err)}
+	)); err != nil {
+		return fmt.Errorf("login start: %w", err)
 	}
 	for {
 		//Receive Packet
@@ -100,13 +99,13 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 		case packetid.CPacketLoginDisconnect:
 			var reason chat.Message
 			if err := p.Scan(&reason); err != nil {
-				return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("login disconnect: %w", err)}
+				return fmt.Errorf("login disconnect: %w", err)
 			}
-			return basic.Error{Err: basic.NoError, Info: fmt.Errorf("login disconnect: %s", reason)}
+			return fmt.Errorf("login disconnect: %s", reason)
 
 		case packetid.CPacketEncryptionRequest:
 			if err := handleEncryptionRequest(c, p); err != nil {
-				return basic.Error{Err: basic.DialError, Info: fmt.Errorf("encryption request: %w", err)}
+				return fmt.Errorf("encryption request: %w", err)
 			}
 
 		case packetid.CPacketLoginSuccess:
@@ -114,14 +113,12 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 				(*pk.UUID)(&c.Player.UUID),
 				(*pk.String)(&c.Player.DisplayName),
 			); err != nil {
-				return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("login success: %w", err)}
-			} else {
-				return basic.Error{Err: basic.NoError, Info: nil}
+				return fmt.Errorf("login success: %w", err)
 			}
 		case packetid.CPacketSetCompression:
 			var threshold pk.VarInt
 			if err := p.Scan(&threshold); err != nil {
-				return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("set compression: %w", err)}
+				return fmt.Errorf("set compression: %w", err)
 			}
 			c.Conn.SetThreshold(int(threshold))
 
@@ -132,14 +129,14 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 				data    pk.PluginMessageData
 			)
 			if err := p.Scan(&msgid, &channel, &data); err != nil {
-				return basic.Error{Err: basic.ReaderError, Info: fmt.Errorf("plugin message: %w", err)}
+				return fmt.Errorf("plugin message: %w", err)
 			}
 
 			handler, ok := c.LoginPlugin[string(channel)]
 			if ok {
 				data, err = handler(data)
 				if err != nil {
-					return basic.Error{Err: basic.DialError, Info: fmt.Errorf("plugin message: %w", err)}
+					return fmt.Errorf("plugin message: %w", err)
 				}
 			}
 
@@ -147,8 +144,8 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 				packetid.CPacketPluginMessage,
 				msgid, pk.Boolean(ok),
 				pk.Opt{If: ok, Value: data},
-			)); !err.Is(basic.NoError) {
-				return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("plugin message: %w", err)}
+			)); err != nil {
+				return fmt.Errorf("plugin message: %w", err)
 			}
 		}
 	}
@@ -170,23 +167,4 @@ func (k keyPair) WriteTo(w io.Writer) (int64, error) {
 		pk.ByteArray(block.Bytes),
 		pk.ByteArray(signature),
 	}.WriteTo(w)
-}
-
-type LoginErr struct {
-	Stage string
-	Err   error
-}
-
-func (l LoginErr) Error() string {
-	return "bot: " + l.Stage + " error: " + l.Err.Error()
-}
-
-func (l LoginErr) Unwrap() error {
-	return l.Err
-}
-
-type DisconnectErr chat.Message
-
-func (d DisconnectErr) Error() string {
-	return "disconnect because: " + chat.Message(d).String()
 }

@@ -2,54 +2,56 @@ package provider
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/bot/basic"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 // HandleGame receive server packet and response them correctly.
 // Note that HandleGame will block if you don't receive from Events.
-func (c *Client) HandleGame() basic.Error {
+func (c *Client) HandleGame() error {
 	var p pk.Packet
 	for {
 		//Read packets
-		if err := c.Conn.ReadPacket(&p); !err.Is(basic.NoError) {
+		if err := c.Conn.ReadPacket(&p); err != nil {
 			fmt.Printf("read packet error %x: %v", p.ID, err)
 			return err
 		}
 
 		//handle packets
-		if err := c.handlePacket(p); !err.Is(basic.NoError) {
-			fmt.Println("handle packet error:", err.Err)
+		if err := c.handlePacket(p); err != nil {
+			fmt.Println("handle packet error:", err)
 			return err
 		}
 	}
 }
 
-func (c *Client) handlePacket(p pk.Packet) (err basic.Error) {
+func (c *Client) handlePacket(p pk.Packet) (err error) {
 	if c.Events.generic != nil {
 		for _, handler := range *c.Events.generic {
-			if err := handler.F(c, p); !err.Is(basic.NoError) {
-				return err
+			err = handler.F(c, p)
+			if err != nil {
+				return
 			}
 		}
 	}
 	if listeners := c.Events.handlers[p.ID]; listeners != nil {
 		for _, handler := range *listeners {
-			if err := handler.F(c, p); !err.Is(basic.NoError) {
-				return err
+			err = handler.F(c, p)
+			if err != nil {
+				return
 			}
 		}
 	}
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return
 }
 
-func (c *Client) handleTickers() basic.Error {
+func (c *Client) handleTickers() (err error) {
 	if c.Events.tickers != nil {
 		for _, handler := range *c.Events.tickers {
-			if err := handler.F(c); !err.Is(basic.NoError) {
-				return err
+			err = handler.F(c)
+			if err != nil {
+				return
 			}
 		}
 	}
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return
 }

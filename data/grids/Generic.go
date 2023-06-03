@@ -2,7 +2,6 @@ package grids
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/slots"
 )
 
@@ -30,7 +29,7 @@ func (g *Generic) ApplyData(data []slots.Slot) {
 	}
 }
 
-func (g *Generic) OnClose() basic.Error { return basic.Error{Err: basic.NoError, Info: nil} }
+func (g *Generic) OnClose() error { return nil }
 
 func (g *Generic) GetSlot(i int) *slots.Slot {
 	if i < 0 || i >= len(g.Inventory.Slots) {
@@ -44,7 +43,7 @@ func (g *Generic) GetSlot(i int) *slots.Slot {
 	}
 }
 
-func (g *Generic) SetSlot(i int, s slots.Slot) basic.Error {
+func (g *Generic) SetSlot(i int, s slots.Slot) error {
 	if i < g.Size {
 		g.Data[i] = s
 	} else {
@@ -52,5 +51,5 @@ func (g *Generic) SetSlot(i int, s slots.Slot) basic.Error {
 		g.Inventory.Slots[g.Size:][i] = s
 	}
 
-	return basic.Error{Err: basic.NoError, Info: nil}
+	return nil
 }

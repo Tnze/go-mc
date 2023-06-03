@@ -10,7 +10,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -41,7 +40,7 @@ type Status struct {
 func PingAndList(addr string) ([]byte, time.Duration, error) {
 	conn, err := mcnet.DialMC(addr)
 	if err != nil {
-		return nil, 0, LoginErr{"dial connection", err}
+		return nil, 0, fmt.Errorf("dial: %w", err)
 	}
 	return pingAndList(context.Background(), addr, conn)
 }
@@ -108,21 +107,21 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 		pk.String(host),            //Server's address
 		pk.UnsignedShort(port),
 		pk.Byte(1),
-	)); !err.Is(basic.NoError) {
-		return nil, 0, LoginErr{"send handshake packet", err}
+	)); err != nil {
+		return nil, 0, fmt.Errorf("bot: send handshake packet fail: %v", err)
 	}
 
 	//LIST
 	//请求服务器状态
 	if err := conn.WritePacket(pk.Marshal(
 		packetid.CPacketEncryptionRequest,
-	)); !err.Is(basic.NoError) {
+	)); err != nil {
 		return nil, 0, fmt.Errorf("bot: send list packet fail: %v", err)
 	}
 
 	var p pk.Packet
 	//服务器返回状态
-	if err := conn.ReadPacket(&p); !err.Is(basic.NoError) {
+	if err := conn.ReadPacket(&p); err != nil {
 		return nil, 0, fmt.Errorf("bot: recv list packect fail: %v", err)
 	}
 	var s pk.String
@@ -136,11 +135,11 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 	if err := conn.WritePacket(pk.Marshal(
 		packetid.CPacketStatusPing,
 		pk.Long(startTime.Unix()),
-	)); !err.Is(basic.NoError) {
+	)); err != nil {
 		return nil, 0, fmt.Errorf("bot: send ping packet fail: %v", err)
 	}
 
-	if err := conn.ReadPacket(&p); !err.Is(basic.NoError) {
+	if err := conn.ReadPacket(&p); err != nil {
 		return nil, 0, fmt.Errorf("bot: recv pong packet fail: %v", err)
 	}
 	var t pk.Long

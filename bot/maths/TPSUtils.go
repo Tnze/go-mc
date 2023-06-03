@@ -2,7 +2,6 @@ package maths
 
 import (
 	"fmt"
-	"github.com/Tnze/go-mc/bot/basic"
 	"time"
 )
 
@@ -14,10 +13,10 @@ type TpsCalculator struct {
 	// TimeLastUpdate is the time of the last update.
 	TimeLastUpdate time.Time
 	// This is the callback for the tick event. Channels are too slow to use unfortunately
-	callback func() basic.Error
+	callback func() error
 }
 
-func (t *TpsCalculator) SetCallback(callback func() basic.Error) {
+func (t *TpsCalculator) SetCallback(callback func() error) {
 	t.callback = callback
 }
 
@@ -29,7 +28,7 @@ func (t *TpsCalculator) Start() {
 		for {
 			time.Sleep(time.Duration(50/t.TickAverage()) * time.Millisecond) // Synchronise with the server's TPS
 			if t.callback != nil {
-				if err := t.callback(); !err.Is(basic.NoError) {
+				if err := t.callback(); err != nil {
 					fmt.Println("Error in TPS callback:", err)
 				}
 			}
