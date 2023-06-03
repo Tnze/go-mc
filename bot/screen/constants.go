@@ -1,7 +1,15 @@
 package screen
 
-type Mode int32
-type Button int32
+type Mode int
+type Button int
+
+func (m Mode) Int() int {
+	return int(m)
+}
+
+func (b Button) Int() int {
+	return int(b)
+}
 
 // Mode 0
 const (
@@ -28,7 +36,7 @@ const (
 	KeySeven
 	KeyEight
 	KeyNine
-	SwapHand = 40
+	SwapHand Button = 40
 )
 
 // Mode 3

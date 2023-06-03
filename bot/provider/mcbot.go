@@ -79,8 +79,14 @@ func (c *Client) join(ctx context.Context, d *mcnet.Dialer, addr string) basic.E
 	if err := c.Conn.WritePacket(pk.Marshal(
 		packetid.SPacketLoginStart,
 		pk.String(c.Auth.Name),
-		pk.Boolean(true),
-		keyPair(c.Auth.KeyPair),
+		pk.Opt{
+			If: c.Auth.AsTk != "",
+			Value: pk.Tuple{
+				pk.Boolean(true),
+				keyPair(c.Auth.KeyPair),
+			},
+			Else: pk.Boolean(false),
+		},
 	)); !err.Is(basic.NoError) {
 		return basic.Error{Err: basic.WriterError, Info: fmt.Errorf("login start: %w", err)}
 	}

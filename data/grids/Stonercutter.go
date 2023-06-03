@@ -1,13 +1,9 @@
 package grids
 
-type Stonercutter struct {
+type Stonecutter struct {
 	*Generic
-	Type int
 }
 
-func NewStonercutter() *Stonercutter {
-	return &Stonercutter{
-		Generic: InitGenericContainer(39, 2, 1),
-		Type:    23,
-	}
+func NewStonecutter(inventory *GenericInventory) *Stonecutter {
+	return &Stonecutter{InitGenericContainer("minecraft:stonecutter", 23, 2, inventory)}
 }

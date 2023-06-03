@@ -2,12 +2,8 @@ package grids
 
 type ShulkerBox struct {
 	*Generic
-	Type int
 }
 
-func NewShulkerBox() *ShulkerBox {
-	return &ShulkerBox{
-		Generic: InitGenericContainer(27, 3, 1),
-		Type:    19,
-	}
+func NewShulkerBox(inventory *GenericInventory) *ShulkerBox {
+	return &ShulkerBox{InitGenericContainer("minecraft:shulker_box", 19, 27, inventory)}
 }

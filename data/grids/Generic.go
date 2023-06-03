@@ -4,63 +4,53 @@ import (
 	"fmt"
 	"github.com/Tnze/go-mc/bot/basic"
 	"github.com/Tnze/go-mc/data/slots"
-	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type Generic struct {
-	Width, Height int          // Width and Height of the grid. Used to determine the offset of the non-content slots.
-	Slots         []slots.Slot // Will be initialized in InitGenericContainer
+	Name      string // Name of the grid.
+	Type      int    // Type is the int corresponding to the window type.
+	Size      int
+	Data      []slots.Slot
+	Inventory *GenericInventory
 }
 
-func InitGenericContainer(size, width, height int) *Generic {
+func InitGenericContainer(name string, id, size int, inventory *GenericInventory) *Generic {
 	return &Generic{
-		Width:  width,
-		Height: height,
-		Slots:  make([]slots.Slot, size),
+		Name:      name,
+		Type:      id,
+		Size:      size,
+		Data:      make([]slots.Slot, size),
+		Inventory: inventory,
 	}
 }
 
-func (g *Generic) OnClose() basic.Error {
-	return basic.Error{Err: basic.NoError, Info: nil}
+func (g *Generic) ApplyData(data []slots.Slot) {
+	for _, i := range data {
+		fmt.Println(i)
+	}
 }
 
-/* Slot data */
+func (g *Generic) OnClose() basic.Error { return basic.Error{Err: basic.NoError, Info: nil} }
 
-func (g *Generic) getSize() int                  { return g.Width * g.Height }
-func (g *Generic) GetContentSlots() []slots.Slot { return g.Slots[:g.getSize()] }
-func (g *Generic) GetInventorySlots() []slots.Slot {
-	return g.Slots[g.getSize() : g.getSize()+35]
+func (g *Generic) GetSlot(i int) *slots.Slot {
+	if i < 0 || i >= len(g.Inventory.Slots) {
+		return nil
+	}
+
+	if i < g.Size {
+		return &g.Data[i]
+	} else {
+		return &g.Inventory.Slots[g.Size:][i]
+	}
 }
-func (g *Generic) GetHotbarSlots() []slots.Slot {
-	return g.Slots[len(g.Slots)-9:]
-}
 
-/* Getter & Setter */
-
-func (g *Generic) GetSlot(i int) *slots.Slot { return &g.Slots[i] }
 func (g *Generic) SetSlot(i int, s slots.Slot) basic.Error {
-	if i < 0 || i >= len(g.Slots) {
-		return basic.Error{Err: basic.OutOfBound, Info: fmt.Errorf("slot index %d out of bounds. maximum index is %d", i, len(g.Slots)-1)}
+	if i < g.Size {
+		g.Data[i] = s
+	} else {
+		fmt.Println("SetSlot", i, s)
+		g.Inventory.Slots[g.Size:][i] = s
 	}
-	g.Slots[i] = s
+
 	return basic.Error{Err: basic.NoError, Info: nil}
-}
-
-// TODO: Iterator for slots
-
-func (g *Generic) GetInventorySlot(id int) *slots.Slot {
-	for i := range g.GetInventorySlots() {
-		if g.Slots[i].ID == pk.VarInt(id) {
-			return &g.Slots[i]
-		}
-	}
-	return nil
-}
-func (g *Generic) GetHotbarSlot(id int) *slots.Slot {
-	for i := range g.GetHotbarSlots() {
-		if g.Slots[i].ID == pk.VarInt(id) {
-			return &g.Slots[i]
-		}
-	}
-	return nil
 }

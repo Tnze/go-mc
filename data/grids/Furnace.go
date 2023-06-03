@@ -2,12 +2,8 @@ package grids
 
 type Furnace struct {
 	*Generic
-	Type int
 }
 
-func NewFurnace() *Furnace {
-	return &Furnace{
-		Generic: InitGenericContainer(39, 3, 1),
-		Type:    13,
-	}
+func NewFurnace(inventory *GenericInventory) *Furnace {
+	return &Furnace{InitGenericContainer("minecraft:furnace", 13, 3, inventory)}
 }

@@ -14,7 +14,7 @@ type SlotAction struct {
 	Changed []*slots.Slot
 }
 
-func NewSlotAction(slot, button, mode int32, cursor *slots.Slot, items ...*slots.Slot) *SlotAction {
+func NewSlotAction(slot, button, mode int, cursor *slots.Slot, items ...*slots.Slot) *SlotAction {
 	return &SlotAction{
 		Slot:    pk.Short(slot),
 		Button:  pk.Byte(button),

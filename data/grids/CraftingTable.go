@@ -2,12 +2,8 @@ package grids
 
 type CraftingTable struct {
 	*Generic
-	Type int
 }
 
-func NewCraftingTable() *CraftingTable {
-	return &CraftingTable{
-		Generic: InitGenericContainer(58, 10, 1),
-		Type:    11,
-	}
+func NewCraftingTable(inventory *GenericInventory) *CraftingTable {
+	return &CraftingTable{InitGenericContainer("minecraft:crafting", 11, 10, inventory)}
 }
