@@ -26,7 +26,7 @@ type LoginHandler interface {
 
 // LoginChecker is the interface to check if a player is allowed to log in the server.
 // The checking could be anything, server player number, protocol version, blacklist or whitelist.
-// If a player is not allowed to, the reason should be returned and will be sent to client by "LoginDisconnect" packet.
+// If a player is not allowed to, the reason should be returned and will be sent to the client by "LoginDisconnect" packet.
 type LoginChecker interface {
 	CheckPlayer(name string, id uuid.UUID, protocol int32) (ok bool, reason chat.Message)
 }
@@ -35,8 +35,8 @@ type LoginChecker interface {
 var _ LoginHandler = (*MojangLoginHandler)(nil)
 
 // MojangLoginHandler is a standard LoginHandler that implement both online and offline login progress.
-// This implementation also support custom LoginChecker.
-// None of Custom login packet (also called LoginPluginRequest/Response) is support by this implementation.
+// This implementation also supports custom LoginChecker.
+// None of Custom login packets (also called LoginPluginRequest/Response) is supported for this implementation.
 // To do that, implement your own LoginHandler imitate this code.
 type MojangLoginHandler struct {
 	// OnlineMode enables to check player's account.
@@ -51,8 +51,8 @@ type MojangLoginHandler struct {
 	Threshold int
 
 	// LoginChecker is used to apply some checks before sending "LoginSuccess" packet
-	// (e.g. blacklist or is server full).
-	// This is optional field and can be set to nil.
+	// (e.g., blacklist or is server full).
+	// This is an optional field and can be set to nil.
 	LoginChecker
 
 	// PrivateKey is the key used by encrypt the connection.
