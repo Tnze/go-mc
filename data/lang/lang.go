@@ -120,11 +120,14 @@ func readLang(fsys filesystem.FS, name string, r io.Reader) error {
 		return err
 	}
 
-	f, err := fsys.OpenFile(filepath.Join(pName, name+".go"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0o666)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+	// don't need this anymore
+	/*
+		f, err := fsys.OpenFile(filepath.Join(pName, name+".go"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0o666)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+	*/
 
 	genData := struct {
 		PkgName string

@@ -27,6 +27,10 @@ func (m mapFSWithMkdir) OpenFile(name string, flag int, perm fs.FileMode) (fs.Fi
 		}
 	}
 
+	if _, ok := m.fs[name]; !ok {
+		return nil, os.ErrNotExist
+	}
+
 	if truncMode != 0 {
 		m.fs[name].Data = nil
 	}
@@ -47,10 +51,7 @@ func (m mapFSWithMkdir) Stat(name string) (fs.FileInfo, error) {
 	return m.fs.Stat(name)
 }
 func (m mapFSWithMkdir) WriteFile(name string, data []byte, perm fs.FileMode) error {
-	if _, ok := m.fs[name]; !ok {
-		return os.ErrNotExist
-	}
-	m.fs[name].Data = data
+	m.fs[name] = &fstest.MapFile{Data: data}
 	return nil
 }
 
