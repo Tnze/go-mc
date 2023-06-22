@@ -14,53 +14,53 @@ import (
 )
 
 type mapFSWithMkdir struct {
-	fs fstest.MapFS
+	files fstest.MapFS
 }
 
 func (m mapFSWithMkdir) Open(name string) (fs.File, error) {
-	return m.fs.Open(name)
+	return m.files.Open(name)
 }
 
 func (m mapFSWithMkdir) OpenFile(name string, flag int, perm fs.FileMode) (fs.File, error) {
 	createMode := flag & os.O_CREATE
 	truncMode := flag & os.O_TRUNC
 	if createMode != 0 {
-		m.fs[name] = &fstest.MapFile{
+		m.files[name] = &fstest.MapFile{
 			Mode: perm,
 		}
 	}
 
-	if _, ok := m.fs[name]; !ok {
+	if _, ok := m.files[name]; !ok {
 		return nil, os.ErrNotExist
 	}
 
 	if truncMode != 0 {
-		m.fs[name].Data = nil
+		m.files[name].Data = nil
 	}
 
-	return m.fs.Open(name)
+	return m.files.Open(name)
 }
 
 func (m mapFSWithMkdir) Mkdir(name string, perm fs.FileMode) error {
-	m.fs[name] = &fstest.MapFile{}
+	m.files[name] = &fstest.MapFile{}
 	return nil
 }
 
 func (m mapFSWithMkdir) ReadDir(name string) ([]fs.DirEntry, error) {
-	return m.fs.ReadDir(name)
+	return m.files.ReadDir(name)
 }
 
 func (m mapFSWithMkdir) Stat(name string) (fs.FileInfo, error) {
-	return m.fs.Stat(name)
+	return m.files.Stat(name)
 }
 func (m mapFSWithMkdir) WriteFile(name string, data []byte, perm fs.FileMode) error {
-	m.fs[name] = &fstest.MapFile{Data: data}
+	m.files[name] = &fstest.MapFile{Data: data}
 	return nil
 }
 
 func buildMockFS() mapFSWithMkdir {
 	return mapFSWithMkdir{
-		fs: fstest.MapFS{},
+		files: fstest.MapFS{},
 	}
 }
 
@@ -111,13 +111,13 @@ func decodeBase64(str string) (string, error) {
 func TestRunWithNoArgs(t *testing.T) {
 	is := is.New(t)
 
-	fs := buildMockFS()
+	mockFS := buildMockFS()
 
-	is.NoErr(run(fs, buildMockHTTPGet(), []string{}))
+	is.NoErr(run(mockFS, buildMockHTTPGet(), []string{}))
 
-	_, ok := fs.fs["fil-ph"]
+	_, ok := mockFS.files["fil-ph"]
 	is.True(ok) // did not create language parent directory
 
-	_, ok = fs.fs["fil-ph/fil_ph.go"]
+	_, ok = mockFS.files["fil-ph/fil_ph.go"]
 	is.True(ok) // did not generate Go src from language data
 }
