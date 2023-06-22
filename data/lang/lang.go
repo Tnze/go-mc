@@ -56,6 +56,10 @@ func run(fsys filesystem.FS, httpGetter func(url string) (resp *http.Response, e
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("non OK status response %d fetching version data", resp.StatusCode)
+	}
+
 	var list struct {
 		Objects map[string]struct {
 			Hash string `json:"hash"`
@@ -119,15 +123,6 @@ func readLang(fsys filesystem.FS, name string, r io.Reader) error {
 	if err != nil && !os.IsExist(err) {
 		return err
 	}
-
-	// don't need this anymore
-	/*
-		f, err := fsys.OpenFile(filepath.Join(pName, name+".go"), os.O_CREATE|os.O_RDWR|os.O_TRUNC, 0o666)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-	*/
 
 	genData := struct {
 		PkgName string
@@ -228,6 +223,10 @@ func assetIndexURL(httpGetter func(url string) (*http.Response, error)) (string,
 		return "", fmt.Errorf("could not reach versionURL: %w", err)
 	}
 	defer versionRes.Body.Close()
+
+	if versionRes.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("non OK status response %d fetching version JSON", versionRes.StatusCode)
+	}
 
 	if err := json.NewDecoder(versionRes.Body).Decode(&version); err != nil {
 		return "", fmt.Errorf("could not decode version JSON: %w", err)
