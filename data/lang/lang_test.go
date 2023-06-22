@@ -115,5 +115,9 @@ func TestRunWithNoArgs(t *testing.T) {
 
 	is.NoErr(run(fs, buildMockHTTPGet(), []string{}))
 
-	is.Equal(len(fs.fs), 2)
+	_, ok := fs.fs["fil-ph"]
+	is.True(ok) // did not create language parent directory
+
+	_, ok = fs.fs["fil-ph/fil_ph.go"]
+	is.True(ok) // did not generate Go src from language data
 }
