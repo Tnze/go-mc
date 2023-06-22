@@ -209,7 +209,7 @@ func assetIndexURL(httpGetter func(url string) (*http.Response, error)) (string,
 		}
 	}
 	if versionURL == "" {
-		return "", errors.New("could not determine versionURL")
+		return "", errors.New("could not determine version URL")
 	}
 
 	var version struct {
@@ -220,7 +220,7 @@ func assetIndexURL(httpGetter func(url string) (*http.Response, error)) (string,
 
 	versionRes, err := httpGetter(versionURL)
 	if err != nil {
-		return "", fmt.Errorf("could not reach versionURL: %w", err)
+		return "", fmt.Errorf("could not reach version URL: %w", err)
 	}
 	defer versionRes.Body.Close()
 
