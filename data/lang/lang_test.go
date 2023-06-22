@@ -42,7 +42,7 @@ func (m mapFSWithMkdir) OpenFile(name string, flag int, perm fs.FileMode) (fs.Fi
 }
 
 func (m mapFSWithMkdir) Mkdir(name string, perm fs.FileMode) error {
-	m.files[name] = &fstest.MapFile{}
+	m.files[name] = &fstest.MapFile{Mode: fs.ModeDir | perm}
 	return nil
 }
 
@@ -115,8 +115,9 @@ func TestRunWithNoArgs(t *testing.T) {
 
 	is.NoErr(run(mockFS, buildMockHTTPGet(), []string{}))
 
-	_, ok := mockFS.files["fil-ph"]
+	langDir, ok := mockFS.files["fil-ph"]
 	is.True(ok) // did not create language parent directory
+	is.True(langDir.Mode.IsDir())
 
 	_, ok = mockFS.files["fil-ph/fil_ph.go"]
 	is.True(ok) // did not generate Go src from language data

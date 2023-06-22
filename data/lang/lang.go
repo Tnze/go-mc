@@ -119,7 +119,7 @@ func readLang(fsys filesystem.FS, name string, r io.Reader) error {
 
 	pName := strings.ReplaceAll(name, "_", "-")
 
-	err = fsys.Mkdir(pName, 0o777)
+	err = fsys.Mkdir(pName, fs.ModePerm)
 	if err != nil && !os.IsExist(err) {
 		return err
 	}
