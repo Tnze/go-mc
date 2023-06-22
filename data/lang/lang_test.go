@@ -2,8 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"io/fs"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"testing/fstest"
 
@@ -61,12 +64,28 @@ func buildMockFS() mapFSWithMkdir {
 	}
 }
 
+func buildMockHTTPGet() func(url string) (*http.Response, error) {
+	urlsToData := map[string]string{}
+
+	return func(url string) (*http.Response, error) {
+		resp := http.Response{}
+		v, ok := urlsToData[url]
+		if !ok {
+			resp.StatusCode = http.StatusNotFound
+			resp.Body = io.NopCloser(strings.NewReader(""))
+			return &resp, nil
+		}
+		resp.Body = io.NopCloser(strings.NewReader(v))
+		return &resp, nil
+	}
+}
+
 func TestRunWithNoArgs(t *testing.T) {
 	is := is.New(t)
 
 	fs := buildMockFS()
 
-	is.NoErr(run(fs, []string{}))
+	is.NoErr(run(fs, buildMockHTTPGet(), []string{}))
 
 	for k, v := range fs.fs {
 		fmt.Printf("%s: %s\n", k, string(v.Data))

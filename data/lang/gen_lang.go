@@ -3,6 +3,7 @@ package main
 
 import (
 	"errors"
+	"net/http"
 	stdos "os"
 	"path/filepath"
 
@@ -16,7 +17,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	run(fsys, stdos.Args)
+	run(fsys, http.Get, stdos.Args)
 }
 
 func resolveFS(base string) (*os.FS, error) {
