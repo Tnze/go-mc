@@ -124,6 +124,7 @@ func decodeBase64(str string) (string, error) {
 }
 
 func TestRunWithNoArgsDownloadsFilesAndUsesLatestVersion(t *testing.T) {
+	// the comments next to the "is" asserts show up as explanations in the stderr on failure
 	is := is.New(t)
 
 	mockFS := buildMockFS()
@@ -143,6 +144,7 @@ func TestRunWithNoArgsDownloadsFilesAndUsesLatestVersion(t *testing.T) {
 }
 
 func TestRunWithEnUSArgFileGeneratesENUsLangNoDownloads(t *testing.T) {
+	// the comments next to the "is" asserts show up as explanations in the stderr on failure
 	is := is.New(t)
 
 	mockFS := buildMockFS()
