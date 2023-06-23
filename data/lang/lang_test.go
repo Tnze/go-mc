@@ -81,7 +81,7 @@ const languageData = `base64:eyJibG9jay5taW5lY3JhZnQuYWNhY2lhX2J1dHRvbiI6IkFrYXN
 const v1_19_4versionData = `base64:eyJhc3NldEluZGV4Ijp7ImlkIjoiMyIsInNoYTEiOiIwMWE3YjFjNzk0MGQ2MWY0NmExY2ZiYmNhMDY4NGE3ZTg2YWZmYTU4Iiwic2l6ZSI6NDEwMTkzLCJ0b3RhbFNpemUiOjU2MDcyMTgwMiwidXJsIjoiaHR0cHM6Ly9waXN0b24tbWV0YS5tb2phbmcuY29tL3YxL3BhY2thZ2VzLzAxYTdiMWM3OTQwZDYxZjQ2YTFjZmJiY2EwNjg0YTdlODZhZmZhNTgvMy5qc29uIn0sIm1haW5DbGFzcyI6Im5ldC5taW5lY3JhZnQuY2xpZW50Lm1haW4uTWFpbiIsIm1pbmltdW1MYXVuY2hlclZlcnNpb24iOjIxLCJyZWxlYXNlVGltZSI6IjIwMjMtMDMtMTRUMTI6NTY6MTgrMDA6MDAiLCJ0aW1lIjoiMjAyMy0wMy0xNFQxMjo1NjoxOCswMDowMCIsInR5cGUiOiJyZWxlYXNlIn0K`
 const v1_19_4versionHashesData = `base64:eyJvYmplY3RzIjp7Im1pbmVjcmFmdC9sYW5nL2ZpbF9waC5qc29uIjp7Imhhc2giOiI3MTJhMjM2Nzk0MzEzZTUxMmU0N2UxYzAwMGE5ZmNkMmNjMjQ0ZWRjIiwic2l6ZSI6NDMxODg3fX19Cg==`
 
-func buildMockHTTPGet() func(url string) (*http.Response, error) {
+func buildMockHTTPGet(visitedUrls *[]string) func(url string) (*http.Response, error) {
 	urlsToData := map[string]string{
 		"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json":                                 manifestData,
 		"https://piston-meta.mojang.com/v1/packages/715ccf3330885e75b205124f09f8712542cbe7e0/1.20.1.json": v1_20_1versionData,
@@ -92,6 +92,7 @@ func buildMockHTTPGet() func(url string) (*http.Response, error) {
 	}
 
 	return func(url string) (*http.Response, error) {
+		*visitedUrls = append(*visitedUrls, url)
 		resp := http.Response{}
 		v, ok := urlsToData[url]
 		if !ok {
@@ -127,7 +128,11 @@ func TestRunWithNoArgsDownloadsFilesAndUsesLatestVersion(t *testing.T) {
 
 	mockFS := buildMockFS()
 
-	is.NoErr(run(mockFS, buildMockHTTPGet(), []string{"lang.test"}))
+	visitedURLs := []string{}
+	is.NoErr(run(mockFS, buildMockHTTPGet(&visitedURLs), []string{"lang.test"}))
+
+	is.Equal(len(visitedURLs), 4)                             // should have downloaded files
+	is.True(strings.HasSuffix(visitedURLs[1], "1.20.1.json")) // should have downloaded latest available version
 
 	langDir, ok := mockFS.files["fil-ph"]
 	is.True(ok) // did not create language parent directory
@@ -142,7 +147,10 @@ func TestRunWithEnUSArgFileGeneratesENUsLangNoDownloads(t *testing.T) {
 
 	mockFS := buildMockFS()
 
-	is.NoErr(run(mockFS, buildMockHTTPGet(), []string{"lang.test", "-en_us=enus.json"}))
+	visitedURLs := []string{}
+	is.NoErr(run(mockFS, buildMockHTTPGet(&visitedURLs), []string{"lang.test", "-en_us=enus.json"}))
+
+	is.Equal(len(visitedURLs), 0) // should have downloaded no files
 
 	langDir, ok := mockFS.files["en-us"]
 	is.True(ok) // did not create language parent directory
