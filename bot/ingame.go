@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/Tnze/go-mc/data/packetid"
@@ -17,14 +18,21 @@ func (c *Client) HandleGame() error {
 			return err
 		}
 
-		// handle packets
-		err := c.handlePacket(p)
-		if err != nil {
-			return err
-		}
+		if p.ID == int32(packetid.BundleDelimiter) {
+			err := c.handleBundlePackets()
+			if err != nil {
+				return err
+			}
+		} else {
+			// handle packets
+			err := c.handlePacket(p)
+			if err != nil {
+				return err
+			}
 
-		// return the packet buffer
-		c.Conn.pool.Put(p.Data)
+			// return the packet buffer
+			c.Conn.pool.Put(p.Data)
+		}
 	}
 }
 
@@ -39,6 +47,33 @@ func (d PacketHandlerError) Error() string {
 
 func (d PacketHandlerError) Unwrap() error {
 	return d.Err
+}
+
+func (c *Client) handleBundlePackets() (err error) {
+	var packets []pk.Packet
+	for i := 0; i < 4096; i++ {
+		var p pk.Packet
+		// Read packets
+		if err := c.Conn.ReadPacket(&p); err != nil {
+			return err
+		}
+
+		if p.ID == int32(packetid.BundleDelimiter) {
+			// bundle finished
+			goto handlePackets
+		}
+
+		packets = append(packets, p)
+	}
+	return errors.New("packet number of a bundle out of limit")
+
+handlePackets:
+	for i := range packets {
+		if err := c.handlePacket(packets[i]); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (c *Client) handlePacket(p pk.Packet) (err error) {
