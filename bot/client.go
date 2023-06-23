@@ -2,6 +2,7 @@ package bot
 
 import (
 	"errors"
+	"sync"
 
 	"github.com/google/uuid"
 
@@ -46,6 +47,7 @@ func NewClient() *Client {
 type Conn struct {
 	*net.Conn
 	send, recv queue.Queue[pk.Packet]
+	pool       sync.Pool // pool of recv packet data
 	rerr       error
 }
 
@@ -54,11 +56,13 @@ func warpConn(c *net.Conn, qr, qw queue.Queue[pk.Packet]) *Conn {
 		Conn: c,
 		send: qw,
 		recv: qr,
+		pool: sync.Pool{New: func() any { return []byte{} }},
 		rerr: nil,
 	}
 	go func() {
 		for {
-			var p pk.Packet
+			// take a buffer from pool, after the packet is handled we put it back
+			p := pk.Packet{Data: wc.pool.Get().([]byte)}
 			if err := c.ReadPacket(&p); err != nil {
 				wc.rerr = err
 				break

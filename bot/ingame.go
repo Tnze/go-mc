@@ -10,8 +10,8 @@ import (
 // HandleGame receive server packet and response them correctly.
 // Note that HandleGame will block if you don't receive from Events.
 func (c *Client) HandleGame() error {
-	var p pk.Packet
 	for {
+		var p pk.Packet
 		// Read packets
 		if err := c.Conn.ReadPacket(&p); err != nil {
 			return err
@@ -22,6 +22,9 @@ func (c *Client) HandleGame() error {
 		if err != nil {
 			return err
 		}
+
+		// return the packet buffer
+		c.Conn.pool.Put(p.Data)
 	}
 }
 
