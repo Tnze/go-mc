@@ -143,6 +143,26 @@ func TestRunWithNoArgsDownloadsFilesAndUsesLatestVersion(t *testing.T) {
 	is.True(ok) // did not generate Go src from language data
 }
 
+func TestRunWithVersionArgDownloadsFilesAndUsesGivenVersion(t *testing.T) {
+	// the comments next to the "is" asserts show up as explanations in the stderr on failure
+	is := is.New(t)
+
+	mockFS := buildMockFS()
+
+	visitedURLs := []string{}
+	is.NoErr(run(mockFS, buildMockHTTPGet(&visitedURLs), []string{"lang.test", "-version=1.19.4"}))
+
+	is.Equal(len(visitedURLs), 4)                             // should have downloaded files
+	is.True(strings.HasSuffix(visitedURLs[1], "1.19.4.json")) // should have downloaded latest available version
+
+	langDir, ok := mockFS.files["fil-ph"]
+	is.True(ok) // did not create language parent directory
+	is.True(langDir.Mode.IsDir())
+
+	_, ok = mockFS.files["fil-ph/fil_ph.go"]
+	is.True(ok) // did not generate Go src from language data
+}
+
 func TestRunWithEnUSArgFileGeneratesENUsLangNoDownloads(t *testing.T) {
 	// the comments next to the "is" asserts show up as explanations in the stderr on failure
 	is := is.New(t)
