@@ -10,7 +10,7 @@ import (
 
 // cfb8Tests contains the test vectors from
 // https://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf, section
-// F.3.13. Modified for CFB8 tests.
+// F.3.7. Modified for Minecraft CFB8 tests.
 var cfb8Tests = []struct {
 	key, iv, plaintext, ciphertext string
 }{
