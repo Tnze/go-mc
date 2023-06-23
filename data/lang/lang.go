@@ -34,26 +34,34 @@ var Map = {{.LangMap | printf "%#v"}}
 func run(fsys filesystem.FS, httpGetter func(url string) (resp *http.Response, err error), args []string) error {
 	flagsSet := flag.NewFlagSet(args[0], flag.ExitOnError)
 	enUSFile := flagsSet.String("en_us", "", "path to EN_US language JSON file")
-	//mcVersion := flag.String("version", "", "language version to generate with")
+	mcVersion := flagsSet.String("version", "", "language version to generate with")
 
 	if err := flagsSet.Parse(args[1:]); err != nil {
 		return err
 	}
 
 	if enUSJson := *enUSFile; len(enUSJson) > 0 {
-		fmt.Printf("generating en-us lang from %s\n", enUSJson)
-		f, err := fsys.Open(enUSJson)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		return readLang(fsys, "en_us", f)
+		return genENUSLang(fsys, enUSJson)
 	}
 
+	return downloadAndGenerateLangs(fsys, httpGetter, *mcVersion)
+}
+
+func genENUSLang(fsys filesystem.FS, enUSJsonFile string) error {
+	fmt.Printf("generating en-us lang from %s\n", enUSJsonFile)
+	f, err := fsys.Open(enUSJsonFile)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return readLang(fsys, "en_us", f)
+}
+
+func downloadAndGenerateLangs(fsys filesystem.FS, httpGetter func(url string) (resp *http.Response, err error), version string) error {
 	fmt.Println("generating langs except en-us")
 	fmt.Println("WARN: Provide argument value to en-us's json file and run it again to generate just en-us")
 
-	versionURL, err := assetIndexURL(httpGetter)
+	versionURL, err := assetIndexURL(httpGetter, version)
 	if err != nil {
 		return err
 	}
@@ -182,7 +190,7 @@ func trans(m map[string]string) error {
 	return errx
 }
 
-func assetIndexURL(httpGetter func(url string) (*http.Response, error)) (string, error) {
+func assetIndexURL(httpGetter func(url string) (*http.Response, error), requestedVersion string) (string, error) {
 	// Pseudo code for get versionURL:
 	// $manifest = {https://piston-meta.mojang.com/mc/game/version_manifest_v2.json}
 	// $latest = $manifest.latest.release
@@ -214,9 +222,16 @@ func assetIndexURL(httpGetter func(url string) (*http.Response, error)) (string,
 
 	var versionURL string
 	for _, v := range manifest.Versions {
-		if manifest.Latest.Release == v.ID {
-			versionURL = v.URL
-			break
+		if len(requestedVersion) > 0 {
+			if requestedVersion == v.ID {
+				versionURL = v.URL
+				break
+			}
+		} else {
+			if manifest.Latest.Release == v.ID {
+				versionURL = v.URL
+				break
+			}
 		}
 	}
 	if versionURL == "" {
