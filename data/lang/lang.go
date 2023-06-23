@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"io"
 	"io/fs"
@@ -31,19 +32,26 @@ var Map = {{.LangMap | printf "%#v"}}
 `
 
 func run(fsys filesystem.FS, httpGetter func(url string) (resp *http.Response, err error), args []string) error {
-	if len(args) == 2 {
-		fmt.Println("generating en-us lang")
-		f, err := fsys.Open(args[1])
+	flagsSet := flag.NewFlagSet(args[0], flag.ExitOnError)
+	enUSFile := flagsSet.String("en_us", "", "path to EN_US language JSON file")
+	//mcVersion := flag.String("version", "", "language version to generate with")
+
+	if err := flagsSet.Parse(args[1:]); err != nil {
+		return err
+	}
+
+	if enUSJson := *enUSFile; len(enUSJson) > 0 {
+		fmt.Printf("generating en-us lang from %s\n", enUSJson)
+		f, err := fsys.Open(enUSJson)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
-		readLang(fsys, "en_us", f)
-		return nil
-	} else {
-		fmt.Println("generating langs except en-us")
-		fmt.Println("WARN: You should also set the secondary argument to en-us's json file")
+		return readLang(fsys, "en_us", f)
 	}
+
+	fmt.Println("generating langs except en-us")
+	fmt.Println("WARN: Provide argument value to en-us's json file and run it again to generate just en-us")
 
 	versionURL, err := assetIndexURL(httpGetter)
 	if err != nil {
@@ -115,7 +123,10 @@ func readLang(fsys filesystem.FS, name string, r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	trans(LangMap)
+
+	if err := trans(LangMap); err != nil {
+		return err
+	}
 
 	pName := strings.ReplaceAll(name, "_", "-")
 

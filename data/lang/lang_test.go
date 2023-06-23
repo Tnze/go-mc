@@ -13,6 +13,8 @@ import (
 	"github.com/matryer/is"
 )
 
+const enUSJSON = `{"block.minecraft.acacia_button":"Acaia Button","block.minecraft.acacia_door":"Acacia Door","block.minecraft.acacia_fence":"Acacia Fence","block.minecraft.acacia_fence_gate":"Acacia Fence Gate","block.minecraft.acacia_hanging_sign":"Acacia Hanging Sign","block.minecraft.acacia_leaves":"Acacia Leaves","block.minecraft.acacia_log":"Acacia Log","block.minecraft.acacia_planks":"Acacia Planks","block.minecraft.acacia_pressure_plate":"Acacia Pressure Plate","block.minecraft.acacia_sapling":"Acacia Sapling","block.minecraft.acacia_sign":"Acacia Sign","block.minecraft.acacia_slab":"Acacia Slab","block.minecraft.acacia_stairs":"Acacia Stairs","block.minecraft.acacia_trapdoor":"Acacia Trapdoor","block.minecraft.acacia_wall_hanging_sign":"Acacia Wall Hanging Sign","block.minecraft.acacia_wall_sign":"Acacia Wall Sign","block.minecraft.acacia_wood":"Acacia Wood","block.minecraft.activator_rail":"Activator Rail","block.minecraft.air":"Air","block.minecraft.allium":"Allium","block.minecraft.amethyst_block":"Amethyst Block","block.minecraft.amethyst_cluster":"Amethyst Cluster","block.minecraft.ancient_debris":"ancient_debris","block.minecraft.andesite":"Andesite","block.minecraft.andesite_slab":"Andesite Slab","block.minecraft.andesite_stairs":"Andesite Stairs","block.minecraft.andesite_wall":"Andesite Wall","block.minecraft.anvil":"Anvil","block.minecraft.attached_melon_stem":"Attached Melon Stem","block.minecraft.attached_pumpkin_stem":"Attached Pumpkin Stem","block.minecraft.azalea":"Azaleya","block.minecraft.azalea_leaves":"Azaleya Leaves","block.minecraft.azure_bluet":"Azure Bluet"}`
+
 type mapFSWithMkdir struct {
 	files fstest.MapFS
 }
@@ -60,7 +62,11 @@ func (m mapFSWithMkdir) WriteFile(name string, data []byte, perm fs.FileMode) er
 
 func buildMockFS() mapFSWithMkdir {
 	return mapFSWithMkdir{
-		files: fstest.MapFS{},
+		files: fstest.MapFS{
+			"enus.json": &fstest.MapFile{
+				Data: []byte(enUSJSON),
+			},
+		},
 	}
 }
 
@@ -116,17 +122,32 @@ func decodeBase64(str string) (string, error) {
 	return str, nil
 }
 
-func TestRunWithNoArgs(t *testing.T) {
+func TestRunWithNoArgsDownloadsFilesAndUsesLatestVersion(t *testing.T) {
 	is := is.New(t)
 
 	mockFS := buildMockFS()
 
-	is.NoErr(run(mockFS, buildMockHTTPGet(), []string{}))
+	is.NoErr(run(mockFS, buildMockHTTPGet(), []string{"lang.test"}))
 
 	langDir, ok := mockFS.files["fil-ph"]
 	is.True(ok) // did not create language parent directory
 	is.True(langDir.Mode.IsDir())
 
 	_, ok = mockFS.files["fil-ph/fil_ph.go"]
+	is.True(ok) // did not generate Go src from language data
+}
+
+func TestRunWithEnUSArgFileGeneratesENUsLangNoDownloads(t *testing.T) {
+	is := is.New(t)
+
+	mockFS := buildMockFS()
+
+	is.NoErr(run(mockFS, buildMockHTTPGet(), []string{"lang.test", "-en_us=enus.json"}))
+
+	langDir, ok := mockFS.files["en-us"]
+	is.True(ok) // did not create language parent directory
+	is.True(langDir.Mode.IsDir())
+
+	_, ok = mockFS.files["en-us/en_us.go"]
 	is.True(ok) // did not generate Go src from language data
 }
