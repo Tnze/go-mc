@@ -42,24 +42,16 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 		// for encryption/decryption, other bytes are ignored.
 		val ^= cf.iv[tempPos]
 
-		// If pos has been moved after block size in the slice,
-		// we also store the encrypted bytes to the head
-		// for next round.
-		if cf.ivPos > cf.blockSize {
-			// insert the encrypted byte to the head
-			if cf.de {
-				cf.iv[cf.ivPos-cf.blockSize-1] = src[i]
-			} else {
-				cf.iv[cf.ivPos-cf.blockSize-1] = val
-			}
-		}
-
 		if cf.ivPos == cf.blockSize<<1 {
 			// bound reached; move to next round for next operation
-			// Since we have stored the same things both in the start
-			// and the end of the slice (see above and below),
-			// the next operation can be spliced without any overhead
-			// by simply resetting the pos.
+			// copy next block to the start of tbe ring buffer
+			copy(cf.iv, cf.iv[cf.ivPos+1:])
+			// insert the encrypted byte to the end of IV
+			if cf.de {
+				cf.iv[cf.blockSize-1] = src[i]
+			} else {
+				cf.iv[cf.blockSize-1] = val
+			}
 			cf.ivPos = 0
 		} else {
 			// insert the encrypted byte to the end of IV
