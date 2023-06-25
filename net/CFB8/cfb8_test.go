@@ -38,6 +38,12 @@ var cfb8Tests = []struct {
 		"f69f2445df4f9b17ad2b417be66c3710",
 		"c0af633cd9c599309f924802af599ee6",
 	},
+	{
+		"2b7e151628aed2a6abf7158809cf4f3c",
+		"000102030405060708090a0b0c0d0e0f",
+		"0ecbd6d36cd12962ce671b4d96fb95aaa902096aeac366e13a6ae57c05d48673cf320c626689d05548f65fd6a108630c1d4e3aab543b006823c7a9422e97c0431587537c384f99a11488ffd9b2e9b46f49005a7e5cef64e27e2de3cf3fb87c1524766601",
+		"5efb6f6b93cf5f0e135a0c932f59f9aaa2276e4b06cd4f5edca4baba735ac7708dd7c0f9e92c6b89d2245b0d9a6356b0e98529cd45e56df22e914ef9e0792facaab707af90c13162bfad06a240eb6adcbf3365fd84a003f8083f4662a7a27232c72c6c0c",
+	},
 }
 
 func TestCFB8Vectors(t *testing.T) {
@@ -82,12 +88,12 @@ func TestCFB8Vectors(t *testing.T) {
 	}
 }
 
-func BenchmarkCFB8AES1K(b *testing.B) {
+func BenchmarkCFB8AES1KOverlap(b *testing.B) {
 	var key [16]byte
 	var iv [16]byte
-	buf := make([]byte, 1024)
 	rand.Read(key[:])
 	rand.Read(iv[:])
+	buf := make([]byte, 1024)
 	aes, _ := aes.NewCipher(key[:])
 	stream := NewCFB8Encrypt(aes, iv[:])
 
@@ -96,5 +102,23 @@ func BenchmarkCFB8AES1K(b *testing.B) {
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		stream.XORKeyStream(buf, buf)
+	}
+}
+
+func BenchmarkCFB8AES1KNonOverlap(b *testing.B) {
+	var key [16]byte
+	var iv [16]byte
+	rand.Read(key[:])
+	rand.Read(iv[:])
+	buf := make([]byte, 1024)
+	buf2 := make([]byte, 1024)
+	aes, _ := aes.NewCipher(key[:])
+	stream := NewCFB8Encrypt(aes, iv[:])
+
+	b.SetBytes(int64(len(buf)))
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		stream.XORKeyStream(buf2, buf)
 	}
 }
