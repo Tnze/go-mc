@@ -64,6 +64,7 @@ func warpConn(c *net.Conn) *Conn {
 				break
 			}
 			if ok := wc.recv.Push(p); !ok {
+				wc.rerr = errors.New("receive queue is full")
 				break
 			}
 		}
