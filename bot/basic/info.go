@@ -76,6 +76,8 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	if err != nil {
 		return Error{err}
 	}
+	
+	p.resetKeepAliveDeadline()
 	return nil
 }
 

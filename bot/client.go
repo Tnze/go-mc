@@ -44,14 +44,14 @@ func NewClient() *Client {
 // Conn is a concurrently-safe warpper of net.Conn with packet queue.
 // Note that not all methods are concurrently-safe.
 type Conn struct {
-	conn       *net.Conn
+	*net.Conn
 	send, recv queue.Queue[pk.Packet]
 	rerr       error
 }
 
 func warpConn(c *net.Conn) *Conn {
 	wc := Conn{
-		conn: c,
+		Conn: c,
 		send: make(queue.ChannelQueue[pk.Packet], 256),
 		recv: make(queue.ChannelQueue[pk.Packet], 256),
 		rerr: nil,
@@ -104,7 +104,7 @@ func (c *Conn) WritePacket(p pk.Packet) error {
 
 func (c *Conn) Close() error {
 	c.send.Close()
-	return c.conn.Close()
+	return c.Conn.Close()
 }
 
 // Position is a 3D vector.
