@@ -82,7 +82,6 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 		// Only the first byte of the encrypted block is used
 		// for encryption/decryption, other bytes are ignored.
 		val ^= cf.iv[tempPos]
-		dst[i] = val
 
 		if cf.ivPos == cf.blockSize<<1 {
 			// bound reached; move to next round for next operation
@@ -105,5 +104,7 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 			// move to next block
 			cf.ivPos += 1
 		}
+
+		dst[i] = val
 	}
 }

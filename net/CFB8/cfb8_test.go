@@ -46,7 +46,7 @@ var cfb8Tests = []struct {
 	},
 }
 
-func TestCFB8Vectors(t *testing.T) {
+func TestCFB8VectorsNonOverlapping(t *testing.T) {
 	for i, test := range cfb8Tests {
 		key, err := hex.DecodeString(test.key)
 		if err != nil {
@@ -88,7 +88,48 @@ func TestCFB8Vectors(t *testing.T) {
 	}
 }
 
-func BenchmarkCFB8AES1KOverlap(b *testing.B) {
+func TestCFB8VectorsOverlapped(t *testing.T) {
+	for i, test := range cfb8Tests {
+		key, err := hex.DecodeString(test.key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		iv, err := hex.DecodeString(test.iv)
+		if err != nil {
+			t.Fatal(err)
+		}
+		plaintext, err := hex.DecodeString(test.plaintext)
+		if err != nil {
+			t.Fatal(err)
+		}
+		expected, err := hex.DecodeString(test.ciphertext)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		block, err := aes.NewCipher(key)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		buf := bytes.Clone(plaintext)
+		cfb := NewCFB8Encrypt(block, iv)
+		cfb.XORKeyStream(buf, buf)
+
+		if !bytes.Equal(buf, expected) {
+			t.Errorf("#%d: wrong output: got %x, expected %x", i, buf, expected)
+		}
+
+		cfbdec := NewCFB8Decrypt(block, iv)
+		cfbdec.XORKeyStream(buf, buf)
+
+		if !bytes.Equal(buf, plaintext) {
+			t.Errorf("#%d: wrong plaintext: got %x, expected %x", i, buf, plaintext)
+		}
+	}
+}
+
+func BenchmarkCFB8AES1KOverlapped(b *testing.B) {
 	var key [16]byte
 	var iv [16]byte
 	rand.Read(key[:])
@@ -105,7 +146,7 @@ func BenchmarkCFB8AES1KOverlap(b *testing.B) {
 	}
 }
 
-func BenchmarkCFB8AES1KNonOverlap(b *testing.B) {
+func BenchmarkCFB8AES1KNonOverlapping(b *testing.B) {
 	var key [16]byte
 	var iv [16]byte
 	rand.Read(key[:])
