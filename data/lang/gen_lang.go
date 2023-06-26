@@ -1,3 +1,6 @@
+//go:build generate
+// +build generate
+
 // This program can automatically download language.json file and convert into .go
 package main
 
