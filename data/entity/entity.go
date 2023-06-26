@@ -114,7 +114,7 @@ var (
 		Name:        "camel",
 		Width:       1.7,
 		Height:      2.375,
-		Type:        "player",
+		Type:        "animal",
 	}
 	Cat = Entity{
 		ID:          11,
@@ -834,7 +834,7 @@ var (
 		Name:        "sniffer",
 		Width:       1.9,
 		Height:      1.75,
-		Type:        "player",
+		Type:        "animal",
 	}
 	SnowGolem = Entity{
 		ID:          91,
