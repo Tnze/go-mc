@@ -42,6 +42,7 @@ type Sound struct {
 }
 
 //go:generate go run $GOFILE
+//go:generate go fmt soundid.go
 func main() {
 	fmt.Println("generating soundid.go")
 	sounds, err := downloadSoundInfo()
