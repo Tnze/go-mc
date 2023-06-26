@@ -156,7 +156,7 @@ func TestRunWithVersionArgDownloadsFilesAndUsesGivenVersion(t *testing.T) {
 	is.NoErr(run(mockFS, buildMockHTTPGet(&visitedURLs), []string{"lang.test", "-version=1.19.4"}))
 
 	is.Equal(len(visitedURLs), 4)                             // should have downloaded files
-	is.True(strings.HasSuffix(visitedURLs[1], "1.19.4.json")) // should have downloaded latest available version
+	is.True(strings.HasSuffix(visitedURLs[1], "1.19.4.json")) // should have downloaded provided version
 
 	langDir, ok := mockFS.files["fil-ph"]
 	is.True(ok) // did not create language parent directory
