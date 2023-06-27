@@ -191,7 +191,7 @@ func ChunkToSave(c *Chunk, dst *save.Chunk) (err error) {
 	}
 	dst.Sections = sections
 	if dst.Heightmaps == nil {
-		dst.Heightmaps = map[string][]uint64{}
+		dst.Heightmaps = make(map[string][]uint64)
 	}
 	dst.Heightmaps["WORLD_SURFACE_WG"] = c.HeightMaps.WorldSurfaceWG.Raw()
 	dst.Heightmaps["WORLD_SURFACE"] = c.HeightMaps.WorldSurface.Raw()
