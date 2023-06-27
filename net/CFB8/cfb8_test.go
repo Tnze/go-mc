@@ -72,7 +72,12 @@ func TestCFB8VectorsNonOverlapping(t *testing.T) {
 
 		ciphertext := make([]byte, len(plaintext))
 		cfb := NewCFB8Encrypt(block, iv)
-		cfb.XORKeyStream(ciphertext, plaintext)
+		if len(plaintext) > 50 {
+			cfb.XORKeyStream(ciphertext, plaintext[:len(plaintext)/2])
+			cfb.XORKeyStream(ciphertext[len(plaintext)/2:], plaintext[len(plaintext)/2:])
+		} else {
+			cfb.XORKeyStream(ciphertext, plaintext)
+		}
 
 		if !bytes.Equal(ciphertext, expected) {
 			t.Errorf("#%d: wrong output: got %x, expected %x", i, ciphertext, expected)
@@ -80,7 +85,12 @@ func TestCFB8VectorsNonOverlapping(t *testing.T) {
 
 		cfbdec := NewCFB8Decrypt(block, iv)
 		plaintextCopy := make([]byte, len(ciphertext))
-		cfbdec.XORKeyStream(plaintextCopy, ciphertext)
+		if len(ciphertext) > 50 {
+			cfbdec.XORKeyStream(plaintextCopy, ciphertext[:len(ciphertext)/2])
+			cfbdec.XORKeyStream(plaintextCopy[len(ciphertext)/2:], ciphertext[len(ciphertext)/2:])
+		} else {
+			cfbdec.XORKeyStream(plaintextCopy, ciphertext)
+		}
 
 		if !bytes.Equal(plaintextCopy, plaintext) {
 			t.Errorf("#%d: wrong plaintext: got %x, expected %x", i, plaintextCopy, plaintext)
@@ -112,16 +122,27 @@ func TestCFB8VectorsOverlapped(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		buf := bytes.Clone(plaintext)
+		buf := make([]byte, len(plaintext))
+		copy(buf, plaintext)
 		cfb := NewCFB8Encrypt(block, iv)
-		cfb.XORKeyStream(buf, buf)
+		if len(buf) > 50 {
+			cfb.XORKeyStream(buf, buf[:len(buf)/2])
+			cfb.XORKeyStream(buf[len(buf)/2:], buf[len(buf)/2:])
+		} else {
+			cfb.XORKeyStream(buf, buf)
+		}
 
 		if !bytes.Equal(buf, expected) {
 			t.Errorf("#%d: wrong output: got %x, expected %x", i, buf, expected)
 		}
 
 		cfbdec := NewCFB8Decrypt(block, iv)
-		cfbdec.XORKeyStream(buf, buf)
+		if len(buf) > 50 {
+			cfbdec.XORKeyStream(buf, buf[:len(buf)/2])
+			cfbdec.XORKeyStream(buf[len(buf)/2:], buf[len(buf)/2:])
+		} else {
+			cfbdec.XORKeyStream(buf, buf)
+		}
 
 		if !bytes.Equal(buf, plaintext) {
 			t.Errorf("#%d: wrong plaintext: got %x, expected %x", i, buf, plaintext)
