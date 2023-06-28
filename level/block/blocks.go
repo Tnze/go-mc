@@ -70,6 +70,9 @@ type (
 	}
 	RedSand          struct{}
 	Gravel           struct{}
+	SuspiciousGravel struct {
+		Dusted Integer `nbt:"dusted"`
+	}
 	GoldOre          struct{}
 	DeepslateGoldOre struct{}
 	IronOre          struct{}
@@ -1892,6 +1895,13 @@ type (
 	TorchflowerCrop struct {
 		Age Integer `nbt:"age"`
 	}
+	PitcherCrop struct {
+		Age  Integer         `nbt:"age"`
+		Half DoubleBlockHalf `nbt:"half"`
+	}
+	PitcherPlant struct {
+		Half DoubleBlockHalf `nbt:"half"`
+	}
 	Beetroots struct {
 		Age Integer `nbt:"age"`
 	}
@@ -2057,6 +2067,9 @@ type (
 	DriedKelpBlock struct{}
 	TurtleEgg      struct {
 		Eggs  Integer `nbt:"eggs"`
+		Hatch Integer `nbt:"hatch"`
+	}
+	SnifferEgg struct {
 		Hatch Integer `nbt:"hatch"`
 	}
 	DeadTubeCoralBlock   struct{}
@@ -2908,6 +2921,12 @@ type (
 		Sculk_sensor_phase SculkSensorPhase `nbt:"sculk_sensor_phase"`
 		Waterlogged        Boolean          `nbt:"waterlogged"`
 	}
+	CalibratedSculkSensor struct {
+		Facing             Direction        `nbt:"facing"`
+		Power              Integer          `nbt:"power"`
+		Sculk_sensor_phase SculkSensorPhase `nbt:"sculk_sensor_phase"`
+		Waterlogged        Boolean          `nbt:"waterlogged"`
+	}
 	Sculk     struct{}
 	SculkVein struct {
 		Down        Boolean `nbt:"down"`
@@ -3173,6 +3192,7 @@ type (
 	Frogspawn           struct{}
 	ReinforcedDeepslate struct{}
 	DecoratedPot        struct {
+		Cracked     Boolean   `nbt:"cracked"`
 		Facing      Direction `nbt:"facing"`
 		Waterlogged Boolean   `nbt:"waterlogged"`
 	}
@@ -3216,6 +3236,7 @@ func (Sand) ID() string                        { return "minecraft:sand" }
 func (SuspiciousSand) ID() string              { return "minecraft:suspicious_sand" }
 func (RedSand) ID() string                     { return "minecraft:red_sand" }
 func (Gravel) ID() string                      { return "minecraft:gravel" }
+func (SuspiciousGravel) ID() string            { return "minecraft:suspicious_gravel" }
 func (GoldOre) ID() string                     { return "minecraft:gold_ore" }
 func (DeepslateGoldOre) ID() string            { return "minecraft:deepslate_gold_ore" }
 func (IronOre) ID() string                     { return "minecraft:iron_ore" }
@@ -3776,6 +3797,8 @@ func (PurpurPillar) ID() string                { return "minecraft:purpur_pillar
 func (PurpurStairs) ID() string                { return "minecraft:purpur_stairs" }
 func (EndStoneBricks) ID() string              { return "minecraft:end_stone_bricks" }
 func (TorchflowerCrop) ID() string             { return "minecraft:torchflower_crop" }
+func (PitcherCrop) ID() string                 { return "minecraft:pitcher_crop" }
+func (PitcherPlant) ID() string                { return "minecraft:pitcher_plant" }
 func (Beetroots) ID() string                   { return "minecraft:beetroots" }
 func (DirtPath) ID() string                    { return "minecraft:dirt_path" }
 func (EndGateway) ID() string                  { return "minecraft:end_gateway" }
@@ -3857,6 +3880,7 @@ func (Kelp) ID() string                        { return "minecraft:kelp" }
 func (KelpPlant) ID() string                   { return "minecraft:kelp_plant" }
 func (DriedKelpBlock) ID() string              { return "minecraft:dried_kelp_block" }
 func (TurtleEgg) ID() string                   { return "minecraft:turtle_egg" }
+func (SnifferEgg) ID() string                  { return "minecraft:sniffer_egg" }
 func (DeadTubeCoralBlock) ID() string          { return "minecraft:dead_tube_coral_block" }
 func (DeadBrainCoralBlock) ID() string         { return "minecraft:dead_brain_coral_block" }
 func (DeadBubbleCoralBlock) ID() string        { return "minecraft:dead_bubble_coral_block" }
@@ -4092,6 +4116,7 @@ func (Calcite) ID() string                      { return "minecraft:calcite" }
 func (TintedGlass) ID() string                  { return "minecraft:tinted_glass" }
 func (PowderSnow) ID() string                   { return "minecraft:powder_snow" }
 func (SculkSensor) ID() string                  { return "minecraft:sculk_sensor" }
+func (CalibratedSculkSensor) ID() string        { return "minecraft:calibrated_sculk_sensor" }
 func (Sculk) ID() string                        { return "minecraft:sculk" }
 func (SculkVein) ID() string                    { return "minecraft:sculk_vein" }
 func (SculkCatalyst) ID() string                { return "minecraft:sculk_catalyst" }
@@ -4222,6 +4247,7 @@ var FromID = map[string]Block{
 	"minecraft:suspicious_sand":                    SuspiciousSand{},
 	"minecraft:red_sand":                           RedSand{},
 	"minecraft:gravel":                             Gravel{},
+	"minecraft:suspicious_gravel":                  SuspiciousGravel{},
 	"minecraft:gold_ore":                           GoldOre{},
 	"minecraft:deepslate_gold_ore":                 DeepslateGoldOre{},
 	"minecraft:iron_ore":                           IronOre{},
@@ -4782,6 +4808,8 @@ var FromID = map[string]Block{
 	"minecraft:purpur_stairs":                      PurpurStairs{},
 	"minecraft:end_stone_bricks":                   EndStoneBricks{},
 	"minecraft:torchflower_crop":                   TorchflowerCrop{},
+	"minecraft:pitcher_crop":                       PitcherCrop{},
+	"minecraft:pitcher_plant":                      PitcherPlant{},
 	"minecraft:beetroots":                          Beetroots{},
 	"minecraft:dirt_path":                          DirtPath{},
 	"minecraft:end_gateway":                        EndGateway{},
@@ -4863,6 +4891,7 @@ var FromID = map[string]Block{
 	"minecraft:kelp_plant":                         KelpPlant{},
 	"minecraft:dried_kelp_block":                   DriedKelpBlock{},
 	"minecraft:turtle_egg":                         TurtleEgg{},
+	"minecraft:sniffer_egg":                        SnifferEgg{},
 	"minecraft:dead_tube_coral_block":              DeadTubeCoralBlock{},
 	"minecraft:dead_brain_coral_block":             DeadBrainCoralBlock{},
 	"minecraft:dead_bubble_coral_block":            DeadBubbleCoralBlock{},
@@ -5094,6 +5123,7 @@ var FromID = map[string]Block{
 	"minecraft:tinted_glass":                       TintedGlass{},
 	"minecraft:powder_snow":                        PowderSnow{},
 	"minecraft:sculk_sensor":                       SculkSensor{},
+	"minecraft:calibrated_sculk_sensor":            CalibratedSculkSensor{},
 	"minecraft:sculk":                              Sculk{},
 	"minecraft:sculk_vein":                         SculkVein{},
 	"minecraft:sculk_catalyst":                     SculkCatalyst{},

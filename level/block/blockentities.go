@@ -38,53 +38,55 @@ var EntityList = [...]Entity{
 	CampfireEntity{},
 	BeehiveEntity{},
 	SculkSensorEntity{},
+	CalibratedSculkSensorEntity{},
 	SculkCatalystEntity{},
 	SculkShriekerEntity{},
 	ChiseledBookshelfEntity{},
-	SuspiciousSandEntity{},
+	BrushableBlockEntity{},
 	DecoratedPotEntity{},
 }
 
-func (FurnaceEntity) ID() string           { return "minecraft:furnace" }
-func (ChestEntity) ID() string             { return "minecraft:chest" }
-func (TrappedChestEntity) ID() string      { return "minecraft:trapped_chest" }
-func (EnderChestEntity) ID() string        { return "minecraft:ender_chest" }
-func (JukeboxEntity) ID() string           { return "minecraft:jukebox" }
-func (DispenserEntity) ID() string         { return "minecraft:dispenser" }
-func (DropperEntity) ID() string           { return "minecraft:dropper" }
-func (SignEntity) ID() string              { return "minecraft:sign" }
-func (HangingSignEntity) ID() string       { return "minecraft:hanging_sign" }
-func (MobSpawnerEntity) ID() string        { return "minecraft:mob_spawner" }
-func (PistonEntity) ID() string            { return "minecraft:piston" }
-func (BrewingStandEntity) ID() string      { return "minecraft:brewing_stand" }
-func (EnchantingTableEntity) ID() string   { return "minecraft:enchanting_table" }
-func (EndPortalEntity) ID() string         { return "minecraft:end_portal" }
-func (BeaconEntity) ID() string            { return "minecraft:beacon" }
-func (SkullEntity) ID() string             { return "minecraft:skull" }
-func (DaylightDetectorEntity) ID() string  { return "minecraft:daylight_detector" }
-func (HopperEntity) ID() string            { return "minecraft:hopper" }
-func (ComparatorEntity) ID() string        { return "minecraft:comparator" }
-func (BannerEntity) ID() string            { return "minecraft:banner" }
-func (StructureBlockEntity) ID() string    { return "minecraft:structure_block" }
-func (EndGatewayEntity) ID() string        { return "minecraft:end_gateway" }
-func (CommandBlockEntity) ID() string      { return "minecraft:command_block" }
-func (ShulkerBoxEntity) ID() string        { return "minecraft:shulker_box" }
-func (BedEntity) ID() string               { return "minecraft:bed" }
-func (ConduitEntity) ID() string           { return "minecraft:conduit" }
-func (BarrelEntity) ID() string            { return "minecraft:barrel" }
-func (SmokerEntity) ID() string            { return "minecraft:smoker" }
-func (BlastFurnaceEntity) ID() string      { return "minecraft:blast_furnace" }
-func (LecternEntity) ID() string           { return "minecraft:lectern" }
-func (BellEntity) ID() string              { return "minecraft:bell" }
-func (JigsawEntity) ID() string            { return "minecraft:jigsaw" }
-func (CampfireEntity) ID() string          { return "minecraft:campfire" }
-func (BeehiveEntity) ID() string           { return "minecraft:beehive" }
-func (SculkSensorEntity) ID() string       { return "minecraft:sculk_sensor" }
-func (SculkCatalystEntity) ID() string     { return "minecraft:sculk_catalyst" }
-func (SculkShriekerEntity) ID() string     { return "minecraft:sculk_shrieker" }
-func (ChiseledBookshelfEntity) ID() string { return "minecraft:chiseled_bookshelf" }
-func (SuspiciousSandEntity) ID() string    { return "minecraft:suspicious_sand" }
-func (DecoratedPotEntity) ID() string      { return "minecraft:decorated_pot" }
+func (FurnaceEntity) ID() string               { return "minecraft:furnace" }
+func (ChestEntity) ID() string                 { return "minecraft:chest" }
+func (TrappedChestEntity) ID() string          { return "minecraft:trapped_chest" }
+func (EnderChestEntity) ID() string            { return "minecraft:ender_chest" }
+func (JukeboxEntity) ID() string               { return "minecraft:jukebox" }
+func (DispenserEntity) ID() string             { return "minecraft:dispenser" }
+func (DropperEntity) ID() string               { return "minecraft:dropper" }
+func (SignEntity) ID() string                  { return "minecraft:sign" }
+func (HangingSignEntity) ID() string           { return "minecraft:hanging_sign" }
+func (MobSpawnerEntity) ID() string            { return "minecraft:mob_spawner" }
+func (PistonEntity) ID() string                { return "minecraft:piston" }
+func (BrewingStandEntity) ID() string          { return "minecraft:brewing_stand" }
+func (EnchantingTableEntity) ID() string       { return "minecraft:enchanting_table" }
+func (EndPortalEntity) ID() string             { return "minecraft:end_portal" }
+func (BeaconEntity) ID() string                { return "minecraft:beacon" }
+func (SkullEntity) ID() string                 { return "minecraft:skull" }
+func (DaylightDetectorEntity) ID() string      { return "minecraft:daylight_detector" }
+func (HopperEntity) ID() string                { return "minecraft:hopper" }
+func (ComparatorEntity) ID() string            { return "minecraft:comparator" }
+func (BannerEntity) ID() string                { return "minecraft:banner" }
+func (StructureBlockEntity) ID() string        { return "minecraft:structure_block" }
+func (EndGatewayEntity) ID() string            { return "minecraft:end_gateway" }
+func (CommandBlockEntity) ID() string          { return "minecraft:command_block" }
+func (ShulkerBoxEntity) ID() string            { return "minecraft:shulker_box" }
+func (BedEntity) ID() string                   { return "minecraft:bed" }
+func (ConduitEntity) ID() string               { return "minecraft:conduit" }
+func (BarrelEntity) ID() string                { return "minecraft:barrel" }
+func (SmokerEntity) ID() string                { return "minecraft:smoker" }
+func (BlastFurnaceEntity) ID() string          { return "minecraft:blast_furnace" }
+func (LecternEntity) ID() string               { return "minecraft:lectern" }
+func (BellEntity) ID() string                  { return "minecraft:bell" }
+func (JigsawEntity) ID() string                { return "minecraft:jigsaw" }
+func (CampfireEntity) ID() string              { return "minecraft:campfire" }
+func (BeehiveEntity) ID() string               { return "minecraft:beehive" }
+func (SculkSensorEntity) ID() string           { return "minecraft:sculk_sensor" }
+func (CalibratedSculkSensorEntity) ID() string { return "minecraft:calibrated_sculk_sensor" }
+func (SculkCatalystEntity) ID() string         { return "minecraft:sculk_catalyst" }
+func (SculkShriekerEntity) ID() string         { return "minecraft:sculk_shrieker" }
+func (ChiseledBookshelfEntity) ID() string     { return "minecraft:chiseled_bookshelf" }
+func (BrushableBlockEntity) ID() string        { return "minecraft:brushable_block" }
+func (DecoratedPotEntity) ID() string          { return "minecraft:decorated_pot" }
 
 func (f FurnaceEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:furnace"
@@ -392,6 +394,10 @@ func (s SculkSensorEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:sculk_sensor"
 }
 
+func (c CalibratedSculkSensorEntity) IsValidBlock(block Block) bool {
+	return block.ID() == "minecraft:calibrated_sculk_sensor"
+}
+
 func (s SculkCatalystEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:sculk_catalyst"
 }
@@ -404,8 +410,14 @@ func (c ChiseledBookshelfEntity) IsValidBlock(block Block) bool {
 	return block.ID() == "minecraft:chiseled_bookshelf"
 }
 
-func (s SuspiciousSandEntity) IsValidBlock(block Block) bool {
-	return block.ID() == "minecraft:suspicious_sand"
+func (b BrushableBlockEntity) IsValidBlock(block Block) bool {
+	switch block.ID() {
+	case "minecraft:suspicious_sand",
+		"minecraft:suspicious_gravel":
+		return true
+	default:
+		return false
+	}
 }
 
 func (d DecoratedPotEntity) IsValidBlock(block Block) bool {
