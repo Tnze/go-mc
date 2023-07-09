@@ -85,7 +85,7 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 
 		if cf.ivPos == cf.blockSize<<1 {
 			// bound reached; move to next round for next operation
-			// copy next block to the start of tbe ring buffer
+			// copy next block to the start of the ring buffer
 			copy(cf.iv, cf.iv[cf.ivPos+1:])
 			// insert the encrypted byte to the end of IV
 			if cf.de {
