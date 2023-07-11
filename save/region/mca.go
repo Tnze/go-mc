@@ -16,10 +16,11 @@ var (
 )
 
 // Region contain 32*32 chunks in one .mca file
+// Not MT-Safe!
 type Region struct {
 	f          io.ReadWriteSeeker
 	offsets    [32][32]int32
-	timestamps [32][32]int32
+	Timestamps [32][32]int32
 
 	// sectors record if a sector is in used.
 	// contrary to mojang's, because false is the default value in Go.
@@ -70,7 +71,7 @@ func Load(f io.ReadWriteSeeker) (r *Region, err error) {
 	r.sectors[0] = true
 
 	// read the timestamps
-	err = binary.Read(r.f, binary.BigEndian, &r.timestamps)
+	err = binary.Read(r.f, binary.BigEndian, &r.Timestamps)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +115,7 @@ func CreateWriter(f io.ReadWriteSeeker) (r *Region, err error) {
 	r.sectors[0] = true
 
 	// write the timestamps
-	err = binary.Write(r.f, binary.BigEndian, &r.timestamps)
+	err = binary.Write(r.f, binary.BigEndian, &r.Timestamps)
 	if err != nil {
 		_ = r.Close()
 		return nil, err
@@ -207,6 +208,7 @@ func (r *Region) WriteSector(x, z int, data []byte) error {
 		if err != nil {
 			return err
 		}
+		r.Timestamps[x][z] = int32(time.Now().Unix())
 	}
 
 	_, err := r.f.Seek(4096*int64(n), 0)
