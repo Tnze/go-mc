@@ -16,6 +16,7 @@ import (
 	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
+	"github.com/Tnze/go-mc/net/queue"
 	"github.com/Tnze/go-mc/yggdrasil/user"
 )
 
@@ -35,6 +36,9 @@ type JoinOptions struct {
 	// Specify the player PubKey to use.
 	// If nil, it will be obtained from Mojang when joining
 	KeyPair *user.KeyPairResp
+
+	QueueRead  queue.Queue[pk.Packet]
+	QueueWrite queue.Queue[pk.Packet]
 }
 
 // JoinServer connect a Minecraft server for playing the game.
@@ -48,8 +52,7 @@ func (c *Client) JoinServer(addr string) (err error) {
 
 // JoinServerWithDialer is similar to JoinServer but using a net.Dialer.
 func (c *Client) JoinServerWithDialer(dialer *net.Dialer, addr string) (err error) {
-	return c.join(addr, JoinOptions{
-		Context:  context.Background(),
+	return c.JoinServerWithOptions(addr, JoinOptions{
 		MCDialer: (*mcnet.Dialer)(dialer),
 	})
 }
@@ -60,6 +63,12 @@ func (c *Client) JoinServerWithOptions(addr string, options JoinOptions) (err er
 	}
 	if options.Context == nil {
 		options.Context = context.Background()
+	}
+	if options.QueueRead == nil {
+		options.QueueRead = queue.NewLinkedQueue[pk.Packet]()
+	}
+	if options.QueueWrite == nil {
+		options.QueueWrite = queue.NewLinkedQueue[pk.Packet]()
 	}
 	return c.join(addr, options)
 }
@@ -150,7 +159,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 			if err != nil {
 				return LoginErr{"login success", err}
 			}
-			c.Conn = warpConn(conn)
+			c.Conn = warpConn(conn, options.QueueRead, options.QueueWrite)
 			return nil
 
 		case packetid.LoginCompression: // Set Compression
