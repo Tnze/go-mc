@@ -22,7 +22,7 @@ import (
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
 const (
-	ProtocolVersion = 762
+	ProtocolVersion = 763
 	DefaultPort     = mcnet.DefaultPort
 )
 
