@@ -44,10 +44,7 @@ type JoinOptions struct {
 // JoinServer connect a Minecraft server for playing the game.
 // Using roughly the same way to parse address as minecraft.
 func (c *Client) JoinServer(addr string) (err error) {
-	return c.join(addr, JoinOptions{
-		Context:  context.Background(),
-		MCDialer: &mcnet.DefaultDialer,
-	})
+	return c.JoinServerWithOptions(addr, JoinOptions{})
 }
 
 // JoinServerWithDialer is similar to JoinServer but using a net.Dialer.
