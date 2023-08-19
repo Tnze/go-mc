@@ -49,11 +49,11 @@ type Conn struct {
 	rerr       error
 }
 
-func warpConn(c *net.Conn) *Conn {
+func warpConn(c *net.Conn, qr, qw queue.Queue[pk.Packet]) *Conn {
 	wc := Conn{
 		Conn: c,
-		send: make(queue.ChannelQueue[pk.Packet], 256),
-		recv: make(queue.ChannelQueue[pk.Packet], 256),
+		send: qw,
+		recv: qr,
 		rerr: nil,
 	}
 	go func() {
