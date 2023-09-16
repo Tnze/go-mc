@@ -38,9 +38,19 @@ func NewEncoder(w io.Writer) *Encoder {
 // expect `[]int8`, `[]int32`, `[]int64`, `[]uint8`, `[]uint32` and `[]uint64`,
 // which TagByteArray, TagIntArray and TagLongArray.
 // To force encode them as TagList, add a struct field tag.
-func (e *Encoder) Encode(v any, tagName string) error {
+//
+// After v was encoded into the writer, the writer will be closed if it is an io.Closer.
+// If you want to reuse the writer, use Reset() to reset the writer.
+func (e *Encoder) Encode(v interface{}, tagName string) error {
 	t, val := getTagType(reflect.ValueOf(v))
-	return e.marshal(val, t, tagName)
+	var err error
+	err = e.marshal(val, t, tagName)
+	closer, ok := e.w.(io.Closer)
+	// We don't want to overwrite the previous error
+	if ok && err == nil {
+		err = closer.Close()
+	}
+	return err
 }
 
 func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error {
