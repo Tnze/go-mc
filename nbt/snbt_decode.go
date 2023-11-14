@@ -21,8 +21,6 @@ func writeValue(e *Encoder, d *decodeState, ifWriteTag bool, tagName string) err
 	switch d.opcode {
 	case scanError:
 		return d.error(d.scan.errContext)
-	default:
-		panic(phasePanicMsg)
 
 	case scanBeginLiteral:
 		start := d.readIndex()
@@ -52,30 +50,32 @@ func writeValue(e *Encoder, d *decodeState, ifWriteTag bool, tagName string) err
 	case scanBeginList:
 		_, err := writeListOrArray(e, d, ifWriteTag, tagName)
 		return err
+
+	default:
+		panic(phasePanicMsg)
 	}
 }
 
 func writeLiteralPayload(e *Encoder, v any) (err error) {
-	switch v.(type) {
+	switch v := v.(type) {
 	case string:
-		str := v.(string)
-		err = writeInt16(e.w, int16(len(str)))
+		err = writeInt16(e.w, int16(len(v)))
 		if err != nil {
 			return
 		}
-		_, err = e.w.Write([]byte(str))
+		_, err = e.w.Write([]byte(v))
 	case int8:
-		_, err = e.w.Write([]byte{byte(v.(int8))})
+		_, err = e.w.Write([]byte{byte(v)})
 	case int16:
-		err = writeInt16(e.w, v.(int16))
+		err = writeInt16(e.w, v)
 	case int32:
-		err = writeInt32(e.w, v.(int32))
+		err = writeInt32(e.w, v)
 	case int64:
-		err = writeInt64(e.w, v.(int64))
+		err = writeInt64(e.w, v)
 	case float32:
-		err = writeInt32(e.w, int32(math.Float32bits(v.(float32))))
+		err = writeInt32(e.w, int32(math.Float32bits(v)))
 	case float64:
-		err = writeInt64(e.w, int64(math.Float64bits(v.(float64))))
+		err = writeInt64(e.w, int64(math.Float64bits(v)))
 	}
 	return
 }
@@ -508,7 +508,7 @@ func parseLiteral(literal []byte) (byte, any, error) {
 			case 'S', 's':
 				num, err := strconv.ParseInt(string(literal[:strlen]), 10, 16)
 				return TagShort, int16(num), err
-			default:
+			case 'I', 'i', 0:
 				num, err := strconv.ParseInt(string(literal[:strlen]), 10, 32)
 				return TagInt, int32(num), err
 			case 'L', 'l':

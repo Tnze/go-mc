@@ -2,6 +2,7 @@ package nbt
 
 import (
 	"bytes"
+	"io"
 	"strings"
 	"testing"
 )
@@ -41,7 +42,7 @@ var testCases = []testCase{
 	{`[B; ]`, TagByteArray, []byte{7, 0, 0, 0, 0, 0, 0}},
 	{`[B; 1b ,2B,3B]`, TagByteArray, []byte{7, 0, 0, 0, 0, 0, 3, 1, 2, 3}},
 	{`[I;]`, TagIntArray, []byte{11, 0, 0, 0, 0, 0, 0}},
-	{`[I; 1, 2 ,3]`, TagIntArray, []byte{11, 0, 0, 0, 0, 0, 3, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3}},
+	{`[I; -1, 0, 1, 2 ,3]`, TagIntArray, []byte{11, 0, 0, 0, 0, 0, 5, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3}},
 	{`[L;]`, TagLongArray, []byte{12, 0, 0, 0, 0, 0, 0}},
 	{`[ L; 1L,2L,3L]`, TagLongArray, []byte{12, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 3}},
 	{`{a:[B;]}`, TagCompound, []byte{10, 0, 0, 7, 0, 1, 'a', 0, 0, 0, 0, 0}},
@@ -78,6 +79,20 @@ func TestEncoder_writeSNBT(t *testing.T) {
 		got := buf.Bytes()
 		if !bytes.Equal(want, got) {
 			t.Errorf("Convert SNBT %q wrong:\nwant: % 02X\ngot:  % 02X", testCases[i].snbt, want, got)
+		}
+	}
+}
+
+func TestEncoder_ErrorInput(t *testing.T) {
+	for _, s := range []string{
+		"][",
+		"[I; 1, b, 3]",
+		"[I; 1, -2a, 3]",
+		"[I; 1, -2/I, 3]",
+	} {
+		err := NewEncoder(io.Discard).Encode(StringifiedMessage(s), "")
+		if err == nil {
+			t.Errorf("String %q is not valid SNBT, expeted to got a error", s)
 		}
 	}
 }

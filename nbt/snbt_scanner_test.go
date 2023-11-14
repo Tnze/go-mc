@@ -74,7 +74,9 @@ func TestSNBT_list(t *testing.T) {
 		`[B,C,D]`, `[L, "abc"]`,  // List of string (like array)
 		`[B; 01B, 02B, 3B, 10B, 127B]`, // Array
 		`[I;]`, `[B;   ]`,              // Empty array
-		`{a:[],b:[B;]}`, // List or Array in TagCompound
+		`[I; 1, 2, 3, -1, -2, -3]`, // Int array with negtive numbers
+		`[L; 123L, -123L]`,         // Long array with negtive numbers
+		`{a:[],b:[B;]}`,            // List or Array in TagCompound
 	}
 	var s scanner
 	scan := func(str string) bool {
