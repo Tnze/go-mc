@@ -40,7 +40,6 @@ const (
 	BundleDelimiter ClientboundPacketID = iota
 	ClientboundAddEntity
 	ClientboundAddExperienceOrb
-	ClientboundAddPlayer
 	ClientboundAnimate
 	ClientboundAwardStats
 	ClientboundBlockChangedAck
@@ -50,6 +49,8 @@ const (
 	ClientboundBlockUpdate
 	ClientboundBossEvent
 	ClientboundChangeDifficulty
+	ClientboundChunkBatchFinished
+	ClientboundChunkBatchStart
 	ClientboundChunksBiomes
 	ClientboundClearTitles
 	ClientboundCommandSuggestions
@@ -88,6 +89,7 @@ const (
 	ClientboundOpenScreen
 	ClientboundOpenSignEditor
 	ClientboundPing
+	ClientboundPongResponse
 	ClientboundPlaceGhostRecipe
 	ClientboundPlayerAbilities
 	ClientboundPlayerChat
@@ -136,6 +138,7 @@ const (
 	ClientboundSetTitlesAnimation
 	ClientboundSoundEntity
 	ClientboundSound
+	ClientboundStartConfiguration
 	ClientboundStopSound
 	ClientboundSystemChat
 	ClientboundTabList
@@ -144,7 +147,6 @@ const (
 	ClientboundTeleportEntity
 	ClientboundUpdateAdvancements
 	ClientboundUpdateAttributes
-	ClientboundUpdateEnabledFeatures
 	ClientboundUpdateMobEffect
 	ClientboundUpdateRecipes
 	ClientboundUpdateTags
@@ -160,9 +162,11 @@ const (
 	ServerboundChatCommand
 	ServerboundChat
 	ServerboundChatSessionUpdate
+	ServerboundChunkBatchReceived
 	ServerboundClientCommand
 	ServerboundClientInformation
 	ServerboundCommandSuggestion
+	ServerboundConfigurationAcknowledged
 	ServerboundContainerButtonClick
 	ServerboundContainerClick
 	ServerboundContainerClose
@@ -180,6 +184,7 @@ const (
 	ServerboundMoveVehicle
 	ServerboundPaddleBoat
 	ServerboundPickItem
+	ServerboundPingRequest
 	ServerboundPlaceRecipe
 	ServerboundPlayerAbilities
 	ServerboundPlayerAction
