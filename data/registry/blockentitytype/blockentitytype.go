@@ -47,10 +47,11 @@ const (
 	Campfire
 	Beehive
 	SculkSensor
+	CalibratedSculkSensor
 	SculkCatalyst
 	SculkShrieker
 	ChiseledBookshelf
-	SuspiciousSand
+	BrushableBlock
 	DecoratedPot
 )
 
@@ -90,9 +91,10 @@ var names = []string{
 	"minecraft:campfire",
 	"minecraft:beehive",
 	"minecraft:sculk_sensor",
+	"minecraft:calibrated_sculk_sensor",
 	"minecraft:sculk_catalyst",
 	"minecraft:sculk_shrieker",
 	"minecraft:chiseled_bookshelf",
-	"minecraft:suspicious_sand",
+	"minecraft:brushable_block",
 	"minecraft:decorated_pot",
 }

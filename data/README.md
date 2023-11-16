@@ -5,6 +5,5 @@
    - [gen_block.go](block/gen_block.go) - `blocks.json`
    - [gen_entity.go](entity/gen_entity.go) - `entities.json`
    - [gen_item.go](item/gen_item.go) - `items.json`
-   - [gen_packetid.go](packetid/gen_packetid.go) - `protocol.json`
 3. Update the `URL` in [gen_soundid.go](soundid/gen_soundid.go) (verify the URL returns a response first)
 4. Run `go generate ./...`
