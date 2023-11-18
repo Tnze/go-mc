@@ -77,7 +77,7 @@ func ExampleMarshal_setSlot() {
 	// Output:
 	// 15 00 00 05 00
 	// 15 00 00 05 01 01 01 00
-	// 15 00 00 05 01 01 01 03 00 00 12 34 56 78
+	// 15 00 00 05 01 01 01 03 12 34 56 78
 }
 
 func BenchmarkPacket_Pack_packWithoutCompression(b *testing.B) {

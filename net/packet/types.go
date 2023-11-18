@@ -469,16 +469,15 @@ func (d *Double) ReadFrom(r io.Reader) (n int64, err error) {
 //
 // When using as [FieldDecoder], unknown fields are not allowed by default.
 // For allow unknown fields, using [NBTField] instead.
-func NBT(v any, optionalTagName ...string) Field {
-	if len(optionalTagName) > 0 {
-		return NBTField{V: v, TagName: optionalTagName[0]}
-	}
+func NBT(v any) Field {
 	return NBTField{V: v}
 }
 
+// NBTField is a NBT warpper for convert any type into a Field, allowing to be pack or unpack with network packets.
+//
+// After v1.20.2, the "network format" is used. The root tag nolonger have a tag name anymore.
 type NBTField struct {
-	TagName string
-	V       any
+	V any
 
 	AllowUnknownFields bool
 }
@@ -491,25 +490,27 @@ func (n NBTField) WriteTo(w io.Writer) (int64, error) {
 	// nbt Encode method does not count written bytes,
 	// so we warp the writer to count it.
 	cw := countingWriter{w: w}
-	err := nbt.NewEncoder(&cw).Encode(n.V, n.TagName)
+	enc := nbt.NewEncoder(&cw)
+	enc.NetworkFormat(true)
+	err := enc.Encode(n.V, "")
 	return cw.n, err
 }
 
 func (n NBTField) ReadFrom(r io.Reader) (int64, error) {
 	// LimitReader is used to count reader length
 	cr := countingReader{r: r}
-	decoder := nbt.NewDecoder(&cr)
+	dec := nbt.NewDecoder(&cr)
+	dec.NetworkFormat(true)
 	if !n.AllowUnknownFields {
-		decoder.DisallowUnknownFields()
+		dec.DisallowUnknownFields()
 	}
-	tagName, err := decoder.Decode(n.V)
+	_, err := dec.Decode(n.V)
 	if err != nil {
 		if !errors.Is(err, nbt.ErrEND) {
 			return cr.n, err
 		}
 		err = nil
 	}
-	n.TagName = tagName
 	return cr.n, nil
 }
 

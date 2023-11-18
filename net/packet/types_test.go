@@ -145,8 +145,7 @@ func ExampleNBT() {
 	p := pk.Marshal(
 		packetid.ServerboundPacketID(0),
 		//...
-		pk.NBT(send),           // without tag name
-		pk.NBT(send, "player"), // with tag name
+		pk.NBT(send),
 		//...
 	)
 	fmt.Println("Marshal:")
@@ -156,16 +155,13 @@ func ExampleNBT() {
 	_ = p.Scan(
 		//...
 		pk.NBT(&recv),
-		// pk.NBT(&recv) // The tag name are going to be ignored. To receive the tag name, pk.NBTField has to be used.
 		//...
 	)
 	fmt.Println("Scan:", recv.Name)
 
 	// Output:
 	// Marshal:
-	// 00000000  0a 00 00 08 00 04 6e 61  6d 65 00 04 54 6e 7a 65  |......name..Tnze|
-	// 00000010  00 0a 00 06 70 6c 61 79  65 72 08 00 04 6e 61 6d  |....player...nam|
-	// 00000020  65 00 04 54 6e 7a 65 00                           |e..Tnze.|
+	// 00000000  0a 08 00 04 6e 61 6d 65  00 04 54 6e 7a 65 00     |....name..Tnze.|
 	//
 	// Scan: Tnze
 }
@@ -184,7 +180,7 @@ func TestNBTField_ReadFrom(t *testing.T) {
 		pk.NBTField{V: send},
 	)
 
-	err := p.Scan(pk.NBTField{V: &recv})
+	err := p.Scan(&pk.NBTField{V: &recv})
 	if err == nil {
 		t.Errorf("should be a unknown field error here")
 	}
@@ -194,7 +190,7 @@ func TestNBTField_ReadFrom(t *testing.T) {
 		t.Errorf("disallow unknown field by default")
 	}
 
-	err = p.Scan(pk.NBTField{V: &recv, AllowUnknownFields: true})
+	err = p.Scan(&pk.NBTField{V: &recv, AllowUnknownFields: true})
 	if err != nil {
 		t.Errorf("should allow the unknown field here: %v", err)
 	}

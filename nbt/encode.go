@@ -47,9 +47,14 @@ func (e *Encoder) NetworkFormat(enable bool) {
 // expect `[]int8`, `[]int32`, `[]int64`, `[]uint8`, `[]uint32` and `[]uint64`,
 // which TagByteArray, TagIntArray and TagLongArray.
 // To force encode them as TagList, add a struct field tag.
-func (e *Encoder) Encode(v any, tagName string) error {
+func (e *Encoder) Encode(v any, tagName string) (err error) {
 	t, val := getTagType(reflect.ValueOf(v))
-	if err := writeTag(e.w, t, tagName); err != nil {
+	if e.networkFormat {
+		_, err = e.w.Write([]byte{t})
+	} else {
+		err = writeTag(e.w, t, tagName)
+	}
+	if err != nil {
 		return err
 	}
 	return e.marshal(val, t)
