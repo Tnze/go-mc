@@ -22,11 +22,20 @@ func Marshal(v any) ([]byte, error) {
 }
 
 type Encoder struct {
-	w io.Writer
+	w             io.Writer
+	networkFormat bool
 }
 
 func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{w: w}
+}
+
+// NetworkFormat controls wether encoder encoding nbt in "network format".
+// Means it haven't a tag name for root tag.
+//
+// It is disabled by default.
+func (e *Encoder) NetworkFormat(enable bool) {
+	e.networkFormat = enable
 }
 
 // Encode encodes v into the writer inside Encoder with the root tag named tagName.
@@ -40,13 +49,13 @@ func NewEncoder(w io.Writer) *Encoder {
 // To force encode them as TagList, add a struct field tag.
 func (e *Encoder) Encode(v any, tagName string) error {
 	t, val := getTagType(reflect.ValueOf(v))
-	return e.marshal(val, t, tagName)
-}
-
-func (e *Encoder) marshal(val reflect.Value, tagType byte, tagName string) error {
-	if err := writeTag(e.w, tagType, tagName); err != nil {
+	if err := writeTag(e.w, t, tagName); err != nil {
 		return err
 	}
+	return e.marshal(val, t)
+}
+
+func (e *Encoder) marshal(val reflect.Value, tagType byte) error {
 	if val.CanInterface() {
 		if encoder, ok := val.Interface().(Marshaler); ok {
 			return encoder.MarshalNBT(e.w)
@@ -214,7 +223,10 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 					}
 				}
 
-				if err := e.marshal(v, typ, t.name); err != nil {
+				if err := writeTag(e.w, typ, t.name); err != nil {
+					return err
+				}
+				if err := e.marshal(v, typ); err != nil {
 					return err
 				}
 			}
@@ -232,7 +244,10 @@ func (e *Encoder) writeValue(val reflect.Value, tagType byte) error {
 					return fmt.Errorf("encoding %q error: unsupport type %v", tagName, tagValue.Type())
 				}
 
-				if err := e.marshal(tagValue, tagType, tagName); err != nil {
+				if err := writeTag(e.w, tagType, tagName); err != nil {
+					return err
+				}
+				if err := e.marshal(tagValue, tagType); err != nil {
 					return err
 				}
 			}

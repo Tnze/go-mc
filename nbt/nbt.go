@@ -30,6 +30,7 @@ type DecoderReader = interface {
 type Decoder struct {
 	r                     DecoderReader
 	disallowUnknownFields bool
+	networkFormat         bool
 }
 
 func NewDecoder(r io.Reader) *Decoder {
@@ -46,6 +47,14 @@ func NewDecoder(r io.Reader) *Decoder {
 // tag item that has a tag name not present in the destination struct.
 func (d *Decoder) DisallowUnknownFields() {
 	d.disallowUnknownFields = true
+}
+
+// NetworkFormat controls wether the decoder parsing nbt in "network format".
+// Means it haven't a tag name for root tag.
+//
+// It is disabled by default.
+func (d *Decoder) NetworkFormat(enable bool) {
+	d.networkFormat = enable
 }
 
 type reader struct {

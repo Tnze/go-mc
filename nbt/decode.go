@@ -35,7 +35,14 @@ func (d *Decoder) Decode(v any) (string, error) {
 		return "", errors.New("nbt: non-pointer passed to Decode")
 	}
 	// start read NBT
-	tagType, tagName, err := d.readTag()
+	var tagType byte
+	var tagName string
+	var err error
+	if d.networkFormat {
+		tagType, err = d.r.ReadByte()
+	} else {
+		tagType, tagName, err = d.readTag()
+	}
 	if err != nil {
 		return tagName, fmt.Errorf("nbt: %w", err)
 	}
