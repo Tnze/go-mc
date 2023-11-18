@@ -24,6 +24,19 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+type LoginErr struct {
+	Stage string
+	Err   error
+}
+
+func (l LoginErr) Error() string {
+	return "bot: login error: [" + l.Stage + "] " + l.Err.Error()
+}
+
+func (l LoginErr) Unwrap() error {
+	return l.Err
+}
+
 func (c *Client) joinLogin(conn *net.Conn) error {
 	var err error
 	if c.Auth.UUID != "" {

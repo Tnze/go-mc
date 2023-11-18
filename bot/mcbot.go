@@ -121,19 +121,6 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	return nil
 }
 
-type LoginErr struct {
-	Stage string
-	Err   error
-}
-
-func (l LoginErr) Error() string {
-	return "bot: " + l.Stage + " error: " + l.Err.Error()
-}
-
-func (l LoginErr) Unwrap() error {
-	return l.Err
-}
-
 type DisconnectErr chat.Message
 
 func (d DisconnectErr) Error() string {
