@@ -1,6 +1,6 @@
 # Go-MC
 
-![Version](https://img.shields.io/badge/Minecraft-1.20.1-blue.svg)
+![Version](https://img.shields.io/badge/Minecraft-1.20.2-blue.svg)
 [![Go Reference](https://pkg.go.dev/badge/github.com/Tnze/go-mc.svg)](https://pkg.go.dev/github.com/Tnze/go-mc)
 [![Go Report Card](https://goreportcard.com/badge/github.com/Tnze/go-mc)](https://goreportcard.com/report/github.com/Tnze/go-mc)
 [![Discord](https://img.shields.io/discord/915805561138860063?label=Discord)](https://discord.gg/A4qh8BT8Ue)
@@ -25,9 +25,9 @@ There's some library in Go support you to create your Minecraft client or server
 
 > We don't promise that API is 100% backward compatible.
 
-## Getting start 
+## Getting start
 
-Go-MC tag the old version after new version released. For example, 
+Go-MC tag the old version after new version released. For example,
 if *1.19.4* is the latest Minecraft version, the newest go-mc tag will be *v1.19.3*.
 To get the latest Go-MC that support *1.19.4*, usually you must use `go get -u github.com/Tnze/go-mc@master`.
 Special cases are version like *1.19*, the Go-MC support it is tagged `v1.19.0` to avoid automatically upgrade. 
