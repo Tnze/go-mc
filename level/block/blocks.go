@@ -1155,46 +1155,60 @@ type (
 		Powered Boolean    `nbt:"powered"`
 	}
 	SkeletonSkull struct {
+		Powered  Boolean `nbt:"powered"`
 		Rotation Integer `nbt:"rotation"`
 	}
 	SkeletonWallSkull struct {
-		Facing Direction `nbt:"facing"`
+		Facing  Direction `nbt:"facing"`
+		Powered Boolean   `nbt:"powered"`
 	}
 	WitherSkeletonSkull struct {
+		Powered  Boolean `nbt:"powered"`
 		Rotation Integer `nbt:"rotation"`
 	}
 	WitherSkeletonWallSkull struct {
-		Facing Direction `nbt:"facing"`
+		Facing  Direction `nbt:"facing"`
+		Powered Boolean   `nbt:"powered"`
 	}
 	ZombieHead struct {
+		Powered  Boolean `nbt:"powered"`
 		Rotation Integer `nbt:"rotation"`
 	}
 	ZombieWallHead struct {
-		Facing Direction `nbt:"facing"`
+		Facing  Direction `nbt:"facing"`
+		Powered Boolean   `nbt:"powered"`
 	}
 	PlayerHead struct {
+		Powered  Boolean `nbt:"powered"`
 		Rotation Integer `nbt:"rotation"`
 	}
 	PlayerWallHead struct {
-		Facing Direction `nbt:"facing"`
+		Facing  Direction `nbt:"facing"`
+		Powered Boolean   `nbt:"powered"`
 	}
 	CreeperHead struct {
+		Powered  Boolean `nbt:"powered"`
 		Rotation Integer `nbt:"rotation"`
 	}
 	CreeperWallHead struct {
-		Facing Direction `nbt:"facing"`
+		Facing  Direction `nbt:"facing"`
+		Powered Boolean   `nbt:"powered"`
 	}
 	DragonHead struct {
+		Powered  Boolean `nbt:"powered"`
 		Rotation Integer `nbt:"rotation"`
 	}
 	DragonWallHead struct {
-		Facing Direction `nbt:"facing"`
+		Facing  Direction `nbt:"facing"`
+		Powered Boolean   `nbt:"powered"`
 	}
 	PiglinHead struct {
+		Powered  Boolean `nbt:"powered"`
 		Rotation Integer `nbt:"rotation"`
 	}
 	PiglinWallHead struct {
-		Facing Direction `nbt:"facing"`
+		Facing  Direction `nbt:"facing"`
+		Powered Boolean   `nbt:"powered"`
 	}
 	Anvil struct {
 		Facing Direction `nbt:"facing"`
@@ -1416,8 +1430,10 @@ type (
 		Waterlogged Boolean     `nbt:"waterlogged"`
 	}
 	SlimeBlock struct{}
-	Barrier    struct{}
-	Light      struct {
+	Barrier    struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	Light struct {
 		Level       Integer `nbt:"level"`
 		Waterlogged Boolean `nbt:"waterlogged"`
 	}

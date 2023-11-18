@@ -2,9 +2,7 @@ package pers.tnze.gomc.gen;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.DefaultedRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
@@ -20,7 +18,6 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 public class GenBlocks {
