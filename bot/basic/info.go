@@ -5,12 +5,10 @@ import (
 
 	"github.com/Tnze/go-mc/data/packetid"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/registry"
 )
 
 // WorldInfo content player info in server.
 type WorldInfo struct {
-	RegistryCodec       registry.NetworkCodec
 	DimensionType       string
 	DimensionNames      []string // Identifiers for all worlds on the server.
 	DimensionName       string   // Name of the world being spawned into.
@@ -22,6 +20,7 @@ type WorldInfo struct {
 	EnableRespawnScreen bool     // Set to false when the doImmediateRespawn gamerule is true.
 	IsDebug             bool     // True if the world is a debug mode world; debug mode worlds cannot be modified and have predefined blocks.
 	IsFlat              bool     // True if the world is a superflat world; flat worlds have different void fog and a horizon at y=0 instead of y=63.
+	DoLimitCrafting     bool     // Whether players can only craft recipes they have already unlocked. Currently unused by the client.
 }
 
 type PlayerInfo struct {
@@ -35,20 +34,21 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 	err := packet.Scan(
 		(*pk.Int)(&p.EID),
 		(*pk.Boolean)(&p.Hardcore),
-		(*pk.UnsignedByte)(&p.Gamemode),
-		(*pk.Byte)(&p.PrevGamemode),
 		pk.Array((*[]pk.Identifier)(unsafe.Pointer(&p.DimensionNames))),
-		pk.NBT(&p.WorldInfo.RegistryCodec),
-		(*pk.Identifier)(&p.WorldInfo.DimensionType),
-		(*pk.Identifier)(&p.DimensionName),
-		(*pk.Long)(&p.HashedSeed),
 		(*pk.VarInt)(&p.MaxPlayers),
 		(*pk.VarInt)(&p.ViewDistance),
 		(*pk.VarInt)(&p.SimulationDistance),
 		(*pk.Boolean)(&p.ReducedDebugInfo),
 		(*pk.Boolean)(&p.EnableRespawnScreen),
+		(*pk.Boolean)(&p.DoLimitCrafting),
+		(*pk.Identifier)(&p.WorldInfo.DimensionType),
+		(*pk.Identifier)(&p.DimensionName),
+		(*pk.Long)(&p.HashedSeed),
+		(*pk.UnsignedByte)(&p.Gamemode),
+		(*pk.Byte)(&p.PrevGamemode),
 		(*pk.Boolean)(&p.IsDebug),
 		(*pk.Boolean)(&p.IsFlat),
+		// Death dimension & Death location & Portal cooldown are ignored
 	)
 	if err != nil {
 		return Error{err}
