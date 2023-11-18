@@ -88,7 +88,7 @@ func (m *Manager) handlePlayerChat(packet pk.Packet) error {
 	if !ok {
 		return InvalidChatPacket
 	}
-	ct := m.p.WorldInfo.RegistryCodec.ChatType.FindByID(chatType.ID)
+	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
 	if ct == nil {
 		return InvalidChatPacket
 	}
@@ -141,7 +141,7 @@ func (m *Manager) handleDisguisedChat(packet pk.Packet) error {
 		return err
 	}
 
-	ct := m.p.WorldInfo.RegistryCodec.ChatType.FindByID(chatType.ID)
+	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
 	if ct == nil {
 		return InvalidChatPacket
 	}

@@ -22,6 +22,7 @@ type Client struct {
 
 	Events      Events
 	LoginPlugin map[string]func(data []byte) ([]byte, error)
+	ConfigData
 }
 
 func (c *Client) Close() error {
