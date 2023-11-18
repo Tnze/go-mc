@@ -10,10 +10,7 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/google/uuid"
-
 	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/data/packetid"
 	mcnet "github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/queue"
@@ -22,7 +19,7 @@ import (
 
 // ProtocolVersion is the protocol version number of minecraft net protocol
 const (
-	ProtocolVersion = 763
+	ProtocolVersion = 764
 	DefaultPort     = mcnet.DefaultPort
 )
 
@@ -110,90 +107,18 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	if err != nil {
 		return LoginErr{"handshake", err}
 	}
+
 	// Login Start
-	c.UUID, err = uuid.Parse(c.Auth.UUID)
-	PlayerUUID := pk.Option[pk.UUID, *pk.UUID]{
-		Has: err == nil,
-		Val: pk.UUID(c.UUID),
+	if err := c.joinLogin(conn); err != nil {
+		return err
 	}
-	err = conn.WritePacket(pk.Marshal(
-		packetid.LoginStart,
-		pk.String(c.Auth.Name),
-		PlayerUUID,
-	))
-	if err != nil {
-		return LoginErr{"login start", err}
+
+	// Configuration
+	if err := c.joinConfiguration(conn); err != nil {
+		return err
 	}
-	receiving := "encrypt start"
-	for {
-		// Receive Packet
-		var p pk.Packet
-		if err = conn.ReadPacket(&p); err != nil {
-			return LoginErr{receiving, err}
-		}
-
-		// Handle Packet
-		switch p.ID {
-		case packetid.LoginDisconnect: // LoginDisconnect
-			var reason chat.Message
-			err = p.Scan(&reason)
-			if err != nil {
-				return LoginErr{"disconnect", err}
-			}
-			return LoginErr{"disconnect", DisconnectErr(reason)}
-
-		case packetid.LoginEncryptionRequest: // Encryption Request
-			if err := handleEncryptionRequest(conn, c, p); err != nil {
-				return LoginErr{"encryption", err}
-			}
-			receiving = "set compression"
-
-		case packetid.LoginSuccess: // Login Success
-			err := p.Scan(
-				(*pk.UUID)(&c.UUID),
-				(*pk.String)(&c.Name),
-			)
-			if err != nil {
-				return LoginErr{"login success", err}
-			}
-			c.Conn = warpConn(conn, options.QueueRead, options.QueueWrite)
-			return nil
-
-		case packetid.LoginCompression: // Set Compression
-			var threshold pk.VarInt
-			if err := p.Scan(&threshold); err != nil {
-				return LoginErr{"compression", err}
-			}
-			conn.SetThreshold(int(threshold))
-			receiving = "login success"
-
-		case packetid.LoginPluginRequest: // Login Plugin Request
-			var (
-				msgid   pk.VarInt
-				channel pk.Identifier
-				data    pk.PluginMessageData
-			)
-			if err := p.Scan(&msgid, &channel, &data); err != nil {
-				return LoginErr{"Login Plugin", err}
-			}
-
-			var PluginMessageData pk.Option[pk.PluginMessageData, *pk.PluginMessageData]
-			if handler, ok := c.LoginPlugin[string(channel)]; ok {
-				PluginMessageData.Has = true
-				PluginMessageData.Val, err = handler(data)
-				if err != nil {
-					return LoginErr{"Login Plugin", err}
-				}
-			}
-
-			if err := conn.WritePacket(pk.Marshal(
-				packetid.LoginPluginResponse,
-				msgid, PluginMessageData,
-			)); err != nil {
-				return LoginErr{"login Plugin", err}
-			}
-		}
-	}
+	c.Conn = warpConn(conn, options.QueueRead, options.QueueWrite)
+	return nil
 }
 
 type LoginErr struct {

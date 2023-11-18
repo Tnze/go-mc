@@ -80,7 +80,7 @@ func (s *Server) AcceptConn(conn *net.Conn) {
 			var loginErr LoginFailErr
 			if errors.As(err, &loginErr) {
 				_ = conn.WritePacket(pk.Marshal(
-					packetid.LoginDisconnect,
+					packetid.ClientboundLoginDisconnect,
 					loginErr.reason,
 				))
 			}

@@ -15,11 +15,105 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/google/uuid"
+
+	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
 	"github.com/Tnze/go-mc/net"
 	"github.com/Tnze/go-mc/net/CFB8"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
+
+func (c *Client) joinLogin(conn *net.Conn) error {
+	var err error
+	if c.Auth.UUID != "" {
+		c.UUID, err = uuid.Parse(c.Auth.UUID)
+		if err != nil {
+			return LoginErr{"login start", err}
+		}
+	}
+	err = conn.WritePacket(pk.Marshal(
+		packetid.ServerboundLoginStart,
+		pk.String(c.Auth.Name),
+		pk.UUID(c.UUID),
+	))
+	if err != nil {
+		return LoginErr{"login start", err}
+	}
+	receiving := "encrypt start"
+	for {
+		// Receive Packet
+		var p pk.Packet
+		if err = conn.ReadPacket(&p); err != nil {
+			return LoginErr{receiving, err}
+		}
+
+		// Handle Packet
+		switch packetid.ClientboundPacketID(p.ID) {
+		case packetid.ClientboundLoginDisconnect: // LoginDisconnect
+			var reason chat.Message
+			err = p.Scan(&reason)
+			if err != nil {
+				return LoginErr{"disconnect", err}
+			}
+			return LoginErr{"disconnect", DisconnectErr(reason)}
+
+		case packetid.ClientboundLoginEncryptionRequest: // Encryption Request
+			if err := handleEncryptionRequest(conn, c, p); err != nil {
+				return LoginErr{"encryption", err}
+			}
+			receiving = "set compression"
+
+		case packetid.ClientboundLoginSuccess: // Login Success
+			err := p.Scan(
+				(*pk.UUID)(&c.UUID),
+				(*pk.String)(&c.Name),
+			)
+			if err != nil {
+				return LoginErr{"login success", err}
+			}
+			err = conn.WritePacket(pk.Marshal(packetid.ServerboundLoginAcknowledged))
+			if err != nil {
+				return LoginErr{"login success", err}
+			}
+			return nil
+
+		case packetid.ClientboundLoginCompression: // Set Compression
+			var threshold pk.VarInt
+			if err := p.Scan(&threshold); err != nil {
+				return LoginErr{"compression", err}
+			}
+			conn.SetThreshold(int(threshold))
+			receiving = "login success"
+
+		case packetid.ClientboundLoginPluginRequest: // Login Plugin Request
+			var (
+				msgid   pk.VarInt
+				channel pk.Identifier
+				data    pk.PluginMessageData
+			)
+			if err := p.Scan(&msgid, &channel, &data); err != nil {
+				return LoginErr{"Login Plugin", err}
+			}
+
+			var PluginMessageData pk.Option[pk.PluginMessageData, *pk.PluginMessageData]
+			if handler, ok := c.LoginPlugin[string(channel)]; ok {
+				PluginMessageData.Has = true
+				PluginMessageData.Val, err = handler(data)
+				if err != nil {
+					return LoginErr{"Login Plugin", err}
+				}
+			}
+
+			if err := conn.WritePacket(pk.Marshal(
+				packetid.ServerboundLoginPluginResponse,
+				msgid, PluginMessageData,
+			)); err != nil {
+				return LoginErr{"login Plugin", err}
+			}
+		}
+	}
+}
 
 // Auth includes an account
 type Auth struct {
@@ -196,7 +290,7 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte) (erp p
 		return erp, err
 	}
 	return pk.Marshal(
-		packetid.LoginEncryptionResponse,
+		packetid.ServerboundLoginEncryptionResponse,
 		pk.ByteArray(cryptPK),
 		pk.ByteArray(verifyT),
 	), nil

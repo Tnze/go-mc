@@ -59,15 +59,15 @@ func (s *Server) acceptListPing(conn *net.Conn, clientProtocol int32) {
 			return
 		}
 
-		switch p.ID {
-		case packetid.StatusResponse: // List
+		switch packetid.ClientboundPacketID(p.ID) {
+		case packetid.ClientboundStatusResponse: // List
 			var resp []byte
 			resp, err = s.listResp(clientProtocol)
 			if err != nil {
 				break
 			}
 			err = conn.WritePacket(pk.Marshal(0x00, pk.String(resp)))
-		case packetid.StatusPongResponse: // Ping
+		case packetid.ClientboundStatusPongResponse: // Ping
 			err = conn.WritePacket(p)
 		}
 		if err != nil {

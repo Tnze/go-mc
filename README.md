@@ -41,11 +41,3 @@ To get the first of each primary version: `go get github.com/Tnze/go-mc@v1.19.0`
 
 - Run `go run github.com/Tnze/go-mc/cmd/mcping localhost` to ping and list the localhost mc server.
 - Run `go run github.com/Tnze/go-mc/cmd/daze` to join the local server at *localhost:25565* as player named Daze on the offline mode.
-
-## Supported Version
-
-As the `go-mc/net` package implements the minecraft network protocol, there is no update between the versions at this
-level. So net package actually supports any version. It's just that the ID and content of the package are different
-between different versions.
-
-由于`go-mc/net`实现的是MC底层的网络协议，而这个协议在MC更新时其实并不会有改动，MC更新时其实只是包的ID和内容的定义发生了变化，所以net包本身是跨版本的。
