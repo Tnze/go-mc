@@ -9,30 +9,54 @@ type (
 
 // Login Clientbound
 const (
-	LoginDisconnect = iota
-	LoginEncryptionRequest
-	LoginSuccess
-	LoginCompression
-	LoginPluginRequest
+	ClientboundLoginDisconnect        ClientboundPacketID = iota // LoginDisconnect
+	ClientboundLoginEncryptionRequest                            // Hello
+	ClientboundLoginSuccess                                      // GameProfile
+	ClientboundLoginCompression                                  // LoginCompression
+	ClientboundLoginPluginRequest                                // CustomQuery
 )
 
 // Login Serverbound
 const (
-	LoginStart = iota
-	LoginEncryptionResponse
-	LoginPluginResponse
+	ServerboundLoginStart              ServerboundPacketID = iota // Hello
+	ServerboundLoginEncryptionResponse                            // Key
+	ServerboundLoginPluginResponse                                // CustomQueryAnswer
+	ServerboundLoginAcknowledged                                  // LoginAcknowledged
 )
 
 // Status Clientbound
 const (
-	StatusResponse = iota
-	StatusPongResponse
+	ClientboundStatusResponse ClientboundPacketID = iota
+	ClientboundStatusPongResponse
 )
 
 // Status Serverbound
 const (
-	StatusRequest = iota
-	StatusPingRequest
+	ServerboundStatusRequest ServerboundPacketID = iota
+	ServerboundStatusPingRequest
+)
+
+// Configuration Clientbound
+const (
+	ClientboundConfigCustomPayload ClientboundPacketID = iota
+	ClientboundConfigDisconnect
+	ClientboundConfigFinishConfiguration
+	ClientboundConfigKeepAlive
+	ClientboundConfigPing
+	ClientboundConfigRegistryData
+	ClientboundConfigResourcePack
+	ClientboundConfigUpdateEnabledFeatures
+	ClientboundConfigUpdateTags
+)
+
+// Configuration Serverbound
+const (
+	ServerboundConfigClientInformation ServerboundPacketID = iota
+	ServerboundConfigCustomPayload
+	ServerboundConfigFinishConfiguration
+	ServerboundConfigKeepAlive
+	ServerboundConfigPong
+	ServerboundConfigResourcePack
 )
 
 // Game Clientbound

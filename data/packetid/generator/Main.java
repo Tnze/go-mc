@@ -23,6 +23,11 @@ public class Main {
             handlePackets(w, ConnectionProtocol.STATUS.getPacketsByIds(PacketFlow.SERVERBOUND));
             System.out.println();
             System.out.println();
+            handlePackets(w, ConnectionProtocol.CONFIGURATION.getPacketsByIds(PacketFlow.CLIENTBOUND));
+            System.out.println();
+            handlePackets(w, ConnectionProtocol.CONFIGURATION.getPacketsByIds(PacketFlow.SERVERBOUND));
+            System.out.println();
+            System.out.println();
             handlePackets(w, ConnectionProtocol.PLAY.getPacketsByIds(PacketFlow.CLIENTBOUND));
             System.out.println();
             handlePackets(w, ConnectionProtocol.PLAY.getPacketsByIds(PacketFlow.SERVERBOUND));
