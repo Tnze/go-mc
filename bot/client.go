@@ -17,12 +17,16 @@ type Client struct {
 	Conn *Conn
 	Auth Auth
 
+	// These are filled when login process
+
 	Name string
 	UUID uuid.UUID
-
-	Events      Events
-	LoginPlugin map[string]func(data []byte) ([]byte, error)
 	ConfigData
+
+	// Ingame packet handlers
+	Events Events
+	// Login plugins
+	LoginPlugin map[string]func(data []byte) ([]byte, error)
 }
 
 func (c *Client) Close() error {
