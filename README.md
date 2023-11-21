@@ -39,5 +39,5 @@ To get the first of each primary version: `go get github.com/Tnze/go-mc@v1.19.0`
 
 ### Run Examples
 
-- Run `go run github.com/Tnze/go-mc/cmd/mcping localhost` to ping and list the localhost mc server.
-- Run `go run github.com/Tnze/go-mc/cmd/daze` to join the local server at *localhost:25565* as player named Daze on the offline mode.
+- Run `go run github.com/Tnze/go-mc/examples/mcping localhost` to ping and list the localhost mc server.
+- Run `go run github.com/Tnze/go-mc/examples/daze` to join the local server at *localhost:25565* as player named Daze on the offline mode.
