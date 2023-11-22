@@ -151,7 +151,7 @@ func TestCFB8VectorsOverlapped(t *testing.T) {
 	}
 }
 
-func benchmarkCFB8Overlapped(b *testing.B, stream cipher.Stream) {
+func benchmarkStreamOverlapped(b *testing.B, stream cipher.Stream) {
 	buf := make([]byte, 1024)
 
 	b.SetBytes(int64(len(buf)))
@@ -162,7 +162,7 @@ func benchmarkCFB8Overlapped(b *testing.B, stream cipher.Stream) {
 	}
 }
 
-func benchmarkCFB8NonOverlapping(b *testing.B, stream cipher.Stream) {
+func benchmarkStreamNonOverlapping(b *testing.B, stream cipher.Stream) {
 	buf := make([]byte, 1024)
 	buf2 := make([]byte, 1024)
 
@@ -181,7 +181,7 @@ func BenchmarkCFB8AES1KEncryptOverlapped(b *testing.B) {
 	aes, _ := aes.NewCipher(key[:])
 	stream := NewCFB8Encrypt(aes, iv[:])
 
-	benchmarkCFB8Overlapped(b, stream)
+	benchmarkStreamOverlapped(b, stream)
 }
 
 func BenchmarkCFB8AES1KEncryptNonOverlapping(b *testing.B) {
@@ -192,7 +192,7 @@ func BenchmarkCFB8AES1KEncryptNonOverlapping(b *testing.B) {
 	aes, _ := aes.NewCipher(key[:])
 	stream := NewCFB8Encrypt(aes, iv[:])
 
-	benchmarkCFB8NonOverlapping(b, stream)
+	benchmarkStreamNonOverlapping(b, stream)
 }
 
 func BenchmarkCFB8AES1KDecryptOverlapped(b *testing.B) {
@@ -203,7 +203,7 @@ func BenchmarkCFB8AES1KDecryptOverlapped(b *testing.B) {
 	aes, _ := aes.NewCipher(key[:])
 	stream := NewCFB8Decrypt(aes, iv[:])
 
-	benchmarkCFB8Overlapped(b, stream)
+	benchmarkStreamOverlapped(b, stream)
 }
 
 func BenchmarkCFB8AES1KDecryptNonOverlapping(b *testing.B) {
@@ -214,5 +214,5 @@ func BenchmarkCFB8AES1KDecryptNonOverlapping(b *testing.B) {
 	aes, _ := aes.NewCipher(key[:])
 	stream := NewCFB8Decrypt(aes, iv[:])
 
-	benchmarkCFB8NonOverlapping(b, stream)
+	benchmarkStreamNonOverlapping(b, stream)
 }
