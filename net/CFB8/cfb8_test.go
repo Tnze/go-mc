@@ -3,6 +3,7 @@ package CFB8
 import (
 	"bytes"
 	"crypto/aes"
+	"crypto/cipher"
 	"crypto/rand"
 	"encoding/hex"
 	"testing"
@@ -150,14 +151,8 @@ func TestCFB8VectorsOverlapped(t *testing.T) {
 	}
 }
 
-func BenchmarkCFB8AES1KOverlapped(b *testing.B) {
-	var key [16]byte
-	var iv [16]byte
-	rand.Read(key[:])
-	rand.Read(iv[:])
+func benchmarkStreamOverlapped(b *testing.B, stream cipher.Stream) {
 	buf := make([]byte, 1024)
-	aes, _ := aes.NewCipher(key[:])
-	stream := NewCFB8Encrypt(aes, iv[:])
 
 	b.SetBytes(int64(len(buf)))
 	b.ReportAllocs()
@@ -167,15 +162,9 @@ func BenchmarkCFB8AES1KOverlapped(b *testing.B) {
 	}
 }
 
-func BenchmarkCFB8AES1KNonOverlapping(b *testing.B) {
-	var key [16]byte
-	var iv [16]byte
-	rand.Read(key[:])
-	rand.Read(iv[:])
+func benchmarkStreamNonOverlapping(b *testing.B, stream cipher.Stream) {
 	buf := make([]byte, 1024)
 	buf2 := make([]byte, 1024)
-	aes, _ := aes.NewCipher(key[:])
-	stream := NewCFB8Encrypt(aes, iv[:])
 
 	b.SetBytes(int64(len(buf)))
 	b.ReportAllocs()
@@ -183,4 +172,47 @@ func BenchmarkCFB8AES1KNonOverlapping(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		stream.XORKeyStream(buf2, buf)
 	}
+}
+func BenchmarkCFB8AES1KEncryptOverlapped(b *testing.B) {
+	var key [16]byte
+	var iv [16]byte
+	rand.Read(key[:])
+	rand.Read(iv[:])
+	aes, _ := aes.NewCipher(key[:])
+	stream := NewCFB8Encrypt(aes, iv[:])
+
+	benchmarkStreamOverlapped(b, stream)
+}
+
+func BenchmarkCFB8AES1KEncryptNonOverlapping(b *testing.B) {
+	var key [16]byte
+	var iv [16]byte
+	rand.Read(key[:])
+	rand.Read(iv[:])
+	aes, _ := aes.NewCipher(key[:])
+	stream := NewCFB8Encrypt(aes, iv[:])
+
+	benchmarkStreamNonOverlapping(b, stream)
+}
+
+func BenchmarkCFB8AES1KDecryptOverlapped(b *testing.B) {
+	var key [16]byte
+	var iv [16]byte
+	rand.Read(key[:])
+	rand.Read(iv[:])
+	aes, _ := aes.NewCipher(key[:])
+	stream := NewCFB8Decrypt(aes, iv[:])
+
+	benchmarkStreamOverlapped(b, stream)
+}
+
+func BenchmarkCFB8AES1KDecryptNonOverlapping(b *testing.B) {
+	var key [16]byte
+	var iv [16]byte
+	rand.Read(key[:])
+	rand.Read(iv[:])
+	aes, _ := aes.NewCipher(key[:])
+	stream := NewCFB8Decrypt(aes, iv[:])
+
+	benchmarkStreamNonOverlapping(b, stream)
 }

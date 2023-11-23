@@ -3,6 +3,7 @@ package CFB8
 
 import (
 	"crypto/cipher"
+	"crypto/subtle"
 	"unsafe"
 )
 
@@ -48,7 +49,7 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 		// After this, the IV will come to the same as
 		// the last blockSize of ciphertext, so
 		// we can reuse them without copy.
-		cf.XORKeyStream(dst, src[:cf.blockSize])
+		cf.xorKeyStream(dst, src[:cf.blockSize])
 		var ciphertext []byte
 		if cf.de {
 			ciphertext = src
@@ -63,16 +64,37 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 			i   int
 			val byte
 		)
-		for i, val = range src {
-			cf.c.Encrypt(iv, ciphertext[i:])
-			dst[i] = val ^ iv[0]
+		dst = dst[:len(src)]
+		if cf.de {
+			for i = 0; i < len(src)-cf.blockSize; i += 1 {
+				cf.c.Encrypt(dst[i:], ciphertext[i:])
+			}
+			subtle.XORBytes(dst, src[:i], dst)
+			for ; i < len(src); i += 1 {
+				cf.c.Encrypt(iv, ciphertext[i:])
+				dst[i] = src[i] ^ iv[0]
+			}
+		} else {
+			_ = ciphertext[len(src)]
+			for i, val = range src {
+				cf.c.Encrypt(iv, ciphertext[i:])
+				dst[i] = val ^ iv[0]
+			}
+			// for-range does not increase i in the last loop,
+			// compared to the classic for clause
+			i += 1
 		}
 		// copy the current IV for next operation
-		copy(iv, ciphertext[i+1:i+1+cf.blockSize])
+		copy(iv, ciphertext[i:i+cf.blockSize])
 		cf.ivPos = 0
 		return
 	}
 
+	cf.xorKeyStream(dst, src)
+}
+
+func (cf *CFB8) xorKeyStream(dst, src []byte) {
+	dst = dst[:len(src)] // remove bounds check in loop
 	for i, val := range src {
 		posPlusBlockSize := cf.ivPos + cf.blockSize
 		// fast mod; 2*blockSize must be a non-negative integer power of 2

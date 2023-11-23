@@ -7,7 +7,7 @@
 
 ### [教程 · Tutorial](https://go-mc.github.io/tutorial/)
 
-Require Go version: 1.19
+Require Go version: 1.20
 
 There's some library in Go support you to create your Minecraft client or server.  
 这是一些Golang库，用于帮助你编写自己的Minecraft客户端或服务器。
