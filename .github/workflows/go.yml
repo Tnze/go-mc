@@ -1,31 +1,39 @@
 name: Go
-on: [push, pull_request]
+on: [ push, pull_request ]
 jobs:
 
   test:
     name: Test
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # match the minimum supported and the latest Go versions
+        go_version: [ '1.20', '^1.20' ]
+
     steps:
 
-    - name: Setup Go
-      uses: actions/setup-go@v1
-      with:
-        go-version: 1.19
-      id: go
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
 
-    - name: Check out code into the Go module directory
-      uses: actions/checkout@v1
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ matrix.go_version }}
+          check-latest: true
 
-    - name: Test
-      run: go test ./...
+      - name: Test
+        run: go test ./...
 
-    - run: mkdir -p ./bin/tools
+      - run: mkdir -p ./bin/tools
 
-    - name: Build tools
-      run: go build -o ./bin/tools ./examples/...
-      
-    - name: Upload tools
-      uses: actions/upload-artifact@v1
-      with:
-        name: tools
-        path: ./bin/tools
+      - name: Build tools
+        run: go build -o ./bin/tools ./examples/...
+
+      - name: Upload tools
+        if: ${{ startsWith(matrix.go_version, '^') }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: tools
+          path: ./bin/tools

@@ -3,6 +3,7 @@ package CFB8
 
 import (
 	"crypto/cipher"
+	"crypto/subtle"
 	"unsafe"
 )
 
@@ -68,7 +69,7 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 			for i = 0; i < len(src)-cf.blockSize; i += 1 {
 				cf.c.Encrypt(dst[i:], ciphertext[i:])
 			}
-			xorBytes(dst, src[:i], dst)
+			subtle.XORBytes(dst, src[:i], dst)
 			for ; i < len(src); i += 1 {
 				cf.c.Encrypt(iv, ciphertext[i:])
 				dst[i] = src[i] ^ iv[0]
