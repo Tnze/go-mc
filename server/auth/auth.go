@@ -12,8 +12,8 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
-	"strings"
 
 	"github.com/google/uuid"
 
@@ -152,32 +152,18 @@ func authDigest(serverID string, sharedSecret, publicKey []byte) string {
 	h.Write(publicKey)
 	hash := h.Sum(nil)
 
-	// Check for negative hashes
-	negative := (hash[0] & 0x80) == 0x80
-	if negative {
-		hash = twosComplement(hash)
-	}
+	b := new(big.Int).SetBytes(hash)
 
-	// Trim away zeroes
-	res := strings.TrimLeft(fmt.Sprintf("%x", hash), "0")
-	if negative {
-		res = "-" + res
+	var res string
+
+	// Check for negative hashes
+	if b.Sign() < 0 {
+		res = fmt.Sprintf("-%s", new(big.Int).Neg(b).Text(16))
+	} else {
+		res = b.Text(16)
 	}
 
 	return res
-}
-
-// little endian
-func twosComplement(p []byte) []byte {
-	carry := true
-	for i := len(p) - 1; i >= 0; i-- {
-		p[i] = byte(^p[i])
-		if carry {
-			carry = p[i] == 0xff
-			p[i]++
-		}
-	}
-	return p
 }
 
 // Resp is the response of authentication
