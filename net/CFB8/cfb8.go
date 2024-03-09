@@ -35,6 +35,9 @@ func newCFB8(c cipher.Block, iv []byte, de bool) *CFB8 {
 }
 
 func (cf *CFB8) XORKeyStream(dst, src []byte) {
+	if len(src) == 0 {
+		return
+	}
 	if len(dst) < len(src) {
 		panic("cfb8: output smaller than input")
 	}
