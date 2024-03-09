@@ -35,6 +35,9 @@ func newCFB8(c cipher.Block, iv []byte, de bool) *CFB8 {
 }
 
 func (cf *CFB8) XORKeyStream(dst, src []byte) {
+	if len(src) == 0 {
+		return
+	}
 	if len(dst) < len(src) {
 		panic("cfb8: output smaller than input")
 	}
@@ -65,7 +68,9 @@ func (cf *CFB8) XORKeyStream(dst, src []byte) {
 			val byte
 		)
 		dst = dst[:len(src)]
-		if cf.de {
+		if cf.de && // and requires to be non-overlapping at all
+			uintptr(unsafe.Pointer(&dst[0])) <= uintptr(unsafe.Pointer(&src[len(src)-1])) &&
+			uintptr(unsafe.Pointer(&src[0])) <= uintptr(unsafe.Pointer(&dst[len(dst)-1])) {
 			for i = 0; i < len(src)-cf.blockSize; i += 1 {
 				cf.c.Encrypt(dst[i:], ciphertext[i:])
 			}
