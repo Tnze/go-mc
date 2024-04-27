@@ -114,7 +114,7 @@ func (c *Client) join(addr string, options JoinOptions) error {
 	}
 
 	// Configuration
-	if err := c.joinConfiguration(conn); err != nil {
+	if err := c.AcceptConfiguration(conn); err != nil {
 		return err
 	}
 	c.Conn = warpConn(conn, options.QueueRead, options.QueueWrite)

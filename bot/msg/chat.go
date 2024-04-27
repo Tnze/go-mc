@@ -18,6 +18,7 @@ import (
 )
 
 // The Manager is used to receive and send chat messages.
+// This implement require c.ConfigHandler set to be *bot.ConfigData
 type Manager struct {
 	c      *bot.Client
 	p      *basic.Player
@@ -88,7 +89,7 @@ func (m *Manager) handlePlayerChat(packet pk.Packet) error {
 	if !ok {
 		return InvalidChatPacket
 	}
-	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
+	ct := m.c.ConfigHandler.(*bot.ConfigData).Registries.ChatType.FindByID(chatType.ID)
 	if ct == nil {
 		return InvalidChatPacket
 	}
@@ -141,7 +142,7 @@ func (m *Manager) handleDisguisedChat(packet pk.Packet) error {
 		return err
 	}
 
-	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
+	ct := m.c.ConfigHandler.(*bot.ConfigData).Registries.ChatType.FindByID(chatType.ID)
 	if ct == nil {
 		return InvalidChatPacket
 	}

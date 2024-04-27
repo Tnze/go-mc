@@ -10,6 +10,11 @@ import (
 	"github.com/Tnze/go-mc/registry"
 )
 
+type ConfigHandler interface {
+	AcceptConfiguration(conn *net.Conn) error
+}
+
+// ConfigData implement ConfigHandler
 type ConfigData struct {
 	Registries   registry.NetworkCodec
 	ResourcePack struct {
@@ -34,7 +39,7 @@ func (l ConfigErr) Unwrap() error {
 	return l.Err
 }
 
-func (c *Client) joinConfiguration(conn *net.Conn) error {
+func (c *ConfigData) AcceptConfiguration(conn *net.Conn) error {
 	receiving := "config custom payload"
 	for {
 		var p pk.Packet
@@ -100,7 +105,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			}
 
 		case packetid.ClientboundConfigRegistryData:
-			err := p.Scan(pk.NBT(&c.ConfigData.Registries))
+			err := p.Scan(pk.NBT(&c.Registries))
 			if err != nil {
 				return ConfigErr{"registry data", err}
 			}
@@ -118,15 +123,15 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			if err != nil {
 				return ConfigErr{"resource pack", err}
 			}
-			c.ConfigData.ResourcePack.URL = string(Url)
-			c.ConfigData.ResourcePack.Hash = string(Hash)
-			c.ConfigData.ResourcePack.Forced = bool(Forced)
+			c.ResourcePack.URL = string(Url)
+			c.ResourcePack.Hash = string(Hash)
+			c.ResourcePack.Forced = bool(Forced)
 			if PromptMessage.Has {
-				c.ConfigData.ResourcePack.PromptMessage = &PromptMessage.Val
+				c.ResourcePack.PromptMessage = &PromptMessage.Val
 			}
 
 		case packetid.ClientboundConfigUpdateEnabledFeatures:
-			err := p.Scan(pk.Array((*[]pk.Identifier)(unsafe.Pointer(&c.ConfigData.FeatureFlags))))
+			err := p.Scan(pk.Array((*[]pk.Identifier)(unsafe.Pointer(&c.FeatureFlags))))
 			if err != nil {
 				return ConfigErr{"update enabled features", err}
 			}

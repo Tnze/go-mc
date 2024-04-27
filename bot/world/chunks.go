@@ -10,6 +10,8 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
+// World implement chunk receiving and storing.
+// This implement require c.ConfigHandler set to be *bot.ConfigData
 type World struct {
 	c      *bot.Client
 	p      *basic.Player
@@ -41,7 +43,7 @@ func (w *World) onPlayerSpawn(pk.Packet) error {
 
 func (w *World) handleLevelChunkWithLightPacket(packet pk.Packet) error {
 	var pos level.ChunkPos
-	_, currentDimType := w.c.ConfigData.Registries.DimensionType.Find(w.p.DimensionType)
+	_, currentDimType := w.c.ConfigHandler.(*bot.ConfigData).Registries.DimensionType.Find(w.p.DimensionType)
 	if currentDimType == nil {
 		return errors.New("dimension type " + w.p.DimensionType + " not found")
 	}

@@ -22,8 +22,11 @@ type registry struct {
 }
 
 // This file is generated with following command
-//  java -DbundlerMainClass="net.minecraft.data.Main" -jar server.jar --all
+//
+//	java -DbundlerMainClass="net.minecraft.data.Main" -jar server.jar --all
+//
 // And you can found it at the generated\reports\ folder.
+//
 //go:embed registries.json
 var registersJson []byte
 

@@ -14,14 +14,14 @@ import (
 
 // Client is used to access Minecraft server
 type Client struct {
-	Conn *Conn
-	Auth Auth
+	Conn          *Conn
+	Auth          Auth
+	ConfigHandler // This is a ConfigData by default
 
 	// These are filled when login process
 
 	Name string
 	UUID uuid.UUID
-	ConfigData
 
 	// Ingame packet handlers
 	Events Events
@@ -42,8 +42,9 @@ func (c *Client) Close() error {
 // and load your Name, UUID and AccessToken to client.
 func NewClient() *Client {
 	return &Client{
-		Auth:   Auth{Name: "Steve"},
-		Events: Events{handlers: make([][]PacketHandler, packetid.ClientboundPacketIDGuard)},
+		Auth:          Auth{Name: "Steve"},
+		ConfigHandler: new(ConfigData),
+		Events:        Events{handlers: make([][]PacketHandler, packetid.ClientboundPacketIDGuard)},
 	}
 }
 
