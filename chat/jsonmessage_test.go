@@ -90,10 +90,10 @@ func TestMessage_ClearString(t *testing.T) {
 	}
 }
 
-func TestMessage_WriteTo(t *testing.T) {
+func TestJsonMessage_WriteTo(t *testing.T) {
 	chat.SetLanguage(en_us.Map)
 	var codeMsg bytes.Buffer
-	_, _ = chat.Message{Translate: "multiplayer.disconnect.server_full"}.WriteTo(&codeMsg)
+	_, _ = chat.JsonMessage{Translate: "multiplayer.disconnect.server_full"}.WriteTo(&codeMsg)
 
 	var msg pk.String // Decode as a String
 	if _, err := msg.ReadFrom(&codeMsg); err != nil {
