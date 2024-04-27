@@ -43,7 +43,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 		}
 
 		switch packetid.ClientboundPacketID(p.ID) {
-		case packetid.ClientboundConfigCustomPayload:
+		case packetid.ClientboundCustomPayload:
 			var channel pk.Identifier
 			var data pk.PluginMessageData
 			err := p.Scan(&channel, &data)
@@ -52,7 +52,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			}
 			// TODO: Provide configuration custom data handling interface
 
-		case packetid.ClientboundConfigDisconnect:
+		case packetid.ClientboundDisconnect:
 			var reason chat.Message
 			err := p.Scan(&reason)
 			if err != nil {

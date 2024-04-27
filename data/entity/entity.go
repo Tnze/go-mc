@@ -107,9 +107,18 @@ var (
 		Height:      0.5625,
 		Type:        "other",
 	}
-	Camel = Entity{
+	Breeze = Entity{
 		ID:          10,
 		InternalID:  10,
+		DisplayName: "Breeze",
+		Name:        "breeze",
+		Width:       0.6,
+		Height:      1.7,
+		Type:        "hostile",
+	}
+	Camel = Entity{
+		ID:          11,
+		InternalID:  11,
 		DisplayName: "Camel",
 		Name:        "camel",
 		Width:       1.7,
@@ -117,8 +126,8 @@ var (
 		Type:        "animal",
 	}
 	Cat = Entity{
-		ID:          11,
-		InternalID:  11,
+		ID:          12,
+		InternalID:  12,
 		DisplayName: "Cat",
 		Name:        "cat",
 		Width:       0.6,
@@ -126,8 +135,8 @@ var (
 		Type:        "animal",
 	}
 	CaveSpider = Entity{
-		ID:          12,
-		InternalID:  12,
+		ID:          13,
+		InternalID:  13,
 		DisplayName: "Cave Spider",
 		Name:        "cave_spider",
 		Width:       0.7,
@@ -135,8 +144,8 @@ var (
 		Type:        "hostile",
 	}
 	ChestBoat = Entity{
-		ID:          13,
-		InternalID:  13,
+		ID:          14,
+		InternalID:  14,
 		DisplayName: "Boat with Chest",
 		Name:        "chest_boat",
 		Width:       1.375,
@@ -144,8 +153,8 @@ var (
 		Type:        "other",
 	}
 	ChestMinecart = Entity{
-		ID:          14,
-		InternalID:  14,
+		ID:          15,
+		InternalID:  15,
 		DisplayName: "Minecart with Chest",
 		Name:        "chest_minecart",
 		Width:       0.98,
@@ -153,8 +162,8 @@ var (
 		Type:        "other",
 	}
 	Chicken = Entity{
-		ID:          15,
-		InternalID:  15,
+		ID:          16,
+		InternalID:  16,
 		DisplayName: "Chicken",
 		Name:        "chicken",
 		Width:       0.4,
@@ -162,8 +171,8 @@ var (
 		Type:        "animal",
 	}
 	Cod = Entity{
-		ID:          16,
-		InternalID:  16,
+		ID:          17,
+		InternalID:  17,
 		DisplayName: "Cod",
 		Name:        "cod",
 		Width:       0.5,
@@ -171,8 +180,8 @@ var (
 		Type:        "water_creature",
 	}
 	CommandBlockMinecart = Entity{
-		ID:          17,
-		InternalID:  17,
+		ID:          18,
+		InternalID:  18,
 		DisplayName: "Minecart with Command Block",
 		Name:        "command_block_minecart",
 		Width:       0.98,
@@ -180,8 +189,8 @@ var (
 		Type:        "other",
 	}
 	Cow = Entity{
-		ID:          18,
-		InternalID:  18,
+		ID:          19,
+		InternalID:  19,
 		DisplayName: "Cow",
 		Name:        "cow",
 		Width:       0.9,
@@ -189,8 +198,8 @@ var (
 		Type:        "animal",
 	}
 	Creeper = Entity{
-		ID:          19,
-		InternalID:  19,
+		ID:          20,
+		InternalID:  20,
 		DisplayName: "Creeper",
 		Name:        "creeper",
 		Width:       0.6,
@@ -198,8 +207,8 @@ var (
 		Type:        "hostile",
 	}
 	Dolphin = Entity{
-		ID:          20,
-		InternalID:  20,
+		ID:          21,
+		InternalID:  21,
 		DisplayName: "Dolphin",
 		Name:        "dolphin",
 		Width:       0.9,
@@ -207,8 +216,8 @@ var (
 		Type:        "water_creature",
 	}
 	Donkey = Entity{
-		ID:          21,
-		InternalID:  21,
+		ID:          22,
+		InternalID:  22,
 		DisplayName: "Donkey",
 		Name:        "donkey",
 		Width:       1.3964844,
@@ -216,8 +225,8 @@ var (
 		Type:        "animal",
 	}
 	DragonFireball = Entity{
-		ID:          22,
-		InternalID:  22,
+		ID:          23,
+		InternalID:  23,
 		DisplayName: "Dragon Fireball",
 		Name:        "dragon_fireball",
 		Width:       1,
@@ -225,8 +234,8 @@ var (
 		Type:        "projectile",
 	}
 	Drowned = Entity{
-		ID:          23,
-		InternalID:  23,
+		ID:          24,
+		InternalID:  24,
 		DisplayName: "Drowned",
 		Name:        "drowned",
 		Width:       0.6,
@@ -234,8 +243,8 @@ var (
 		Type:        "hostile",
 	}
 	Egg = Entity{
-		ID:          24,
-		InternalID:  24,
+		ID:          25,
+		InternalID:  25,
 		DisplayName: "Thrown Egg",
 		Name:        "egg",
 		Width:       0.25,
@@ -243,8 +252,8 @@ var (
 		Type:        "projectile",
 	}
 	ElderGuardian = Entity{
-		ID:          25,
-		InternalID:  25,
+		ID:          26,
+		InternalID:  26,
 		DisplayName: "Elder Guardian",
 		Name:        "elder_guardian",
 		Width:       1.9975,
@@ -252,8 +261,8 @@ var (
 		Type:        "hostile",
 	}
 	EndCrystal = Entity{
-		ID:          26,
-		InternalID:  26,
+		ID:          27,
+		InternalID:  27,
 		DisplayName: "End Crystal",
 		Name:        "end_crystal",
 		Width:       2,
@@ -261,8 +270,8 @@ var (
 		Type:        "other",
 	}
 	EnderDragon = Entity{
-		ID:          27,
-		InternalID:  27,
+		ID:          28,
+		InternalID:  28,
 		DisplayName: "Ender Dragon",
 		Name:        "ender_dragon",
 		Width:       16,
@@ -270,8 +279,8 @@ var (
 		Type:        "mob",
 	}
 	EnderPearl = Entity{
-		ID:          28,
-		InternalID:  28,
+		ID:          29,
+		InternalID:  29,
 		DisplayName: "Thrown Ender Pearl",
 		Name:        "ender_pearl",
 		Width:       0.25,
@@ -279,8 +288,8 @@ var (
 		Type:        "projectile",
 	}
 	Enderman = Entity{
-		ID:          29,
-		InternalID:  29,
+		ID:          30,
+		InternalID:  30,
 		DisplayName: "Enderman",
 		Name:        "enderman",
 		Width:       0.6,
@@ -288,8 +297,8 @@ var (
 		Type:        "hostile",
 	}
 	Endermite = Entity{
-		ID:          30,
-		InternalID:  30,
+		ID:          31,
+		InternalID:  31,
 		DisplayName: "Endermite",
 		Name:        "endermite",
 		Width:       0.4,
@@ -297,8 +306,8 @@ var (
 		Type:        "hostile",
 	}
 	Evoker = Entity{
-		ID:          31,
-		InternalID:  31,
+		ID:          32,
+		InternalID:  32,
 		DisplayName: "Evoker",
 		Name:        "evoker",
 		Width:       0.6,
@@ -306,8 +315,8 @@ var (
 		Type:        "hostile",
 	}
 	EvokerFangs = Entity{
-		ID:          32,
-		InternalID:  32,
+		ID:          33,
+		InternalID:  33,
 		DisplayName: "Evoker Fangs",
 		Name:        "evoker_fangs",
 		Width:       0.5,
@@ -315,8 +324,8 @@ var (
 		Type:        "other",
 	}
 	ExperienceBottle = Entity{
-		ID:          33,
-		InternalID:  33,
+		ID:          34,
+		InternalID:  34,
 		DisplayName: "Thrown Bottle o' Enchanting",
 		Name:        "experience_bottle",
 		Width:       0.25,
@@ -324,8 +333,8 @@ var (
 		Type:        "projectile",
 	}
 	ExperienceOrb = Entity{
-		ID:          34,
-		InternalID:  34,
+		ID:          35,
+		InternalID:  35,
 		DisplayName: "Experience Orb",
 		Name:        "experience_orb",
 		Width:       0.5,
@@ -333,8 +342,8 @@ var (
 		Type:        "other",
 	}
 	EyeOfEnder = Entity{
-		ID:          35,
-		InternalID:  35,
+		ID:          36,
+		InternalID:  36,
 		DisplayName: "Eye of Ender",
 		Name:        "eye_of_ender",
 		Width:       0.25,
@@ -342,8 +351,8 @@ var (
 		Type:        "other",
 	}
 	FallingBlock = Entity{
-		ID:          36,
-		InternalID:  36,
+		ID:          37,
+		InternalID:  37,
 		DisplayName: "Falling Block",
 		Name:        "falling_block",
 		Width:       0.98,
@@ -351,8 +360,8 @@ var (
 		Type:        "other",
 	}
 	FireworkRocket = Entity{
-		ID:          37,
-		InternalID:  37,
+		ID:          38,
+		InternalID:  38,
 		DisplayName: "Firework Rocket",
 		Name:        "firework_rocket",
 		Width:       0.25,
@@ -360,8 +369,8 @@ var (
 		Type:        "projectile",
 	}
 	Fox = Entity{
-		ID:          38,
-		InternalID:  38,
+		ID:          39,
+		InternalID:  39,
 		DisplayName: "Fox",
 		Name:        "fox",
 		Width:       0.6,
@@ -369,8 +378,8 @@ var (
 		Type:        "animal",
 	}
 	Frog = Entity{
-		ID:          39,
-		InternalID:  39,
+		ID:          40,
+		InternalID:  40,
 		DisplayName: "Frog",
 		Name:        "frog",
 		Width:       0.5,
@@ -378,8 +387,8 @@ var (
 		Type:        "animal",
 	}
 	FurnaceMinecart = Entity{
-		ID:          40,
-		InternalID:  40,
+		ID:          41,
+		InternalID:  41,
 		DisplayName: "Minecart with Furnace",
 		Name:        "furnace_minecart",
 		Width:       0.98,
@@ -387,8 +396,8 @@ var (
 		Type:        "other",
 	}
 	Ghast = Entity{
-		ID:          41,
-		InternalID:  41,
+		ID:          42,
+		InternalID:  42,
 		DisplayName: "Ghast",
 		Name:        "ghast",
 		Width:       4,
@@ -396,8 +405,8 @@ var (
 		Type:        "mob",
 	}
 	Giant = Entity{
-		ID:          42,
-		InternalID:  42,
+		ID:          43,
+		InternalID:  43,
 		DisplayName: "Giant",
 		Name:        "giant",
 		Width:       3.6,
@@ -405,8 +414,8 @@ var (
 		Type:        "hostile",
 	}
 	GlowItemFrame = Entity{
-		ID:          43,
-		InternalID:  43,
+		ID:          44,
+		InternalID:  44,
 		DisplayName: "Glow Item Frame",
 		Name:        "glow_item_frame",
 		Width:       0.5,
@@ -414,8 +423,8 @@ var (
 		Type:        "other",
 	}
 	GlowSquid = Entity{
-		ID:          44,
-		InternalID:  44,
+		ID:          45,
+		InternalID:  45,
 		DisplayName: "Glow Squid",
 		Name:        "glow_squid",
 		Width:       0.8,
@@ -423,8 +432,8 @@ var (
 		Type:        "water_creature",
 	}
 	Goat = Entity{
-		ID:          45,
-		InternalID:  45,
+		ID:          46,
+		InternalID:  46,
 		DisplayName: "Goat",
 		Name:        "goat",
 		Width:       0.9,
@@ -432,8 +441,8 @@ var (
 		Type:        "animal",
 	}
 	Guardian = Entity{
-		ID:          46,
-		InternalID:  46,
+		ID:          47,
+		InternalID:  47,
 		DisplayName: "Guardian",
 		Name:        "guardian",
 		Width:       0.85,
@@ -441,8 +450,8 @@ var (
 		Type:        "hostile",
 	}
 	Hoglin = Entity{
-		ID:          47,
-		InternalID:  47,
+		ID:          48,
+		InternalID:  48,
 		DisplayName: "Hoglin",
 		Name:        "hoglin",
 		Width:       1.3964844,
@@ -450,8 +459,8 @@ var (
 		Type:        "animal",
 	}
 	HopperMinecart = Entity{
-		ID:          48,
-		InternalID:  48,
+		ID:          49,
+		InternalID:  49,
 		DisplayName: "Minecart with Hopper",
 		Name:        "hopper_minecart",
 		Width:       0.98,
@@ -459,8 +468,8 @@ var (
 		Type:        "other",
 	}
 	Horse = Entity{
-		ID:          49,
-		InternalID:  49,
+		ID:          50,
+		InternalID:  50,
 		DisplayName: "Horse",
 		Name:        "horse",
 		Width:       1.3964844,
@@ -468,8 +477,8 @@ var (
 		Type:        "animal",
 	}
 	Husk = Entity{
-		ID:          50,
-		InternalID:  50,
+		ID:          51,
+		InternalID:  51,
 		DisplayName: "Husk",
 		Name:        "husk",
 		Width:       0.6,
@@ -477,8 +486,8 @@ var (
 		Type:        "hostile",
 	}
 	Illusioner = Entity{
-		ID:          51,
-		InternalID:  51,
+		ID:          52,
+		InternalID:  52,
 		DisplayName: "Illusioner",
 		Name:        "illusioner",
 		Width:       0.6,
@@ -486,8 +495,8 @@ var (
 		Type:        "hostile",
 	}
 	Interaction = Entity{
-		ID:          52,
-		InternalID:  52,
+		ID:          53,
+		InternalID:  53,
 		DisplayName: "Interaction",
 		Name:        "interaction",
 		Width:       0,
@@ -495,8 +504,8 @@ var (
 		Type:        "other",
 	}
 	IronGolem = Entity{
-		ID:          53,
-		InternalID:  53,
+		ID:          54,
+		InternalID:  54,
 		DisplayName: "Iron Golem",
 		Name:        "iron_golem",
 		Width:       1.4,
@@ -504,8 +513,8 @@ var (
 		Type:        "mob",
 	}
 	Item = Entity{
-		ID:          54,
-		InternalID:  54,
+		ID:          55,
+		InternalID:  55,
 		DisplayName: "Item",
 		Name:        "item",
 		Width:       0.25,
@@ -513,8 +522,8 @@ var (
 		Type:        "other",
 	}
 	ItemDisplay = Entity{
-		ID:          55,
-		InternalID:  55,
+		ID:          56,
+		InternalID:  56,
 		DisplayName: "Item Display",
 		Name:        "item_display",
 		Width:       0,
@@ -522,8 +531,8 @@ var (
 		Type:        "other",
 	}
 	ItemFrame = Entity{
-		ID:          56,
-		InternalID:  56,
+		ID:          57,
+		InternalID:  57,
 		DisplayName: "Item Frame",
 		Name:        "item_frame",
 		Width:       0.5,
@@ -531,8 +540,8 @@ var (
 		Type:        "other",
 	}
 	Fireball = Entity{
-		ID:          57,
-		InternalID:  57,
+		ID:          58,
+		InternalID:  58,
 		DisplayName: "Fireball",
 		Name:        "fireball",
 		Width:       1,
@@ -540,8 +549,8 @@ var (
 		Type:        "projectile",
 	}
 	LeashKnot = Entity{
-		ID:          58,
-		InternalID:  58,
+		ID:          59,
+		InternalID:  59,
 		DisplayName: "Leash Knot",
 		Name:        "leash_knot",
 		Width:       0.375,
@@ -549,8 +558,8 @@ var (
 		Type:        "other",
 	}
 	LightningBolt = Entity{
-		ID:          59,
-		InternalID:  59,
+		ID:          60,
+		InternalID:  60,
 		DisplayName: "Lightning Bolt",
 		Name:        "lightning_bolt",
 		Width:       0,
@@ -558,8 +567,8 @@ var (
 		Type:        "other",
 	}
 	Llama = Entity{
-		ID:          60,
-		InternalID:  60,
+		ID:          61,
+		InternalID:  61,
 		DisplayName: "Llama",
 		Name:        "llama",
 		Width:       0.9,
@@ -567,8 +576,8 @@ var (
 		Type:        "animal",
 	}
 	LlamaSpit = Entity{
-		ID:          61,
-		InternalID:  61,
+		ID:          62,
+		InternalID:  62,
 		DisplayName: "Llama Spit",
 		Name:        "llama_spit",
 		Width:       0.25,
@@ -576,8 +585,8 @@ var (
 		Type:        "projectile",
 	}
 	MagmaCube = Entity{
-		ID:          62,
-		InternalID:  62,
+		ID:          63,
+		InternalID:  63,
 		DisplayName: "Magma Cube",
 		Name:        "magma_cube",
 		Width:       2.04,
@@ -585,8 +594,8 @@ var (
 		Type:        "mob",
 	}
 	Marker = Entity{
-		ID:          63,
-		InternalID:  63,
+		ID:          64,
+		InternalID:  64,
 		DisplayName: "Marker",
 		Name:        "marker",
 		Width:       0,
@@ -594,8 +603,8 @@ var (
 		Type:        "other",
 	}
 	Minecart = Entity{
-		ID:          64,
-		InternalID:  64,
+		ID:          65,
+		InternalID:  65,
 		DisplayName: "Minecart",
 		Name:        "minecart",
 		Width:       0.98,
@@ -603,8 +612,8 @@ var (
 		Type:        "other",
 	}
 	Mooshroom = Entity{
-		ID:          65,
-		InternalID:  65,
+		ID:          66,
+		InternalID:  66,
 		DisplayName: "Mooshroom",
 		Name:        "mooshroom",
 		Width:       0.9,
@@ -612,8 +621,8 @@ var (
 		Type:        "animal",
 	}
 	Mule = Entity{
-		ID:          66,
-		InternalID:  66,
+		ID:          67,
+		InternalID:  67,
 		DisplayName: "Mule",
 		Name:        "mule",
 		Width:       1.3964844,
@@ -621,8 +630,8 @@ var (
 		Type:        "animal",
 	}
 	Ocelot = Entity{
-		ID:          67,
-		InternalID:  67,
+		ID:          68,
+		InternalID:  68,
 		DisplayName: "Ocelot",
 		Name:        "ocelot",
 		Width:       0.6,
@@ -630,8 +639,8 @@ var (
 		Type:        "animal",
 	}
 	Painting = Entity{
-		ID:          68,
-		InternalID:  68,
+		ID:          69,
+		InternalID:  69,
 		DisplayName: "Painting",
 		Name:        "painting",
 		Width:       0.5,
@@ -639,8 +648,8 @@ var (
 		Type:        "other",
 	}
 	Panda = Entity{
-		ID:          69,
-		InternalID:  69,
+		ID:          70,
+		InternalID:  70,
 		DisplayName: "Panda",
 		Name:        "panda",
 		Width:       1.3,
@@ -648,8 +657,8 @@ var (
 		Type:        "animal",
 	}
 	Parrot = Entity{
-		ID:          70,
-		InternalID:  70,
+		ID:          71,
+		InternalID:  71,
 		DisplayName: "Parrot",
 		Name:        "parrot",
 		Width:       0.5,
@@ -657,8 +666,8 @@ var (
 		Type:        "animal",
 	}
 	Phantom = Entity{
-		ID:          71,
-		InternalID:  71,
+		ID:          72,
+		InternalID:  72,
 		DisplayName: "Phantom",
 		Name:        "phantom",
 		Width:       0.9,
@@ -666,8 +675,8 @@ var (
 		Type:        "mob",
 	}
 	Pig = Entity{
-		ID:          72,
-		InternalID:  72,
+		ID:          73,
+		InternalID:  73,
 		DisplayName: "Pig",
 		Name:        "pig",
 		Width:       0.9,
@@ -675,8 +684,8 @@ var (
 		Type:        "animal",
 	}
 	Piglin = Entity{
-		ID:          73,
-		InternalID:  73,
+		ID:          74,
+		InternalID:  74,
 		DisplayName: "Piglin",
 		Name:        "piglin",
 		Width:       0.6,
@@ -684,8 +693,8 @@ var (
 		Type:        "hostile",
 	}
 	PiglinBrute = Entity{
-		ID:          74,
-		InternalID:  74,
+		ID:          75,
+		InternalID:  75,
 		DisplayName: "Piglin Brute",
 		Name:        "piglin_brute",
 		Width:       0.6,
@@ -693,8 +702,8 @@ var (
 		Type:        "hostile",
 	}
 	Pillager = Entity{
-		ID:          75,
-		InternalID:  75,
+		ID:          76,
+		InternalID:  76,
 		DisplayName: "Pillager",
 		Name:        "pillager",
 		Width:       0.6,
@@ -702,8 +711,8 @@ var (
 		Type:        "hostile",
 	}
 	PolarBear = Entity{
-		ID:          76,
-		InternalID:  76,
+		ID:          77,
+		InternalID:  77,
 		DisplayName: "Polar Bear",
 		Name:        "polar_bear",
 		Width:       1.4,
@@ -711,8 +720,8 @@ var (
 		Type:        "animal",
 	}
 	Potion = Entity{
-		ID:          77,
-		InternalID:  77,
+		ID:          78,
+		InternalID:  78,
 		DisplayName: "Potion",
 		Name:        "potion",
 		Width:       0.25,
@@ -720,8 +729,8 @@ var (
 		Type:        "projectile",
 	}
 	Pufferfish = Entity{
-		ID:          78,
-		InternalID:  78,
+		ID:          79,
+		InternalID:  79,
 		DisplayName: "Pufferfish",
 		Name:        "pufferfish",
 		Width:       0.7,
@@ -729,8 +738,8 @@ var (
 		Type:        "water_creature",
 	}
 	Rabbit = Entity{
-		ID:          79,
-		InternalID:  79,
+		ID:          80,
+		InternalID:  80,
 		DisplayName: "Rabbit",
 		Name:        "rabbit",
 		Width:       0.4,
@@ -738,8 +747,8 @@ var (
 		Type:        "animal",
 	}
 	Ravager = Entity{
-		ID:          80,
-		InternalID:  80,
+		ID:          81,
+		InternalID:  81,
 		DisplayName: "Ravager",
 		Name:        "ravager",
 		Width:       1.95,
@@ -747,8 +756,8 @@ var (
 		Type:        "hostile",
 	}
 	Salmon = Entity{
-		ID:          81,
-		InternalID:  81,
+		ID:          82,
+		InternalID:  82,
 		DisplayName: "Salmon",
 		Name:        "salmon",
 		Width:       0.7,
@@ -756,8 +765,8 @@ var (
 		Type:        "water_creature",
 	}
 	Sheep = Entity{
-		ID:          82,
-		InternalID:  82,
+		ID:          83,
+		InternalID:  83,
 		DisplayName: "Sheep",
 		Name:        "sheep",
 		Width:       0.9,
@@ -765,8 +774,8 @@ var (
 		Type:        "animal",
 	}
 	Shulker = Entity{
-		ID:          83,
-		InternalID:  83,
+		ID:          84,
+		InternalID:  84,
 		DisplayName: "Shulker",
 		Name:        "shulker",
 		Width:       1,
@@ -774,8 +783,8 @@ var (
 		Type:        "mob",
 	}
 	ShulkerBullet = Entity{
-		ID:          84,
-		InternalID:  84,
+		ID:          85,
+		InternalID:  85,
 		DisplayName: "Shulker Bullet",
 		Name:        "shulker_bullet",
 		Width:       0.3125,
@@ -783,8 +792,8 @@ var (
 		Type:        "projectile",
 	}
 	Silverfish = Entity{
-		ID:          85,
-		InternalID:  85,
+		ID:          86,
+		InternalID:  86,
 		DisplayName: "Silverfish",
 		Name:        "silverfish",
 		Width:       0.4,
@@ -792,8 +801,8 @@ var (
 		Type:        "hostile",
 	}
 	Skeleton = Entity{
-		ID:          86,
-		InternalID:  86,
+		ID:          87,
+		InternalID:  87,
 		DisplayName: "Skeleton",
 		Name:        "skeleton",
 		Width:       0.6,
@@ -801,8 +810,8 @@ var (
 		Type:        "hostile",
 	}
 	SkeletonHorse = Entity{
-		ID:          87,
-		InternalID:  87,
+		ID:          88,
+		InternalID:  88,
 		DisplayName: "Skeleton Horse",
 		Name:        "skeleton_horse",
 		Width:       1.3964844,
@@ -810,8 +819,8 @@ var (
 		Type:        "animal",
 	}
 	Slime = Entity{
-		ID:          88,
-		InternalID:  88,
+		ID:          89,
+		InternalID:  89,
 		DisplayName: "Slime",
 		Name:        "slime",
 		Width:       2.04,
@@ -819,8 +828,8 @@ var (
 		Type:        "mob",
 	}
 	SmallFireball = Entity{
-		ID:          89,
-		InternalID:  89,
+		ID:          90,
+		InternalID:  90,
 		DisplayName: "Small Fireball",
 		Name:        "small_fireball",
 		Width:       0.3125,
@@ -828,8 +837,8 @@ var (
 		Type:        "projectile",
 	}
 	Sniffer = Entity{
-		ID:          90,
-		InternalID:  90,
+		ID:          91,
+		InternalID:  91,
 		DisplayName: "Sniffer",
 		Name:        "sniffer",
 		Width:       1.9,
@@ -837,8 +846,8 @@ var (
 		Type:        "animal",
 	}
 	SnowGolem = Entity{
-		ID:          91,
-		InternalID:  91,
+		ID:          92,
+		InternalID:  92,
 		DisplayName: "Snow Golem",
 		Name:        "snow_golem",
 		Width:       0.7,
@@ -846,8 +855,8 @@ var (
 		Type:        "mob",
 	}
 	Snowball = Entity{
-		ID:          92,
-		InternalID:  92,
+		ID:          93,
+		InternalID:  93,
 		DisplayName: "Snowball",
 		Name:        "snowball",
 		Width:       0.25,
@@ -855,8 +864,8 @@ var (
 		Type:        "projectile",
 	}
 	SpawnerMinecart = Entity{
-		ID:          93,
-		InternalID:  93,
+		ID:          94,
+		InternalID:  94,
 		DisplayName: "Minecart with Monster Spawner",
 		Name:        "spawner_minecart",
 		Width:       0.98,
@@ -864,8 +873,8 @@ var (
 		Type:        "other",
 	}
 	SpectralArrow = Entity{
-		ID:          94,
-		InternalID:  94,
+		ID:          95,
+		InternalID:  95,
 		DisplayName: "Spectral Arrow",
 		Name:        "spectral_arrow",
 		Width:       0.5,
@@ -873,8 +882,8 @@ var (
 		Type:        "projectile",
 	}
 	Spider = Entity{
-		ID:          95,
-		InternalID:  95,
+		ID:          96,
+		InternalID:  96,
 		DisplayName: "Spider",
 		Name:        "spider",
 		Width:       1.4,
@@ -882,8 +891,8 @@ var (
 		Type:        "hostile",
 	}
 	Squid = Entity{
-		ID:          96,
-		InternalID:  96,
+		ID:          97,
+		InternalID:  97,
 		DisplayName: "Squid",
 		Name:        "squid",
 		Width:       0.8,
@@ -891,8 +900,8 @@ var (
 		Type:        "water_creature",
 	}
 	Stray = Entity{
-		ID:          97,
-		InternalID:  97,
+		ID:          98,
+		InternalID:  98,
 		DisplayName: "Stray",
 		Name:        "stray",
 		Width:       0.6,
@@ -900,8 +909,8 @@ var (
 		Type:        "hostile",
 	}
 	Strider = Entity{
-		ID:          98,
-		InternalID:  98,
+		ID:          99,
+		InternalID:  99,
 		DisplayName: "Strider",
 		Name:        "strider",
 		Width:       0.9,
@@ -909,8 +918,8 @@ var (
 		Type:        "animal",
 	}
 	Tadpole = Entity{
-		ID:          99,
-		InternalID:  99,
+		ID:          100,
+		InternalID:  100,
 		DisplayName: "Tadpole",
 		Name:        "tadpole",
 		Width:       0.4,
@@ -918,8 +927,8 @@ var (
 		Type:        "water_creature",
 	}
 	TextDisplay = Entity{
-		ID:          100,
-		InternalID:  100,
+		ID:          101,
+		InternalID:  101,
 		DisplayName: "Text Display",
 		Name:        "text_display",
 		Width:       0,
@@ -927,8 +936,8 @@ var (
 		Type:        "other",
 	}
 	Tnt = Entity{
-		ID:          101,
-		InternalID:  101,
+		ID:          102,
+		InternalID:  102,
 		DisplayName: "Primed TNT",
 		Name:        "tnt",
 		Width:       0.98,
@@ -936,8 +945,8 @@ var (
 		Type:        "other",
 	}
 	TntMinecart = Entity{
-		ID:          102,
-		InternalID:  102,
+		ID:          103,
+		InternalID:  103,
 		DisplayName: "Minecart with TNT",
 		Name:        "tnt_minecart",
 		Width:       0.98,
@@ -945,8 +954,8 @@ var (
 		Type:        "other",
 	}
 	TraderLlama = Entity{
-		ID:          103,
-		InternalID:  103,
+		ID:          104,
+		InternalID:  104,
 		DisplayName: "Trader Llama",
 		Name:        "trader_llama",
 		Width:       0.9,
@@ -954,8 +963,8 @@ var (
 		Type:        "animal",
 	}
 	Trident = Entity{
-		ID:          104,
-		InternalID:  104,
+		ID:          105,
+		InternalID:  105,
 		DisplayName: "Trident",
 		Name:        "trident",
 		Width:       0.5,
@@ -963,8 +972,8 @@ var (
 		Type:        "projectile",
 	}
 	TropicalFish = Entity{
-		ID:          105,
-		InternalID:  105,
+		ID:          106,
+		InternalID:  106,
 		DisplayName: "Tropical Fish",
 		Name:        "tropical_fish",
 		Width:       0.5,
@@ -972,8 +981,8 @@ var (
 		Type:        "water_creature",
 	}
 	Turtle = Entity{
-		ID:          106,
-		InternalID:  106,
+		ID:          107,
+		InternalID:  107,
 		DisplayName: "Turtle",
 		Name:        "turtle",
 		Width:       1.2,
@@ -981,8 +990,8 @@ var (
 		Type:        "animal",
 	}
 	Vex = Entity{
-		ID:          107,
-		InternalID:  107,
+		ID:          108,
+		InternalID:  108,
 		DisplayName: "Vex",
 		Name:        "vex",
 		Width:       0.4,
@@ -990,8 +999,8 @@ var (
 		Type:        "hostile",
 	}
 	Villager = Entity{
-		ID:          108,
-		InternalID:  108,
+		ID:          109,
+		InternalID:  109,
 		DisplayName: "Villager",
 		Name:        "villager",
 		Width:       0.6,
@@ -999,8 +1008,8 @@ var (
 		Type:        "passive",
 	}
 	Vindicator = Entity{
-		ID:          109,
-		InternalID:  109,
+		ID:          110,
+		InternalID:  110,
 		DisplayName: "Vindicator",
 		Name:        "vindicator",
 		Width:       0.6,
@@ -1008,8 +1017,8 @@ var (
 		Type:        "hostile",
 	}
 	WanderingTrader = Entity{
-		ID:          110,
-		InternalID:  110,
+		ID:          111,
+		InternalID:  111,
 		DisplayName: "Wandering Trader",
 		Name:        "wandering_trader",
 		Width:       0.6,
@@ -1017,17 +1026,26 @@ var (
 		Type:        "passive",
 	}
 	Warden = Entity{
-		ID:          111,
-		InternalID:  111,
+		ID:          112,
+		InternalID:  112,
 		DisplayName: "Warden",
 		Name:        "warden",
 		Width:       0.9,
 		Height:      2.9,
 		Type:        "hostile",
 	}
+	WindCharge = Entity{
+		ID:          113,
+		InternalID:  113,
+		DisplayName: "Wind Charge",
+		Name:        "wind_charge",
+		Width:       0.3125,
+		Height:      0.3125,
+		Type:        "projectile",
+	}
 	Witch = Entity{
-		ID:          112,
-		InternalID:  112,
+		ID:          114,
+		InternalID:  114,
 		DisplayName: "Witch",
 		Name:        "witch",
 		Width:       0.6,
@@ -1035,8 +1053,8 @@ var (
 		Type:        "hostile",
 	}
 	Wither = Entity{
-		ID:          113,
-		InternalID:  113,
+		ID:          115,
+		InternalID:  115,
 		DisplayName: "Wither",
 		Name:        "wither",
 		Width:       0.9,
@@ -1044,8 +1062,8 @@ var (
 		Type:        "hostile",
 	}
 	WitherSkeleton = Entity{
-		ID:          114,
-		InternalID:  114,
+		ID:          116,
+		InternalID:  116,
 		DisplayName: "Wither Skeleton",
 		Name:        "wither_skeleton",
 		Width:       0.7,
@@ -1053,8 +1071,8 @@ var (
 		Type:        "hostile",
 	}
 	WitherSkull = Entity{
-		ID:          115,
-		InternalID:  115,
+		ID:          117,
+		InternalID:  117,
 		DisplayName: "Wither Skull",
 		Name:        "wither_skull",
 		Width:       0.3125,
@@ -1062,8 +1080,8 @@ var (
 		Type:        "projectile",
 	}
 	Wolf = Entity{
-		ID:          116,
-		InternalID:  116,
+		ID:          118,
+		InternalID:  118,
 		DisplayName: "Wolf",
 		Name:        "wolf",
 		Width:       0.6,
@@ -1071,8 +1089,8 @@ var (
 		Type:        "animal",
 	}
 	Zoglin = Entity{
-		ID:          117,
-		InternalID:  117,
+		ID:          119,
+		InternalID:  119,
 		DisplayName: "Zoglin",
 		Name:        "zoglin",
 		Width:       1.3964844,
@@ -1080,8 +1098,8 @@ var (
 		Type:        "hostile",
 	}
 	Zombie = Entity{
-		ID:          118,
-		InternalID:  118,
+		ID:          120,
+		InternalID:  120,
 		DisplayName: "Zombie",
 		Name:        "zombie",
 		Width:       0.6,
@@ -1089,8 +1107,8 @@ var (
 		Type:        "hostile",
 	}
 	ZombieHorse = Entity{
-		ID:          119,
-		InternalID:  119,
+		ID:          121,
+		InternalID:  121,
 		DisplayName: "Zombie Horse",
 		Name:        "zombie_horse",
 		Width:       1.3964844,
@@ -1098,8 +1116,8 @@ var (
 		Type:        "animal",
 	}
 	ZombieVillager = Entity{
-		ID:          120,
-		InternalID:  120,
+		ID:          122,
+		InternalID:  122,
 		DisplayName: "Zombie Villager",
 		Name:        "zombie_villager",
 		Width:       0.6,
@@ -1107,8 +1125,8 @@ var (
 		Type:        "hostile",
 	}
 	ZombifiedPiglin = Entity{
-		ID:          121,
-		InternalID:  121,
+		ID:          123,
+		InternalID:  123,
 		DisplayName: "Zombified Piglin",
 		Name:        "zombified_piglin",
 		Width:       0.6,
@@ -1116,8 +1134,8 @@ var (
 		Type:        "hostile",
 	}
 	Player = Entity{
-		ID:          122,
-		InternalID:  122,
+		ID:          124,
+		InternalID:  124,
 		DisplayName: "Player",
 		Name:        "player",
 		Width:       0.6,
@@ -1125,8 +1143,8 @@ var (
 		Type:        "player",
 	}
 	FishingBobber = Entity{
-		ID:          123,
-		InternalID:  123,
+		ID:          125,
+		InternalID:  125,
 		DisplayName: "Fishing Bobber",
 		Name:        "fishing_bobber",
 		Width:       0.25,
@@ -1147,118 +1165,120 @@ var ByID = map[ID]*Entity{
 	7:   &Blaze,
 	8:   &BlockDisplay,
 	9:   &Boat,
-	10:  &Camel,
-	11:  &Cat,
-	12:  &CaveSpider,
-	13:  &ChestBoat,
-	14:  &ChestMinecart,
-	15:  &Chicken,
-	16:  &Cod,
-	17:  &CommandBlockMinecart,
-	18:  &Cow,
-	19:  &Creeper,
-	20:  &Dolphin,
-	21:  &Donkey,
-	22:  &DragonFireball,
-	23:  &Drowned,
-	24:  &Egg,
-	25:  &ElderGuardian,
-	26:  &EndCrystal,
-	27:  &EnderDragon,
-	28:  &EnderPearl,
-	29:  &Enderman,
-	30:  &Endermite,
-	31:  &Evoker,
-	32:  &EvokerFangs,
-	33:  &ExperienceBottle,
-	34:  &ExperienceOrb,
-	35:  &EyeOfEnder,
-	36:  &FallingBlock,
-	37:  &FireworkRocket,
-	38:  &Fox,
-	39:  &Frog,
-	40:  &FurnaceMinecart,
-	41:  &Ghast,
-	42:  &Giant,
-	43:  &GlowItemFrame,
-	44:  &GlowSquid,
-	45:  &Goat,
-	46:  &Guardian,
-	47:  &Hoglin,
-	48:  &HopperMinecart,
-	49:  &Horse,
-	50:  &Husk,
-	51:  &Illusioner,
-	52:  &Interaction,
-	53:  &IronGolem,
-	54:  &Item,
-	55:  &ItemDisplay,
-	56:  &ItemFrame,
-	57:  &Fireball,
-	58:  &LeashKnot,
-	59:  &LightningBolt,
-	60:  &Llama,
-	61:  &LlamaSpit,
-	62:  &MagmaCube,
-	63:  &Marker,
-	64:  &Minecart,
-	65:  &Mooshroom,
-	66:  &Mule,
-	67:  &Ocelot,
-	68:  &Painting,
-	69:  &Panda,
-	70:  &Parrot,
-	71:  &Phantom,
-	72:  &Pig,
-	73:  &Piglin,
-	74:  &PiglinBrute,
-	75:  &Pillager,
-	76:  &PolarBear,
-	77:  &Potion,
-	78:  &Pufferfish,
-	79:  &Rabbit,
-	80:  &Ravager,
-	81:  &Salmon,
-	82:  &Sheep,
-	83:  &Shulker,
-	84:  &ShulkerBullet,
-	85:  &Silverfish,
-	86:  &Skeleton,
-	87:  &SkeletonHorse,
-	88:  &Slime,
-	89:  &SmallFireball,
-	90:  &Sniffer,
-	91:  &SnowGolem,
-	92:  &Snowball,
-	93:  &SpawnerMinecart,
-	94:  &SpectralArrow,
-	95:  &Spider,
-	96:  &Squid,
-	97:  &Stray,
-	98:  &Strider,
-	99:  &Tadpole,
-	100: &TextDisplay,
-	101: &Tnt,
-	102: &TntMinecart,
-	103: &TraderLlama,
-	104: &Trident,
-	105: &TropicalFish,
-	106: &Turtle,
-	107: &Vex,
-	108: &Villager,
-	109: &Vindicator,
-	110: &WanderingTrader,
-	111: &Warden,
-	112: &Witch,
-	113: &Wither,
-	114: &WitherSkeleton,
-	115: &WitherSkull,
-	116: &Wolf,
-	117: &Zoglin,
-	118: &Zombie,
-	119: &ZombieHorse,
-	120: &ZombieVillager,
-	121: &ZombifiedPiglin,
-	122: &Player,
-	123: &FishingBobber,
+	10:  &Breeze,
+	11:  &Camel,
+	12:  &Cat,
+	13:  &CaveSpider,
+	14:  &ChestBoat,
+	15:  &ChestMinecart,
+	16:  &Chicken,
+	17:  &Cod,
+	18:  &CommandBlockMinecart,
+	19:  &Cow,
+	20:  &Creeper,
+	21:  &Dolphin,
+	22:  &Donkey,
+	23:  &DragonFireball,
+	24:  &Drowned,
+	25:  &Egg,
+	26:  &ElderGuardian,
+	27:  &EndCrystal,
+	28:  &EnderDragon,
+	29:  &EnderPearl,
+	30:  &Enderman,
+	31:  &Endermite,
+	32:  &Evoker,
+	33:  &EvokerFangs,
+	34:  &ExperienceBottle,
+	35:  &ExperienceOrb,
+	36:  &EyeOfEnder,
+	37:  &FallingBlock,
+	38:  &FireworkRocket,
+	39:  &Fox,
+	40:  &Frog,
+	41:  &FurnaceMinecart,
+	42:  &Ghast,
+	43:  &Giant,
+	44:  &GlowItemFrame,
+	45:  &GlowSquid,
+	46:  &Goat,
+	47:  &Guardian,
+	48:  &Hoglin,
+	49:  &HopperMinecart,
+	50:  &Horse,
+	51:  &Husk,
+	52:  &Illusioner,
+	53:  &Interaction,
+	54:  &IronGolem,
+	55:  &Item,
+	56:  &ItemDisplay,
+	57:  &ItemFrame,
+	58:  &Fireball,
+	59:  &LeashKnot,
+	60:  &LightningBolt,
+	61:  &Llama,
+	62:  &LlamaSpit,
+	63:  &MagmaCube,
+	64:  &Marker,
+	65:  &Minecart,
+	66:  &Mooshroom,
+	67:  &Mule,
+	68:  &Ocelot,
+	69:  &Painting,
+	70:  &Panda,
+	71:  &Parrot,
+	72:  &Phantom,
+	73:  &Pig,
+	74:  &Piglin,
+	75:  &PiglinBrute,
+	76:  &Pillager,
+	77:  &PolarBear,
+	78:  &Potion,
+	79:  &Pufferfish,
+	80:  &Rabbit,
+	81:  &Ravager,
+	82:  &Salmon,
+	83:  &Sheep,
+	84:  &Shulker,
+	85:  &ShulkerBullet,
+	86:  &Silverfish,
+	87:  &Skeleton,
+	88:  &SkeletonHorse,
+	89:  &Slime,
+	90:  &SmallFireball,
+	91:  &Sniffer,
+	92:  &SnowGolem,
+	93:  &Snowball,
+	94:  &SpawnerMinecart,
+	95:  &SpectralArrow,
+	96:  &Spider,
+	97:  &Squid,
+	98:  &Stray,
+	99:  &Strider,
+	100: &Tadpole,
+	101: &TextDisplay,
+	102: &Tnt,
+	103: &TntMinecart,
+	104: &TraderLlama,
+	105: &Trident,
+	106: &TropicalFish,
+	107: &Turtle,
+	108: &Vex,
+	109: &Villager,
+	110: &Vindicator,
+	111: &WanderingTrader,
+	112: &Warden,
+	113: &WindCharge,
+	114: &Witch,
+	115: &Wither,
+	116: &WitherSkeleton,
+	117: &WitherSkull,
+	118: &Wolf,
+	119: &Zoglin,
+	120: &Zombie,
+	121: &ZombieHorse,
+	122: &ZombieVillager,
+	123: &ZombifiedPiglin,
+	124: &Player,
+	125: &FishingBobber,
 }

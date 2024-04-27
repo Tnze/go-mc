@@ -127,7 +127,9 @@ const (
 	ClientboundRecipe
 	ClientboundRemoveEntities
 	ClientboundRemoveMobEffect
-	ClientboundResourcePack
+	ClientboundResetScore
+	ClientboundResourcePackPop
+	ClientboundResourcePackPush
 	ClientboundRespawn
 	ClientboundRotateHead
 	ClientboundSectionBlocksUpdate
@@ -169,6 +171,8 @@ const (
 	ClientboundTagQuery
 	ClientboundTakeItemEntity
 	ClientboundTeleportEntity
+	ClientboundTickingState
+	ClientboundTickingStep
 	ClientboundUpdateAdvancements
 	ClientboundUpdateAttributes
 	ClientboundUpdateMobEffect
@@ -194,6 +198,7 @@ const (
 	ServerboundContainerButtonClick
 	ServerboundContainerClick
 	ServerboundContainerClose
+	ServerboundContainerSlotStateChanged
 	ServerboundCustomPayload
 	ServerboundEditBook
 	ServerboundEntityTagQuery
@@ -233,5 +238,4 @@ const (
 	ServerboundTeleportToEntity
 	ServerboundUseItemOn
 	ServerboundUseItem
-	ServerboundPacketIDGuard
 )
