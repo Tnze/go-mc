@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"bytes"
 	"errors"
 	"io"
 	"strconv"
@@ -19,26 +20,35 @@ func (m Message) WriteTo(w io.Writer) (int64, error) {
 	return pk.NBT(&m).WriteTo(w)
 }
 
-func (m Message) MarshalNBT() ([]byte, error) {
+func (m Message) TagType() byte {
+	return nbt.TagCompound
+}
+
+func (m Message) MarshalNBT(w io.Writer) error {
 	if m.Translate != "" {
-		return nbt.Marshal(translateMsg(m))
+		return nbt.NewEncoder(w).Encode(translateMsg(m), "")
 	} else {
-		return nbt.Marshal(rawMsgStruct(m))
+		return nbt.NewEncoder(w).Encode(rawMsgStruct(m), "")
 	}
 }
 
-func (m *Message) UnmarshalNBT(raw []byte) (err error) {
-	if len(raw) == 0 {
-		return io.EOF
-	}
-	switch raw[0] {
+func (m *Message) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
+	// Re-combine the tagType into the reader, and create a nbt decoder
+	tagReader := bytes.NewReader([]byte{tagType})
+	decoder := nbt.NewDecoder(io.MultiReader(tagReader, r))
+	decoder.NetworkFormat(true) // TagType directlly followed the body
+
+	switch tagType {
 	case nbt.TagString:
-		return nbt.Unmarshal(raw, &m.Text) // Unmarshal as jsonString
+		_, err := decoder.Decode(&m.Text)
+		return err
 	case nbt.TagCompound:
-		return nbt.Unmarshal(raw, (*rawMsgStruct)(m)) // Unmarshal as jsonMsg
+		_, err := decoder.Decode((*rawMsgStruct)(m))
+		return err
 	case nbt.TagList:
-		return nbt.Unmarshal(raw, &m.Extra) // Unmarshal as []Message
+		_, err := decoder.Decode(&m.Extra)
+		return err
 	default:
-		return errors.New("unknown chat message type: '" + strconv.FormatUint(uint64(raw[0]), 16) + "'")
+		return errors.New("unknown chat message type: '" + strconv.FormatUint(uint64(tagType), 16) + "'")
 	}
 }
