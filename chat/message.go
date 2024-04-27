@@ -11,16 +11,11 @@
 package chat
 
 import (
-	"bytes"
-	"encoding/json"
-	"errors"
 	"fmt"
-	"io"
 	"regexp"
 	"strings"
 
 	en_us "github.com/Tnze/go-mc/data/lang/en-us"
-	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 const (
@@ -56,101 +51,53 @@ const (
 
 // Message is a message sent by other
 type Message struct {
-	Text string `json:"text"`
+	Text string `json:"text" nbt:"text"`
 
-	Bold          bool `json:"bold,omitempty"`          // 粗体
-	Italic        bool `json:"italic,omitempty"`        // 斜体
-	UnderLined    bool `json:"underlined,omitempty"`    // 下划线
-	StrikeThrough bool `json:"strikethrough,omitempty"` // 删除线
-	Obfuscated    bool `json:"obfuscated,omitempty"`    // 随机
+	Bold          bool `json:"bold,omitempty" nbt:"bold,omitempty"`                   // 粗体
+	Italic        bool `json:"italic,omitempty" nbt:"italic,omitempty"`               // 斜体
+	UnderLined    bool `json:"underlined,omitempty" nbt:"underlined,omitempty"`       // 下划线
+	StrikeThrough bool `json:"strikethrough,omitempty" nbt:"strikethrough,omitempty"` // 删除线
+	Obfuscated    bool `json:"obfuscated,omitempty" nbt:"obfuscated,omitempty"`       // 随机
 	// Font of the message, could be one of minecraft:uniform, minecraft:alt or minecraft:default
 	// This option is only valid on 1.16+, otherwise the property is ignored.
-	Font  string `json:"font,omitempty"`  // 字体
-	Color string `json:"color,omitempty"` // 颜色
+	Font  string `json:"font,omitempty" nbt:"font,omitempty"`   // 字体
+	Color string `json:"color,omitempty" nbt:"color,omitempty"` // 颜色
 
 	// Insertion contains text to insert. Only used for messages in chat.
 	// When shift is held, clicking the component inserts the given text
 	// into the chat box at the cursor (potentially replacing selected text).
-	Insertion  string      `json:"insertion,omitempty"`
-	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
-	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
+	Insertion  string      `json:"insertion,omitempty" nbt:"insertion,omitempty"`
+	ClickEvent *ClickEvent `json:"clickEvent,omitempty" nbt:"clickEvent,omitempty"`
+	HoverEvent *HoverEvent `json:"hoverEvent,omitempty" nbt:"hoverEvent,omitempty"`
 
-	Translate string    `json:"translate,omitempty"`
-	With      []Message `json:"with,omitempty"`
-	Extra     []Message `json:"extra,omitempty"`
+	Translate string    `json:"translate,omitempty" nbt:"translate,omitempty"`
+	With      []Message `json:"with,omitempty" nbt:"with,omitempty"`
+	Extra     []Message `json:"extra,omitempty" nbt:"extra,omitempty"`
 }
 
 // Same as Message, but "Text" is omitempty
 type translateMsg struct {
-	Text string `json:"text,omitempty"`
+	Text string `json:"text,omitempty" nbt:"text,omitempty"`
 
-	Bold          bool `json:"bold,omitempty"`
-	Italic        bool `json:"italic,omitempty"`
-	UnderLined    bool `json:"underlined,omitempty"`
-	StrikeThrough bool `json:"strikethrough,omitempty"`
-	Obfuscated    bool `json:"obfuscated,omitempty"`
+	Bold          bool `json:"bold,omitempty" nbt:"bold,omitempty"`
+	Italic        bool `json:"italic,omitempty" nbt:"italic,omitempty"`
+	UnderLined    bool `json:"underlined,omitempty" nbt:"underlined,omitempty"`
+	StrikeThrough bool `json:"strikethrough,omitempty" nbt:"strikethrough,omitempty"`
+	Obfuscated    bool `json:"obfuscated,omitempty" nbt:"obfuscated,omitempty"`
 
-	Font  string `json:"font,omitempty"`
-	Color string `json:"color,omitempty"`
+	Font  string `json:"font,omitempty" nbt:"font,omitempty"`
+	Color string `json:"color,omitempty" nbt:"color,omitempty"`
 
-	Insertion  string      `json:"insertion,omitempty"`
-	ClickEvent *ClickEvent `json:"clickEvent,omitempty"`
-	HoverEvent *HoverEvent `json:"hoverEvent,omitempty"`
+	Insertion  string      `json:"insertion,omitempty" nbt:"insertion,omitempty"`
+	ClickEvent *ClickEvent `json:"clickEvent,omitempty" nbt:"clickEvent,omitempty"`
+	HoverEvent *HoverEvent `json:"hoverEvent,omitempty" nbt:"hoverEvent,omitempty"`
 
-	Translate string    `json:"translate"`
-	With      []Message `json:"with,omitempty"`
-	Extra     []Message `json:"extra,omitempty"`
+	Translate string    `json:"translate,omitempty" nbt:"translate,omitempty"`
+	With      []Message `json:"with,omitempty" nbt:"with,omitempty"`
+	Extra     []Message `json:"extra,omitempty" nbt:"extra,omitempty"`
 }
 
 type rawMsgStruct Message
-
-func (m Message) MarshalJSON() ([]byte, error) {
-	if m.Translate != "" {
-		return json.Marshal(translateMsg(m))
-	} else {
-		return json.Marshal(rawMsgStruct(m))
-	}
-}
-
-// UnmarshalJSON decode json to Message
-func (m *Message) UnmarshalJSON(raw []byte) (err error) {
-	raw = bytes.TrimSpace(raw)
-	if len(raw) == 0 {
-		return io.EOF
-	}
-	// The right way to distinguish JSON String and Object
-	// is to look up the first character.
-	switch raw[0] {
-	case '"':
-		return json.Unmarshal(raw, &m.Text) // Unmarshal as jsonString
-	case '{':
-		return json.Unmarshal(raw, (*rawMsgStruct)(m)) // Unmarshal as jsonMsg
-	case '[':
-		return json.Unmarshal(raw, &m.Extra) // Unmarshal as []Message
-	default:
-		return errors.New("unknown chat message type: '" + string(raw[0]) + "'")
-	}
-}
-
-// ReadFrom decode Message in a ChatMsg packet
-func (m *Message) ReadFrom(r io.Reader) (int64, error) {
-	var code pk.String
-	n, err := code.ReadFrom(r)
-	if err != nil {
-		return n, err
-	}
-	err = json.Unmarshal([]byte(code), m)
-	return n, err
-}
-
-// WriteTo encode Message into a ChatMsg packet
-func (m Message) WriteTo(w io.Writer) (int64, error) {
-	code, err := json.Marshal(m)
-	if err != nil {
-		panic(err)
-	}
-	return pk.String(code).WriteTo(w)
-}
 
 // Append extra message to the end of the message and return the new one.
 // The source message remains unchanged.

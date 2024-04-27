@@ -4,8 +4,8 @@ import "strconv"
 
 // ClickEvent defines an event that occurs when this component is clicked.
 type ClickEvent struct {
-	Action string `json:"action"`
-	Value  string `json:"value"`
+	Action string `json:"action" nbt:"action"`
+	Value  string `json:"value" nbt:"value"`
 }
 
 // OpenURL create a ClickEvent opens the given URL in the default web browser.
