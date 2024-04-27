@@ -157,6 +157,15 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 		pk.String(name),
 		pk.Array(properties),
 	))
+	if err != nil {
+		return
+	}
+
+	// receive login ack
+	err = conn.ReadPacket(&p)
+	if err == nil && packetid.ServerboundPacketID(p.ID) != packetid.ServerboundLoginAcknowledged {
+		err = wrongPacketErr{expect: int32(packetid.ServerboundLoginAcknowledged), get: p.ID}
+	}
 	return
 }
 

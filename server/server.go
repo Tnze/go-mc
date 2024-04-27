@@ -38,14 +38,15 @@ import (
 )
 
 const (
-	ProtocolName    = "1.19.4"
-	ProtocolVersion = 762
+	ProtocolName    = "1.20.2"
+	ProtocolVersion = 764
 )
 
 type Server struct {
 	*log.Logger
 	ListPingHandler
 	LoginHandler
+	ConfigHandler
 	GamePlay
 }
 
@@ -86,6 +87,20 @@ func (s *Server) AcceptConn(conn *net.Conn) {
 			}
 			if s.Logger != nil {
 				s.Logger.Printf("client %v login error: %v", conn.Socket.RemoteAddr(), err)
+			}
+			return
+		}
+		s.AcceptConfig(conn)
+		if err != nil {
+			var configErr ConfigFailErr
+			if errors.As(err, &configErr) {
+				_ = conn.WritePacket(pk.Marshal(
+					packetid.ClientboundConfigDisconnect,
+					configErr.reason,
+				))
+			}
+			if s.Logger != nil {
+				s.Logger.Printf("client %v config error: %v", conn.Socket.RemoteAddr(), err)
 			}
 			return
 		}

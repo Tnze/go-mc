@@ -6,6 +6,7 @@
 [![Discord](https://img.shields.io/discord/915805561138860063?label=Discord)](https://discord.gg/A4qh8BT8Ue)
 
 ### [教程 · Tutorial](https://go-mc.github.io/tutorial/)
+### [文档 · Documents](https://pkg.go.dev/github.com/Tnze/go-mc)
 
 Require Go version: 1.20
 
