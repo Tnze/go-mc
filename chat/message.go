@@ -141,17 +141,14 @@ func (m *Message) ReadFrom(r io.Reader) (n int64, err error) {
 		return n, err
 	}
 	io.CopyN(io.Discard, r, 1)
-
 	var code pk.String
 	n, err = code.ReadFrom(r)
 	if err != nil {
 		return n, err
 	}
-
 	if byte(msgType) == nbt.TagString {
 		m.Text = string(code)
 	} else if byte(msgType) == nbt.TagCompound {
-		fmt.Printf("a: %+v\n", []byte(code))
 		err = json.Unmarshal([]byte(code), m)
 	}
 	return n, err
