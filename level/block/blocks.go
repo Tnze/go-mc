@@ -351,7 +351,7 @@ type (
 		Facing   Direction `nbt:"facing"`
 	}
 	Cobweb       struct{}
-	Grass        struct{}
+	ShortGrass   struct{}
 	Fern         struct{}
 	DeadBush     struct{}
 	Seagrass     struct{}
@@ -741,7 +741,6 @@ type (
 		Waterlogged Boolean `nbt:"waterlogged"`
 		West        Boolean `nbt:"west"`
 	}
-	Pumpkin    struct{}
 	Netherrack struct{}
 	SoulSand   struct{}
 	SoulSoil   struct{}
@@ -907,6 +906,7 @@ type (
 		Waterlogged Boolean `nbt:"waterlogged"`
 		West        Boolean `nbt:"west"`
 	}
+	Pumpkin             struct{}
 	Melon               struct{}
 	AttachedPumpkinStem struct {
 		Facing Direction `nbt:"facing"`
@@ -2928,11 +2928,69 @@ type (
 		Facing      Direction `nbt:"facing"`
 		Waterlogged Boolean   `nbt:"waterlogged"`
 	}
-	Tuff        struct{}
-	Calcite     struct{}
-	TintedGlass struct{}
-	PowderSnow  struct{}
-	SculkSensor struct {
+	Tuff     struct{}
+	TuffSlab struct {
+		Type        SlabType `nbt:"type"`
+		Waterlogged Boolean  `nbt:"waterlogged"`
+	}
+	TuffStairs struct {
+		Facing      Direction   `nbt:"facing"`
+		Half        Half        `nbt:"half"`
+		Shape       StairsShape `nbt:"shape"`
+		Waterlogged Boolean     `nbt:"waterlogged"`
+	}
+	TuffWall struct {
+		East        WallSide `nbt:"east"`
+		North       WallSide `nbt:"north"`
+		South       WallSide `nbt:"south"`
+		Up          Boolean  `nbt:"up"`
+		Waterlogged Boolean  `nbt:"waterlogged"`
+		West        WallSide `nbt:"west"`
+	}
+	PolishedTuff     struct{}
+	PolishedTuffSlab struct {
+		Type        SlabType `nbt:"type"`
+		Waterlogged Boolean  `nbt:"waterlogged"`
+	}
+	PolishedTuffStairs struct {
+		Facing      Direction   `nbt:"facing"`
+		Half        Half        `nbt:"half"`
+		Shape       StairsShape `nbt:"shape"`
+		Waterlogged Boolean     `nbt:"waterlogged"`
+	}
+	PolishedTuffWall struct {
+		East        WallSide `nbt:"east"`
+		North       WallSide `nbt:"north"`
+		South       WallSide `nbt:"south"`
+		Up          Boolean  `nbt:"up"`
+		Waterlogged Boolean  `nbt:"waterlogged"`
+		West        WallSide `nbt:"west"`
+	}
+	ChiseledTuff  struct{}
+	TuffBricks    struct{}
+	TuffBrickSlab struct {
+		Type        SlabType `nbt:"type"`
+		Waterlogged Boolean  `nbt:"waterlogged"`
+	}
+	TuffBrickStairs struct {
+		Facing      Direction   `nbt:"facing"`
+		Half        Half        `nbt:"half"`
+		Shape       StairsShape `nbt:"shape"`
+		Waterlogged Boolean     `nbt:"waterlogged"`
+	}
+	TuffBrickWall struct {
+		East        WallSide `nbt:"east"`
+		North       WallSide `nbt:"north"`
+		South       WallSide `nbt:"south"`
+		Up          Boolean  `nbt:"up"`
+		Waterlogged Boolean  `nbt:"waterlogged"`
+		West        WallSide `nbt:"west"`
+	}
+	ChiseledTuffBricks struct{}
+	Calcite            struct{}
+	TintedGlass        struct{}
+	PowderSnow         struct{}
+	SculkSensor        struct {
 		Power              Integer          `nbt:"power"`
 		Sculk_sensor_phase SculkSensorPhase `nbt:"sculk_sensor_phase"`
 		Waterlogged        Boolean          `nbt:"waterlogged"`
@@ -2961,17 +3019,25 @@ type (
 		Shrieking   Boolean `nbt:"shrieking"`
 		Waterlogged Boolean `nbt:"waterlogged"`
 	}
-	OxidizedCopper          struct{}
-	WeatheredCopper         struct{}
-	ExposedCopper           struct{}
-	CopperBlock             struct{}
-	CopperOre               struct{}
-	DeepslateCopperOre      struct{}
-	OxidizedCutCopper       struct{}
-	WeatheredCutCopper      struct{}
-	ExposedCutCopper        struct{}
-	CutCopper               struct{}
-	OxidizedCutCopperStairs struct {
+	CopperBlock                  struct{}
+	ExposedCopper                struct{}
+	WeatheredCopper              struct{}
+	OxidizedCopper               struct{}
+	CopperOre                    struct{}
+	DeepslateCopperOre           struct{}
+	OxidizedCutCopper            struct{}
+	WeatheredCutCopper           struct{}
+	ExposedCutCopper             struct{}
+	CutCopper                    struct{}
+	OxidizedChiseledCopper       struct{}
+	WeatheredChiseledCopper      struct{}
+	ExposedChiseledCopper        struct{}
+	ChiseledCopper               struct{}
+	WaxedOxidizedChiseledCopper  struct{}
+	WaxedWeatheredChiseledCopper struct{}
+	WaxedExposedChiseledCopper   struct{}
+	WaxedChiseledCopper          struct{}
+	OxidizedCutCopperStairs      struct {
 		Facing      Direction   `nbt:"facing"`
 		Half        Half        `nbt:"half"`
 		Shape       StairsShape `nbt:"shape"`
@@ -3058,6 +3124,174 @@ type (
 	WaxedCutCopperSlab struct {
 		Type        SlabType `nbt:"type"`
 		Waterlogged Boolean  `nbt:"waterlogged"`
+	}
+	CopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	ExposedCopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	OxidizedCopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	WeatheredCopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	WaxedCopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	WaxedExposedCopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	WaxedOxidizedCopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	WaxedWeatheredCopperDoor struct {
+		Facing  Direction       `nbt:"facing"`
+		Half    DoubleBlockHalf `nbt:"half"`
+		Hinge   DoorHingeSide   `nbt:"hinge"`
+		Open    Boolean         `nbt:"open"`
+		Powered Boolean         `nbt:"powered"`
+	}
+	CopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	ExposedCopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	OxidizedCopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	WeatheredCopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	WaxedCopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	WaxedExposedCopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	WaxedOxidizedCopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	WaxedWeatheredCopperTrapdoor struct {
+		Facing      Direction `nbt:"facing"`
+		Half        Half      `nbt:"half"`
+		Open        Boolean   `nbt:"open"`
+		Powered     Boolean   `nbt:"powered"`
+		Waterlogged Boolean   `nbt:"waterlogged"`
+	}
+	CopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	ExposedCopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	WeatheredCopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	OxidizedCopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	WaxedCopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	WaxedExposedCopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	WaxedWeatheredCopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	WaxedOxidizedCopperGrate struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
+	}
+	CopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
+	}
+	ExposedCopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
+	}
+	WeatheredCopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
+	}
+	OxidizedCopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
+	}
+	WaxedCopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
+	}
+	WaxedExposedCopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
+	}
+	WaxedWeatheredCopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
+	}
+	WaxedOxidizedCopperBulb struct {
+		Lit     Boolean `nbt:"lit"`
+		Powered Boolean `nbt:"powered"`
 	}
 	LightningRod struct {
 		Facing      Direction `nbt:"facing"`
@@ -3212,6 +3446,14 @@ type (
 		Facing      Direction `nbt:"facing"`
 		Waterlogged Boolean   `nbt:"waterlogged"`
 	}
+	Crafter struct {
+		Crafting    Boolean     `nbt:"crafting"`
+		Orientation FrontAndTop `nbt:"orientation"`
+		Triggered   Boolean     `nbt:"triggered"`
+	}
+	TrialSpawner struct {
+		Trial_spawner_state TrialSpawnerState `nbt:"trial_spawner_state"`
+	}
 )
 
 func (Air) ID() string                         { return "minecraft:air" }
@@ -3337,7 +3579,7 @@ func (PoweredRail) ID() string                 { return "minecraft:powered_rail"
 func (DetectorRail) ID() string                { return "minecraft:detector_rail" }
 func (StickyPiston) ID() string                { return "minecraft:sticky_piston" }
 func (Cobweb) ID() string                      { return "minecraft:cobweb" }
-func (Grass) ID() string                       { return "minecraft:grass" }
+func (ShortGrass) ID() string                  { return "minecraft:short_grass" }
 func (Fern) ID() string                        { return "minecraft:fern" }
 func (DeadBush) ID() string                    { return "minecraft:dead_bush" }
 func (Seagrass) ID() string                    { return "minecraft:seagrass" }
@@ -3469,7 +3711,6 @@ func (Clay) ID() string                        { return "minecraft:clay" }
 func (SugarCane) ID() string                   { return "minecraft:sugar_cane" }
 func (Jukebox) ID() string                     { return "minecraft:jukebox" }
 func (OakFence) ID() string                    { return "minecraft:oak_fence" }
-func (Pumpkin) ID() string                     { return "minecraft:pumpkin" }
 func (Netherrack) ID() string                  { return "minecraft:netherrack" }
 func (SoulSand) ID() string                    { return "minecraft:soul_sand" }
 func (SoulSoil) ID() string                    { return "minecraft:soul_soil" }
@@ -3526,6 +3767,7 @@ func (MushroomStem) ID() string                { return "minecraft:mushroom_stem
 func (IronBars) ID() string                    { return "minecraft:iron_bars" }
 func (Chain) ID() string                       { return "minecraft:chain" }
 func (GlassPane) ID() string                   { return "minecraft:glass_pane" }
+func (Pumpkin) ID() string                     { return "minecraft:pumpkin" }
 func (Melon) ID() string                       { return "minecraft:melon" }
 func (AttachedPumpkinStem) ID() string         { return "minecraft:attached_pumpkin_stem" }
 func (AttachedMelonStem) ID() string           { return "minecraft:attached_melon_stem" }
@@ -4128,6 +4370,19 @@ func (LargeAmethystBud) ID() string             { return "minecraft:large_amethy
 func (MediumAmethystBud) ID() string            { return "minecraft:medium_amethyst_bud" }
 func (SmallAmethystBud) ID() string             { return "minecraft:small_amethyst_bud" }
 func (Tuff) ID() string                         { return "minecraft:tuff" }
+func (TuffSlab) ID() string                     { return "minecraft:tuff_slab" }
+func (TuffStairs) ID() string                   { return "minecraft:tuff_stairs" }
+func (TuffWall) ID() string                     { return "minecraft:tuff_wall" }
+func (PolishedTuff) ID() string                 { return "minecraft:polished_tuff" }
+func (PolishedTuffSlab) ID() string             { return "minecraft:polished_tuff_slab" }
+func (PolishedTuffStairs) ID() string           { return "minecraft:polished_tuff_stairs" }
+func (PolishedTuffWall) ID() string             { return "minecraft:polished_tuff_wall" }
+func (ChiseledTuff) ID() string                 { return "minecraft:chiseled_tuff" }
+func (TuffBricks) ID() string                   { return "minecraft:tuff_bricks" }
+func (TuffBrickSlab) ID() string                { return "minecraft:tuff_brick_slab" }
+func (TuffBrickStairs) ID() string              { return "minecraft:tuff_brick_stairs" }
+func (TuffBrickWall) ID() string                { return "minecraft:tuff_brick_wall" }
+func (ChiseledTuffBricks) ID() string           { return "minecraft:chiseled_tuff_bricks" }
 func (Calcite) ID() string                      { return "minecraft:calcite" }
 func (TintedGlass) ID() string                  { return "minecraft:tinted_glass" }
 func (PowderSnow) ID() string                   { return "minecraft:powder_snow" }
@@ -4137,16 +4392,24 @@ func (Sculk) ID() string                        { return "minecraft:sculk" }
 func (SculkVein) ID() string                    { return "minecraft:sculk_vein" }
 func (SculkCatalyst) ID() string                { return "minecraft:sculk_catalyst" }
 func (SculkShrieker) ID() string                { return "minecraft:sculk_shrieker" }
-func (OxidizedCopper) ID() string               { return "minecraft:oxidized_copper" }
-func (WeatheredCopper) ID() string              { return "minecraft:weathered_copper" }
-func (ExposedCopper) ID() string                { return "minecraft:exposed_copper" }
 func (CopperBlock) ID() string                  { return "minecraft:copper_block" }
+func (ExposedCopper) ID() string                { return "minecraft:exposed_copper" }
+func (WeatheredCopper) ID() string              { return "minecraft:weathered_copper" }
+func (OxidizedCopper) ID() string               { return "minecraft:oxidized_copper" }
 func (CopperOre) ID() string                    { return "minecraft:copper_ore" }
 func (DeepslateCopperOre) ID() string           { return "minecraft:deepslate_copper_ore" }
 func (OxidizedCutCopper) ID() string            { return "minecraft:oxidized_cut_copper" }
 func (WeatheredCutCopper) ID() string           { return "minecraft:weathered_cut_copper" }
 func (ExposedCutCopper) ID() string             { return "minecraft:exposed_cut_copper" }
 func (CutCopper) ID() string                    { return "minecraft:cut_copper" }
+func (OxidizedChiseledCopper) ID() string       { return "minecraft:oxidized_chiseled_copper" }
+func (WeatheredChiseledCopper) ID() string      { return "minecraft:weathered_chiseled_copper" }
+func (ExposedChiseledCopper) ID() string        { return "minecraft:exposed_chiseled_copper" }
+func (ChiseledCopper) ID() string               { return "minecraft:chiseled_copper" }
+func (WaxedOxidizedChiseledCopper) ID() string  { return "minecraft:waxed_oxidized_chiseled_copper" }
+func (WaxedWeatheredChiseledCopper) ID() string { return "minecraft:waxed_weathered_chiseled_copper" }
+func (WaxedExposedChiseledCopper) ID() string   { return "minecraft:waxed_exposed_chiseled_copper" }
+func (WaxedChiseledCopper) ID() string          { return "minecraft:waxed_chiseled_copper" }
 func (OxidizedCutCopperStairs) ID() string      { return "minecraft:oxidized_cut_copper_stairs" }
 func (WeatheredCutCopperStairs) ID() string     { return "minecraft:weathered_cut_copper_stairs" }
 func (ExposedCutCopperStairs) ID() string       { return "minecraft:exposed_cut_copper_stairs" }
@@ -4167,62 +4430,96 @@ func (WaxedOxidizedCutCopperStairs) ID() string { return "minecraft:waxed_oxidiz
 func (WaxedWeatheredCutCopperStairs) ID() string {
 	return "minecraft:waxed_weathered_cut_copper_stairs"
 }
-func (WaxedExposedCutCopperStairs) ID() string { return "minecraft:waxed_exposed_cut_copper_stairs" }
-func (WaxedCutCopperStairs) ID() string        { return "minecraft:waxed_cut_copper_stairs" }
-func (WaxedOxidizedCutCopperSlab) ID() string  { return "minecraft:waxed_oxidized_cut_copper_slab" }
-func (WaxedWeatheredCutCopperSlab) ID() string { return "minecraft:waxed_weathered_cut_copper_slab" }
-func (WaxedExposedCutCopperSlab) ID() string   { return "minecraft:waxed_exposed_cut_copper_slab" }
-func (WaxedCutCopperSlab) ID() string          { return "minecraft:waxed_cut_copper_slab" }
-func (LightningRod) ID() string                { return "minecraft:lightning_rod" }
-func (PointedDripstone) ID() string            { return "minecraft:pointed_dripstone" }
-func (DripstoneBlock) ID() string              { return "minecraft:dripstone_block" }
-func (CaveVines) ID() string                   { return "minecraft:cave_vines" }
-func (CaveVinesPlant) ID() string              { return "minecraft:cave_vines_plant" }
-func (SporeBlossom) ID() string                { return "minecraft:spore_blossom" }
-func (Azalea) ID() string                      { return "minecraft:azalea" }
-func (FloweringAzalea) ID() string             { return "minecraft:flowering_azalea" }
-func (MossCarpet) ID() string                  { return "minecraft:moss_carpet" }
-func (PinkPetals) ID() string                  { return "minecraft:pink_petals" }
-func (MossBlock) ID() string                   { return "minecraft:moss_block" }
-func (BigDripleaf) ID() string                 { return "minecraft:big_dripleaf" }
-func (BigDripleafStem) ID() string             { return "minecraft:big_dripleaf_stem" }
-func (SmallDripleaf) ID() string               { return "minecraft:small_dripleaf" }
-func (HangingRoots) ID() string                { return "minecraft:hanging_roots" }
-func (RootedDirt) ID() string                  { return "minecraft:rooted_dirt" }
-func (Mud) ID() string                         { return "minecraft:mud" }
-func (Deepslate) ID() string                   { return "minecraft:deepslate" }
-func (CobbledDeepslate) ID() string            { return "minecraft:cobbled_deepslate" }
-func (CobbledDeepslateStairs) ID() string      { return "minecraft:cobbled_deepslate_stairs" }
-func (CobbledDeepslateSlab) ID() string        { return "minecraft:cobbled_deepslate_slab" }
-func (CobbledDeepslateWall) ID() string        { return "minecraft:cobbled_deepslate_wall" }
-func (PolishedDeepslate) ID() string           { return "minecraft:polished_deepslate" }
-func (PolishedDeepslateStairs) ID() string     { return "minecraft:polished_deepslate_stairs" }
-func (PolishedDeepslateSlab) ID() string       { return "minecraft:polished_deepslate_slab" }
-func (PolishedDeepslateWall) ID() string       { return "minecraft:polished_deepslate_wall" }
-func (DeepslateTiles) ID() string              { return "minecraft:deepslate_tiles" }
-func (DeepslateTileStairs) ID() string         { return "minecraft:deepslate_tile_stairs" }
-func (DeepslateTileSlab) ID() string           { return "minecraft:deepslate_tile_slab" }
-func (DeepslateTileWall) ID() string           { return "minecraft:deepslate_tile_wall" }
-func (DeepslateBricks) ID() string             { return "minecraft:deepslate_bricks" }
-func (DeepslateBrickStairs) ID() string        { return "minecraft:deepslate_brick_stairs" }
-func (DeepslateBrickSlab) ID() string          { return "minecraft:deepslate_brick_slab" }
-func (DeepslateBrickWall) ID() string          { return "minecraft:deepslate_brick_wall" }
-func (ChiseledDeepslate) ID() string           { return "minecraft:chiseled_deepslate" }
-func (CrackedDeepslateBricks) ID() string      { return "minecraft:cracked_deepslate_bricks" }
-func (CrackedDeepslateTiles) ID() string       { return "minecraft:cracked_deepslate_tiles" }
-func (InfestedDeepslate) ID() string           { return "minecraft:infested_deepslate" }
-func (SmoothBasalt) ID() string                { return "minecraft:smooth_basalt" }
-func (RawIronBlock) ID() string                { return "minecraft:raw_iron_block" }
-func (RawCopperBlock) ID() string              { return "minecraft:raw_copper_block" }
-func (RawGoldBlock) ID() string                { return "minecraft:raw_gold_block" }
-func (PottedAzaleaBush) ID() string            { return "minecraft:potted_azalea_bush" }
-func (PottedFloweringAzaleaBush) ID() string   { return "minecraft:potted_flowering_azalea_bush" }
-func (OchreFroglight) ID() string              { return "minecraft:ochre_froglight" }
-func (VerdantFroglight) ID() string            { return "minecraft:verdant_froglight" }
-func (PearlescentFroglight) ID() string        { return "minecraft:pearlescent_froglight" }
-func (Frogspawn) ID() string                   { return "minecraft:frogspawn" }
-func (ReinforcedDeepslate) ID() string         { return "minecraft:reinforced_deepslate" }
-func (DecoratedPot) ID() string                { return "minecraft:decorated_pot" }
+func (WaxedExposedCutCopperStairs) ID() string  { return "minecraft:waxed_exposed_cut_copper_stairs" }
+func (WaxedCutCopperStairs) ID() string         { return "minecraft:waxed_cut_copper_stairs" }
+func (WaxedOxidizedCutCopperSlab) ID() string   { return "minecraft:waxed_oxidized_cut_copper_slab" }
+func (WaxedWeatheredCutCopperSlab) ID() string  { return "minecraft:waxed_weathered_cut_copper_slab" }
+func (WaxedExposedCutCopperSlab) ID() string    { return "minecraft:waxed_exposed_cut_copper_slab" }
+func (WaxedCutCopperSlab) ID() string           { return "minecraft:waxed_cut_copper_slab" }
+func (CopperDoor) ID() string                   { return "minecraft:copper_door" }
+func (ExposedCopperDoor) ID() string            { return "minecraft:exposed_copper_door" }
+func (OxidizedCopperDoor) ID() string           { return "minecraft:oxidized_copper_door" }
+func (WeatheredCopperDoor) ID() string          { return "minecraft:weathered_copper_door" }
+func (WaxedCopperDoor) ID() string              { return "minecraft:waxed_copper_door" }
+func (WaxedExposedCopperDoor) ID() string       { return "minecraft:waxed_exposed_copper_door" }
+func (WaxedOxidizedCopperDoor) ID() string      { return "minecraft:waxed_oxidized_copper_door" }
+func (WaxedWeatheredCopperDoor) ID() string     { return "minecraft:waxed_weathered_copper_door" }
+func (CopperTrapdoor) ID() string               { return "minecraft:copper_trapdoor" }
+func (ExposedCopperTrapdoor) ID() string        { return "minecraft:exposed_copper_trapdoor" }
+func (OxidizedCopperTrapdoor) ID() string       { return "minecraft:oxidized_copper_trapdoor" }
+func (WeatheredCopperTrapdoor) ID() string      { return "minecraft:weathered_copper_trapdoor" }
+func (WaxedCopperTrapdoor) ID() string          { return "minecraft:waxed_copper_trapdoor" }
+func (WaxedExposedCopperTrapdoor) ID() string   { return "minecraft:waxed_exposed_copper_trapdoor" }
+func (WaxedOxidizedCopperTrapdoor) ID() string  { return "minecraft:waxed_oxidized_copper_trapdoor" }
+func (WaxedWeatheredCopperTrapdoor) ID() string { return "minecraft:waxed_weathered_copper_trapdoor" }
+func (CopperGrate) ID() string                  { return "minecraft:copper_grate" }
+func (ExposedCopperGrate) ID() string           { return "minecraft:exposed_copper_grate" }
+func (WeatheredCopperGrate) ID() string         { return "minecraft:weathered_copper_grate" }
+func (OxidizedCopperGrate) ID() string          { return "minecraft:oxidized_copper_grate" }
+func (WaxedCopperGrate) ID() string             { return "minecraft:waxed_copper_grate" }
+func (WaxedExposedCopperGrate) ID() string      { return "minecraft:waxed_exposed_copper_grate" }
+func (WaxedWeatheredCopperGrate) ID() string    { return "minecraft:waxed_weathered_copper_grate" }
+func (WaxedOxidizedCopperGrate) ID() string     { return "minecraft:waxed_oxidized_copper_grate" }
+func (CopperBulb) ID() string                   { return "minecraft:copper_bulb" }
+func (ExposedCopperBulb) ID() string            { return "minecraft:exposed_copper_bulb" }
+func (WeatheredCopperBulb) ID() string          { return "minecraft:weathered_copper_bulb" }
+func (OxidizedCopperBulb) ID() string           { return "minecraft:oxidized_copper_bulb" }
+func (WaxedCopperBulb) ID() string              { return "minecraft:waxed_copper_bulb" }
+func (WaxedExposedCopperBulb) ID() string       { return "minecraft:waxed_exposed_copper_bulb" }
+func (WaxedWeatheredCopperBulb) ID() string     { return "minecraft:waxed_weathered_copper_bulb" }
+func (WaxedOxidizedCopperBulb) ID() string      { return "minecraft:waxed_oxidized_copper_bulb" }
+func (LightningRod) ID() string                 { return "minecraft:lightning_rod" }
+func (PointedDripstone) ID() string             { return "minecraft:pointed_dripstone" }
+func (DripstoneBlock) ID() string               { return "minecraft:dripstone_block" }
+func (CaveVines) ID() string                    { return "minecraft:cave_vines" }
+func (CaveVinesPlant) ID() string               { return "minecraft:cave_vines_plant" }
+func (SporeBlossom) ID() string                 { return "minecraft:spore_blossom" }
+func (Azalea) ID() string                       { return "minecraft:azalea" }
+func (FloweringAzalea) ID() string              { return "minecraft:flowering_azalea" }
+func (MossCarpet) ID() string                   { return "minecraft:moss_carpet" }
+func (PinkPetals) ID() string                   { return "minecraft:pink_petals" }
+func (MossBlock) ID() string                    { return "minecraft:moss_block" }
+func (BigDripleaf) ID() string                  { return "minecraft:big_dripleaf" }
+func (BigDripleafStem) ID() string              { return "minecraft:big_dripleaf_stem" }
+func (SmallDripleaf) ID() string                { return "minecraft:small_dripleaf" }
+func (HangingRoots) ID() string                 { return "minecraft:hanging_roots" }
+func (RootedDirt) ID() string                   { return "minecraft:rooted_dirt" }
+func (Mud) ID() string                          { return "minecraft:mud" }
+func (Deepslate) ID() string                    { return "minecraft:deepslate" }
+func (CobbledDeepslate) ID() string             { return "minecraft:cobbled_deepslate" }
+func (CobbledDeepslateStairs) ID() string       { return "minecraft:cobbled_deepslate_stairs" }
+func (CobbledDeepslateSlab) ID() string         { return "minecraft:cobbled_deepslate_slab" }
+func (CobbledDeepslateWall) ID() string         { return "minecraft:cobbled_deepslate_wall" }
+func (PolishedDeepslate) ID() string            { return "minecraft:polished_deepslate" }
+func (PolishedDeepslateStairs) ID() string      { return "minecraft:polished_deepslate_stairs" }
+func (PolishedDeepslateSlab) ID() string        { return "minecraft:polished_deepslate_slab" }
+func (PolishedDeepslateWall) ID() string        { return "minecraft:polished_deepslate_wall" }
+func (DeepslateTiles) ID() string               { return "minecraft:deepslate_tiles" }
+func (DeepslateTileStairs) ID() string          { return "minecraft:deepslate_tile_stairs" }
+func (DeepslateTileSlab) ID() string            { return "minecraft:deepslate_tile_slab" }
+func (DeepslateTileWall) ID() string            { return "minecraft:deepslate_tile_wall" }
+func (DeepslateBricks) ID() string              { return "minecraft:deepslate_bricks" }
+func (DeepslateBrickStairs) ID() string         { return "minecraft:deepslate_brick_stairs" }
+func (DeepslateBrickSlab) ID() string           { return "minecraft:deepslate_brick_slab" }
+func (DeepslateBrickWall) ID() string           { return "minecraft:deepslate_brick_wall" }
+func (ChiseledDeepslate) ID() string            { return "minecraft:chiseled_deepslate" }
+func (CrackedDeepslateBricks) ID() string       { return "minecraft:cracked_deepslate_bricks" }
+func (CrackedDeepslateTiles) ID() string        { return "minecraft:cracked_deepslate_tiles" }
+func (InfestedDeepslate) ID() string            { return "minecraft:infested_deepslate" }
+func (SmoothBasalt) ID() string                 { return "minecraft:smooth_basalt" }
+func (RawIronBlock) ID() string                 { return "minecraft:raw_iron_block" }
+func (RawCopperBlock) ID() string               { return "minecraft:raw_copper_block" }
+func (RawGoldBlock) ID() string                 { return "minecraft:raw_gold_block" }
+func (PottedAzaleaBush) ID() string             { return "minecraft:potted_azalea_bush" }
+func (PottedFloweringAzaleaBush) ID() string    { return "minecraft:potted_flowering_azalea_bush" }
+func (OchreFroglight) ID() string               { return "minecraft:ochre_froglight" }
+func (VerdantFroglight) ID() string             { return "minecraft:verdant_froglight" }
+func (PearlescentFroglight) ID() string         { return "minecraft:pearlescent_froglight" }
+func (Frogspawn) ID() string                    { return "minecraft:frogspawn" }
+func (ReinforcedDeepslate) ID() string          { return "minecraft:reinforced_deepslate" }
+func (DecoratedPot) ID() string                 { return "minecraft:decorated_pot" }
+func (Crafter) ID() string                      { return "minecraft:crafter" }
+func (TrialSpawner) ID() string                 { return "minecraft:trial_spawner" }
 
 var FromID = map[string]Block{
 	"minecraft:air":                                Air{},
@@ -4348,7 +4645,7 @@ var FromID = map[string]Block{
 	"minecraft:detector_rail":                      DetectorRail{},
 	"minecraft:sticky_piston":                      StickyPiston{},
 	"minecraft:cobweb":                             Cobweb{},
-	"minecraft:grass":                              Grass{},
+	"minecraft:short_grass":                        ShortGrass{},
 	"minecraft:fern":                               Fern{},
 	"minecraft:dead_bush":                          DeadBush{},
 	"minecraft:seagrass":                           Seagrass{},
@@ -4480,7 +4777,6 @@ var FromID = map[string]Block{
 	"minecraft:sugar_cane":                         SugarCane{},
 	"minecraft:jukebox":                            Jukebox{},
 	"minecraft:oak_fence":                          OakFence{},
-	"minecraft:pumpkin":                            Pumpkin{},
 	"minecraft:netherrack":                         Netherrack{},
 	"minecraft:soul_sand":                          SoulSand{},
 	"minecraft:soul_soil":                          SoulSoil{},
@@ -4537,6 +4833,7 @@ var FromID = map[string]Block{
 	"minecraft:iron_bars":                          IronBars{},
 	"minecraft:chain":                              Chain{},
 	"minecraft:glass_pane":                         GlassPane{},
+	"minecraft:pumpkin":                            Pumpkin{},
 	"minecraft:melon":                              Melon{},
 	"minecraft:attached_pumpkin_stem":              AttachedPumpkinStem{},
 	"minecraft:attached_melon_stem":                AttachedMelonStem{},
@@ -5135,6 +5432,19 @@ var FromID = map[string]Block{
 	"minecraft:medium_amethyst_bud":                MediumAmethystBud{},
 	"minecraft:small_amethyst_bud":                 SmallAmethystBud{},
 	"minecraft:tuff":                               Tuff{},
+	"minecraft:tuff_slab":                          TuffSlab{},
+	"minecraft:tuff_stairs":                        TuffStairs{},
+	"minecraft:tuff_wall":                          TuffWall{},
+	"minecraft:polished_tuff":                      PolishedTuff{},
+	"minecraft:polished_tuff_slab":                 PolishedTuffSlab{},
+	"minecraft:polished_tuff_stairs":               PolishedTuffStairs{},
+	"minecraft:polished_tuff_wall":                 PolishedTuffWall{},
+	"minecraft:chiseled_tuff":                      ChiseledTuff{},
+	"minecraft:tuff_bricks":                        TuffBricks{},
+	"minecraft:tuff_brick_slab":                    TuffBrickSlab{},
+	"minecraft:tuff_brick_stairs":                  TuffBrickStairs{},
+	"minecraft:tuff_brick_wall":                    TuffBrickWall{},
+	"minecraft:chiseled_tuff_bricks":               ChiseledTuffBricks{},
 	"minecraft:calcite":                            Calcite{},
 	"minecraft:tinted_glass":                       TintedGlass{},
 	"minecraft:powder_snow":                        PowderSnow{},
@@ -5144,16 +5454,24 @@ var FromID = map[string]Block{
 	"minecraft:sculk_vein":                         SculkVein{},
 	"minecraft:sculk_catalyst":                     SculkCatalyst{},
 	"minecraft:sculk_shrieker":                     SculkShrieker{},
-	"minecraft:oxidized_copper":                    OxidizedCopper{},
-	"minecraft:weathered_copper":                   WeatheredCopper{},
-	"minecraft:exposed_copper":                     ExposedCopper{},
 	"minecraft:copper_block":                       CopperBlock{},
+	"minecraft:exposed_copper":                     ExposedCopper{},
+	"minecraft:weathered_copper":                   WeatheredCopper{},
+	"minecraft:oxidized_copper":                    OxidizedCopper{},
 	"minecraft:copper_ore":                         CopperOre{},
 	"minecraft:deepslate_copper_ore":               DeepslateCopperOre{},
 	"minecraft:oxidized_cut_copper":                OxidizedCutCopper{},
 	"minecraft:weathered_cut_copper":               WeatheredCutCopper{},
 	"minecraft:exposed_cut_copper":                 ExposedCutCopper{},
 	"minecraft:cut_copper":                         CutCopper{},
+	"minecraft:oxidized_chiseled_copper":           OxidizedChiseledCopper{},
+	"minecraft:weathered_chiseled_copper":          WeatheredChiseledCopper{},
+	"minecraft:exposed_chiseled_copper":            ExposedChiseledCopper{},
+	"minecraft:chiseled_copper":                    ChiseledCopper{},
+	"minecraft:waxed_oxidized_chiseled_copper":     WaxedOxidizedChiseledCopper{},
+	"minecraft:waxed_weathered_chiseled_copper":    WaxedWeatheredChiseledCopper{},
+	"minecraft:waxed_exposed_chiseled_copper":      WaxedExposedChiseledCopper{},
+	"minecraft:waxed_chiseled_copper":              WaxedChiseledCopper{},
 	"minecraft:oxidized_cut_copper_stairs":         OxidizedCutCopperStairs{},
 	"minecraft:weathered_cut_copper_stairs":        WeatheredCutCopperStairs{},
 	"minecraft:exposed_cut_copper_stairs":          ExposedCutCopperStairs{},
@@ -5178,6 +5496,38 @@ var FromID = map[string]Block{
 	"minecraft:waxed_weathered_cut_copper_slab":    WaxedWeatheredCutCopperSlab{},
 	"minecraft:waxed_exposed_cut_copper_slab":      WaxedExposedCutCopperSlab{},
 	"minecraft:waxed_cut_copper_slab":              WaxedCutCopperSlab{},
+	"minecraft:copper_door":                        CopperDoor{},
+	"minecraft:exposed_copper_door":                ExposedCopperDoor{},
+	"minecraft:oxidized_copper_door":               OxidizedCopperDoor{},
+	"minecraft:weathered_copper_door":              WeatheredCopperDoor{},
+	"minecraft:waxed_copper_door":                  WaxedCopperDoor{},
+	"minecraft:waxed_exposed_copper_door":          WaxedExposedCopperDoor{},
+	"minecraft:waxed_oxidized_copper_door":         WaxedOxidizedCopperDoor{},
+	"minecraft:waxed_weathered_copper_door":        WaxedWeatheredCopperDoor{},
+	"minecraft:copper_trapdoor":                    CopperTrapdoor{},
+	"minecraft:exposed_copper_trapdoor":            ExposedCopperTrapdoor{},
+	"minecraft:oxidized_copper_trapdoor":           OxidizedCopperTrapdoor{},
+	"minecraft:weathered_copper_trapdoor":          WeatheredCopperTrapdoor{},
+	"minecraft:waxed_copper_trapdoor":              WaxedCopperTrapdoor{},
+	"minecraft:waxed_exposed_copper_trapdoor":      WaxedExposedCopperTrapdoor{},
+	"minecraft:waxed_oxidized_copper_trapdoor":     WaxedOxidizedCopperTrapdoor{},
+	"minecraft:waxed_weathered_copper_trapdoor":    WaxedWeatheredCopperTrapdoor{},
+	"minecraft:copper_grate":                       CopperGrate{},
+	"minecraft:exposed_copper_grate":               ExposedCopperGrate{},
+	"minecraft:weathered_copper_grate":             WeatheredCopperGrate{},
+	"minecraft:oxidized_copper_grate":              OxidizedCopperGrate{},
+	"minecraft:waxed_copper_grate":                 WaxedCopperGrate{},
+	"minecraft:waxed_exposed_copper_grate":         WaxedExposedCopperGrate{},
+	"minecraft:waxed_weathered_copper_grate":       WaxedWeatheredCopperGrate{},
+	"minecraft:waxed_oxidized_copper_grate":        WaxedOxidizedCopperGrate{},
+	"minecraft:copper_bulb":                        CopperBulb{},
+	"minecraft:exposed_copper_bulb":                ExposedCopperBulb{},
+	"minecraft:weathered_copper_bulb":              WeatheredCopperBulb{},
+	"minecraft:oxidized_copper_bulb":               OxidizedCopperBulb{},
+	"minecraft:waxed_copper_bulb":                  WaxedCopperBulb{},
+	"minecraft:waxed_exposed_copper_bulb":          WaxedExposedCopperBulb{},
+	"minecraft:waxed_weathered_copper_bulb":        WaxedWeatheredCopperBulb{},
+	"minecraft:waxed_oxidized_copper_bulb":         WaxedOxidizedCopperBulb{},
 	"minecraft:lightning_rod":                      LightningRod{},
 	"minecraft:pointed_dripstone":                  PointedDripstone{},
 	"minecraft:dripstone_block":                    DripstoneBlock{},
@@ -5228,4 +5578,6 @@ var FromID = map[string]Block{
 	"minecraft:frogspawn":                          Frogspawn{},
 	"minecraft:reinforced_deepslate":               ReinforcedDeepslate{},
 	"minecraft:decorated_pot":                      DecoratedPot{},
+	"minecraft:crafter":                            Crafter{},
+	"minecraft:trial_spawner":                      TrialSpawner{},
 }
