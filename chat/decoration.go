@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"fmt"
 	"io"
 
 	pk "github.com/Tnze/go-mc/net/packet"
@@ -64,16 +65,16 @@ func (t *Type) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 	n2, err := t.SenderName.ReadFrom(r)
 	if err != nil {
-		return n1 + n2, err
+		return n1 + n2, fmt.Errorf("read sender name error: %w", err)
 	}
 	n3, err := hasTargetName.ReadFrom(r)
 	if err != nil {
-		return n1 + n2 + n3, err
+		return n1 + n2 + n3, fmt.Errorf("read has target name error: %w", err)
 	}
 	if hasTargetName {
 		t.TargetName = new(Message)
 		n4, err := t.TargetName.ReadFrom(r)
-		return n1 + n2 + n3 + n4, err
+		return n1 + n2 + n3 + n4, fmt.Errorf("read target name error: %w", err)
 	}
 	return n1 + n2 + n3, nil
 }

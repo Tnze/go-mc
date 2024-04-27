@@ -11,22 +11,12 @@ import (
 
 // ReadFrom decode Message in a Text component
 func (m *Message) ReadFrom(r io.Reader) (int64, error) {
-	var code pk.String
-	n, err := code.ReadFrom(r)
-	if err != nil {
-		return n, err
-	}
-	err = nbt.Unmarshal([]byte(code), (*Message)(m))
-	return n, err
+	return pk.NBT(m).ReadFrom(r)
 }
 
 // WriteTo encode Message into a Text component
 func (m Message) WriteTo(w io.Writer) (int64, error) {
-	code, err := nbt.Marshal(Message(m))
-	if err != nil {
-		panic(err)
-	}
-	return pk.String(code).WriteTo(w)
+	return pk.NBT(&m).WriteTo(w)
 }
 
 func (m Message) MarshalNBT() ([]byte, error) {
