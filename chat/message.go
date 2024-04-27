@@ -102,13 +102,13 @@ type translateMsg struct {
 	Extra     []Message `json:"extra,omitempty"`
 }
 
-type jsonMsg Message
+type rawMsgStruct Message
 
 func (m Message) MarshalJSON() ([]byte, error) {
 	if m.Translate != "" {
 		return json.Marshal(translateMsg(m))
 	} else {
-		return json.Marshal(jsonMsg(m))
+		return json.Marshal(rawMsgStruct(m))
 	}
 }
 
@@ -124,7 +124,7 @@ func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 	case '"':
 		return json.Unmarshal(raw, &m.Text) // Unmarshal as jsonString
 	case '{':
-		return json.Unmarshal(raw, (*jsonMsg)(m)) // Unmarshal as jsonMsg
+		return json.Unmarshal(raw, (*rawMsgStruct)(m)) // Unmarshal as jsonMsg
 	case '[':
 		return json.Unmarshal(raw, &m.Extra) // Unmarshal as []Message
 	default:
