@@ -64,7 +64,7 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 		// Handle Packet
 		switch packetid.ClientboundPacketID(p.ID) {
 		case packetid.ClientboundLoginDisconnect: // LoginDisconnect
-			var reason chat.Message
+			var reason chat.JsonMessage
 			err = p.Scan(&reason)
 			if err != nil {
 				return LoginErr{"disconnect", err}

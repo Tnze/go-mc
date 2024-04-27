@@ -82,7 +82,7 @@ func attachDisconnect(c *bot.Client, handler func(reason chat.Message) error) {
 	c.Events.AddListener(bot.PacketHandler{
 		Priority: 64, ID: packetid.ClientboundDisconnect,
 		F: func(p pk.Packet) error {
-			var reason chat.JsonMessage
+			var reason chat.Message
 			if err := p.Scan(&reason); err != nil {
 				return Error{err}
 			}
