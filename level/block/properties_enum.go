@@ -1004,10 +1004,10 @@ func (f *FrontAndTop) UnmarshalText(text []byte) error {
 type TrialSpawnerState = string
 
 const (
-	TrailSpawnerActive = "active"
-	TrailSpawnerCooldown = "cooldown"
-	TrailSpawnerEjectingReward = "ejecting_reward"
-	TrailSpawnerInactive = "inactive"
-	TrailSpawnerWaitingForPlayers = "waiting_for_players"
+	TrailSpawnerActive                   = "active"
+	TrailSpawnerCooldown                 = "cooldown"
+	TrailSpawnerEjectingReward           = "ejecting_reward"
+	TrailSpawnerInactive                 = "inactive"
+	TrailSpawnerWaitingForPlayers        = "waiting_for_players"
 	TrailSpawnerWaitingForRewardEjection = "waiting_for_reward_ejection"
 )

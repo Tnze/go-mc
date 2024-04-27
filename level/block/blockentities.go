@@ -89,6 +89,7 @@ func (SculkShriekerEntity) ID() string         { return "minecraft:sculk_shrieke
 func (ChiseledBookshelfEntity) ID() string     { return "minecraft:chiseled_bookshelf" }
 func (BrushableBlockEntity) ID() string        { return "minecraft:brushable_block" }
 func (DecoratedPotEntity) ID() string          { return "minecraft:decorated_pot" }
+
 // func (CrafterEntity) ID() string               { return "minecraft:crafter" }
 // func (TrialSpawnerEntity) ID() string          { return "minecraft:trial_spawner" }
 
@@ -431,7 +432,7 @@ func (d DecoratedPotEntity) IsValidBlock(block Block) bool {
 // func (c CrafterEntity) IsValidBlock(block Block) bool {
 // 	return block.ID() == "minecraft:crafter"
 // }
-// 
+//
 // func (t TrialSpawnerEntity) IsValidBlock(block Block) bool {
 // 	return block.ID() == "minecraft:trial_spawner"
 // }
