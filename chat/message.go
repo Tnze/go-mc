@@ -20,7 +20,6 @@ import (
 	"strings"
 
 	en_us "github.com/Tnze/go-mc/data/lang/en-us"
-	"github.com/Tnze/go-mc/nbt"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
@@ -134,26 +133,13 @@ func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 }
 
 // ReadFrom decode Message in a ChatMsg packet
-func (m *Message) ReadFrom(r io.Reader) (n int64, err error) {
-	var msgType pk.Byte
-	n, err = msgType.ReadFrom(r)
-	if err != nil {
-		return n, err
-	}
-	io.CopyN(io.Discard, r, 1)
-
+func (m *Message) ReadFrom(r io.Reader) (int64, error) {
 	var code pk.String
-	n, err = code.ReadFrom(r)
+	n, err := code.ReadFrom(r)
 	if err != nil {
 		return n, err
 	}
-
-	if byte(msgType) == nbt.TagString {
-		m.Text = string(code)
-	} else if byte(msgType) == nbt.TagCompound {
-		fmt.Printf("a: %+v\n", []byte(code))
-		err = json.Unmarshal([]byte(code), m)
-	}
+	err = json.Unmarshal([]byte(code), m)
 	return n, err
 }
 
