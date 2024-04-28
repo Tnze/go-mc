@@ -3,11 +3,13 @@ package screen
 import (
 	"errors"
 
+	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/inventory"
 )
 
 type Chest struct {
 	Type  inventory.InventoryID
+	Title chat.Message
 	Slots []Slot
 	Rows  int
 }
