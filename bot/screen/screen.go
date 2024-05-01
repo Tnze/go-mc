@@ -81,11 +81,23 @@ func (m *Manager) onOpenScreen(p pk.Packet) error {
 	if err := p.Scan(&ContainerID, &Type, &Title); err != nil {
 		return Error{err}
 	}
-	//if c, ok := m.Screens[byte(ContainerID)]; ok {
-	// TODO: Create the specified container
-	//}
+	if _, ok := m.Screens[int(ContainerID)]; !ok {
+		TypeInt32 := int32(Type)
+		if TypeInt32 < 6 {
+			Rows := TypeInt32 + 1
+			chest := Chest{
+				Type:  TypeInt32,
+				Slots: make([]Slot, 9*Rows),
+				Rows:  int(Rows),
+				Title: Title,
+			}
+			m.Screens[int(ContainerID)] = &chest
+		}
+	} else {
+		return errors.New("container id already exists in screens")
+	}
 	if m.events.Open != nil {
-		if err := m.events.Open(int(ContainerID)); err != nil {
+		if err := m.events.Open(int(ContainerID), int32(Type), Title); err != nil {
 			return Error{err}
 		}
 	}

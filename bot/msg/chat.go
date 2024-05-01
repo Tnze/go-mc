@@ -175,6 +175,30 @@ func (m *Manager) SendMessage(msg string) error {
 	return err
 }
 
+// SendMessage send chat message to server.
+// Doesn't support sending message with signature currently.
+func (m *Manager) SendCommand(command string) error {
+	if len(command) > 256 {
+		return errors.New("message length greater than 256")
+	}
+	var salt int64
+	if err := binary.Read(rand.Reader, binary.BigEndian, &salt); err != nil {
+		return err
+	}
+
+	err := m.c.Conn.WritePacket(pk.Marshal(
+		packetid.ServerboundChatCommand,
+		pk.String(command),
+		pk.Long(time.Now().UnixMilli()),
+		pk.Long(salt),
+		pk.Ary[pk.VarInt]{Ary: []pk.Tuple{}},
+		sign.HistoryUpdate{
+			Acknowledged: pk.NewFixedBitSet(20),
+		},
+	))
+	return err
+}
+
 var (
 	InvalidChatPacket       = errors.New("invalid chat packet")
 	ValidationFailed  error = bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
