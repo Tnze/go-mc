@@ -450,10 +450,8 @@ func (l *lightData) WriteTo(w io.Writer) (int64, error) {
 }
 
 func (l *lightData) ReadFrom(r io.Reader) (int64, error) {
-	var TrustEdges pk.Boolean
 	var RevSkyLightMask, RevBlockLightMask pk.BitSet
 	return pk.Tuple{
-		&TrustEdges, // Trust Edges
 		&l.SkyLightMask,
 		&l.BlockLightMask,
 		&RevSkyLightMask,
