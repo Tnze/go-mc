@@ -220,3 +220,12 @@ type kv struct {
 	tag string
 	v   *Value
 }
+
+func (c *Compound) Visit(f func(tag string, v *Value)) {
+	if c == nil {
+		return
+	}
+	for _, kv := range c.kvs {
+		f(kv.tag, kv.v)
+	}
+}
