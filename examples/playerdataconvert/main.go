@@ -9,191 +9,82 @@
 package main
 
 import (
-	"compress/gzip"
-	"encoding/binary"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"io/fs"
-	"net/http"
 	"os"
 	"path/filepath"
 
-	"github.com/Tnze/go-mc/nbt"
-	"github.com/Tnze/go-mc/nbt/dynbt"
 	"github.com/google/uuid"
 )
 
-var savePath = flag.String("save", "The save folder with \"usercache.json\" file inside", "")
+var (
+	savePath            = flag.String("save", ".", "The save folder with \"usercache.json\" file inside")
+	convertPlayerData   = flag.Bool("cplayerdata", true, "Whether convert files at /world/playerdata/*.dat")
+	convertEntities     = flag.Bool("centities", true, "Whether convert pets' Owner at /world/entities/*")
+	convertAdvancements = flag.Bool("cadvancements", true, "Whether convert advancements at /world/advancements/*")
+)
 
 func main() {
 	flag.Parse()
-	save, err := os.ReadDir(*savePath)
+
+	usercaches, err := readUsercache(filepath.Join(*savePath, "usercache.json"))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to open dir: %v", err)
+		fmt.Fprintf(os.Stderr, "Failed to parse usercache file: %v\n", err)
 		return
+	}
+	fmt.Printf("Successfully reading usercache\n")
+	m := mappingUsers(usercaches)
+
+	if *convertPlayerData {
+		readPlayerdata(filepath.Join(*savePath, "world", "playerdata"), m)
 	}
 
-	var usercache fs.DirEntry
-	for i := range save {
-		name := save[i].Name()
-		if name == "usercache.json" && !save[i].IsDir() {
-			usercache = save[i]
-		}
+	if *convertEntities {
+		readEntities(filepath.Join(*savePath, "world", "entities"), m)
 	}
-	if usercache == nil {
-		fmt.Fprintf(os.Stderr, "usercache.json not found")
-		return
+
+	if *convertAdvancements {
+		readAdvancements(filepath.Join(*savePath, "world", "advancements"), m)
 	}
-	usercaches := readUsercache(filepath.Join(*savePath, usercache.Name()))
-	fmt.Printf("Successfully reading usercache\n")
-	readPlayerdata(filepath.Join(*savePath, "world", "playerdata"), usercaches)
 }
 
 type UserCache struct {
-	Name      string `json:"name"`
-	UUID      string `json:"uuid"`
-	ExpiresOn string `json:"expiresOn"`
+	Name string    `json:"name"`
+	UUID uuid.UUID `json:"uuid"`
 }
 
-func readUsercache(path string) []UserCache {
+func readUsercache(path string) ([]UserCache, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to read usercache file: %v\n", err)
-		return nil
+		return nil, err
 	}
 
 	var usercache []UserCache
 	err = json.Unmarshal(data, &usercache)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse usercache file: %v\n", err)
-		return nil
+		return nil, err
 	}
-	return usercache
+	return usercache, nil
 }
 
-func readPlayerdata(dir string, users []UserCache) {
+func mappingUsers(users []UserCache) map[uuid.UUID]UserCache {
+	m := make(map[uuid.UUID]UserCache)
 	for _, user := range users {
-		nbtdata, err := readNbtData(dir, &user)
+		name := user.Name
+		// // You can add your maps here
+		// if v, ok := offlineOnlineMaps[name]; ok {
+		// 	name = v
+		// }
+
+		name, id, err := usernameToUUID(name)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to read %s's nbt data\n", user.Name)
+			fmt.Fprintf(os.Stderr, "Unable to fetch username for %s from Mojang server: %v\n", name, err)
 			continue
 		}
 
-		// Get old UUID
-		uuidInts := nbtdata.Get("UUID").IntArray()
-		uuidBytes, err := intArrayToUUID(uuidInts)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to read %s's UUID\n", user.Name)
-			continue
-		}
-
-		if ver := uuidBytes.Version(); ver != 3 { // v3 is for offline players
-			fmt.Printf("Ignoring UUID: %v version: %d\n", uuidBytes, ver)
-			continue
-		}
-
-		// Get new UUID
-		name, id, err := usernameToUUID(user.Name)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to fetch username for %s from Mojang server: %v\n", user.Name, err)
-			continue
-		}
-
-		fmt.Printf("[%s] %v -> %v\n", name, uuidBytes, id)
-
-		// Update UUID
-		ints := uuidToIntArray(id)
-		nbtdata.Set("UUID", dynbt.NewIntArray(ints[:]))
-
-		// Create new .dat file
-		err = writeNbtData(dir, id.String(), &nbtdata)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Unable to write %s's .dat file: %v\n", name, err)
-			continue
-		}
+		fmt.Printf("[%s] %v -> %v\n", name, user.UUID, id)
+		m[user.UUID] = UserCache{name, id}
 	}
-}
-
-func readNbtData(dir string, user *UserCache) (dynbt.Value, error) {
-	file, err := os.Open(filepath.Join(dir, user.UUID+".dat"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to read %s's userdata: %v\n", user.Name, err)
-	}
-	defer file.Close()
-
-	r, err := gzip.NewReader(file)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to decompress %s's userdata: %v\n", user.Name, err)
-	}
-
-	var nbtdata dynbt.Value
-	_, err = nbt.NewDecoder(r).Decode(&nbtdata)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to parse %s's userdata: %v\n", user.Name, err)
-	}
-	return nbtdata, nil
-}
-
-func writeNbtData(dir string, id string, nbtdata *dynbt.Value) error {
-	newDatFilePath := filepath.Join(dir, id+".dat")
-	file, err := os.Create(newDatFilePath)
-	if err != nil {
-		return err
-	}
-
-	w := gzip.NewWriter(file)
-	err = nbt.NewEncoder(w).Encode(&nbtdata, "")
-	if err != nil {
-		return err
-	}
-
-	err = w.Close()
-	if err != nil {
-		return err
-	}
-
-	err = file.Close()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func usernameToUUID(name string) (string, uuid.UUID, error) {
-	var id uuid.UUID
-	resp, err := http.Get("https://api.mojang.com/users/profiles/minecraft/" + name)
-	if err != nil {
-		return "", id, err
-	}
-
-	var body struct {
-		Name string `json:"name"`
-		ID   string `json:"id"`
-	}
-	err = json.NewDecoder(resp.Body).Decode(&body)
-	if err != nil {
-		return "", id, err
-	}
-
-	id, err = uuid.Parse(body.ID)
-	return body.Name, id, err
-}
-
-func intArrayToUUID(uuidInts []int32) (id uuid.UUID, err error) {
-	if uuidLen := len(uuidInts); uuidLen != 4 {
-		err = fmt.Errorf("invalid UUID len: %d * int32", uuidLen)
-		return
-	}
-	for i, v := range uuidInts {
-		binary.BigEndian.PutUint32(id[i*4:], uint32(v))
-	}
-	return
-}
-
-func uuidToIntArray(id uuid.UUID) (ints [4]int32) {
-	for i := range ints {
-		ints[i] = int32(binary.BigEndian.Uint32(id[i*4:]))
-	}
-	return
+	return m
 }
