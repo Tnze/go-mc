@@ -53,6 +53,9 @@ const (
 	ChiseledBookshelf
 	BrushableBlock
 	DecoratedPot
+	Crafter
+	TrialSpawner
+	Vault
 )
 
 var names = []string{
@@ -97,4 +100,7 @@ var names = []string{
 	"minecraft:chiseled_bookshelf",
 	"minecraft:brushable_block",
 	"minecraft:decorated_pot",
+	"minecraft:crafter",
+	"minecraft:trial_spawner",
+	"minecraft:vault",
 }

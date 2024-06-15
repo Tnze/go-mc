@@ -14,6 +14,7 @@ func (n EntityType) String() string {
 const (
 	Allay EntityType = iota
 	AreaEffectCloud
+	Armadillo
 	ArmorStand
 	Arrow
 	Axolotl
@@ -22,6 +23,9 @@ const (
 	Blaze
 	BlockDisplay
 	Boat
+	Bogged
+	Breeze
+	BreezeWindCharge
 	Camel
 	Cat
 	CaveSpider
@@ -69,6 +73,7 @@ const (
 	Item
 	ItemDisplay
 	ItemFrame
+	OminousItemSpawner
 	Fireball
 	LeashKnot
 	LightningBolt
@@ -124,6 +129,7 @@ const (
 	Vindicator
 	WanderingTrader
 	Warden
+	WindCharge
 	Witch
 	Wither
 	WitherSkeleton
@@ -141,6 +147,7 @@ const (
 var names = []string{
 	"minecraft:allay",
 	"minecraft:area_effect_cloud",
+	"minecraft:armadillo",
 	"minecraft:armor_stand",
 	"minecraft:arrow",
 	"minecraft:axolotl",
@@ -149,6 +156,9 @@ var names = []string{
 	"minecraft:blaze",
 	"minecraft:block_display",
 	"minecraft:boat",
+	"minecraft:bogged",
+	"minecraft:breeze",
+	"minecraft:breeze_wind_charge",
 	"minecraft:camel",
 	"minecraft:cat",
 	"minecraft:cave_spider",
@@ -196,6 +206,7 @@ var names = []string{
 	"minecraft:item",
 	"minecraft:item_display",
 	"minecraft:item_frame",
+	"minecraft:ominous_item_spawner",
 	"minecraft:fireball",
 	"minecraft:leash_knot",
 	"minecraft:lightning_bolt",
@@ -251,6 +262,7 @@ var names = []string{
 	"minecraft:vindicator",
 	"minecraft:wandering_trader",
 	"minecraft:warden",
+	"minecraft:wind_charge",
 	"minecraft:witch",
 	"minecraft:wither",
 	"minecraft:wither_skeleton",
