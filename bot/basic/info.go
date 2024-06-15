@@ -9,7 +9,7 @@ import (
 
 // WorldInfo content player info in server.
 type WorldInfo struct {
-	DimensionType       string
+	DimensionType       int32
 	DimensionNames      []string // Identifiers for all worlds on the server.
 	DimensionName       string   // Name of the world being spawned into.
 	HashedSeed          int64    // First 8 bytes of the SHA-256 hash of the world's seed. Used client side for biome noise
@@ -41,7 +41,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 		(*pk.Boolean)(&p.ReducedDebugInfo),
 		(*pk.Boolean)(&p.EnableRespawnScreen),
 		(*pk.Boolean)(&p.DoLimitCrafting),
-		(*pk.Identifier)(&p.WorldInfo.DimensionType),
+		(*pk.VarInt)(&p.WorldInfo.DimensionType),
 		(*pk.Identifier)(&p.DimensionName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.UnsignedByte)(&p.Gamemode),
@@ -84,7 +84,7 @@ func (p *Player) handleLoginPacket(packet pk.Packet) error {
 func (p *Player) handleRespawnPacket(packet pk.Packet) error {
 	var copyMeta bool
 	err := packet.Scan(
-		(*pk.String)(&p.DimensionType),
+		(*pk.VarInt)(&p.DimensionType),
 		(*pk.Identifier)(&p.DimensionName),
 		(*pk.Long)(&p.HashedSeed),
 		(*pk.UnsignedByte)(&p.Gamemode),

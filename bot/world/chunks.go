@@ -1,7 +1,7 @@
 package world
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/Tnze/go-mc/bot"
 	"github.com/Tnze/go-mc/bot/basic"
@@ -41,9 +41,9 @@ func (w *World) onPlayerSpawn(pk.Packet) error {
 
 func (w *World) handleLevelChunkWithLightPacket(packet pk.Packet) error {
 	var pos level.ChunkPos
-	_, currentDimType := w.c.Registries.DimensionType.Find(w.p.DimensionType)
+	currentDimType := w.c.Registries.DimensionType.FindByID(w.p.DimensionType)
 	if currentDimType == nil {
-		return errors.New("dimension type " + w.p.DimensionType + " not found")
+		return fmt.Errorf("dimension type %d not found", w.p.DimensionType)
 	}
 	chunk := level.EmptyChunk(int(currentDimType.Height) / 16)
 	if err := packet.Scan(&pos, chunk); err != nil {
