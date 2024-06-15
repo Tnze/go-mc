@@ -18,15 +18,18 @@ type Client struct {
 	Auth Auth
 
 	// These are filled when login process
-
 	Name string
 	UUID uuid.UUID
 	ConfigData
 
 	// Ingame packet handlers
 	Events Events
+
 	// Login plugins
 	LoginPlugin map[string]func(data []byte) ([]byte, error)
+
+	// Configuration handler
+	ConfigHandler
 }
 
 func (c *Client) Close() error {
@@ -44,6 +47,7 @@ func NewClient() *Client {
 	return &Client{
 		Auth:   Auth{Name: "Steve"},
 		Events: Events{handlers: make([][]PacketHandler, packetid.ClientboundPacketIDGuard)},
+		ConfigHandler: NewDefaultConfigHandler(),
 	}
 }
 
