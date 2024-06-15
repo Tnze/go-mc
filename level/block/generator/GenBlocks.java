@@ -1,6 +1,5 @@
 package pers.tnze.gomc.gen;
 
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.*;
@@ -16,8 +15,10 @@ import net.minecraft.world.level.block.state.properties.Property;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
+import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 public class GenBlocks {
@@ -54,26 +55,14 @@ public class GenBlocks {
             BlockState state = block.defaultBlockState();
             CompoundTag b = new CompoundTag();
             b.putString("Name", BuiltInRegistries.BLOCK.getKey(block).toString());
-            ImmutableMap<Property<?>, Comparable<?>> values = state.getValues();
+            Map<Property<?>, Comparable<?>> values = state.getValues();
             if (!values.isEmpty()) {
                 CompoundTag meta = new CompoundTag();
                 for (Map.Entry<Property<?>, Comparable<?>> entry : values.entrySet()) {
                     Property<?> key = entry.getKey();
                     Comparable<?> value = entry.getValue();
                     String name = key.getName();
-                    String typeName;
-                    if (key instanceof EnumProperty<?>) {
-                        if (value.getClass().getName().contains("net.minecraft.core.Direction$Axis")) {
-                            typeName = "Axis";
-                        } else {
-                            typeName = value.getClass().getSimpleName();
-                        }
-                        if (typeName.isBlank()) {
-                            throw new Exception("Type is blank: " + value.getClass().getName());
-                        }
-                    } else {
-                        typeName = key.getClass().getSimpleName();
-                    }
+                    String typeName = getTypeName(key, value);
                     meta.putString(name, typeName);
                 }
                 b.put("Meta", meta);
@@ -81,6 +70,26 @@ public class GenBlocks {
             list.add(b);
         }
         return list;
+    }
+
+    private static String getTypeName(Property<?> key, Comparable<?> value) throws Exception {
+        String typeName;
+        if (key instanceof EnumProperty<?>) {
+            Class<?> clazz = value.getClass();
+            if (clazz.getName().contains("net.minecraft.core.Direction$Axis")) {
+                typeName = "Axis";
+            } else if(clazz.getName().contains("net.minecraft.world.level.block.entity.vault.VaultState")) {
+                typeName = "VaultState";
+            } else {
+                typeName = clazz.getSimpleName();
+            }
+            if (typeName.isBlank()) {
+                throw new Exception("Type is blank: " + clazz.getName());
+            }
+        } else {
+            typeName = key.getClass().getSimpleName();
+        }
+        return typeName;
     }
 
     private static ListTag getBlockStates() {
@@ -93,10 +102,26 @@ public class GenBlocks {
 
     private static ListTag genBlockEntities() {
         ListTag list = new ListTag();
+        Field validBlocksField;
+        try {
+            validBlocksField = BlockEntityType.class.getDeclaredField("validBlocks");
+            validBlocksField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        }
         for (BlockEntityType<?> blockEntity : BuiltInRegistries.BLOCK_ENTITY_TYPE) {
             ResourceLocation value = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity);
             ListTag validBlocksList = new ListTag();
-            for (Block validBlock : blockEntity.validBlocks){
+
+            Set<Block> validBlocks;
+            try {
+                Object validBlocksObj = validBlocksField.get(blockEntity);
+                validBlocks =  (Set<Block>) validBlocksObj;
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+
+            for (Block validBlock : validBlocks){
                 validBlocksList.add(StringTag.valueOf(BuiltInRegistries.BLOCK.getKey(validBlock).toString()));
             }
             CompoundTag be = new CompoundTag();

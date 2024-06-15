@@ -54,6 +54,10 @@ var EnumProperties = []EnumProperty{
 		"up_east", "up_north", "up_south", "up_west",
 		"west_up", "east_up", "north_up", "south_up",
 	}},
+	{Name: "VaultState", Values: []string{"inactive", "active", "unlocking", "ejecting"}},
+	{Name: "TrialSpawnerState", Values: []string{
+		"inactive", "waiting_for_players", "active", "waiting_for_reward_ejection", "ejecting_reward", "cooldown",
+	}},
 }
 
 //go:embed properties_enum.go.tmpl

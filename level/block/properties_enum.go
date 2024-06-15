@@ -1001,13 +1001,90 @@ func (f *FrontAndTop) UnmarshalText(text []byte) error {
 	return nil
 }
 
-type TrialSpawnerState = string
+type VaultState byte
 
 const (
-	TrailSpawnerActive                   = "active"
-	TrailSpawnerCooldown                 = "cooldown"
-	TrailSpawnerEjectingReward           = "ejecting_reward"
-	TrailSpawnerInactive                 = "inactive"
-	TrailSpawnerWaitingForPlayers        = "waiting_for_players"
-	TrailSpawnerWaitingForRewardEjection = "waiting_for_reward_ejection"
+	VaultStateInactive VaultState = iota
+	VaultStateActive
+	VaultStateUnlocking
+	VaultStateEjecting
 )
+
+var strVaultState = [...]string{"inactive", "active", "unlocking", "ejecting"}
+
+func (v VaultState) String() string {
+	if int(v) < len(strVaultState) {
+		return strVaultState[v]
+	}
+	return "invalid VaultState"
+}
+
+func (v VaultState) MarshalText() (text []byte, err error) {
+	if int(v) < len(strVaultState) {
+		return []byte(strVaultState[v]), nil
+	}
+	return nil, errors.New("invalid VaultState: " + strconv.Itoa(int(v)))
+}
+
+func (v *VaultState) UnmarshalText(text []byte) error {
+	switch str := string(text); str {
+	case "inactive":
+		*v = VaultStateInactive
+	case "active":
+		*v = VaultStateActive
+	case "unlocking":
+		*v = VaultStateUnlocking
+	case "ejecting":
+		*v = VaultStateEjecting
+	default:
+		return errors.New("unknown VaultState: " + str)
+	}
+	return nil
+}
+
+type TrialSpawnerState byte
+
+const (
+	TrialSpawnerStateInactive TrialSpawnerState = iota
+	TrialSpawnerStateWaitingForPlayers
+	TrialSpawnerStateActive
+	TrialSpawnerStateWaitingForRewardEjection
+	TrialSpawnerStateEjectingReward
+	TrialSpawnerStateCooldown
+)
+
+var strTrialSpawnerState = [...]string{"inactive", "waiting_for_players", "active", "waiting_for_reward_ejection", "ejecting_reward", "cooldown"}
+
+func (t TrialSpawnerState) String() string {
+	if int(t) < len(strTrialSpawnerState) {
+		return strTrialSpawnerState[t]
+	}
+	return "invalid TrialSpawnerState"
+}
+
+func (t TrialSpawnerState) MarshalText() (text []byte, err error) {
+	if int(t) < len(strTrialSpawnerState) {
+		return []byte(strTrialSpawnerState[t]), nil
+	}
+	return nil, errors.New("invalid TrialSpawnerState: " + strconv.Itoa(int(t)))
+}
+
+func (t *TrialSpawnerState) UnmarshalText(text []byte) error {
+	switch str := string(text); str {
+	case "inactive":
+		*t = TrialSpawnerStateInactive
+	case "waiting_for_players":
+		*t = TrialSpawnerStateWaitingForPlayers
+	case "active":
+		*t = TrialSpawnerStateActive
+	case "waiting_for_reward_ejection":
+		*t = TrialSpawnerStateWaitingForRewardEjection
+	case "ejecting_reward":
+		*t = TrialSpawnerStateEjectingReward
+	case "cooldown":
+		*t = TrialSpawnerStateCooldown
+	default:
+		return errors.New("unknown TrialSpawnerState: " + str)
+	}
+	return nil
+}

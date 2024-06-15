@@ -3452,7 +3452,16 @@ type (
 		Triggered   Boolean     `nbt:"triggered"`
 	}
 	TrialSpawner struct {
+		Ominous             Boolean           `nbt:"ominous"`
 		Trial_spawner_state TrialSpawnerState `nbt:"trial_spawner_state"`
+	}
+	Vault struct {
+		Facing      Direction  `nbt:"facing"`
+		Ominous     Boolean    `nbt:"ominous"`
+		Vault_state VaultState `nbt:"vault_state"`
+	}
+	HeavyCore struct {
+		Waterlogged Boolean `nbt:"waterlogged"`
 	}
 )
 
@@ -4520,6 +4529,8 @@ func (ReinforcedDeepslate) ID() string          { return "minecraft:reinforced_d
 func (DecoratedPot) ID() string                 { return "minecraft:decorated_pot" }
 func (Crafter) ID() string                      { return "minecraft:crafter" }
 func (TrialSpawner) ID() string                 { return "minecraft:trial_spawner" }
+func (Vault) ID() string                        { return "minecraft:vault" }
+func (HeavyCore) ID() string                    { return "minecraft:heavy_core" }
 
 var FromID = map[string]Block{
 	"minecraft:air":                                Air{},
@@ -5580,4 +5591,6 @@ var FromID = map[string]Block{
 	"minecraft:decorated_pot":                      DecoratedPot{},
 	"minecraft:crafter":                            Crafter{},
 	"minecraft:trial_spawner":                      TrialSpawner{},
+	"minecraft:vault":                              Vault{},
+	"minecraft:heavy_core":                         HeavyCore{},
 }

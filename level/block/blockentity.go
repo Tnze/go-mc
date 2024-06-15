@@ -49,6 +49,9 @@ type (
 	SuspiciousSandEntity        struct{}
 	BrushableBlockEntity        struct{}
 	DecoratedPotEntity          struct{}
+	CrafterEntity               struct{}
+	TrialSpawnerEntity          struct{}
+	VaultEntity                 struct{}
 )
 
 type EntityType int32
