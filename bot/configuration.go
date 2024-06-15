@@ -105,7 +105,8 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 				return ConfigErr{"registry data", err}
 			}
 
-		case packetid.ClientboundConfigResourcePack:
+		case packetid.ClientboundConfigResourcePackPop: // TODO
+		case packetid.ClientboundConfigResourcePackPush:
 			var Url, Hash pk.String
 			var Forced pk.Boolean
 			var PromptMessage pk.Option[chat.Message, *chat.Message]

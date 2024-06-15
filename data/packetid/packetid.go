@@ -14,6 +14,7 @@ const (
 	ClientboundLoginSuccess                                      // GameProfile
 	ClientboundLoginCompression                                  // LoginCompression
 	ClientboundLoginPluginRequest                                // CustomQuery
+	ClientboundLoginCookieRequest
 )
 
 // Login Serverbound
@@ -22,6 +23,7 @@ const (
 	ServerboundLoginEncryptionResponse                            // Key
 	ServerboundLoginPluginResponse                                // CustomQueryAnswer
 	ServerboundLoginAcknowledged                                  // LoginAcknowledged
+	ServerboundLoginCookieResponse
 )
 
 // Status Clientbound
@@ -38,25 +40,35 @@ const (
 
 // Configuration Clientbound
 const (
-	ClientboundConfigCustomPayload ClientboundPacketID = iota
+	ClientboundConfigCookieRequest ClientboundPacketID = iota
+	ClientboundConfigCustomPayload
 	ClientboundConfigDisconnect
 	ClientboundConfigFinishConfiguration
 	ClientboundConfigKeepAlive
 	ClientboundConfigPing
+	ClientboundConfigResetChat
 	ClientboundConfigRegistryData
-	ClientboundConfigResourcePack
+	ClientboundConfigResourcePackPop
+	ClientboundConfigResourcePackPush
+	ClientboundConfigStoreCookie
+	ClientboundConfigTransfer
 	ClientboundConfigUpdateEnabledFeatures
 	ClientboundConfigUpdateTags
+	ClientboundConfigSelectKnownPacks
+	ClientboundConfigCustomReportDetails
+	ClientboundConfigServerLinks
 )
 
 // Configuration Serverbound
 const (
 	ServerboundConfigClientInformation ServerboundPacketID = iota
+	ServerboundConfigCookieResponse
 	ServerboundConfigCustomPayload
 	ServerboundConfigFinishConfiguration
 	ServerboundConfigKeepAlive
 	ServerboundConfigPong
 	ServerboundConfigResourcePack
+	ServerboundConfigSelectKnownPacks
 )
 
 // Game Clientbound
@@ -83,10 +95,12 @@ const (
 	ClientboundContainerSetContent
 	ClientboundContainerSetData
 	ClientboundContainerSetSlot
+	ClientboundCookieRequest
 	ClientboundCooldown
 	ClientboundCustomChatCompletions
 	ClientboundCustomPayload
 	ClientboundDamageEvent
+	ClientboundDebugSample
 	ClientboundDeleteChat
 	ClientboundDisconnect
 	ClientboundDisguisedChat
@@ -166,6 +180,7 @@ const (
 	ClientboundSound
 	ClientboundStartConfiguration
 	ClientboundStopSound
+	ClientboundStoreCookie
 	ClientboundSystemChat
 	ClientboundTabList
 	ClientboundTagQuery
@@ -173,11 +188,15 @@ const (
 	ClientboundTeleportEntity
 	ClientboundTickingState
 	ClientboundTickingStep
+	ClientboundTransfer
 	ClientboundUpdateAdvancements
 	ClientboundUpdateAttributes
 	ClientboundUpdateMobEffect
 	ClientboundUpdateRecipes
 	ClientboundUpdateTags
+	ClientboundProjectilePower
+	ClientboundCustomReportDetails
+	ClientboundServerLinks
 	ClientboundPacketIDGuard
 )
 
@@ -188,6 +207,7 @@ const (
 	ServerboundChangeDifficulty
 	ServerboundChatAck
 	ServerboundChatCommand
+	ServerboundChatCommandSigned
 	ServerboundChat
 	ServerboundChatSessionUpdate
 	ServerboundChunkBatchReceived
@@ -199,7 +219,9 @@ const (
 	ServerboundContainerClick
 	ServerboundContainerClose
 	ServerboundContainerSlotStateChanged
+	ServerboundCookieResponse
 	ServerboundCustomPayload
+	ServerboundDebugSampleSubscription
 	ServerboundEditBook
 	ServerboundEntityTagQuery
 	ServerboundInteract
@@ -238,4 +260,5 @@ const (
 	ServerboundTeleportToEntity
 	ServerboundUseItemOn
 	ServerboundUseItem
+	ServerboundPacketIDGuard
 )
