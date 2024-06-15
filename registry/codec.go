@@ -1,8 +1,6 @@
 package registry
 
 import (
-	"errors"
-	"fmt"
 	"reflect"
 
 	"github.com/Tnze/go-mc/chat"
@@ -58,41 +56,22 @@ type Dimension struct {
 	MonsterSpawnBlockLightLimit int32          `nbt:"monster_spawn_block_light_limit"`
 }
 
-// InsertNBTDataIntoRegistry insert data (entry, data) into the registry.
-// The codec should be a pointer of a struct. And the registry should be a field of the codec struct.
-//
-// This function is a temporary solution while the registry system isn't implemented well.
-func InsertNBTDataIntoRegistry(codec any, registry, entry string, data nbt.RawMessage) error {
-	codecVal := reflect.ValueOf(codec)
-	if codecVal.Kind() != reflect.Pointer {
-		return errors.New("codec is not a pointer")
-	}
-
-	codecVal = codecVal.Elem()
-	if codecVal.Kind() != reflect.Struct {
-		return errors.New("codec is not a pointer of struct")
-	}
-
+func (c *NetworkCodec) Registry(id string) RegistryHandler {
+	codecVal := reflect.ValueOf(c).Elem()
 	codecTyp := codecVal.Type()
-
 	numField := codecVal.NumField()
 	for i := 0; i < numField; i++ {
 		registryID, ok := codecTyp.Field(i).Tag.Lookup("registry")
 		if !ok {
 			continue
 		}
-		if registryID == registry {
-			fieldVal := codecVal.Field(i).Addr()
-			args := []reflect.Value{reflect.ValueOf(entry), reflect.ValueOf(data)}
-			err := fieldVal.MethodByName("InsertNBT").Call(args)[0]
-			if !err.IsNil() {
-				return err.Interface().(error)
-			}
-			if registry == "minecraft:chat_type" {
-				fmt.Println(fieldVal.Interface())
-			}
-			return nil
+		if registryID == id {
+			return codecVal.Field(i).Addr().Interface().(RegistryHandler)
 		}
 	}
-	return errors.New("registry " + registry + " not found in the codec")
+	return nil
+}
+
+type RegistryHandler interface {
+	InsertWithNBT(name string, data nbt.RawMessage) error
 }

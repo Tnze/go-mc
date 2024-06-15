@@ -2,6 +2,7 @@ package bot
 
 import (
 	"bytes"
+	"errors"
 	"io"
 
 	"github.com/Tnze/go-mc/chat"
@@ -9,7 +10,6 @@ import (
 	"github.com/Tnze/go-mc/nbt"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
-	"github.com/Tnze/go-mc/registry"
 )
 
 type ConfigHandler interface {
@@ -159,6 +159,11 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 				return ConfigErr{ErrStage, err}
 			}
 
+			registry := c.Registries.Registry(string(registryID))
+			if registry == nil {
+				return ConfigErr{ErrStage, errors.New("unknown registry: " + string(registryID))}
+			}
+
 			for i := 0; i < int(length); i++ {
 				var entryId pk.Identifier
 				var hasData pk.Boolean
@@ -178,7 +183,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 					if err != nil {
 						return ConfigErr{ErrStage, err}
 					}
-					err = registry.InsertNBTDataIntoRegistry(&c.Registries, string(registryID), string(entryId), data)
+					err = registry.InsertWithNBT(string(entryId), data)
 					if err != nil {
 						return ConfigErr{ErrStage, err}
 					}

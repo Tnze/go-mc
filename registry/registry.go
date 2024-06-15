@@ -35,16 +35,21 @@ func (r *Registry[E]) FindByID(id int32) *E {
 }
 
 func (r *Registry[E]) Insert(name string, data E) {
-	r.Value = append(r.Value, Entry[E]{Name: name, Element: data})
+	entry := Entry[E]{
+		Name:    name,
+		ID:      int32(len(r.Value)),
+		Element: data,
+	}
+	r.Value = append(r.Value, entry)
 }
 
-func (r *Registry[E]) InsertNBT(name string, data nbt.RawMessage) error {
-	entry := Entry[E]{Name: name, ID: int32(len(r.Value))}
+func (r *Registry[E]) InsertWithNBT(name string, data nbt.RawMessage) error {
+	var elem E
 	if data.Type != 0 {
-		if err := data.UnmarshalDisallowUnknownField(&entry.Element); err != nil {
+		if err := data.UnmarshalDisallowUnknownField(&elem); err != nil {
 			return err
 		}
 	}
-	r.Value = append(r.Value, entry)
+	r.Insert(name, elem)
 	return nil
 }
