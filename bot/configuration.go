@@ -6,6 +6,7 @@ import (
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
+	"github.com/Tnze/go-mc/nbt"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/registry"
@@ -30,10 +31,6 @@ type ResourcePack struct {
 	Hash          string
 	Forced        bool
 	PromptMessage *chat.Message // Optional
-}
-
-type ConfigData struct {
-	Registries registry.NetworkCodec
 }
 
 type ConfigErr struct {
@@ -143,10 +140,50 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			// TODO
 
 		case packetid.ClientboundConfigRegistryData:
+			const ErrStage = "registry"
 			// err := p.Scan(pk.NBT(&c.ConfigData.Registries))
 			// if err != nil {
 			// 	return ConfigErr{"registry data", err}
 			// }
+			var registryID pk.Identifier
+			var length pk.VarInt
+
+			r := bytes.NewReader(p.Data)
+			_, err := registryID.ReadFrom(r)
+			if err != nil {
+				return ConfigErr{ErrStage, err}
+			}
+
+			_, err = length.ReadFrom(r)
+			if err != nil {
+				return ConfigErr{ErrStage, err}
+			}
+
+			for i := 0; i < int(length); i++ {
+				var entryId pk.Identifier
+				var hasData pk.Boolean
+				var data nbt.RawMessage
+				_, err = entryId.ReadFrom(r)
+				if err != nil {
+					return ConfigErr{ErrStage, err}
+				}
+
+				_, err = hasData.ReadFrom(r)
+				if err != nil {
+					return ConfigErr{ErrStage, err}
+				}
+
+				if hasData {
+					_, err = pk.NBT(&data).ReadFrom(r)
+					if err != nil {
+						return ConfigErr{ErrStage, err}
+					}
+					err = registry.InsertNBTDataIntoRegistry(&c.Registries, string(registryID), string(entryId), data)
+					if err != nil {
+						return ConfigErr{ErrStage, err}
+					}
+				}
+			}
 
 		case packetid.ClientboundConfigResourcePackPop:
 			var id pk.Option[pk.UUID, *pk.UUID]

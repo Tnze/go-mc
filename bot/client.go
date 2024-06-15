@@ -10,6 +10,7 @@ import (
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 	"github.com/Tnze/go-mc/net/queue"
+	"github.com/Tnze/go-mc/registry"
 )
 
 // Client is used to access Minecraft server
@@ -18,9 +19,9 @@ type Client struct {
 	Auth Auth
 
 	// These are filled when login process
-	Name string
-	UUID uuid.UUID
-	ConfigData
+	Name       string
+	UUID       uuid.UUID
+	Registries registry.NetworkCodec
 
 	// Ingame packet handlers
 	Events Events

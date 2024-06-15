@@ -41,7 +41,7 @@ func (w *World) onPlayerSpawn(pk.Packet) error {
 
 func (w *World) handleLevelChunkWithLightPacket(packet pk.Packet) error {
 	var pos level.ChunkPos
-	_, currentDimType := w.c.ConfigData.Registries.DimensionType.Find(w.p.DimensionType)
+	_, currentDimType := w.c.Registries.DimensionType.Find(w.p.DimensionType)
 	if currentDimType == nil {
 		return errors.New("dimension type " + w.p.DimensionType + " not found")
 	}

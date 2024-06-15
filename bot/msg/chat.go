@@ -82,15 +82,15 @@ func (m *Manager) handlePlayerChat(packet pk.Packet) error {
 
 	unpackedMsg, err := body.Unpack(&m.SignatureCache)
 	if err != nil {
-		return InvalidChatPacket
+		return InvalidChatPacket{err}
 	}
 	senderInfo, ok := m.pl.PlayerInfos[uuid.UUID(sender)]
 	if !ok {
-		return InvalidChatPacket
+		return InvalidChatPacket{ErrUnknownPlayer}
 	}
 	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
 	if ct == nil {
-		return InvalidChatPacket
+		return InvalidChatPacket{ErrUnknwonChatType}
 	}
 
 	var message sign.Message
@@ -115,7 +115,7 @@ func (m *Manager) handlePlayerChat(packet pk.Packet) error {
 	var validated bool
 	if senderInfo.ChatSession != nil {
 		if !senderInfo.ChatSession.VerifyAndUpdate(&message) {
-			return ValidationFailed
+			return ErrValidationFailed
 		}
 		validated = true
 		// store signature into signatureCache
@@ -143,7 +143,7 @@ func (m *Manager) handleDisguisedChat(packet pk.Packet) error {
 
 	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
 	if ct == nil {
-		return InvalidChatPacket
+		return InvalidChatPacket{ErrUnknwonChatType}
 	}
 	msg := chatType.Decorate(message, &ct.Chat)
 
@@ -199,7 +199,23 @@ func (m *Manager) SendCommand(command string) error {
 	return err
 }
 
+type InvalidChatPacket struct {
+	err error
+}
+
+func (i InvalidChatPacket) Error() string {
+	if i.err == nil {
+		return "invalid chat packet"
+	}
+	return "invalid chat packet: " + i.err.Error()
+}
+
+func (i InvalidChatPacket) Unwrap() error {
+	return i.err
+}
+
 var (
-	InvalidChatPacket       = errors.New("invalid chat packet")
-	ValidationFailed  error = bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
+	ErrUnknownPlayer          = errors.New("unknown player")
+	ErrUnknwonChatType        = errors.New("unknown chat type")
+	ErrValidationFailed error = bot.DisconnectErr(chat.TranslateMsg("multiplayer.disconnect.chat_validation_failed"))
 )

@@ -73,3 +73,13 @@ func (m RawMessage) Unmarshal(v any) error {
 	}
 	return d.unmarshal(val, m.Type)
 }
+
+func (m RawMessage) UnmarshalDisallowUnknownField(v any) error {
+	d := NewDecoder(bytes.NewReader(m.Data))
+	d.DisallowUnknownFields()
+	val := reflect.ValueOf(v)
+	if val.Kind() != reflect.Ptr {
+		return errors.New("nbt: non-pointer passed to UnmarshalNBT")
+	}
+	return d.unmarshal(val, m.Type)
+}
