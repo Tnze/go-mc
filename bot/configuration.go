@@ -1,9 +1,8 @@
 package bot
 
 import (
-	"fmt"
+	"bytes"
 	"io"
-	"unsafe"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
@@ -15,6 +14,8 @@ import (
 type ConfigHandler interface {
 	GetCookie(key pk.Identifier) []byte
 	SetCookie(key pk.Identifier, payload []byte)
+
+	EnableFeature(features []pk.Identifier)
 
 	PushResourcePack(res ResourcePack)
 	PopResourcePack(id pk.UUID)
@@ -32,8 +33,7 @@ type ResourcePack struct {
 }
 
 type ConfigData struct {
-	Registries   registry.NetworkCodec
-	FeatureFlags []string
+	Registries registry.NetworkCodec
 }
 
 type ConfigErr struct {
@@ -50,11 +50,10 @@ func (l ConfigErr) Unwrap() error {
 }
 
 func (c *Client) joinConfiguration(conn *net.Conn) error {
-	receiving := "config custom payload"
 	for {
 		var p pk.Packet
 		if err := conn.ReadPacket(&p); err != nil {
-			return ConfigErr{receiving, err}
+			return ConfigErr{"config custom payload", err}
 		}
 
 		switch packetid.ClientboundPacketID(p.ID) {
@@ -81,14 +80,24 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 				return ConfigErr{"custom payload", err}
 			}
 			// TODO: Provide configuration custom data handling interface
+			//
+			// There are two types of Custom packet.
+			// One for Login stage, the other for config and play stage.
+			// The first one called "Custom Query", and the second one called "Custom Payload".
+			// We can know the different by their name, the "query" is one request to one response, paired.
+			// But the second one can be sent in any order.
+			//
+			// And the custome payload packet seems to be same in config stage and play stage.
+			// How do we provide API for that?
 
 		case packetid.ClientboundConfigDisconnect:
+			const ErrStage = "disconnect"
 			var reason chat.Message
 			err := p.Scan(&reason)
 			if err != nil {
-				return ConfigErr{"disconnect", err}
+				return ConfigErr{ErrStage, err}
 			}
-			return ConfigErr{"disconnect", DisconnectErr(reason)}
+			return ConfigErr{ErrStage, DisconnectErr(reason)}
 
 		case packetid.ClientboundConfigFinishConfiguration:
 			err := conn.WritePacket(pk.Marshal(
@@ -100,10 +109,11 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			return nil
 
 		case packetid.ClientboundConfigKeepAlive:
+			const ErrStage = "keep alive"
 			var keepAliveID pk.Long
 			err := p.Scan(&keepAliveID)
 			if err != nil {
-				return ConfigErr{"keep alive", err}
+				return ConfigErr{ErrStage, err}
 			}
 			// send it back
 			err = conn.WritePacket(pk.Marshal(
@@ -111,7 +121,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 				keepAliveID,
 			))
 			if err != nil {
-				return ConfigErr{"keep alive", err}
+				return ConfigErr{ErrStage, err}
 			}
 
 		case packetid.ClientboundConfigPing:
@@ -138,7 +148,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			// 	return ConfigErr{"registry data", err}
 			// }
 
-		case packetid.ClientboundConfigResourcePackPop: // TODO
+		case packetid.ClientboundConfigResourcePackPop:
 			var id pk.Option[pk.UUID, *pk.UUID]
 			err := p.Scan(&id)
 			if err != nil {
@@ -187,21 +197,25 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			if err != nil {
 				return ConfigErr{"store cookie", err}
 			}
-			// TODO: trnasfer to the server
+			// TODO: trnasfer to the specific server
+			// How does it work? Just connect the new server, and re-start at handshake?
 
 		case packetid.ClientboundConfigUpdateEnabledFeatures:
-			err := p.Scan(pk.Array((*[]pk.Identifier)(unsafe.Pointer(&c.ConfigData.FeatureFlags))))
+			features := []pk.Identifier{}
+			err := p.Scan(pk.Array(&features))
 			if err != nil {
 				return ConfigErr{"update enabled features", err}
 			}
+			c.ConfigHandler.EnableFeature(features)
 
 		case packetid.ClientboundConfigUpdateTags:
 			// TODO: Handle Tags
 		case packetid.ClientboundConfigSelectKnownPacks:
+			const ErrStage = "select known packs"
 			packs := []DataPack{}
 			err := p.Scan(pk.Array(&packs))
 			if err != nil {
-				return ConfigErr{"select known packs", err}
+				return ConfigErr{ErrStage, err}
 			}
 			knwonPacks := c.ConfigHandler.SelectDataPacks(packs)
 			err = conn.WritePacket(pk.Marshal(
@@ -209,11 +223,32 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 				pk.Array(knwonPacks),
 			))
 			if err != nil {
-				return ConfigErr{"select known packs", err}
+				return ConfigErr{ErrStage, err}
 			}
 
 		case packetid.ClientboundConfigCustomReportDetails:
+			const ErrStage = "custom report details"
+			var length pk.VarInt
+			var title, description pk.String
+			r := bytes.NewReader(p.Data)
+			_, err := length.ReadFrom(r)
+			if err != nil {
+				return ConfigErr{ErrStage, err}
+			}
+			for i := 0; i < int(length); i++ {
+				_, err = title.ReadFrom(r)
+				if err != nil {
+					return ConfigErr{ErrStage, err}
+				}
+				_, err = description.ReadFrom(r)
+				if err != nil {
+					return ConfigErr{ErrStage, err}
+				}
+				c.CustomReportDetails[string(title)] = string(description)
+			}
+
 		case packetid.ClientboundConfigServerLinks:
+			// TODO
 		}
 	}
 }
@@ -269,6 +304,8 @@ func (d *DefaultConfigHandler) GetCookie(key pk.Identifier) []byte {
 func (d *DefaultConfigHandler) SetCookie(key pk.Identifier, payload []byte) {
 	d.cookies[key] = payload
 }
+
+func (d *DefaultConfigHandler) EnableFeature(features []pk.Identifier) {}
 
 func (d *DefaultConfigHandler) PushResourcePack(res ResourcePack) {
 	d.resourcesPack = append(d.resourcesPack, res)

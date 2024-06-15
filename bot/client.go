@@ -26,11 +26,16 @@ type Client struct {
 	Events Events
 
 	// Login plugins
-	LoginPlugin map[string]func(data []byte) ([]byte, error)
+	LoginPlugin map[string]CustomPayloadHandler
 
 	// Configuration handler
 	ConfigHandler
+
+	CustomReportDetails map[string]string
 }
+
+// CustomPayloadHandler is a function handling custom payload
+type CustomPayloadHandler func(data []byte) ([]byte, error)
 
 func (c *Client) Close() error {
 	return c.Conn.Close()
@@ -45,9 +50,11 @@ func (c *Client) Close() error {
 // and load your Name, UUID and AccessToken to client.
 func NewClient() *Client {
 	return &Client{
-		Auth:   Auth{Name: "Steve"},
-		Events: Events{handlers: make([][]PacketHandler, packetid.ClientboundPacketIDGuard)},
-		ConfigHandler: NewDefaultConfigHandler(),
+		Auth:                Auth{Name: "Steve"},
+		Events:              Events{handlers: make([][]PacketHandler, packetid.ClientboundPacketIDGuard)},
+		LoginPlugin:         make(map[string]CustomPayloadHandler),
+		ConfigHandler:       NewDefaultConfigHandler(),
+		CustomReportDetails: make(map[string]string),
 	}
 }
 

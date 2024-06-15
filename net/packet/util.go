@@ -58,6 +58,9 @@ func (a Ary[LEN]) ReadFrom(r io.Reader) (n int64, err error) {
 	} else {
 		n += nn
 	}
+	if Len < 0 {
+		return n, errors.New("array length less than zero")
+	}
 
 	array := reflect.ValueOf(a.Ary)
 	for array.Kind() == reflect.Ptr {
