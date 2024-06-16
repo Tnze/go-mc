@@ -9,32 +9,32 @@ type (
 
 // Login Clientbound
 const (
-	ClientboundLoginDisconnect        ClientboundPacketID = iota // LoginDisconnect
-	ClientboundLoginEncryptionRequest                            // Hello
-	ClientboundLoginSuccess                                      // GameProfile
-	ClientboundLoginCompression                                  // LoginCompression
-	ClientboundLoginPluginRequest                                // CustomQuery
+	ClientboundLoginLoginDisconnect ClientboundPacketID = iota
+	ClientboundLoginHello
+	ClientboundLoginGameProfile
+	ClientboundLoginLoginCompression
+	ClientboundLoginCustomQuery
 	ClientboundLoginCookieRequest
 )
 
 // Login Serverbound
 const (
-	ServerboundLoginStart              ServerboundPacketID = iota // Hello
-	ServerboundLoginEncryptionResponse                            // Key
-	ServerboundLoginPluginResponse                                // CustomQueryAnswer
-	ServerboundLoginAcknowledged                                  // LoginAcknowledged
+	ServerboundLoginHello ServerboundPacketID = iota
+	ServerboundLoginKey
+	ServerboundLoginCustomQueryAnswer
+	ServerboundLoginLoginAcknowledged
 	ServerboundLoginCookieResponse
 )
 
 // Status Clientbound
 const (
-	ClientboundStatusResponse ClientboundPacketID = iota
+	ClientboundStatusStatusResponse ClientboundPacketID = iota
 	ClientboundStatusPongResponse
 )
 
 // Status Serverbound
 const (
-	ServerboundStatusRequest ServerboundPacketID = iota
+	ServerboundStatusStatusRequest ServerboundPacketID = iota
 	ServerboundStatusPingRequest
 )
 

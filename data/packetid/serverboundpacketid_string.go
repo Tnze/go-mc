@@ -8,12 +8,12 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[ServerboundLoginStart-0]
-	_ = x[ServerboundLoginEncryptionResponse-1]
-	_ = x[ServerboundLoginPluginResponse-2]
-	_ = x[ServerboundLoginAcknowledged-3]
+	_ = x[ServerboundLoginHello-0]
+	_ = x[ServerboundLoginKey-1]
+	_ = x[ServerboundLoginCustomQueryAnswer-2]
+	_ = x[ServerboundLoginLoginAcknowledged-3]
 	_ = x[ServerboundLoginCookieResponse-4]
-	_ = x[ServerboundStatusRequest-0]
+	_ = x[ServerboundStatusStatusRequest-0]
 	_ = x[ServerboundStatusPingRequest-1]
 	_ = x[ServerboundConfigClientInformation-0]
 	_ = x[ServerboundConfigCookieResponse-1]
@@ -84,9 +84,9 @@ func _() {
 	_ = x[ServerboundPacketIDGuard-58]
 }
 
-const _ServerboundPacketID_name = "ServerboundLoginStartServerboundLoginEncryptionResponseServerboundLoginPluginResponseServerboundLoginAcknowledgedServerboundLoginCookieResponseServerboundConfigPongServerboundConfigResourcePackServerboundConfigSelectKnownPacksServerboundChunkBatchReceivedServerboundClientCommandServerboundClientInformationServerboundCommandSuggestionServerboundConfigurationAcknowledgedServerboundContainerButtonClickServerboundContainerClickServerboundContainerCloseServerboundContainerSlotStateChangedServerboundCookieResponseServerboundCustomPayloadServerboundDebugSampleSubscriptionServerboundEditBookServerboundEntityTagQueryServerboundInteractServerboundJigsawGenerateServerboundKeepAliveServerboundLockDifficultyServerboundMovePlayerPosServerboundMovePlayerPosRotServerboundMovePlayerRotServerboundMovePlayerStatusOnlyServerboundMoveVehicleServerboundPaddleBoatServerboundPickItemServerboundPingRequestServerboundPlaceRecipeServerboundPlayerAbilitiesServerboundPlayerActionServerboundPlayerCommandServerboundPlayerInputServerboundPongServerboundRecipeBookChangeSettingsServerboundRecipeBookSeenRecipeServerboundRenameItemServerboundResourcePackServerboundSeenAdvancementsServerboundSelectTradeServerboundSetBeaconServerboundSetCarriedItemServerboundSetCommandBlockServerboundSetCommandMinecartServerboundSetCreativeModeSlotServerboundSetJigsawBlockServerboundSetStructureBlockServerboundSignUpdateServerboundSwingServerboundTeleportToEntityServerboundUseItemOnServerboundUseItemServerboundPacketIDGuard"
+const _ServerboundPacketID_name = "ServerboundLoginHelloServerboundLoginKeyServerboundLoginCustomQueryAnswerServerboundLoginLoginAcknowledgedServerboundLoginCookieResponseServerboundConfigPongServerboundConfigResourcePackServerboundConfigSelectKnownPacksServerboundChunkBatchReceivedServerboundClientCommandServerboundClientInformationServerboundCommandSuggestionServerboundConfigurationAcknowledgedServerboundContainerButtonClickServerboundContainerClickServerboundContainerCloseServerboundContainerSlotStateChangedServerboundCookieResponseServerboundCustomPayloadServerboundDebugSampleSubscriptionServerboundEditBookServerboundEntityTagQueryServerboundInteractServerboundJigsawGenerateServerboundKeepAliveServerboundLockDifficultyServerboundMovePlayerPosServerboundMovePlayerPosRotServerboundMovePlayerRotServerboundMovePlayerStatusOnlyServerboundMoveVehicleServerboundPaddleBoatServerboundPickItemServerboundPingRequestServerboundPlaceRecipeServerboundPlayerAbilitiesServerboundPlayerActionServerboundPlayerCommandServerboundPlayerInputServerboundPongServerboundRecipeBookChangeSettingsServerboundRecipeBookSeenRecipeServerboundRenameItemServerboundResourcePackServerboundSeenAdvancementsServerboundSelectTradeServerboundSetBeaconServerboundSetCarriedItemServerboundSetCommandBlockServerboundSetCommandMinecartServerboundSetCreativeModeSlotServerboundSetJigsawBlockServerboundSetStructureBlockServerboundSignUpdateServerboundSwingServerboundTeleportToEntityServerboundUseItemOnServerboundUseItemServerboundPacketIDGuard"
 
-var _ServerboundPacketID_index = [...]uint16{0, 21, 55, 85, 113, 143, 164, 193, 226, 255, 279, 307, 335, 371, 402, 427, 452, 488, 513, 537, 571, 590, 615, 634, 659, 679, 704, 728, 755, 779, 810, 832, 853, 872, 894, 916, 942, 965, 989, 1011, 1026, 1061, 1092, 1113, 1136, 1163, 1185, 1205, 1230, 1256, 1285, 1315, 1340, 1368, 1389, 1405, 1432, 1452, 1470, 1494}
+var _ServerboundPacketID_index = [...]uint16{0, 21, 40, 73, 106, 136, 157, 186, 219, 248, 272, 300, 328, 364, 395, 420, 445, 481, 506, 530, 564, 583, 608, 627, 652, 672, 697, 721, 748, 772, 803, 825, 846, 865, 887, 909, 935, 958, 982, 1004, 1019, 1054, 1085, 1106, 1129, 1156, 1178, 1198, 1223, 1249, 1278, 1308, 1333, 1361, 1382, 1398, 1425, 1445, 1463, 1487}
 
 func (i ServerboundPacketID) String() string {
 	if i < 0 || i >= ServerboundPacketID(len(_ServerboundPacketID_index)-1) {
