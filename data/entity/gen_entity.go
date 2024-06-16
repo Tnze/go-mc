@@ -1,5 +1,4 @@
 //go:build generate
-// +build generate
 
 // gen_entity.go generates entity information.
 package main
