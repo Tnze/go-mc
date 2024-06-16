@@ -22,6 +22,7 @@ type Client struct {
 	Name       string
 	UUID       uuid.UUID
 	Registries registry.NetworkCodec
+	Cookies    map[string][]byte
 
 	// Ingame packet handlers
 	Events Events

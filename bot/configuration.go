@@ -13,9 +13,6 @@ import (
 )
 
 type ConfigHandler interface {
-	GetCookie(key pk.Identifier) []byte
-	SetCookie(key pk.Identifier, payload []byte)
-
 	EnableFeature(features []pk.Identifier)
 
 	PushResourcePack(res ResourcePack)
@@ -60,10 +57,13 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			if err != nil {
 				return ConfigErr{"cookie request", err}
 			}
-			cookieContent := c.ConfigHandler.GetCookie(key)
+			cookieContent := c.Cookies[string(key)]
 			err = conn.WritePacket(pk.Marshal(
 				packetid.ServerboundConfigCookieResponse,
-				pk.ByteArray(cookieContent),
+				key, pk.OptionEncoder[pk.ByteArray]{
+					Has: cookieContent != nil,
+					Val: pk.ByteArray(cookieContent),
+				},
 			))
 			if err != nil {
 				return ConfigErr{"cookie response", err}
@@ -230,7 +230,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			if err != nil {
 				return ConfigErr{"store cookie", err}
 			}
-			c.ConfigHandler.SetCookie(key, []byte(payload))
+			c.Cookies[string(key)] = []byte(payload)
 
 		case packetid.ClientboundConfigTransfer:
 			var host pk.String
@@ -328,23 +328,13 @@ func (d *DataPack) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 type DefaultConfigHandler struct {
-	cookies       map[pk.Identifier][]byte
 	resourcesPack []ResourcePack
 }
 
 func NewDefaultConfigHandler() *DefaultConfigHandler {
 	return &DefaultConfigHandler{
-		cookies:       make(map[pk.String][]byte),
 		resourcesPack: make([]ResourcePack, 0),
 	}
-}
-
-func (d *DefaultConfigHandler) GetCookie(key pk.Identifier) []byte {
-	return d.cookies[key]
-}
-
-func (d *DefaultConfigHandler) SetCookie(key pk.Identifier, payload []byte) {
-	d.cookies[key] = payload
 }
 
 func (d *DefaultConfigHandler) EnableFeature(features []pk.Identifier) {}

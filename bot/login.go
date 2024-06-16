@@ -124,6 +124,24 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 			)); err != nil {
 				return LoginErr{"login Plugin", err}
 			}
+
+		case packetid.ClientboundLoginCookieRequest:
+			var key pk.Identifier
+			err := p.Scan(&key)
+			if err != nil {
+				return LoginErr{"cookie request", err}
+			}
+			cookieContent := c.Cookies[string(key)]
+			err = conn.WritePacket(pk.Marshal(
+				packetid.ServerboundLoginCookieResponse,
+				key, pk.OptionEncoder[pk.ByteArray]{
+					Has: cookieContent != nil,
+					Val: pk.ByteArray(cookieContent),
+				},
+			))
+			if err != nil {
+				return LoginErr{"cookie response", err}
+			}
 		}
 	}
 }
@@ -303,7 +321,7 @@ func genEncryptionKeyResponse(shareSecret, publicKey, verifyToken []byte) (erp p
 		return erp, err
 	}
 	return pk.Marshal(
-		packetid.ServerboundLoginEncryptionResponse,
+		packetid.ServerboundLoginKey,
 		pk.ByteArray(cryptPK),
 		pk.ByteArray(verifyT),
 	), nil

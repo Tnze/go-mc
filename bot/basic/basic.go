@@ -41,6 +41,8 @@ func NewPlayer(c *bot.Client, settings Settings, events EventsListener) *Player 
 		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundKeepAlive, F: p.handleKeepAlivePacket},
 		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundRespawn, F: p.handleRespawnPacket},
 		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundPing, F: p.handlePingPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundCookieRequest, F: p.handleCookieRequestPacket},
+		bot.PacketHandler{Priority: 0, ID: packetid.ClientboundStoreCookie, F: p.handleStoreCookiePacket},
 	)
 	events.attach(p)
 	return p
