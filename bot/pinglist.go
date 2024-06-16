@@ -49,7 +49,7 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 		defer func() {
 			// Reset deadline
 			if err2 := conn.Socket.SetDeadline(time.Time{}); err2 != nil {
-				if err2 == nil {
+				if err == nil {
 					err = err2
 				}
 				return
