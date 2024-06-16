@@ -60,7 +60,7 @@ func (s *Server) acceptListPing(conn *net.Conn, clientProtocol int32) {
 		}
 
 		switch packetid.ClientboundPacketID(p.ID) {
-		case packetid.ClientboundStatusResponse: // List
+		case packetid.ClientboundStatusStatusResponse: // List
 			var resp []byte
 			resp, err = s.listResp(clientProtocol)
 			if err != nil {

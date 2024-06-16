@@ -94,7 +94,7 @@ func pingAndList(ctx context.Context, addr string, conn *mcnet.Conn) (data []byt
 	// LIST
 	// 请求服务器状态
 	err = conn.WritePacket(pk.Marshal(
-		packetid.ServerboundStatusRequest,
+		packetid.ServerboundStatusStatusRequest,
 	))
 	if err != nil {
 		return nil, 0, fmt.Errorf("bot: send list packect fail: %v", err)

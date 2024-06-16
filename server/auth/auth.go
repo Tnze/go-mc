@@ -79,7 +79,7 @@ func Encrypt(conn *net.Conn, name string, serverKey *rsa.PrivateKey) (*Resp, err
 
 func encryptionRequest(conn *net.Conn, publicKey, verifyToken []byte) error {
 	return conn.WritePacket(pk.Marshal(
-		packetid.ClientboundLoginEncryptionRequest,
+		packetid.ClientboundLoginHello,
 		pk.String(""),
 		pk.ByteArray(publicKey),
 		pk.ByteArray(verifyToken),
@@ -92,7 +92,7 @@ func encryptionResponse(conn *net.Conn, serverKey *rsa.PrivateKey, verifyToken [
 	if err != nil {
 		return nil, err
 	}
-	if packetid.ServerboundPacketID(p.ID) != packetid.ServerboundLoginEncryptionResponse {
+	if packetid.ServerboundPacketID(p.ID) != packetid.ServerboundLoginKey {
 		return nil, fmt.Errorf("0x%02X is not Encryption Response", p.ID)
 	}
 

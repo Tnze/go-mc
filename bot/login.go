@@ -46,7 +46,7 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 		}
 	}
 	err = conn.WritePacket(pk.Marshal(
-		packetid.ServerboundLoginStart,
+		packetid.ServerboundLoginHello,
 		pk.String(c.Auth.Name),
 		pk.UUID(c.UUID),
 	))
@@ -63,7 +63,7 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 
 		// Handle Packet
 		switch packetid.ClientboundPacketID(p.ID) {
-		case packetid.ClientboundLoginDisconnect: // LoginDisconnect
+		case packetid.ClientboundLoginLoginDisconnect: // LoginDisconnect
 			var reason chat.JsonMessage
 			err = p.Scan(&reason)
 			if err != nil {
@@ -71,13 +71,13 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 			}
 			return LoginErr{"disconnect", DisconnectErr(reason)}
 
-		case packetid.ClientboundLoginEncryptionRequest: // Encryption Request
+		case packetid.ClientboundLoginHello: // Encryption Request
 			if err := handleEncryptionRequest(conn, c, p); err != nil {
 				return LoginErr{"encryption", err}
 			}
 			receiving = "set compression"
 
-		case packetid.ClientboundLoginSuccess: // Login Success
+		case packetid.ClientboundLoginGameProfile: // Login Success
 			err := p.Scan(
 				(*pk.UUID)(&c.UUID),
 				(*pk.String)(&c.Name),
@@ -85,13 +85,13 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 			if err != nil {
 				return LoginErr{"login success", err}
 			}
-			err = conn.WritePacket(pk.Marshal(packetid.ServerboundLoginAcknowledged))
+			err = conn.WritePacket(pk.Marshal(packetid.ServerboundLoginLoginAcknowledged))
 			if err != nil {
 				return LoginErr{"login success", err}
 			}
 			return nil
 
-		case packetid.ClientboundLoginCompression: // Set Compression
+		case packetid.ClientboundLoginLoginCompression: // Set Compression
 			var threshold pk.VarInt
 			if err := p.Scan(&threshold); err != nil {
 				return LoginErr{"compression", err}
@@ -99,7 +99,7 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 			conn.SetThreshold(int(threshold))
 			receiving = "login success"
 
-		case packetid.ClientboundLoginPluginRequest: // Login Plugin Request
+		case packetid.ClientboundLoginCustomQuery: // Login Plugin Request
 			var (
 				msgid   pk.VarInt
 				channel pk.Identifier
@@ -119,7 +119,7 @@ func (c *Client) joinLogin(conn *net.Conn) error {
 			}
 
 			if err := conn.WritePacket(pk.Marshal(
-				packetid.ServerboundLoginPluginResponse,
+				packetid.ServerboundLoginCustomQueryAnswer,
 				msgid, PluginMessageData,
 			)); err != nil {
 				return LoginErr{"login Plugin", err}

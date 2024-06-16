@@ -96,8 +96,8 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	if err != nil {
 		return
 	}
-	if packetid.ServerboundPacketID(p.ID) != packetid.ServerboundLoginStart {
-		err = wrongPacketErr{expect: int32(packetid.ServerboundLoginStart), get: p.ID}
+	if packetid.ServerboundPacketID(p.ID) != packetid.ServerboundLoginHello {
+		err = wrongPacketErr{expect: int32(packetid.ServerboundLoginHello), get: p.ID}
 		return
 	}
 
@@ -133,7 +133,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	// set compression
 	if d.Threshold >= 0 {
 		err = conn.WritePacket(pk.Marshal(
-			packetid.ClientboundLoginCompression,
+			packetid.ClientboundLoginLoginCompression,
 			pk.VarInt(d.Threshold),
 		))
 		if err != nil {
@@ -152,7 +152,7 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 	}
 	// send login success
 	err = conn.WritePacket(pk.Marshal(
-		packetid.ClientboundLoginSuccess,
+		packetid.ClientboundLoginGameProfile,
 		pk.UUID(id),
 		pk.String(name),
 		pk.Array(properties),
@@ -163,8 +163,8 @@ func (d *MojangLoginHandler) AcceptLogin(conn *net.Conn, protocol int32) (name s
 
 	// receive login ack
 	err = conn.ReadPacket(&p)
-	if err == nil && packetid.ServerboundPacketID(p.ID) != packetid.ServerboundLoginAcknowledged {
-		err = wrongPacketErr{expect: int32(packetid.ServerboundLoginAcknowledged), get: p.ID}
+	if err == nil && packetid.ServerboundPacketID(p.ID) != packetid.ServerboundLoginLoginAcknowledged {
+		err = wrongPacketErr{expect: int32(packetid.ServerboundLoginLoginAcknowledged), get: p.ID}
 	}
 	return
 }
