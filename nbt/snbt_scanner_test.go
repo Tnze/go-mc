@@ -40,19 +40,28 @@ func TestSNBT_number(t *testing.T) {
 	}
 }
 
-//go:embed bigTest_test.snbt
+//go:embed testdata/bigTest_test.snbt
 var bigTestSNBT string
 
-//go:embed 1-dimension_codec.snbt
+//go:embed testdata/1-dimension_codec.snbt
 var dimensionCodecSNBT string
+
+//go:embed testdata/58f6356e-b30c-4811-8bfc-d72a9ee99e73.dat.snbt
+var tnzePlayerDat string
+
+//go:embed testdata/level.dat.snbt
+var tnzeLevelDat string
 
 func TestSNBT_compound(t *testing.T) {
 	goods := []string{
 		`{}`, `{name:3.14f}`, `{ "name" : 12345 }`,
 		`{ abc: { }}`, `{ "a b\"c": {}, def: 12345}`,
 		`{ ghi: [], klm: 1}`,
+		`{T: 1.2E3d, U: 1.2e-3D, V: 12e3d, W: -1.2E3F }`,
 		bigTestSNBT,
 		dimensionCodecSNBT,
+		tnzePlayerDat,
+		tnzeLevelDat,
 	}
 	var s scanner
 	for _, str := range goods {

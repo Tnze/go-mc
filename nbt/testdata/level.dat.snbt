@@ -1,0 +1,344 @@
+{
+    data: [],
+    palette: [],
+    Data: {
+        BorderCenterX: 0.0d,
+        BorderCenterZ: 0.0d,
+        BorderDamagePerBlock: 0.2d,
+        BorderSafeZone: 5.0d,
+        BorderSize: 5.9999968E7d,
+        BorderSizeLerpTarget: 5.9999968E7d,
+        BorderSizeLerpTime: 0L,
+        BorderWarningBlocks: 5.0d,
+        BorderWarningTime: 15.0d,
+        CustomBossEvents: {},
+        DataPacks: {
+            Disabled: [
+                "bundle",
+                "update_1_20"
+            ],
+            Enabled: [
+                "vanilla",
+                "fabric"
+            ]
+        },
+        DataVersion: 3218,
+        DayTime: 77965L,
+        Difficulty: 2b,
+        DifficultyLocked: 0b,
+        DragonFight: {
+            Dragon: [I; 1224200770, 89735840, -1080923094, 446512941],
+            DragonKilled: 1b,
+            ExitPortalLocation: {
+                X: 0,
+                Y: 59,
+                Z: 0
+            },
+            Gateways: [
+                4,
+                12,
+                18,
+                9,
+                8,
+                19,
+                11,
+                16,
+                13,
+                1,
+                17,
+                0,
+                6,
+                14,
+                7,
+                15,
+                3,
+                5,
+                2
+            ],
+            NeedsStateScanning: 0b,
+            PreviouslyKilled: 1b
+        },
+        GameRules: {
+            announceAdvancements: "true",
+            blockExplosionDropDecay: "true",
+            commandBlockOutput: "true",
+            disableElytraMovementCheck: "false",
+            disableRaids: "false",
+            doDaylightCycle: "true",
+            doEntityDrops: "true",
+            doFireTick: "true",
+            doImmediateRespawn: "false",
+            doInsomnia: "true",
+            doLimitedCrafting: "false",
+            doMobLoot: "true",
+            doMobSpawning: "true",
+            doPatrolSpawning: "true",
+            doTileDrops: "true",
+            doTraderSpawning: "true",
+            doWardenSpawning: "true",
+            doWeatherCycle: "true",
+            drowningDamage: "true",
+            fallDamage: "true",
+            fireDamage: "true",
+            forgiveDeadPlayers: "true",
+            freezeDamage: "true",
+            globalSoundEvents: "true",
+            keepInventory: "false",
+            lavaSourceConversion: "false",
+            logAdminCommands: "true",
+            maxCommandChainLength: "65536",
+            maxEntityCramming: "24",
+            mobExplosionDropDecay: "true",
+            mobGriefing: "true",
+            naturalRegeneration: "true",
+            playersSleepingPercentage: "100",
+            randomTickSpeed: "3",
+            reducedDebugInfo: "false",
+            sendCommandFeedback: "true",
+            showDeathMessages: "true",
+            snowAccumulationHeight: "1",
+            spawnRadius: "10",
+            spectatorsGenerateChunks: "true",
+            tntExplosionDropDecay: "false",
+            universalAnger: "false",
+            waterSourceConversion: "true"
+        },
+        GameType: 0,
+        LastPlayed: 1673796270497L,
+        LevelName: "新的世界",
+        Player: {
+            AbsorptionAmount: 0.0f,
+            Air: 300s,
+            Attributes: [
+                {
+                    Base: 0.10000000149011612d,
+                    Name: "minecraft:generic.movement_speed"
+                }
+            ],
+            Brain: {
+                memories: {}
+            },
+            DataVersion: 3218,
+            DeathTime: 0s,
+            Dimension: "minecraft:overworld",
+            EnderItems: [],
+            FallDistance: 0.0f,
+            FallFlying: 0b,
+            Fire: -20s,
+            Health: 20.0f,
+            HurtByTimestamp: 0,
+            HurtTime: 0s,
+            Inventory: [
+                {
+                    Count: 1b,
+                    Slot: 0b,
+                    id: "minecraft:obsidian"
+                },
+                {
+                    Count: 1b,
+                    Slot: 1b,
+                    id: "minecraft:end_portal_frame"
+                },
+                {
+                    Count: 2b,
+                    Slot: 2b,
+                    id: "minecraft:redstone"
+                },
+                {
+                    Count: 1b,
+                    Slot: 3b,
+                    id: "minecraft:piston"
+                },
+                {
+                    Count: 1b,
+                    Slot: 4b,
+                    id: "minecraft:sticky_piston"
+                },
+                {
+                    Count: 1b,
+                    Slot: 5b,
+                    id: "minecraft:redstone_block"
+                },
+                {
+                    Count: 1b,
+                    Slot: 6b,
+                    id: "minecraft:white_concrete"
+                },
+                {
+                    Count: 1b,
+                    Slot: 7b,
+                    id: "minecraft:diorite_wall"
+                },
+                {
+                    Count: 1b,
+                    Slot: 8b,
+                    id: "minecraft:birch_fence"
+                },
+                {
+                    Count: 1b,
+                    Slot: 9b,
+                    id: "minecraft:lever"
+                }
+            ],
+            Invulnerable: 0b,
+            Motion: [
+                0.0d,
+                0.0d,
+                0.0d
+            ],
+            OnGround: 0b,
+            PortalCooldown: 0,
+            Pos: [
+                -241.52665309975936d,
+                92.96455951628484d,
+                -226.6873418918888d
+            ],
+            Rotation: [
+                -179.86888f,
+                35.09954f
+            ],
+            Score: 0,
+            SelectedItemSlot: 6,
+            SleepTimer: 0s,
+            UUID: [I; 1492530542, -1291040751, -1946364118, -1628856717],
+            XpLevel: 0,
+            XpP: 0.0f,
+            XpSeed: 1529348704,
+            XpTotal: 0,
+            abilities: {
+                flySpeed: 0.05f,
+                flying: 1b,
+                instabuild: 1b,
+                invulnerable: 1b,
+                mayBuild: 1b,
+                mayfly: 1b,
+                walkSpeed: 0.1f
+            },
+            foodExhaustionLevel: 0.0f,
+            foodLevel: 20,
+            foodSaturationLevel: 5.0f,
+            foodTickTimer: 0,
+            playerGameType: 1,
+            previousPlayerGameType: 0,
+            recipeBook: {
+                isBlastingFurnaceFilteringCraftable: 0b,
+                isBlastingFurnaceGuiOpen: 0b,
+                isFilteringCraftable: 0b,
+                isFurnaceFilteringCraftable: 0b,
+                isFurnaceGuiOpen: 0b,
+                isGuiOpen: 0b,
+                isSmokerFilteringCraftable: 0b,
+                isSmokerGuiOpen: 0b,
+                recipes: [
+                    "minecraft:redstone_torch",
+                    "minecraft:piston",
+                    "minecraft:chest",
+                    "minecraft:pumpkin_seeds",
+                    "minecraft:flint_and_steel",
+                    "minecraft:enchanting_table",
+                    "minecraft:target",
+                    "minecraft:ender_chest",
+                    "minecraft:note_block",
+                    "minecraft:end_crystal",
+                    "minecraft:redstone_block",
+                    "minecraft:pumpkin_pie",
+                    "minecraft:clock",
+                    "minecraft:dropper",
+                    "minecraft:redstone",
+                    "minecraft:compass"
+                ],
+                toBeDisplayed: [
+                    "minecraft:redstone_torch",
+                    "minecraft:piston",
+                    "minecraft:chest",
+                    "minecraft:pumpkin_seeds",
+                    "minecraft:flint_and_steel",
+                    "minecraft:enchanting_table",
+                    "minecraft:target",
+                    "minecraft:ender_chest",
+                    "minecraft:note_block",
+                    "minecraft:end_crystal",
+                    "minecraft:redstone_block",
+                    "minecraft:pumpkin_pie",
+                    "minecraft:clock",
+                    "minecraft:dropper",
+                    "minecraft:redstone",
+                    "minecraft:compass"
+                ]
+            },
+            seenCredits: 1b,
+            warden_spawn_tracker: {
+                cooldown_ticks: 0,
+                ticks_since_last_warning: 6931,
+                warning_level: 0
+            }
+        },
+        ScheduledEvents: [],
+        ServerBrands: [
+            "vanilla",
+            "fabric"
+        ],
+        SpawnAngle: 0.0f,
+        SpawnX: -256,
+        SpawnY: 67,
+        SpawnZ: -208,
+        Time: 92406L,
+        Version: {
+            Id: 3218,
+            Name: "1.19.3",
+            Series: "main",
+            Snapshot: 0b
+        },
+        WanderingTraderSpawnChance: 75,
+        WanderingTraderSpawnDelay: 7200,
+        WasModded: 1b,
+        WorldGenSettings: {
+            bonus_chest: 0b,
+            dimensions: {
+                "minecraft:overworld": {
+                    generator: {
+                        biome_source: {
+                            preset: "minecraft:overworld",
+                            type: "minecraft:multi_noise"
+                        },
+                        settings: "minecraft:overworld",
+                        type: "minecraft:noise"
+                    },
+                    type: "minecraft:overworld"
+                },
+                "minecraft:the_end": {
+                    generator: {
+                        biome_source: {
+                            type: "minecraft:the_end"
+                        },
+                        settings: "minecraft:end",
+                        type: "minecraft:noise"
+                    },
+                    type: "minecraft:the_end"
+                },
+                "minecraft:the_nether": {
+                    generator: {
+                        biome_source: {
+                            preset: "minecraft:nether",
+                            type: "minecraft:multi_noise"
+                        },
+                        settings: "minecraft:nether",
+                        type: "minecraft:noise"
+                    },
+                    type: "minecraft:the_nether"
+                }
+            },
+            generate_features: 1b,
+            seed: -2966869000942666995L
+        },
+        allowCommands: 1b,
+        clearWeatherTime: 0,
+        hardcore: 0b,
+        initialized: 1b,
+        rainTime: 43299,
+        raining: 0b,
+        thunderTime: 41645,
+        thundering: 0b,
+        version: 19133
+    }
+}

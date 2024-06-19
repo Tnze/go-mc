@@ -474,6 +474,8 @@ func parseLiteral(literal []byte) (byte, any, error) {
 		strlen := len(literal)
 		integer := true
 		number := true
+		hasExp := false
+		afterExp := false
 		unqstr := true
 		var numberType byte
 
@@ -484,14 +486,18 @@ func parseLiteral(literal []byte) (byte, any, error) {
 				if i == strlen-1 && i != 0 && isIntegerType(c) {
 					numberType = c
 					strlen--
-				} else if i > 0 || i == 0 && c != '-' {
+				} else if i > 0 || i == 0 && c != '-' && c != '+' {
 					integer = false
 					if i == 0 || c != '.' {
 						number = false
 					}
 				}
 			} else if number {
-				if i == strlen-1 && isFloatType(c) {
+				if hasExp && !afterExp && c == '-' || c == '+' {
+					afterExp = true
+				} else if c == 'E' || c == 'e' {
+					hasExp = true
+				} else if i == strlen-1 && isFloatType(c) {
 					numberType = c
 				} else {
 					number = false

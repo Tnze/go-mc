@@ -114,7 +114,7 @@ func stateBeginValue(s *scanner, c byte) int {
 	case '"', '\'': // beginning of TAG_String
 		return stateBeginString(s, c)
 	default:
-		if isNumber(c) {
+		if isNumber(c) || c == '-' || c == '+' {
 			stateNum0(s, c)
 			return scanBeginLiteral
 		}
@@ -240,7 +240,7 @@ func stateArrayT(s *scanner, c byte) int {
 }
 
 func stateNum0(s *scanner, c byte) int {
-	if isNumber(c) {
+	if isNumber(c) || c == '-' || c == '+' {
 		s.step = stateNum1
 		return scanContinue
 	}
@@ -266,6 +266,11 @@ func stateNumDot(s *scanner, c byte) int {
 		s.step = stateNumDot0
 		return scanContinue
 	}
+	switch c {
+	case 'e', 'E':
+		s.step = stateNumExp
+		return scanContinue
+	}
 	if isAllowedInUnquotedString(c) {
 		s.step = stateInUnquotedString
 		return scanContinue
@@ -278,6 +283,27 @@ func stateNumDot(s *scanner, c byte) int {
 func stateNumDot0(s *scanner, c byte) int {
 	if isNumber(c) {
 		s.step = stateNumDot0
+		return scanContinue
+	}
+	switch c {
+	case 'e', 'E':
+		s.step = stateNumExp
+		return scanContinue
+	}
+	return stateEndNumDotValue(s, c)
+}
+
+func stateNumExp(s *scanner, c byte) int {
+	if isNumber(c) || c == '-' || c == '+' {
+		s.step = stateNumExp0
+		return scanContinue
+	}
+	return stateEndNumDotValue(s, c)
+}
+
+func stateNumExp0(s *scanner, c byte) int {
+	if isNumber(c) {
+		s.step = stateNumExp0
 		return scanContinue
 	}
 	return stateEndNumDotValue(s, c)
