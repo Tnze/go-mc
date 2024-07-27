@@ -3,11 +3,11 @@ package bot
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/data/packetid"
-	"github.com/Tnze/go-mc/nbt"
 	"github.com/Tnze/go-mc/net"
 	pk "github.com/Tnze/go-mc/net/packet"
 )
@@ -141,20 +141,10 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 
 		case packetid.ClientboundConfigRegistryData:
 			const ErrStage = "registry"
-			// err := p.Scan(pk.NBT(&c.ConfigData.Registries))
-			// if err != nil {
-			// 	return ConfigErr{"registry data", err}
-			// }
 			var registryID pk.Identifier
-			var length pk.VarInt
 
 			r := bytes.NewReader(p.Data)
 			_, err := registryID.ReadFrom(r)
-			if err != nil {
-				return ConfigErr{ErrStage, err}
-			}
-
-			_, err = length.ReadFrom(r)
 			if err != nil {
 				return ConfigErr{ErrStage, err}
 			}
@@ -163,31 +153,11 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			if registry == nil {
 				return ConfigErr{ErrStage, errors.New("unknown registry: " + string(registryID))}
 			}
+			fmt.Println(registry)
 
-			for i := 0; i < int(length); i++ {
-				var entryId pk.Identifier
-				var hasData pk.Boolean
-				var data nbt.RawMessage
-				_, err = entryId.ReadFrom(r)
-				if err != nil {
-					return ConfigErr{ErrStage, err}
-				}
-
-				_, err = hasData.ReadFrom(r)
-				if err != nil {
-					return ConfigErr{ErrStage, err}
-				}
-
-				if hasData {
-					_, err = pk.NBT(&data).ReadFrom(r)
-					if err != nil {
-						return ConfigErr{ErrStage, err}
-					}
-					err = registry.InsertWithNBT(string(entryId), data)
-					if err != nil {
-						return ConfigErr{ErrStage, err}
-					}
-				}
+			_, err = registry.(pk.FieldDecoder).ReadFrom(r)
+			if err != nil {
+				return ConfigErr{ErrStage, fmt.Errorf("failed to read registry %s: %w", registryID, err)}
 			}
 
 		case packetid.ClientboundConfigResourcePackPop:

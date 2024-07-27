@@ -88,7 +88,7 @@ func (m *Manager) handlePlayerChat(packet pk.Packet) error {
 	if !ok {
 		return InvalidChatPacket{ErrUnknownPlayer}
 	}
-	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
+	ct := m.c.Registries.ChatType.GetByID(chatType.ID)
 	if ct == nil {
 		return InvalidChatPacket{ErrUnknwonChatType}
 	}
@@ -141,7 +141,7 @@ func (m *Manager) handleDisguisedChat(packet pk.Packet) error {
 		return err
 	}
 
-	ct := m.c.Registries.ChatType.FindByID(chatType.ID)
+	ct := m.c.Registries.ChatType.GetByID(chatType.ID)
 	if ct == nil {
 		return InvalidChatPacket{ErrUnknwonChatType}
 	}

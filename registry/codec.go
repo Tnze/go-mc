@@ -21,6 +21,22 @@ type NetworkCodec struct {
 	JukeboxSong     Registry[nbt.RawMessage] `registry:"minecraft:jukebox_song"`
 }
 
+func NewNetworkCodec() NetworkCodec {
+	return NetworkCodec{
+		ChatType:        NewRegistry[ChatType](),
+		DamageType:      NewRegistry[DamageType](),
+		DimensionType:   NewRegistry[Dimension](),
+		TrimMaterial:    NewRegistry[nbt.RawMessage](),
+		TrimPattern:     NewRegistry[nbt.RawMessage](),
+		WorldGenBiome:   NewRegistry[nbt.RawMessage](),
+		Wolfvariant:     NewRegistry[nbt.RawMessage](),
+		PaintingVariant: NewRegistry[nbt.RawMessage](),
+		BannerPattern:   NewRegistry[nbt.RawMessage](),
+		Enchantment:     NewRegistry[nbt.RawMessage](),
+		JukeboxSong:     NewRegistry[nbt.RawMessage](),
+	}
+}
+
 type ChatType struct {
 	Chat      chat.Decoration `nbt:"chat"`
 	Narration chat.Decoration `nbt:"narration"`
@@ -56,7 +72,7 @@ type Dimension struct {
 	MonsterSpawnBlockLightLimit int32          `nbt:"monster_spawn_block_light_limit"`
 }
 
-func (c *NetworkCodec) Registry(id string) RegistryHandler {
+func (c *NetworkCodec) Registry(id string) any {
 	codecVal := reflect.ValueOf(c).Elem()
 	codecTyp := codecVal.Type()
 	numField := codecVal.NumField()
@@ -66,12 +82,8 @@ func (c *NetworkCodec) Registry(id string) RegistryHandler {
 			continue
 		}
 		if registryID == id {
-			return codecVal.Field(i).Addr().Interface().(RegistryHandler)
+			return codecVal.Field(i).Addr().Interface()
 		}
 	}
 	return nil
-}
-
-type RegistryHandler interface {
-	InsertWithNBT(name string, data nbt.RawMessage) error
 }

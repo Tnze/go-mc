@@ -53,6 +53,7 @@ func (c *Client) Close() error {
 func NewClient() *Client {
 	return &Client{
 		Auth:                Auth{Name: "Steve"},
+		Registries:          registry.NewNetworkCodec(),
 		Events:              Events{handlers: make([][]PacketHandler, packetid.ClientboundPacketIDGuard)},
 		LoginPlugin:         make(map[string]CustomPayloadHandler),
 		ConfigHandler:       NewDefaultConfigHandler(),

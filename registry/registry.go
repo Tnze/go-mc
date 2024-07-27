@@ -1,55 +1,45 @@
 package registry
 
-import "github.com/Tnze/go-mc/nbt"
-
 type Registry[E any] struct {
-	Type  string     `nbt:"type"`
-	Value []Entry[E] `nbt:"value"`
+	keys    map[string]int32
+	values  []E
+	indices map[*E]int32
 }
 
-type Entry[E any] struct {
-	Name    string `nbt:"name"`
-	ID      int32  `nbt:"id"`
-	Element E      `nbt:"element"`
-}
-
-func (r *Registry[E]) Find(name string) (int32, *E) {
-	for i := range r.Value {
-		if r.Value[i].Name == name {
-			return int32(i), &r.Value[i].Element
-		}
+func NewRegistry[E any]() Registry[E] {
+	return Registry[E]{
+		keys:    make(map[string]int32),
+		values:  make([]E, 0, 256),
+		indices: make(map[*E]int32),
 	}
-	return -1, nil
 }
 
-func (r *Registry[E]) FindByID(id int32) *E {
-	if id >= 0 && id < int32(len(r.Value)) && r.Value[id].ID == id {
-		return &r.Value[id].Element
+func (r *Registry[E]) Get(key string) (int32, *E) {
+	id, ok := r.keys[key]
+	if !ok {
+		return -1, nil
 	}
-	for i := range r.Value {
-		if r.Value[i].ID == id {
-			return &r.Value[i].Element
-		}
+	return id, &r.values[id]
+}
+
+func (r *Registry[E]) GetByID(id int32) *E {
+	if id >= 0 && id < int32(len(r.values)) {
+		return &r.values[id]
 	}
 	return nil
 }
 
-func (r *Registry[E]) Insert(name string, data E) {
-	entry := Entry[E]{
-		Name:    name,
-		ID:      int32(len(r.Value)),
-		Element: data,
-	}
-	r.Value = append(r.Value, entry)
+func (r *Registry[E]) Put(name string, data E) (id int32, val *E) {
+	id = int32(len(r.values))
+	r.keys[name] = id
+	r.values = append(r.values, data)
+	val = &r.values[id]
+	r.indices[val] = id
+	return
 }
 
-func (r *Registry[E]) InsertWithNBT(name string, data nbt.RawMessage) error {
-	var elem E
-	if data.Type != 0 {
-		if err := data.UnmarshalDisallowUnknownField(&elem); err != nil {
-			return err
-		}
-	}
-	r.Insert(name, elem)
-	return nil
+func (r *Registry[E]) Clear() {
+	r.keys = make(map[string]int32)
+	r.values = r.values[:0]
+	r.indices = make(map[*E]int32)
 }
