@@ -1,5 +1,7 @@
 package registry
 
+import "slices"
+
 type Registry[E any] struct {
 	keys    map[string]int32
 	values  []E
@@ -45,6 +47,16 @@ func (r *Registry[E]) Put(name string, data E) (id int32, val *E) {
 	val = &r.values[id]
 	r.indices[val] = id
 	return
+}
+
+// Tags
+
+func (r *Registry[E]) Tag(tag string) []*E {
+	return slices.Clone(r.tags[tag])
+}
+
+func (r *Registry[E]) ClearTags() {
+	r.tags = make(map[string][]*E)
 }
 
 // func (r *Registry[E]) BindTags(tag string, ids []int32) error {
