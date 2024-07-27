@@ -153,9 +153,8 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			if registry == nil {
 				return ConfigErr{ErrStage, errors.New("unknown registry: " + string(registryID))}
 			}
-			fmt.Println(registry)
 
-			_, err = registry.(pk.FieldDecoder).ReadFrom(r)
+			_, err = registry.ReadFrom(r)
 			if err != nil {
 				return ConfigErr{ErrStage, fmt.Errorf("failed to read registry %s: %w", registryID, err)}
 			}
@@ -207,7 +206,7 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			var port pk.VarInt
 			err := p.Scan(&host, &port)
 			if err != nil {
-				return ConfigErr{"store cookie", err}
+				return ConfigErr{"transfer", err}
 			}
 			// TODO: trnasfer to the specific server
 			// How does it work? Just connect the new server, and re-start at handshake?
@@ -221,7 +220,39 @@ func (c *Client) joinConfiguration(conn *net.Conn) error {
 			c.ConfigHandler.EnableFeature(features)
 
 		case packetid.ClientboundConfigUpdateTags:
-			// TODO: Handle Tags
+			const ErrStage = "update tags"
+			r := bytes.NewReader(p.Data)
+
+			var length pk.VarInt
+			_, err := length.ReadFrom(r)
+			if err != nil {
+				return ConfigErr{ErrStage, err}
+			}
+
+			var registryID pk.Identifier
+			for i := 0; i < int(length); i++ {
+				_, err = registryID.ReadFrom(r)
+				if err != nil {
+					return ConfigErr{ErrStage, err}
+				}
+
+				registry := c.Registries.Registry(string(registryID))
+				if registry == nil {
+					// TODO: Sice our registry system is incompelted, ignore all tags bind to non-exist registry
+					_, err = idleTagsDecoder{}.ReadFrom(r)
+					if err != nil {
+						return ConfigErr{ErrStage, err}
+					}
+					continue
+					// return ConfigErr{ErrStage, errors.New("unknown registry: " + string(registryID))}
+				}
+
+				_, err = registry.ReadTagsFrom(r)
+				if err != nil {
+					return ConfigErr{ErrStage, err}
+				}
+			}
+
 		case packetid.ClientboundConfigSelectKnownPacks:
 			const ErrStage = "select known packs"
 			packs := []DataPack{}
@@ -328,4 +359,38 @@ func (d *DefaultConfigHandler) PopAllResourcePack() {
 
 func (d *DefaultConfigHandler) SelectDataPacks(packs []DataPack) []DataPack {
 	return []DataPack{}
+}
+
+type idleTagsDecoder struct{}
+
+func (idleTagsDecoder) ReadFrom(r io.Reader) (int64, error) {
+	var count pk.VarInt
+	var tag pk.Identifier
+	var length pk.VarInt
+	n, err := count.ReadFrom(r)
+	if err != nil {
+		return n, err
+	}
+	for i := 0; i < int(count); i++ {
+		var n1, n2, n3 int64
+		n1, err = tag.ReadFrom(r)
+		if err != nil {
+			return n + n1, err
+		}
+		n2, err = length.ReadFrom(r)
+		if err != nil {
+			return n + n1 + n2, err
+		}
+		n += n1 + n2
+
+		var id pk.VarInt
+		for i := 0; i < int(length); i++ {
+			n3, err = id.ReadFrom(r)
+			if err != nil {
+				return n + n3, err
+			}
+			n += n3
+		}
+	}
+	return n, nil
 }

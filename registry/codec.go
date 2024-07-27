@@ -1,10 +1,12 @@
 package registry
 
 import (
+	"io"
 	"reflect"
 
 	"github.com/Tnze/go-mc/chat"
 	"github.com/Tnze/go-mc/nbt"
+	pk "github.com/Tnze/go-mc/net/packet"
 )
 
 type NetworkCodec struct {
@@ -72,7 +74,12 @@ type Dimension struct {
 	MonsterSpawnBlockLightLimit int32          `nbt:"monster_spawn_block_light_limit"`
 }
 
-func (c *NetworkCodec) Registry(id string) any {
+type RegistryCodec interface {
+	pk.FieldDecoder
+	ReadTagsFrom(r io.Reader) (int64, error)
+}
+
+func (c *NetworkCodec) Registry(id string) RegistryCodec {
 	codecVal := reflect.ValueOf(c).Elem()
 	codecTyp := codecVal.Type()
 	numField := codecVal.NumField()
@@ -82,7 +89,7 @@ func (c *NetworkCodec) Registry(id string) any {
 			continue
 		}
 		if registryID == id {
-			return codecVal.Field(i).Addr().Interface()
+			return codecVal.Field(i).Addr().Interface().(RegistryCodec)
 		}
 	}
 	return nil
