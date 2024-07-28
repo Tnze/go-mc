@@ -21,7 +21,7 @@ type Client struct {
 	// These are filled when login process
 	Name       string
 	UUID       uuid.UUID
-	Registries registry.NetworkCodec
+	Registries registry.Registries
 	Cookies    map[string][]byte
 
 	// Ingame packet handlers

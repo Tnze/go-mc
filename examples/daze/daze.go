@@ -23,8 +23,8 @@ import (
 	"github.com/Tnze/go-mc/bot/screen"
 	"github.com/Tnze/go-mc/bot/world"
 	"github.com/Tnze/go-mc/chat"
-	"github.com/Tnze/go-mc/data/item"
 	_ "github.com/Tnze/go-mc/data/lang/zh-cn"
+	"github.com/Tnze/go-mc/data/registryid"
 	"github.com/Tnze/go-mc/level"
 )
 
@@ -161,11 +161,14 @@ func onScreenSlotChange(id, index int) error {
 		container, ok := screenManager.Screens[id]
 		if ok {
 			// Currently, only inventory container is supported
-			switch container.(type) {
+			switch container := container.(type) {
 			case *screen.Inventory:
-				slot := container.(*screen.Inventory).Slots[index]
-				itemInfo := item.ByID[item.ID(slot.ID)]
-				log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d | NBT: %v", id, index, itemInfo, slot.Count, slot.NBT)
+				slot := container.Slots[index]
+				itemName := "nil"
+				if slot.ID >= 0 && int(slot.ID) < len(registryid.Item) {
+					itemName = registryid.Item[slot.ID]
+				}
+				log.Printf("Slot: Screen[%d].Slot[%d]: [%v] * %d | NBT: %v", id, index, itemName, slot.Count, slot.NBT)
 			}
 		}
 	}

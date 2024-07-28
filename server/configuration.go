@@ -13,7 +13,7 @@ type ConfigHandler interface {
 }
 
 type Configurations struct {
-	Registries registry.NetworkCodec
+	Registries registry.Registries
 }
 
 func (c *Configurations) AcceptConfig(conn *net.Conn) error {

@@ -9,7 +9,7 @@ import (
 	pk "github.com/Tnze/go-mc/net/packet"
 )
 
-type NetworkCodec struct {
+type Registries struct {
 	ChatType        Registry[ChatType]       `registry:"minecraft:chat_type"`
 	DamageType      Registry[DamageType]     `registry:"minecraft:damage_type"`
 	DimensionType   Registry[Dimension]      `registry:"minecraft:dimension_type"`
@@ -23,8 +23,8 @@ type NetworkCodec struct {
 	JukeboxSong     Registry[nbt.RawMessage] `registry:"minecraft:jukebox_song"`
 }
 
-func NewNetworkCodec() NetworkCodec {
-	return NetworkCodec{
+func NewNetworkCodec() Registries {
+	return Registries{
 		ChatType:        NewRegistry[ChatType](),
 		DamageType:      NewRegistry[DamageType](),
 		DimensionType:   NewRegistry[Dimension](),
@@ -79,7 +79,7 @@ type RegistryCodec interface {
 	ReadTagsFrom(r io.Reader) (int64, error)
 }
 
-func (c *NetworkCodec) Registry(id string) RegistryCodec {
+func (c *Registries) Registry(id string) RegistryCodec {
 	codecVal := reflect.ValueOf(c).Elem()
 	codecTyp := codecVal.Type()
 	numField := codecVal.NumField()
