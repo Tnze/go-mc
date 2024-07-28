@@ -5,7 +5,6 @@ import "io"
 var _ DataComponent = (*Trim)(nil)
 
 type Trim struct {
-	
 }
 
 // ID implements DataComponent.

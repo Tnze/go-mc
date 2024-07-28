@@ -9,8 +9,8 @@ import (
 var _ DataComponent = (*PotionContents)(nil)
 
 type PotionContents struct {
-	PotionID    pk.Option[pk.VarInt, *pk.VarInt]
-	CustomColor pk.Option[pk.Int, *pk.Int]
+	PotionID      pk.Option[pk.VarInt, *pk.VarInt]
+	CustomColor   pk.Option[pk.Int, *pk.Int]
 	PotionEffects []any
 }
 

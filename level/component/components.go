@@ -66,23 +66,38 @@ func NewComponent(id int32) DataComponent {
 	case 27:
 		return new(MapDecorations)
 	case 28:
+		return new(MapPostProcessing)
 	case 29:
+		return new(ChargedProjectiles)
 	case 30:
+		return new(BundleContents)
 	case 31:
+		return new(PotionContents)
 	case 32:
+		return new(SuspiciousStewEffects)
 	case 33:
+		return new(WritableBookContent)
 	case 34:
 	case 35:
+		return new(Trim)
 	case 36:
+		return new(DebugStickState)
 	case 37:
+		return new(EntityData)
 	case 38:
+		return new(BucketEntityData)
 	case 39:
+		return new(BlockEntityData)
 	case 40:
+		return new(Instrument)
 	case 41:
+		return new(OminousBottleAmplifier)
 	case 42:
+		return new(JukeboxPlayable)
 	case 43:
 		return new(Recipes)
 	case 44:
+		return new(LodestoneTracker)
 	case 45:
 	case 46:
 	case 47:
