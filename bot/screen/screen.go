@@ -191,7 +191,7 @@ func (m *Manager) onSetSlot(p pk.Packet) (err error) {
 
 type Slot struct {
 	ID    pk.VarInt
-	Count pk.Byte
+	Count pk.VarInt
 	NBT   nbt.RawMessage
 }
 
@@ -208,12 +208,15 @@ func (s *Slot) WriteTo(w io.Writer) (n int64, err error) {
 }
 
 func (s *Slot) ReadFrom(r io.Reader) (n int64, err error) {
-	var present pk.Boolean
+	var componentsAdd, componentsRemove pk.VarInt
 	return pk.Tuple{
-		&present, pk.Opt{
-			Has: &present,
+		&s.Count, pk.Opt{
+			Has: func() bool { return s.Count > 0 },
 			Field: pk.Tuple{
-				&s.ID, &s.Count, pk.NBT(&s.NBT),
+				&s.ID,
+				&componentsAdd,
+				&componentsRemove,
+				// TODO: Components Ignored
 			},
 		},
 	}.ReadFrom(r)
