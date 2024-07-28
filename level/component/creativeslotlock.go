@@ -1,8 +1,6 @@
 package component
 
-import (
-	"io"
-)
+import "io"
 
 var _ DataComponent = (*CreativeSlotLock)(nil)
 

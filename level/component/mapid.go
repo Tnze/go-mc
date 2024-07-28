@@ -2,13 +2,13 @@ package component
 
 import pk "github.com/Tnze/go-mc/net/packet"
 
-var _ DataComponent = (*Damage)(nil)
+var _ DataComponent = (*MapID)(nil)
 
-type Damage struct {
+type MapID struct {
 	pk.VarInt
 }
 
 // ID implements DataComponent.
-func (Damage) ID() string {
-	return "minecraft:damage"
+func (MapID) ID() string {
+	return "minecraft:map_id"
 }

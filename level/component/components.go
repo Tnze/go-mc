@@ -46,15 +46,25 @@ func NewComponent(id int32) DataComponent {
 	case 17:
 		return new(CreativeSlotLock)
 	case 18:
+		return new(EnchantmentGlintOverride)
 	case 19:
+		return new(IntangibleProjectile)
 	case 20:
+		return new(Food)
 	case 21:
+		return new(FireResistant)
 	case 22:
+		return new(Tool)
 	case 23:
+		return new(StoredEnchantments)
 	case 24:
+		return new(DyedColor)
 	case 25:
+		return new(MapColor)
 	case 26:
+		return new(MapID)
 	case 27:
+		return new(MapDecorations)
 	case 28:
 	case 29:
 	case 30:
