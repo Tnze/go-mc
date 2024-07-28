@@ -37,6 +37,31 @@ type (
 	}
 )
 
+func (s *State) Block() (Block, error) {
+	// Get an empty Block object
+	block, ok := FromID[s.Name]
+	if !ok {
+		return nil, UnknownBlockErr{s.Name}
+	}
+
+	// Set property values
+	if s.Properties.Type != nbt.TagEnd {
+		err := s.Properties.Unmarshal(&block)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return block, nil
+}
+
+type UnknownBlockErr struct {
+	Name string
+}
+
+func (u UnknownBlockErr) Error() string {
+	return "unknown block: " + u.Name
+}
+
 func init() {
 	var states []State
 	// decompress
@@ -51,15 +76,12 @@ func init() {
 	ToStateID = make(map[Block]StateID, len(states))
 	StateList = make([]Block, 0, len(states))
 	for _, state := range states {
-		block := FromID[state.Name]
-		if state.Properties.Type != nbt.TagEnd {
-			err := state.Properties.Unmarshal(&block)
-			if err != nil {
-				panic(err)
-			}
+		block, err := state.Block()
+		if err != nil {
+			panic(err)
 		}
 		if _, ok := ToStateID[block]; ok {
-			panic(fmt.Errorf("state %#v already exist", block))
+			panic(fmt.Errorf("state %#v already exists", block))
 		}
 		ToStateID[block] = StateID(len(StateList))
 		StateList = append(StateList, block)
