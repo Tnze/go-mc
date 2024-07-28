@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/Tnze/go-mc/internal/generateutils"
@@ -56,11 +57,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	generateRegistry(registries["minecraft:block_entity_type"], "BlockEntityType", "blockentitytype")
-	generateRegistry(registries["minecraft:entity_type"], "EntityType", "entitytype")
+	for key, reg := range registries {
+		registryName := strings.TrimPrefix(key, "minecraft:")
+		typeName := generateutils.ToGoTypeName(strings.ReplaceAll(registryName, "/", "_"))
+		filename := strings.NewReplacer("_", "", "/", "_").Replace(registryName)
+		generateRegistry(reg, typeName, filename)
+	}
 }
 
-func generateRegistry(r registry, typeName, packageName string) {
+func generateRegistry(r registry, typeName, filename string) {
 	entries := make([]string, len(r.Entries))
 	for name, v := range r.Entries {
 		entries[v.ProtocolID] = name
@@ -68,7 +73,7 @@ func generateRegistry(r registry, typeName, packageName string) {
 
 	var buff bytes.Buffer
 	err := temp.Execute(&buff, tempData{
-		PackageName: packageName,
+		PackageName: filename,
 		Default:     r.Default,
 		Entries:     entries,
 		TypeName:    typeName,
@@ -79,10 +84,11 @@ func generateRegistry(r registry, typeName, packageName string) {
 
 	formattedSource, err := format.Source(buff.Bytes())
 	if err != nil {
-		log.Fatal(err)
+		log.Print(filename, err)
+		formattedSource = buff.Bytes()
 	}
 
-	err = os.WriteFile(filepath.Join(packageName, packageName+".go"), formattedSource, 0o666)
+	err = os.WriteFile(filepath.Join("..", filename+".go"), formattedSource, 0o666)
 	if err != nil {
 		log.Fatal(err)
 	}

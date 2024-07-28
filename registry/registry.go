@@ -40,9 +40,9 @@ func (r *Registry[E]) GetByID(id int32) *E {
 	return nil
 }
 
-func (r *Registry[E]) Put(name string, data E) (id int32, val *E) {
+func (r *Registry[E]) Put(key string, data E) (id int32, val *E) {
 	id = int32(len(r.values))
-	r.keys[name] = id
+	r.keys[key] = id
 	r.values = append(r.values, data)
 	val = &r.values[id]
 	r.indices[val] = id
