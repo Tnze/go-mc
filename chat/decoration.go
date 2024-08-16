@@ -29,7 +29,7 @@ type Type struct {
 }
 
 func (t *Type) Decorate(content Message, d *Decoration) (msg Message) {
-	with := make([]Message, len(d.Parameters))
+	with := make([]any, len(d.Parameters))
 	for i, para := range d.Parameters {
 		switch para {
 		case "sender":

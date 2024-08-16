@@ -58,3 +58,16 @@ func (m *Message) UnmarshalJSON(raw []byte) (err error) {
 		return errors.New("unknown chat message type: '" + string(raw[0]) + "'")
 	}
 }
+
+func (t *TranslateArgs) UnmarshalJSON(raw []byte) error {
+	var v []Message
+	err := json.Unmarshal(raw, &v)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range v {
+		*t = append(*t, v)
+	}
+	return nil
+}
