@@ -51,7 +51,7 @@ const (
 
 // Message is a message sent by other
 type Message struct {
-	Text string `json:"text" nbt:"text"`
+	Text string `json:"text" nbt:"text,default"`
 
 	Bold          bool `json:"bold,omitempty" nbt:"bold,omitempty"`                   // 粗体
 	Italic        bool `json:"italic,omitempty" nbt:"italic,omitempty"`               // 斜体
