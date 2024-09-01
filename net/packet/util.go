@@ -273,3 +273,22 @@ func (t Tuple) ReadFrom(r io.Reader) (n int64, err error) {
 	}
 	return
 }
+
+func CreateByteReader(reader io.Reader) io.ByteReader {
+	if byteReader, isByteReader := reader.(io.ByteReader); isByteReader {
+		return byteReader
+	}
+	return byteReaderWrapper{reader}
+}
+
+type byteReaderWrapper struct {
+	io.Reader
+}
+
+var _ io.ByteReader = byteReaderWrapper{}
+
+func (r byteReaderWrapper) ReadByte() (byte, error) {
+	var buf [1]byte
+	_, err := io.ReadFull(r.Reader, buf[:])
+	return buf[0], err
+}
