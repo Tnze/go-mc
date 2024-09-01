@@ -273,8 +273,8 @@ func (v VarInt) WriteToBytes(buf []byte) int {
 		return 2
 	} else if num&0xFFE00000 == 0 {
 		buf[2] = byte(num >> 14)
-		endingBytes := uint16((num&0x7F|0x80)<<8 | ((num>>7)&0x7F | 0x80))
-		binary.BigEndian.PutUint16(buf, endingBytes)
+		startingBytes := uint16((num&0x7F|0x80)<<8 | ((num>>7)&0x7F | 0x80))
+		binary.BigEndian.PutUint16(buf, startingBytes)
 		return 3
 	} else if num&0xF0000000 == 0 {
 		result := (num&0x7F|0x80)<<24 | (((num>>7)&0x7F | 0x80) << 16) |
