@@ -5,7 +5,6 @@ import (
 	"errors"
 	"io"
 	"math"
-	"math/bits"
 
 	"github.com/google/uuid"
 
@@ -342,14 +341,15 @@ func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
 func (v VarLong) WriteToBytes(buf []byte) int {
 	// Like VarInt, but we don't unroll the loop because it might be too long.
 	num := uint64(v)
-	continuationBytes := (63 - bits.LeadingZeros64(num)) / 7
+	n := v.Len()
+	continuationBytes := n - 1
 	_ = buf[continuationBytes] // bounds check hint to compiler; see golang.org/issue/14808
 	for i := 0; i < continuationBytes; i++ {
 		buf[i] = byte(num&0x7F | 0x80)
 		num >>= 7
 	}
 	buf[continuationBytes] = byte(num)
-	return continuationBytes + 1
+	return n
 }
 
 func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
