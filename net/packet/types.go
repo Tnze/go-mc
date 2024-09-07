@@ -1,6 +1,7 @@
 package packet
 
 import (
+	"encoding/binary"
 	"errors"
 	"io"
 	"math"
@@ -175,8 +176,9 @@ func (u *UnsignedByte) ReadFrom(r io.Reader) (n int64, err error) {
 }
 
 func (s Short) WriteTo(w io.Writer) (int64, error) {
-	n := uint16(s)
-	nn, err := w.Write([]byte{byte(n >> 8), byte(n)})
+	var buf [2]byte
+	binary.BigEndian.PutUint16(buf[:], uint16(s))
+	nn, err := w.Write(buf[:])
 	return int64(nn), err
 }
 
@@ -188,13 +190,14 @@ func (s *Short) ReadFrom(r io.Reader) (n int64, err error) {
 		n += int64(nn)
 	}
 
-	*s = Short(int16(bs[0])<<8 | int16(bs[1]))
+	*s = Short(binary.BigEndian.Uint16(bs[:]))
 	return
 }
 
 func (us UnsignedShort) WriteTo(w io.Writer) (int64, error) {
-	n := uint16(us)
-	nn, err := w.Write([]byte{byte(n >> 8), byte(n)})
+	var buf [2]byte
+	binary.BigEndian.PutUint16(buf[:], uint16(us))
+	nn, err := w.Write(buf[:])
 	return int64(nn), err
 }
 
@@ -206,13 +209,14 @@ func (us *UnsignedShort) ReadFrom(r io.Reader) (n int64, err error) {
 		n += int64(nn)
 	}
 
-	*us = UnsignedShort(int16(bs[0])<<8 | int16(bs[1]))
+	*us = UnsignedShort(binary.BigEndian.Uint16(bs[:]))
 	return
 }
 
 func (i Int) WriteTo(w io.Writer) (int64, error) {
-	n := uint32(i)
-	nn, err := w.Write([]byte{byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n)})
+	var buf [4]byte
+	binary.BigEndian.PutUint32(buf[:], uint32(i))
+	nn, err := w.Write(buf[:])
 	return int64(nn), err
 }
 
@@ -224,16 +228,14 @@ func (i *Int) ReadFrom(r io.Reader) (n int64, err error) {
 		n += int64(nn)
 	}
 
-	*i = Int(int32(bs[0])<<24 | int32(bs[1])<<16 | int32(bs[2])<<8 | int32(bs[3]))
+	*i = Int(binary.BigEndian.Uint32(bs[:]))
 	return
 }
 
 func (l Long) WriteTo(w io.Writer) (int64, error) {
-	n := uint64(l)
-	nn, err := w.Write([]byte{
-		byte(n >> 56), byte(n >> 48), byte(n >> 40), byte(n >> 32),
-		byte(n >> 24), byte(n >> 16), byte(n >> 8), byte(n),
-	})
+	var buf [8]byte
+	binary.BigEndian.PutUint64(buf[:], uint64(l))
+	nn, err := w.Write(buf[:])
 	return int64(nn), err
 }
 
@@ -245,8 +247,7 @@ func (l *Long) ReadFrom(r io.Reader) (n int64, err error) {
 		n += int64(nn)
 	}
 
-	*l = Long(int64(bs[0])<<56 | int64(bs[1])<<48 | int64(bs[2])<<40 | int64(bs[3])<<32 |
-		int64(bs[4])<<24 | int64(bs[5])<<16 | int64(bs[6])<<8 | int64(bs[7]))
+	*l = Long(binary.BigEndian.Uint64(bs[:]))
 	return
 }
 
@@ -260,36 +261,48 @@ func (v VarInt) WriteTo(w io.Writer) (n int64, err error) {
 // WriteToBytes encodes the VarInt into buf and returns the number of bytes written.
 // If the buffer is too small, WriteToBytes will panic.
 func (v VarInt) WriteToBytes(buf []byte) int {
+	// https://steinborn.me/posts/performance/how-fast-can-you-write-a-varint/
 	num := uint32(v)
-	i := 0
-	for {
-		b := num & 0x7F
-		num >>= 7
-		if num != 0 {
-			b |= 0x80
-		}
-		buf[i] = byte(b)
-		i++
-		if num == 0 {
-			break
-		}
+	if num&0xFFFFFF80 == 0 {
+		buf[0] = byte(num)
+		return 1
+	} else if num&0xFFFFC000 == 0 {
+		result := uint16((num&0x7F|0x80)<<8 | (num >> 7))
+		binary.BigEndian.PutUint16(buf, result)
+		return 2
+	} else if num&0xFFE00000 == 0 {
+		buf[2] = byte(num >> 14)
+		startingBytes := uint16((num&0x7F|0x80)<<8 | ((num>>7)&0x7F | 0x80))
+		binary.BigEndian.PutUint16(buf, startingBytes)
+		return 3
+	} else if num&0xF0000000 == 0 {
+		result := (num&0x7F|0x80)<<24 | (((num>>7)&0x7F | 0x80) << 16) |
+			((num>>14)&0x7F|0x80)<<8 | (num >> 21)
+		binary.BigEndian.PutUint32(buf, result)
+		return 4
+	} else {
+		buf[4] = byte(num >> 28)
+		startingBytes := (num&0x7F|0x80)<<24 | ((num>>7)&0x7F|0x80)<<16 |
+			((num>>14)&0x7F|0x80)<<8 | ((num>>21)&0x7F | 0x80)
+		binary.BigEndian.PutUint32(buf, startingBytes)
+		return 5
 	}
-	return i
 }
 
 func (v *VarInt) ReadFrom(r io.Reader) (n int64, err error) {
 	var V uint32
-	var num, n2 int64
+	var num int64
+	byteReader := CreateByteReader(r)
 	for sec := byte(0x80); sec&0x80 != 0; num++ {
 		if num > MaxVarIntLen {
 			return n, errors.New("VarInt is too big")
 		}
 
-		n2, sec, err = readByte(r)
-		n += n2
+		sec, err = byteReader.ReadByte()
 		if err != nil {
 			return n, err
 		}
+		n += 1
 
 		V |= uint32(sec&0x7F) << uint32(7*num)
 	}
@@ -326,35 +339,32 @@ func (v VarLong) WriteTo(w io.Writer) (n int64, err error) {
 // WriteToBytes encodes the VarLong into buf and returns the number of bytes written.
 // If the buffer is too small, WriteToBytes will panic.
 func (v VarLong) WriteToBytes(buf []byte) int {
+	// Like VarInt, but we don't unroll the loop because it might be too long.
 	num := uint64(v)
-	i := 0
-	for {
-		b := num & 0x7F
+	n := v.Len()
+	continuationBytes := n - 1
+	_ = buf[continuationBytes] // bounds check hint to compiler; see golang.org/issue/14808
+	for i := 0; i < continuationBytes; i++ {
+		buf[i] = byte(num&0x7F | 0x80)
 		num >>= 7
-		if num != 0 {
-			b |= 0x80
-		}
-		buf[i] = byte(b)
-		i++
-		if num == 0 {
-			break
-		}
 	}
-	return i
+	buf[continuationBytes] = byte(num)
+	return n
 }
 
 func (v *VarLong) ReadFrom(r io.Reader) (n int64, err error) {
 	var V uint64
-	var num, n2 int64
+	var num int64
+	byteReader := CreateByteReader(r)
 	for sec := byte(0x80); sec&0x80 != 0; num++ {
 		if num >= MaxVarLongLen {
 			return n, errors.New("VarLong is too big")
 		}
-		n2, sec, err = readByte(r)
-		n += n2
+		sec, err = byteReader.ReadByte()
 		if err != nil {
 			return
 		}
+		n += 1
 
 		V |= uint64(sec&0x7F) << uint64(7*num)
 	}
