@@ -19,6 +19,7 @@ type field struct {
 	index     []int
 	typ       reflect.Type
 	omitEmpty bool
+	asDefault bool
 	asList    bool
 }
 
@@ -105,7 +106,7 @@ func typeFields(t reflect.Type) (tInfo structFields) {
 				}
 
 				// parse options
-				var omitEmpty, asList bool
+				var omitEmpty, asList, asDefault bool
 				for opts != "" {
 					var name string
 					name, opts, _ = strings.Cut(opts, ",")
@@ -114,6 +115,8 @@ func typeFields(t reflect.Type) (tInfo structFields) {
 						omitEmpty = true
 					case "list":
 						asList = true
+					case "default":
+						asDefault = true
 					}
 				}
 				// Deprecated: use `nbt:",list"` instead.
@@ -133,6 +136,7 @@ func typeFields(t reflect.Type) (tInfo structFields) {
 						index:     index,
 						typ:       ft,
 						omitEmpty: omitEmpty,
+						asDefault: asDefault,
 						asList:    asList,
 					}
 

@@ -387,7 +387,7 @@ func (d *Decoder) unmarshal(val reflect.Value, tagType byte) error {
 					// Fall back to linear search.
 					for i := range fields.list {
 						ff := &fields.list[i]
-						if strings.EqualFold(ff.name, tn) {
+						if strings.EqualFold(ff.name, tn) || ff.asDefault && tn == "" {
 							f = ff
 							break
 						}
