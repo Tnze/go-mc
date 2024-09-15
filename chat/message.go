@@ -70,10 +70,12 @@ type Message struct {
 	ClickEvent *ClickEvent `json:"clickEvent,omitempty" nbt:"clickEvent,omitempty"`
 	HoverEvent *HoverEvent `json:"hoverEvent,omitempty" nbt:"hoverEvent,omitempty"`
 
-	Translate string    `json:"translate,omitempty" nbt:"translate,omitempty"`
-	With      []Message `json:"with,omitempty" nbt:"with,omitempty"`
-	Extra     []Message `json:"extra,omitempty" nbt:"extra,omitempty"`
+	Translate string        `json:"translate,omitempty" nbt:"translate,omitempty"`
+	With      TranslateArgs `json:"with,omitempty" nbt:"with,omitempty"`
+	Extra     []Message     `json:"extra,omitempty" nbt:"extra,omitempty"`
 }
+
+type TranslateArgs []any
 
 // Same as Message, but "Text" is omitempty
 type translateMsg struct {
@@ -92,9 +94,9 @@ type translateMsg struct {
 	ClickEvent *ClickEvent `json:"clickEvent,omitempty" nbt:"clickEvent,omitempty"`
 	HoverEvent *HoverEvent `json:"hoverEvent,omitempty" nbt:"hoverEvent,omitempty"`
 
-	Translate string    `json:"translate,omitempty" nbt:"translate,omitempty"`
-	With      []Message `json:"with,omitempty" nbt:"with,omitempty"`
-	Extra     []Message `json:"extra,omitempty" nbt:"extra,omitempty"`
+	Translate string        `json:"translate,omitempty" nbt:"translate,omitempty"`
+	With      TranslateArgs `json:"with,omitempty" nbt:"with,omitempty"`
+	Extra     []Message     `json:"extra,omitempty" nbt:"extra,omitempty"`
 }
 
 type rawMsgStruct Message
@@ -127,7 +129,9 @@ func Text(str string) Message {
 
 func TranslateMsg(key string, with ...Message) (m Message) {
 	m.Translate = key
-	m.With = with
+	for _, v := range with {
+		m.With = append(m.With, v)
+	}
 	return
 }
 
@@ -195,7 +199,12 @@ func (m Message) ClearString() string {
 	if m.Translate != "" {
 		args := make([]any, len(m.With))
 		for i, v := range m.With {
-			args[i] = v.ClearString()
+			switch v := v.(type) {
+			case Message:
+				args[i] = v.ClearString()
+			default:
+				args[i] = v
+			}
 		}
 
 		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
@@ -238,12 +247,7 @@ func (m Message) String() string {
 
 	// handle translate
 	if m.Translate != "" {
-		args := make([]any, len(m.With))
-		for i, v := range m.With {
-			args[i] = v
-		}
-
-		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], args...)
+		_, _ = fmt.Fprintf(&msg, translateMap[m.Translate], m.With...)
 	}
 
 	if m.Extra != nil {

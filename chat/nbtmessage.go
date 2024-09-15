@@ -52,3 +52,50 @@ func (m *Message) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
 		return errors.New("unknown chat message type: '" + strconv.FormatUint(uint64(tagType), 16) + "'")
 	}
 }
+
+func (t *TranslateArgs) UnmarshalNBT(tagType byte, r nbt.DecoderReader) error {
+	tagReader := bytes.NewReader([]byte{tagType})
+	decoder := nbt.NewDecoder(io.MultiReader(tagReader, r))
+	decoder.NetworkFormat(true) // TagType directlly followed the body
+
+	switch tagType {
+	case nbt.TagList:
+		var value []Message
+		if _, err := decoder.Decode(&value); err != nil {
+			return err
+		}
+		for _, v := range value {
+			*t = append(*t, v)
+		}
+		return nil
+	case nbt.TagByteArray:
+		var value []int8
+		if _, err := decoder.Decode(&value); err != nil {
+			return err
+		}
+		for _, v := range value {
+			*t = append(*t, strconv.FormatInt(int64(v), 10))
+		}
+		return nil
+	case nbt.TagIntArray:
+		var value []int32
+		if _, err := decoder.Decode(&value); err != nil {
+			return err
+		}
+		for _, v := range value {
+			*t = append(*t, strconv.FormatInt(int64(v), 10))
+		}
+		return nil
+	case nbt.TagLongArray:
+		var value []int64
+		if _, err := decoder.Decode(&value); err != nil {
+			return err
+		}
+		for _, v := range value {
+			*t = append(*t, strconv.FormatInt(int64(v), 10))
+		}
+		return nil
+	default:
+		return errors.New("unknown translation args type: '" + strconv.FormatUint(uint64(tagType), 16) + "'")
+	}
+}
